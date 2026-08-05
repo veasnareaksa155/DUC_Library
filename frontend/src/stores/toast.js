@@ -1,0 +1,55 @@
+import { defineStore } from 'pinia';
+import { ref } from 'vue';
+
+export const useToastStore = defineStore('toast', () => {
+  const isVisible = ref(false);
+  const message = ref('');
+  const title = ref('');
+  const type = ref('success'); // 'success' | 'wishlist-add' | 'wishlist-remove' | 'info' | 'error'
+  let timer = null;
+
+  function show(msg, options = {}) {
+    if (timer) clearTimeout(timer);
+    message.value = msg;
+    title.value = options.title || 'Success!';
+    type.value = options.type || 'success';
+    isVisible.value = true;
+
+    timer = setTimeout(() => {
+      isVisible.value = false;
+    }, options.duration || 3200);
+  }
+
+  function showWishlist(bookTitle, isAdded) {
+    show(
+      isAdded 
+        ? `"${bookTitle}" has been saved to your wishlist!` 
+        : `"${bookTitle}" was removed from your wishlist.`,
+      {
+        title: isAdded ? 'Saved to Wishlist ❤️' : 'Removed from Wishlist 💔',
+        type: isAdded ? 'wishlist-add' : 'wishlist-remove',
+        duration: 3000
+      }
+    );
+  }
+
+  function showSuccess(msg, customTitle = 'Action Complete! ✅') {
+    show(msg, { title: customTitle, type: 'success', duration: 3000 });
+  }
+
+  function hide() {
+    isVisible.value = false;
+    if (timer) clearTimeout(timer);
+  }
+
+  return {
+    isVisible,
+    message,
+    title,
+    type,
+    show,
+    showWishlist,
+    showSuccess,
+    hide
+  };
+});
