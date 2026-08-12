@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+backend/node_modules/
+frontend/node_modules/
+
+# Credentials & Secrets
+*.json.json
+google-credentials*.json
+*.pem
+*.key
+.env
+.env.local
+
+# Database & SQLite
+*.db
+*.sqlite
+backend/library.db
+
+# Build & Dist outputs
+dist/
+build/
+.cache/
+
+# OS / Editor junk
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
