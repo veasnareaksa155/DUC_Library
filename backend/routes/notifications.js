@@ -89,4 +89,42 @@ router.put('/read-all', authenticateToken, async (req, res) => {
   }
 });
 
+// DELETE a specific notification
+router.delete('/:id', authenticateToken, async (req, res) => {
+  try {
+    const notificationId = req.params.id;
+    const userId = req.user.id;
+
+    // Verify it belongs to user
+    const [notification] = await ORM.find('Notifications', n => String(n.id) === String(notificationId) && String(n.user_id) === String(userId));
+    
+    if (!notification) {
+      return res.status(404).json({ message: 'Notification not found' });
+    }
+
+    await ORM.remove('Notifications', notificationId);
+    res.json({ message: 'Notification removed' });
+  } catch (error) {
+    console.error('Failed to remove notification:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// DELETE all notifications for the current user
+router.delete('/', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const notifications = await ORM.find('Notifications', n => String(n.user_id) === String(userId));
+
+    for (const notif of notifications) {
+      await ORM.remove('Notifications', notif.id);
+    }
+    
+    res.json({ message: 'All notifications removed', count: notifications.length });
+  } catch (error) {
+    console.error('Failed to clear notifications:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
 module.exports = router;

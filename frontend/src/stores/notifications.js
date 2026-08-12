@@ -92,12 +92,34 @@ export const useNotificationsStore = defineStore('notifications', () => {
     }
   }
 
-  function removeNotification(id) {
-    notifications.value = notifications.value.filter(n => n.id !== id);
+  async function removeNotification(id) {
+    if (!authStore.token) return;
+    try {
+      await fetch(`${import.meta.env.VITE_API_URL || ''}/api/notifications/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${authStore.token}`
+        }
+      });
+      notifications.value = notifications.value.filter(n => n.id !== id);
+    } catch (err) {
+      console.error(err);
+    }
   }
 
-  function clearAll() {
-    notifications.value = [];
+  async function clearAll() {
+    if (!authStore.token) return;
+    try {
+      await fetch(`${import.meta.env.VITE_API_URL || ''}/api/notifications`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${authStore.token}`
+        }
+      });
+      notifications.value = [];
+    } catch (err) {
+      console.error(err);
+    }
   }
 
   function addNotification(notif) {
