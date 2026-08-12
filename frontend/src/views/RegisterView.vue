@@ -1,52 +1,64 @@
 <template>
-  <div class="auth-container">
-    <div class="auth-card glass-panel">
-      <header class="auth-header">
-        <div class="logo-circle">
-          <UserPlus :size="28" />
-        </div>
-        <h2>Create Account</h2>
-        <p>Join DUC Library to borrow and read online</p>
-      </header>
+  <div class="min-h-[calc(100vh-80px)] flex items-center justify-center px-6 py-12 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-500/10 via-[var(--bg-primary)] to-[var(--bg-primary)] relative overflow-hidden">
+    <!-- Decorative background blobs -->
+    <div class="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-500/20 blur-[120px] pointer-events-none"></div>
+    <div class="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-pink-500/15 blur-[120px] pointer-events-none"></div>
 
-      <form @submit.prevent="handleRegister" class="auth-form">
-        <div class="form-group">
-          <label>Full Name</label>
-          <div class="input-icon-wrapper">
-            <User :size="18" class="input-icon" />
-            <input v-model="name" type="text" placeholder="John Doe" required />
+    <div class="w-full max-w-[460px] relative z-10 animate-[fadeInUp_0.5s_cubic-bezier(0.16,1,0.3,1)_both]">
+      <div class="px-10 py-12 max-sm:px-6 max-sm:py-10 rounded-[2rem] bg-white/70 dark:bg-slate-900/60 backdrop-blur-2xl border border-white/50 dark:border-slate-700/50 shadow-[0_8px_40px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_40px_rgba(0,0,0,0.4)] transition-all duration-300">
+        <header class="text-center mb-8">
+          <div class="w-16 h-16 rounded-[1.25rem] bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 text-white flex items-center justify-center mx-auto mb-5 shadow-[0_8px_20px_rgba(99,102,241,0.4)] transform hover:scale-105 transition-transform duration-300">
+            <UserPlus :size="32" stroke-width="2.5" />
           </div>
-        </div>
+          <h2 class="text-[1.85rem] font-extrabold text-[var(--text-primary)] tracking-tight mb-2">Create Account</h2>
+          <p class="text-[0.95rem] font-medium text-[var(--text-muted)]">Join DUC Library to borrow and read online</p>
+        </header>
 
-        <div class="form-group">
-          <label>Email Address</label>
-          <div class="input-icon-wrapper">
-            <Mail :size="18" class="input-icon" />
-            <input v-model="email" type="email" placeholder="john@example.com" required />
+        <form @submit.prevent="handleRegister" class="flex flex-col gap-5">
+          <div>
+            <label class="block text-[0.8rem] font-bold uppercase tracking-wider mb-2 text-[var(--text-secondary)]">Full Name</label>
+            <div class="relative group">
+              <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[var(--text-muted)] group-focus-within:text-indigo-500 transition-colors duration-300">
+                <User :size="18" stroke-width="2.5" />
+              </div>
+              <input v-model="name" type="text" placeholder="John Doe" required class="w-full bg-slate-50/50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 text-[var(--text-primary)] text-[0.95rem] rounded-xl pl-11 pr-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition-all shadow-sm placeholder:text-[var(--text-muted)]/70 font-medium" />
+            </div>
           </div>
-        </div>
 
-        <div class="form-group">
-          <label>Password</label>
-          <div class="input-icon-wrapper">
-            <Lock :size="18" class="input-icon" />
-            <input v-model="password" type="password" placeholder="••••••••" required minlength="6" />
+          <div>
+            <label class="block text-[0.8rem] font-bold uppercase tracking-wider mb-2 text-[var(--text-secondary)]">Email Address</label>
+            <div class="relative group">
+              <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[var(--text-muted)] group-focus-within:text-indigo-500 transition-colors duration-300">
+                <Mail :size="18" stroke-width="2.5" />
+              </div>
+              <input v-model="email" type="email" placeholder="john@example.com" required class="w-full bg-slate-50/50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 text-[var(--text-primary)] text-[0.95rem] rounded-xl pl-11 pr-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition-all shadow-sm placeholder:text-[var(--text-muted)]/70 font-medium" />
+            </div>
           </div>
-        </div>
 
-        <div v-if="authStore.error" class="error-box">
-          <AlertCircle :size="16" /> {{ authStore.error }}
-        </div>
+          <div>
+            <label class="block text-[0.8rem] font-bold uppercase tracking-wider mb-2 text-[var(--text-secondary)]">Password</label>
+            <div class="relative group">
+              <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[var(--text-muted)] group-focus-within:text-indigo-500 transition-colors duration-300">
+                <Lock :size="18" stroke-width="2.5" />
+              </div>
+              <input v-model="password" type="password" placeholder="••••••••" required minlength="6" class="w-full bg-slate-50/50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 text-[var(--text-primary)] text-[0.95rem] rounded-xl pl-11 pr-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition-all shadow-sm placeholder:text-[var(--text-muted)]/70 font-medium" />
+            </div>
+          </div>
 
-        <button type="submit" class="btn btn-primary w-full" :disabled="authStore.loading">
-          <UserCheck :size="18" />
-          {{ authStore.loading ? 'Creating Account...' : 'Register' }}
-        </button>
-      </form>
+          <div v-if="authStore.error" class="flex items-center gap-2.5 bg-red-500/10 border border-red-500/20 text-red-500 font-bold p-3.5 rounded-xl text-[0.88rem] mt-1">
+            <AlertCircle :size="18" stroke-width="2.5" /> {{ authStore.error }}
+          </div>
 
-      <footer class="auth-footer">
-        <p>Already have an account? <router-link to="/login" class="link-highlight">Sign in</router-link></p>
-      </footer>
+          <button type="submit" class="w-full mt-2 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-bold text-[1.05rem] py-3.5 rounded-xl shadow-[0_8px_20px_rgba(99,102,241,0.3)] hover:shadow-[0_12px_25px_rgba(99,102,241,0.45)] hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2" :disabled="authStore.loading">
+            <UserCheck :size="20" stroke-width="2.5" class="transition-transform duration-300" :class="{ 'translate-x-1': !authStore.loading }" />
+            {{ authStore.loading ? 'Creating Account...' : 'Register' }}
+          </button>
+        </form>
+
+        <footer class="text-center mt-8 text-[0.92rem] font-medium text-[var(--text-secondary)] pt-6 border-t border-slate-200 dark:border-slate-700/50">
+          <p class="m-0">Already have an account? <router-link to="/login" class="text-indigo-500 dark:text-indigo-400 font-extrabold hover:text-indigo-600 dark:hover:text-indigo-300 hover:underline transition-colors">Sign in</router-link></p>
+        </footer>
+      </div>
     </div>
   </div>
 </template>
@@ -74,106 +86,3 @@ async function handleRegister() {
 }
 </script>
 
-<style scoped>
-.auth-container {
-  min-height: calc(100vh - 80px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem 1.5rem;
-}
-
-.auth-card {
-  width: 100%;
-  max-width: 440px;
-  padding: 2.5rem 2rem;
-}
-
-.auth-header {
-  text-align: center;
-  margin-bottom: 1.5rem;
-}
-
-.logo-circle {
-  width: 56px;
-  height: 56px;
-  border-radius: 16px;
-  background: var(--accent-gradient);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 1rem;
-  box-shadow: var(--accent-glow);
-}
-
-.auth-header h2 {
-  font-size: 1.6rem;
-  font-weight: 700;
-}
-
-.auth-header p {
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-}
-
-.form-group {
-  margin-bottom: 1.25rem;
-}
-
-.form-group label {
-  display: block;
-  font-size: 0.85rem;
-  font-weight: 600;
-  margin-bottom: 0.4rem;
-  color: var(--text-secondary);
-}
-
-.input-icon-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.input-icon {
-  position: absolute;
-  left: 1rem;
-  color: var(--text-muted);
-}
-
-.input-icon-wrapper input {
-  width: 100%;
-  padding-left: 2.75rem;
-}
-
-.error-box {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: var(--danger-bg);
-  color: #fca5a5;
-  padding: 0.75rem;
-  border-radius: var(--radius-md);
-  font-size: 0.85rem;
-  margin-bottom: 1.25rem;
-}
-
-.w-full {
-  width: 100%;
-}
-
-.auth-footer {
-  text-align: center;
-  margin-top: 1.5rem;
-  font-size: 0.88rem;
-  color: var(--text-secondary);
-}
-
-.link-highlight {
-  color: var(--accent-primary);
-  font-weight: 600;
-}
-.link-highlight:hover {
-  text-decoration: underline;
-}
-</style>

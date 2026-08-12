@@ -1,15 +1,15 @@
 <template>
-  <header class="mobile-mini-app-header">
-    <div class="mobile-brand" @click="goHome">
-      <img src="/duc-logo.png" alt="DUC Logo" class="mobile-logo-img" />
-      <span class="mobile-app-title">DUC Library</span>
+  <header class="hidden max-md:flex items-center justify-between px-4 py-3 bg-[var(--bg-card)] backdrop-blur-[16px] border-b border-[var(--border-color)] sticky top-0 z-[60]">
+    <div class="flex items-center gap-2 cursor-pointer" @click="goHome">
+      <img src="/duc-logo.png" alt="DUC Logo" class="h-[30px] w-auto" />
+      <span class="text-[1.05rem] font-extrabold text-[var(--text-primary)]">DUC Library</span>
     </div>
 
-    <div class="mobile-actions">
+    <div class="flex items-center gap-2">
       <!-- Language / Region Switcher Chip -->
       <button 
         @click="localeStore.toggleLanguage()" 
-        class="mobile-action-chip" 
+        class="inline-flex items-center gap-[0.35rem] px-[0.65rem] py-[0.35rem] rounded-full bg-[rgba(125,125,125,0.12)] border border-[var(--border-color)] text-[var(--text-primary)] text-[0.78rem] font-bold cursor-pointer transition-all duration-200 active:scale-95 active:bg-indigo-500/20" 
         :title="localeStore.currentLang === 'en' ? 'Switch to Khmer (ភាសាខ្មែរ)' : 'Switch to English'"
       >
         <Globe :size="14" />
@@ -19,19 +19,24 @@
       <!-- Theme Mode (Light / Dark) Toggle Button -->
       <button 
         @click="themeStore.toggleTheme()" 
-        class="mobile-action-chip theme-chip"
+        class="inline-flex items-center gap-[0.35rem] px-[0.65rem] py-[0.35rem] rounded-full bg-[rgba(125,125,125,0.12)] border border-[var(--border-color)] text-[var(--text-primary)] text-[0.78rem] font-bold cursor-pointer transition-all duration-200 active:scale-95 active:bg-indigo-500/20"
         :title="themeStore.isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
       >
-        <Sun v-if="themeStore.isDark" :size="15" class="sun-icon" />
-        <Moon v-else :size="15" class="moon-icon" />
+        <Sun v-if="themeStore.isDark" :size="15" class="text-amber-500" />
+        <Moon v-else :size="15" class="text-indigo-400" />
       </button>
 
       <!-- Notification Badge Button -->
-      <button @click="notifStore.toggleDrawer()" class="mobile-icon-badge" title="Notifications">
+      <button @click="notifStore.toggleDrawer()" class="relative inline-flex items-center justify-center w-[32px] h-[32px] rounded-full bg-[rgba(125,125,125,0.12)] border border-[var(--border-color)] text-[var(--text-primary)] cursor-pointer" title="Notifications">
         <Bell :size="17" />
-        <span v-if="notifStore.unreadCount > 0" class="badge-dot-count">
+        <span v-if="notifStore.unreadCount > 0" class="absolute -top-[2px] -right-[2px] min-w-[16px] h-[16px] px-1 rounded-full bg-red-500 text-white text-[0.58rem] font-extrabold flex items-center justify-center shadow-[0_0_8px_rgba(239,68,68,0.6)]">
           {{ notifStore.unreadCount }}
         </span>
+      </button>
+
+      <!-- Logout Button (Only if authenticated) -->
+      <button v-if="authStore.isAuthenticated" @click="handleLogout" class="relative inline-flex items-center justify-center w-[32px] h-[32px] rounded-full bg-red-500/10 border border-red-500/20 text-red-500 cursor-pointer transition-all duration-200 active:scale-95 active:bg-red-500/20 ml-1" title="Log Out">
+        <LogOut :size="16" />
       </button>
     </div>
   </header>
@@ -43,7 +48,9 @@ import { useLocaleStore } from '../stores/locale';
 import { useThemeStore } from '../stores/theme';
 import { useBooksStore } from '../stores/books';
 import { useNotificationsStore } from '../stores/notifications';
-import { Globe, Sun, Moon, Bell } from 'lucide-vue-next';
+import { useAuthStore } from '../stores/auth';
+import { useConfirmStore } from '../stores/confirm';
+import { Globe, Sun, Moon, Bell, LogOut } from 'lucide-vue-next';
 
 defineEmits(['toast']);
 
@@ -52,115 +59,26 @@ const localeStore = useLocaleStore();
 const themeStore = useThemeStore();
 const booksStore = useBooksStore();
 const notifStore = useNotificationsStore();
+const authStore = useAuthStore();
 
 function goHome() {
   booksStore.selectedCategory = 'all';
   router.push('/');
 }
+
+async function handleLogout() {
+  const confirmStore = useConfirmStore();
+  const confirmed = await confirmStore.showConfirm({
+    title: 'Log Out',
+    message: 'Are you sure you want to log out of your account?',
+    confirmText: 'Log Out',
+    type: 'danger'
+  });
+
+  if (confirmed) {
+    authStore.logout();
+    router.push('/login');
+  }
+}
 </script>
 
-<style scoped>
-.mobile-mini-app-header {
-  display: none;
-}
-
-@media (max-width: 768px) {
-  .mobile-mini-app-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.75rem 1rem;
-    background: var(--bg-card);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border-bottom: 1px solid var(--border-color);
-    position: sticky;
-    top: 0;
-    z-index: 60;
-  }
-
-  .mobile-brand {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    cursor: pointer;
-  }
-
-  .mobile-logo-img {
-    height: 30px;
-    width: auto;
-  }
-
-  .mobile-app-title {
-    font-size: 1.05rem;
-    font-weight: 800;
-    color: var(--text-primary);
-  }
-
-  .mobile-actions {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .mobile-action-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    padding: 0.35rem 0.65rem;
-    border-radius: 9999px;
-    background: rgba(125, 125, 125, 0.12);
-    border: 1px solid var(--border-color);
-    color: var(--text-primary);
-    font-size: 0.78rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-
-  .mobile-action-chip:active {
-    transform: scale(0.95);
-    background: rgba(99, 102, 241, 0.2);
-  }
-
-  .sun-icon {
-    color: #f59e0b;
-  }
-
-  .moon-icon {
-    color: #818cf8;
-  }
-
-  .mobile-icon-badge {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: rgba(125, 125, 125, 0.12);
-    border: 1px solid var(--border-color);
-    color: var(--text-primary);
-    cursor: pointer;
-  }
-
-  .badge-dot-count {
-    position: absolute;
-    top: -2px;
-    right: -2px;
-    min-width: 16px;
-    height: 16px;
-    padding: 0 4px;
-    border-radius: 9999px;
-    background: #ef4444;
-    color: #ffffff;
-    font-size: 0.58rem;
-    font-weight: 800;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
-  }
-}
-</style>

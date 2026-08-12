@@ -1,77 +1,54 @@
 <template>
-  <div class="catalog-page-container">
+  <div class="max-w-[1280px] mx-auto px-6 pb-16 pt-6 max-sm:px-2 max-sm:pb-20 max-sm:pt-3">
     <!-- Header -->
-    <header class="catalog-page-header">
-      <div class="header-text">
-        <h1 class="page-title">{{ localeStore.t('catalog') }} <span class="text-gradient">Collection</span></h1>
-        <p class="page-subtitle">Browse and filter the complete DUC University Library collection.</p>
+    <header class="mb-7">
+      <div>
+        <h1 class="text-2xl font-extrabold text-[var(--text-primary)] mb-1 max-sm:text-xl">{{ localeStore.t('catalog') }} <span class="text-gradient">Collection</span></h1>
+        <p class="text-[0.95rem] text-[var(--text-muted)]">Browse and filter the complete DUC University Library collection.</p>
       </div>
     </header>
 
     <!-- Search & Filter Controls Section -->
-    <section class="search-filter-section">
+    <section class="mb-8">
       <!-- Spotlight Search Input -->
-      <div class="spotlight-search-container">
-        <div class="search-box-pill" :class="{ focused: isSearchFocused || booksStore.searchQuery }">
-          <Search :size="19" class="search-icon" />
+      <div class="relative w-full max-w-[760px] mx-auto mb-6">
+        <div class="flex items-center gap-3 px-5 py-2.5 rounded-full bg-[var(--bg-card)] backdrop-blur-md border border-[var(--border-color)] shadow-[0_8px_30px_rgba(0,0,0,0.08)] transition-all duration-300" :class="{ 'border-indigo-500/60 shadow-[0_0_25px_rgba(99,102,241,0.25),0_12px_35px_rgba(0,0,0,0.15)] -translate-y-0.5': isSearchFocused || booksStore.searchQuery }">
+          <Search :size="19" class="text-indigo-400 shrink-0 cursor-pointer" :class="{ 'scale-110 text-indigo-500': isSearchFocused || booksStore.searchQuery }" @click="() => searchInputRef?.focus()" />
           <input 
+            ref="searchInputRef"
             v-model="booksStore.searchQuery"
             @focus="isSearchFocused = true"
             @blur="handleSearchBlur"
             @input="handleSearch"
             type="text" 
             :placeholder="localeStore.t('searchPlaceholder')"
+            class="flex-1 bg-transparent border-none outline-none text-[0.92rem] font-medium text-[var(--text-primary)] py-1"
           />
-          <span class="search-shortcut-hint">Ctrl + K</span>
-          <button v-if="booksStore.searchQuery" @click="clearSearch" class="btn-clear" title="Clear Search">
+          <span class="text-[0.7rem] font-bold text-[var(--text-muted)] bg-slate-500/12 border border-[var(--border-color)] px-2 py-1 rounded-lg">Ctrl + K</span>
+          <button v-if="booksStore.searchQuery" @click="clearSearch" class="bg-transparent border-none text-[var(--text-muted)] cursor-pointer p-1 hover:text-[var(--text-primary)] flex items-center" title="Clear Search">
             <X :size="16" />
           </button>
         </div>
 
-        <!-- Live Quick Search Dropdown -->
-        <transition name="fade">
-          <div v-if="isSearchFocused && booksStore.searchQuery" class="live-search-dropdown glass-panel">
-            <div v-if="booksStore.books.length > 0" class="live-results-list">
-              <div class="live-results-header">
-                <span>Found {{ booksStore.books.length }} matching books</span>
-              </div>
-              <div 
-                v-for="book in booksStore.books.slice(0, 4)" 
-                :key="book.id"
-                @mousedown="openReaderModal(book)"
-                class="live-result-item"
-              >
-                <img :src="book.cover_url || fallbackCover" :alt="book.title" class="live-thumb" />
-                <div class="live-info">
-                  <h4 class="live-title">{{ book.title }}</h4>
-                </div>
-                <button class="live-read-btn btn btn-primary btn-sm">Read</button>
-              </div>
-            </div>
-            <div v-else class="live-empty-state">
-              <BookX :size="24" class="text-muted" />
-              <span>No books matching "{{ booksStore.searchQuery }}"</span>
-            </div>
-          </div>
-        </transition>
+        <!-- Live Quick Search Dropdown has been removed. Filtering applies directly to the catalog grid. -->
       </div>
 
       <!-- Categories & Controls Row -->
-      <div class="filter-controls-row">
-        <div class="category-scroll-container">
-          <button @click="scrollCategories('left')" class="cat-nav-btn cat-nav-left" title="Scroll Left">
+      <div class="flex items-center justify-between gap-4 w-full">
+        <div class="flex items-center gap-2 flex-1 min-w-0 max-sm:w-full">
+          <button @click="scrollCategories('left')" class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-primary)] cursor-pointer shrink-0 z-[2] shadow-[0_2px_8px_rgba(0,0,0,0.12)] transition-all duration-200 hover:bg-indigo-500 hover:text-white hover:border-transparent" title="Scroll Left">
             <ChevronLeft :size="16" />
           </button>
 
           <div 
-            class="category-scroll" 
+            class="flex items-center gap-2.5 overflow-x-auto overflow-y-hidden px-1 py-1.5 scroll-smooth flex-1 min-w-0 scrollbar-none" 
             ref="categoryScrollRef"
             @wheel.prevent="handleCategoryWheel"
           >
             <button 
               @click="selectCategory('all')" 
-              class="cat-chip"
-              :class="{ active: booksStore.selectedCategory === 'all' }"
+              class="px-4 py-1.5 rounded-full bg-white/5 border border-[var(--border-color)] text-[var(--text-secondary)] text-[0.82rem] font-medium whitespace-nowrap shrink-0 cursor-pointer transition-all duration-200 hover:bg-indigo-500/12 hover:text-[var(--text-primary)] hover:border-indigo-500/30 max-sm:max-w-[160px] max-sm:truncate max-sm:px-3 max-sm:text-xs"
+              :class="{ '[background:var(--accent-gradient)] text-white border-transparent shadow-[0_4px_12px_rgba(99,102,241,0.3)]': booksStore.selectedCategory === 'all' }"
             >
               {{ localeStore.t('allCategories') }}
             </button>
@@ -79,14 +56,14 @@
               v-for="cat in booksStore.categories" 
               :key="cat.id"
               @click="selectCategory(cat.id)"
-              class="cat-chip"
-              :class="{ active: booksStore.selectedCategory === cat.id }"
+              class="px-4 py-1.5 rounded-full bg-white/5 border border-[var(--border-color)] text-[var(--text-secondary)] text-[0.82rem] font-medium whitespace-nowrap shrink-0 cursor-pointer transition-all duration-200 hover:bg-indigo-500/12 hover:text-[var(--text-primary)] hover:border-indigo-500/30 max-sm:max-w-[160px] max-sm:truncate max-sm:px-3 max-sm:text-xs"
+              :class="{ '[background:var(--accent-gradient)] text-white border-transparent shadow-[0_4px_12px_rgba(99,102,241,0.3)]': booksStore.selectedCategory === cat.id }"
             >
               {{ cat.name }} ({{ cat.book_count || 0 }})
             </button>
           </div>
 
-          <button @click="scrollCategories('right')" class="cat-nav-btn cat-nav-right" title="Scroll Right">
+          <button @click="scrollCategories('right')" class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-primary)] cursor-pointer shrink-0 z-[2] shadow-[0_2px_8px_rgba(0,0,0,0.12)] transition-all duration-200 hover:bg-indigo-500 hover:text-white hover:border-transparent" title="Scroll Right">
             <ChevronRight :size="16" />
           </button>
         </div>
@@ -94,42 +71,83 @@
     </section>
 
     <!-- Success Toast Notification -->
-    <div v-if="toastMessage" class="toast-alert glass-panel">
+    <div v-if="toastMessage" class="flex items-center gap-3 px-4 py-3 mb-6 bg-emerald-500/12 border border-emerald-500/30 text-emerald-400 rounded-lg glass-panel">
       <CheckCircle2 :size="20" class="text-success" />
       <span>{{ toastMessage }}</span>
-      <button @click="toastMessage = ''" class="btn-close-toast"><X :size="16" /></button>
+      <button @click="toastMessage = ''" class="ml-auto bg-transparent border-none text-inherit cursor-pointer p-1"><X :size="16" /></button>
     </div>
 
     <!-- Books Catalog Grid Section -->
-    <section class="catalog-section">
-      <div class="catalog-header-row">
-        <div class="catalog-title-group">
-          <h3 class="catalog-heading">All Catalog Books</h3>
-          <span class="catalog-count-badge" v-if="!booksStore.loading">{{ displayedBooks.length }} books available</span>
+    <section>
+      <div class="flex items-center justify-between mb-5">
+        <div class="flex items-center gap-3">
+          <h3 class="text-[1.35rem] font-extrabold text-[var(--text-primary)]">All Catalog Books</h3>
+          <span class="text-[0.76rem] font-bold text-indigo-400 bg-indigo-500/12 border border-indigo-500/30 px-2.5 py-1 rounded-full" v-if="!booksStore.loading">{{ displayedBooks.length }} books available</span>
         </div>
       </div>
 
-      <div v-if="booksStore.loading" class="loading-state">
-        <Loader2 :size="36" class="spin" />
-        <p>Loading library catalog...</p>
+      <div v-if="booksStore.loading" class="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-6 max-sm:grid-cols-3 max-sm:gap-1.5">
+        <BookSkeleton v-for="i in 12" :key="i" />
       </div>
 
-      <div v-else-if="displayedBooks.length === 0" class="empty-state glass-panel">
-        <BookX :size="48" class="text-muted" />
-        <h3>No books found</h3>
+      <div v-else-if="displayedBooks.length === 0" class="flex flex-col items-center justify-center text-center p-14 text-[var(--text-muted)] glass-panel">
+        <BookX :size="48" class="text-muted mb-3" />
+        <h3 class="text-lg font-bold mb-1">No books found</h3>
         <p>Try searching for a different keyword or select another category.</p>
-        <button @click="resetFilters" class="btn btn-secondary btn-sm mt-3">Reset Filters</button>
+        <button @click="resetFilters" class="btn btn-secondary btn-sm mt-4">Reset Filters</button>
       </div>
 
-      <div v-else class="books-grid">
+      <div v-else class="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-6 max-sm:grid-cols-3 max-sm:gap-1.5">
         <BookCard 
-          v-for="book in displayedBooks" 
+          v-for="book in paginatedBooks" 
           :key="book.id" 
           :book="book"
           @read="openReaderModal"
           @borrow="openBorrowModal"
           @toast="showToast"
         />
+      </div>
+
+      <!-- Smart Pagination Controls -->
+      <div v-if="totalPages > 1 && !booksStore.loading" class="mt-14 flex flex-col items-center justify-center gap-4">
+        <div class="flex items-center gap-1.5 bg-[var(--bg-card)] p-2 rounded-2xl border border-[var(--border-color)] shadow-[0_8px_30px_rgba(0,0,0,0.08)]">
+          <button 
+            @click="goToPage(currentPage - 1)" 
+            :disabled="currentPage === 1"
+            class="flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-200"
+            :class="currentPage === 1 ? 'opacity-40 cursor-not-allowed text-[var(--text-muted)]' : 'hover:bg-indigo-500/12 text-[var(--text-primary)] hover:text-indigo-500 cursor-pointer'"
+            title="Previous Page"
+          >
+            <ChevronLeft :size="20" />
+          </button>
+          
+          <div class="flex items-center gap-1 px-1 sm:px-2">
+            <template v-for="(page, index) in visiblePages" :key="index">
+              <span v-if="page === '...'" class="w-6 sm:w-8 text-center text-[var(--text-muted)] select-none">...</span>
+              <button 
+                v-else
+                @click="goToPage(page)"
+                class="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-xl text-[0.9rem] sm:text-[0.95rem] font-bold transition-all duration-300 cursor-pointer"
+                :class="currentPage === page ? '[background:var(--accent-gradient)] text-white shadow-[0_4px_12px_rgba(99,102,241,0.4)]' : 'hover:bg-indigo-500/12 text-[var(--text-secondary)] hover:text-indigo-500'"
+              >
+                {{ page }}
+              </button>
+            </template>
+          </div>
+
+          <button 
+            @click="goToPage(currentPage + 1)" 
+            :disabled="currentPage === totalPages"
+            class="flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-200"
+            :class="currentPage === totalPages ? 'opacity-40 cursor-not-allowed text-[var(--text-muted)]' : 'hover:bg-indigo-500/12 text-[var(--text-primary)] hover:text-indigo-500 cursor-pointer'"
+            title="Next Page"
+          >
+            <ChevronRight :size="20" />
+          </button>
+        </div>
+        <div class="text-[0.85rem] text-[var(--text-muted)] font-medium">
+          Showing <span class="text-[var(--text-primary)]">{{ (currentPage - 1) * itemsPerPage + 1 }}</span> to <span class="text-[var(--text-primary)]">{{ Math.min(currentPage * itemsPerPage, displayedBooks.length) }}</span> of <span class="text-[var(--text-primary)]">{{ displayedBooks.length }}</span> entries
+        </div>
       </div>
     </section>
 
@@ -152,13 +170,14 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useBooksStore } from '../stores/books';
 import { useAuthStore } from '../stores/auth';
 import { useLocaleStore } from '../stores/locale';
 import { useWishlistStore } from '../stores/wishlist';
 import { useRouter } from 'vue-router';
 import BookCard from '../components/BookCard.vue';
+import BookSkeleton from '../components/BookSkeleton.vue';
 import ReaderModal from '../components/ReaderModal.vue';
 import BorrowModal from '../components/BorrowModal.vue';
 import { 
@@ -181,22 +200,94 @@ const toastMessage = ref('');
 const isSearchFocused = ref(false);
 
 const categoryScrollRef = ref(null);
+const searchInputRef = ref(null);
 
 const displayedBooks = computed(() => {
   return booksStore.books;
 });
 
+// Pagination State
+const currentPage = ref(1);
+const itemsPerPage = ref(12);
+
+// Computed for pagination
+const totalPages = computed(() => Math.ceil(displayedBooks.value.length / itemsPerPage.value));
+
+const paginatedBooks = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  return displayedBooks.value.slice(start, end);
+});
+
+// Smart page numbers calculation
+const visiblePages = computed(() => {
+  const total = totalPages.value;
+  const current = currentPage.value;
+  const delta = 1; // Number of pages to show before and after current
+  
+  if (total <= 5) {
+    return Array.from({ length: total }, (_, i) => i + 1);
+  }
+  
+  const range = [];
+  const rangeWithDots = [];
+  let l;
+  
+  for (let i = 1; i <= total; i++) {
+    if (i === 1 || i === total || (i >= current - delta && i <= current + delta)) {
+      range.push(i);
+    }
+  }
+  
+  for (let i of range) {
+    if (l) {
+      if (i - l === 2) {
+        rangeWithDots.push(l + 1);
+      } else if (i - l !== 1) {
+        rangeWithDots.push('...');
+      }
+    }
+    rangeWithDots.push(i);
+    l = i;
+  }
+  
+  return rangeWithDots;
+});
+
+function goToPage(page) {
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+// Reset pagination on filters change
+watch([() => booksStore.searchQuery, () => booksStore.selectedCategory, () => booksStore.availableOnly], () => {
+  currentPage.value = 1;
+});
+
+function handleGlobalKeydown(e) {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+    e.preventDefault();
+    if (searchInputRef.value) {
+      searchInputRef.value.focus();
+    }
+  }
+}
+
 onMounted(() => {
   booksStore.fetchCategories();
   booksStore.fetchBooks();
+  window.addEventListener('keydown', handleGlobalKeydown);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleGlobalKeydown);
 });
 
 let searchTimeout;
 function handleSearch() {
-  clearTimeout(searchTimeout);
-  searchTimeout = setTimeout(() => {
-    booksStore.fetchBooks();
-  }, 300);
+  // Search is handled instantly via client-side computed property
 }
 
 function clearSearch() {
@@ -273,333 +364,4 @@ function handleBorrowSuccess(msg) {
 }
 </script>
 
-<style scoped>
-.catalog-page-container {
-  max-width: 1560px;
-  margin: 0 auto;
-  padding: 1.5rem 1.5rem 4rem;
-}
 
-.catalog-page-header {
-  margin-bottom: 1.75rem;
-}
-
-.page-title {
-  font-size: 2rem;
-  font-weight: 800;
-  color: var(--text-primary);
-  margin-bottom: 0.25rem;
-}
-
-.page-subtitle {
-  font-size: 0.95rem;
-  color: var(--text-muted);
-}
-
-.search-filter-section {
-  margin-bottom: 2rem;
-}
-
-.spotlight-search-container {
-  position: relative;
-  width: 100%;
-  max-width: 760px;
-  margin: 0 auto 1.5rem;
-}
-
-.search-box-pill {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.65rem 1.35rem;
-  border-radius: 9999px;
-  background: var(--bg-card);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--border-color);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.search-box-pill.focused {
-  border-color: rgba(99, 102, 241, 0.6);
-  box-shadow: 0 0 25px rgba(99, 102, 241, 0.25), 0 12px 35px rgba(0, 0, 0, 0.15);
-  transform: translateY(-2px);
-}
-
-.search-icon {
-  color: #818cf8;
-  flex-shrink: 0;
-}
-
-.search-box-pill input {
-  flex: 1;
-  background: transparent;
-  border: none;
-  outline: none;
-  font-size: 0.92rem;
-  font-weight: 500;
-  color: var(--text-primary);
-  padding: 0.2rem 0;
-}
-
-.search-shortcut-hint {
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: var(--text-muted);
-  background: rgba(125, 125, 125, 0.12);
-  border: 1px solid var(--border-color);
-  padding: 0.2rem 0.55rem;
-  border-radius: 8px;
-}
-
-.btn-clear {
-  background: transparent;
-  border: none;
-  color: var(--text-muted);
-  cursor: pointer;
-}
-
-.live-search-dropdown {
-  position: absolute;
-  top: calc(100% + 8px);
-  left: 0;
-  right: 0;
-  z-index: 50;
-  padding: 0.5rem;
-}
-
-.live-results-header {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--text-muted);
-  padding: 0.5rem 0.75rem;
-  text-transform: uppercase;
-}
-
-.live-result-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.6rem 0.75rem;
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-
-.live-result-item:hover {
-  background: rgba(99, 102, 241, 0.12);
-}
-
-.live-thumb {
-  width: 36px;
-  height: 48px;
-  object-fit: cover;
-  border-radius: 4px;
-}
-
-.live-info {
-  flex: 1;
-}
-
-.live-title {
-  font-size: 0.88rem;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.live-empty-state {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 1.5rem;
-  font-size: 0.9rem;
-  color: var(--text-muted);
-}
-
-.filter-controls-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.category-scroll-container {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex: 1;
-  min-width: 0;
-}
-
-.category-scroll {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  overflow-x: auto;
-  overflow-y: hidden;
-  padding: 0.4rem 0.25rem;
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  flex: 1;
-  min-width: 0;
-}
-
-.category-scroll::-webkit-scrollbar {
-  display: none;
-}
-
-.cat-nav-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  color: var(--text-primary);
-  cursor: pointer;
-  flex-shrink: 0;
-  z-index: 2;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
-  transition: all 0.2s ease;
-}
-
-.cat-chip {
-  padding: 0.45rem 0.95rem;
-  border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--border-color);
-  color: var(--text-secondary);
-  font-size: 0.82rem;
-  font-weight: 500;
-  white-space: nowrap;
-  flex-shrink: 0;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.cat-chip.active {
-  background: var(--accent-gradient);
-  color: white;
-  border-color: transparent;
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-}
-
-.stock-toggle-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.45rem 0.95rem;
-  border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--border-color);
-  color: var(--text-secondary);
-  font-size: 0.82rem;
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.2s ease;
-}
-
-.stock-toggle-btn.active {
-  background: rgba(16, 185, 129, 0.2);
-  border-color: rgba(16, 185, 129, 0.5);
-  color: #34d399;
-}
-
-.toast-alert {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.85rem 1.1rem;
-  margin-bottom: 1.5rem;
-  background: rgba(16, 185, 129, 0.12);
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  color: #6ee7b7;
-  border-radius: var(--radius-md);
-}
-
-.btn-close-toast {
-  margin-left: auto;
-  background: transparent;
-  border: none;
-  color: inherit;
-  cursor: pointer;
-}
-
-.catalog-header-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1.2rem;
-}
-
-.catalog-title-group {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.catalog-heading {
-  font-size: 1.35rem;
-  font-weight: 800;
-  color: var(--text-primary);
-}
-
-.catalog-count-badge {
-  font-size: 0.76rem;
-  font-weight: 700;
-  color: #818cf8;
-  background: rgba(99, 102, 241, 0.12);
-  border: 1px solid rgba(99, 102, 241, 0.3);
-  padding: 0.2rem 0.65rem;
-  border-radius: 9999px;
-}
-
-.books-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 1.6rem;
-}
-
-.loading-state, .empty-state {
-  text-align: center;
-  padding: 3.5rem 1rem;
-  color: var(--text-muted);
-}
-
-.spin {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-@media (max-width: 640px) {
-  .catalog-page-container {
-    padding: 0.75rem 0.5rem 5rem;
-  }
-  .page-title {
-    font-size: 1.5rem;
-  }
-  .cat-chip {
-    max-width: 160px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    padding: 0.35rem 0.7rem;
-    font-size: 0.75rem;
-  }
-  .books-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.4rem;
-  }
-}
-</style>

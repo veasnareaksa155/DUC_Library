@@ -1,90 +1,84 @@
 <template>
-  <header class="navbar-header">
-    <div class="navbar-container">
-      <router-link to="/" class="brand-logo" @click="goHome">
-        <img src="/duc-logo.png" alt="DUC Logo" class="navbar-duc-logo" />
-        <span class="brand-title">DUC<span class="text-gradient">Library</span></span>
-      </router-link>
+  <header class="sticky top-0 z-50 bg-[var(--bg-card)] backdrop-blur-md border-b border-[var(--border-color)] py-3.5 transition-colors duration-300 hidden md:block">
+    <div class="max-w-[1280px] mx-auto px-4 lg:px-6 flex items-center justify-between w-full">
+      
+      <!-- Left Section: Logo + Navigation -->
+      <div class="flex items-center gap-4 lg:gap-10">
+        <router-link to="/" class="flex items-center gap-2 lg:gap-3 no-underline group shrink-0" @click="goHome">
+          <img src="/duc-logo.png" alt="DUC Logo" class="h-[44px] lg:h-[52px] w-auto object-contain drop-shadow-md transition-transform duration-200 group-hover:scale-105" />
+          <span class="text-[1.2rem] lg:text-[1.35rem] font-extrabold text-[var(--text-primary)] whitespace-nowrap">DUC<span class="bg-gradient-to-br from-indigo-500 to-violet-500 bg-clip-text text-transparent">Library</span></span>
+        </router-link>
 
-      <nav class="nav-links">
+        <nav class="flex items-center gap-0.5 lg:gap-1">
         <button 
           @click="goHome" 
-          class="nav-link nav-btn-link" 
-          :class="{ active: route.path === '/' && booksStore.selectedCategory !== 'wishlist' }"
+          class="group flex items-center gap-1.5 lg:gap-2 px-2 lg:px-4 py-2 rounded-xl text-[0.85rem] lg:text-[0.92rem] transition-all duration-300 bg-transparent border-none font-inherit cursor-pointer relative overflow-hidden whitespace-nowrap" 
+          :class="route.path === '/' && booksStore.selectedCategory !== 'wishlist' ? 'text-indigo-600 font-semibold bg-indigo-500/10 dark:text-indigo-400 dark:bg-indigo-500/15' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-slate-500/10 font-medium'"
         >
-          <Home :size="18" />
-          <span>Home</span>
+          <Home :size="18" :stroke-width="1.75" :class="route.path === '/' && booksStore.selectedCategory !== 'wishlist' ? 'fill-indigo-500/10' : 'group-hover:-translate-y-0.5 transition-transform duration-300'" />
+          <span class="hidden lg:inline">{{ localeStore.t('home') || 'Home' }}</span>
         </button>
 
         <button 
           @click="goCatalog" 
-          class="nav-link nav-btn-link" 
-          :class="{ active: route.path === '/catalog' && booksStore.selectedCategory !== 'wishlist' }"
+          class="group flex items-center gap-1.5 lg:gap-2 px-2 lg:px-4 py-2 rounded-xl text-[0.85rem] lg:text-[0.92rem] transition-all duration-300 bg-transparent border-none font-inherit cursor-pointer relative overflow-hidden whitespace-nowrap" 
+          :class="route.path === '/catalog' && booksStore.selectedCategory !== 'wishlist' ? 'text-indigo-600 font-semibold bg-indigo-500/10 dark:text-indigo-400 dark:bg-indigo-500/15' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-slate-500/10 font-medium'"
         >
-          <Library :size="18" />
-          <span>{{ localeStore.t('catalog') }}</span>
+          <Compass :size="18" :stroke-width="1.75" :class="route.path === '/catalog' && booksStore.selectedCategory !== 'wishlist' ? 'fill-indigo-500/10' : 'group-hover:-translate-y-0.5 transition-transform duration-300'" />
+          <span class="hidden lg:inline">{{ localeStore.t('catalog') }}</span>
         </button>
 
-        <router-link v-if="authStore.isAuthenticated" to="/my-borrowings" class="nav-link" active-class="active" @click="booksStore.selectedCategory = 'all'">
-          <BookmarkCheck :size="18" />
-          <span>{{ localeStore.t('myBorrowings') }}</span>
+        <router-link v-if="authStore.isAuthenticated && authStore.user?.role !== 'admin'" to="/my-borrowings" class="group flex items-center gap-1.5 lg:gap-2 px-2 lg:px-4 py-2 rounded-xl text-[0.85rem] lg:text-[0.92rem] transition-all duration-300 bg-transparent border-none no-underline relative overflow-hidden whitespace-nowrap" :class="route.path === '/my-borrowings' ? 'text-indigo-600 font-semibold bg-indigo-500/10 dark:text-indigo-400 dark:bg-indigo-500/15' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-slate-500/10 font-medium'" @click="booksStore.selectedCategory = 'all'">
+          <Bookmark :size="18" :stroke-width="1.75" :class="route.path === '/my-borrowings' ? 'fill-indigo-500/10' : 'group-hover:-translate-y-0.5 transition-transform duration-300'" />
+          <span class="hidden lg:inline">{{ localeStore.t('myBorrowings') }}</span>
         </router-link>
 
-        <router-link to="/wishlist" class="nav-link" active-class="active">
-          <Heart :size="18" :fill="route.path === '/wishlist' ? '#ef4444' : 'none'" color="#ef4444" />
-          <span>Wishlist</span>
+        <router-link v-if="authStore.user?.role !== 'admin'" to="/wishlist" class="group flex items-center gap-1.5 lg:gap-2 px-2 lg:px-4 py-2 rounded-xl text-[0.85rem] lg:text-[0.92rem] transition-all duration-300 bg-transparent border-none no-underline relative overflow-hidden whitespace-nowrap" :class="route.path === '/wishlist' ? 'text-pink-600 font-semibold bg-pink-500/10 dark:text-pink-400 dark:bg-pink-500/15' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-slate-500/10 font-medium'">
+          <Heart :size="18" :stroke-width="1.75" :class="route.path === '/wishlist' ? 'fill-pink-500/20 text-pink-600 dark:text-pink-400' : 'group-hover:-translate-y-0.5 transition-transform duration-300 group-hover:text-pink-500'" />
+          <span class="hidden lg:inline">{{ localeStore.t('wishlist') || 'Wishlist' }}</span>
         </router-link>
 
-        <div v-if="authStore.isAdmin" class="admin-nav-group">
-          <span class="admin-divider"></span>
-          <router-link to="/admin" class="nav-link admin-link" active-class="active">
-            <LayoutDashboard :size="18" />
-            <span>{{ localeStore.t('dashboard') }}</span>
-          </router-link>
-          <router-link to="/admin/books" class="nav-link admin-link" active-class="active">
-            <BookPlus :size="18" />
-            <span>{{ localeStore.t('books') }}</span>
-          </router-link>
-          <router-link to="/admin/borrowings" class="nav-link admin-link" active-class="active">
-            <ClipboardList :size="18" />
-            <span>{{ localeStore.t('requests') }}</span>
-          </router-link>
-          <router-link to="/admin/users" class="nav-link admin-link" active-class="active">
-            <Users :size="18" />
-            <span>{{ localeStore.t('users') }}</span>
+        <div v-if="authStore.user?.role === 'admin'" class="flex items-center gap-2">
+          <span class="w-px h-5 bg-[var(--border-color)] mx-1.5"></span>
+          <router-link to="/admin" class="group flex items-center gap-1.5 px-2.5 lg:px-3.5 py-2 rounded-lg text-[0.85rem] lg:text-[0.9rem] font-bold text-white transition-all duration-200 [background:var(--accent-gradient)] shadow-sm hover:shadow-[0_4px_12px_rgba(99,102,241,0.3)] hover:-translate-y-0.5 no-underline whitespace-nowrap">
+            <LayoutDashboard :size="16" />
+            <span class="hidden lg:inline">Admin Portal</span>
           </router-link>
         </div>
       </nav>
+      </div>
 
-      <div class="nav-actions">
+      <!-- Right Section: Actions -->
+      <div class="flex items-center gap-1.5 lg:gap-2.5 shrink-0 ml-4">
         <!-- Language Switcher Dropdown / Toggle -->
         <button 
           @click="localeStore.toggleLanguage()" 
-          class="lang-toggle-btn"
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-500/10 border border-[var(--border-color)] text-[var(--text-primary)] text-[0.82rem] font-bold transition-all duration-200 hover:bg-indigo-500/15 hover:border-[var(--border-highlight)] cursor-pointer"
           :title="localeStore.currentLang === 'en' ? 'Switch to Khmer (ភាសាខ្មែរ)' : 'Switch to English'"
         >
           <Globe :size="16" />
-          <span class="lang-text">{{ localeStore.currentLang === 'en' ? 'EN' : 'ខ្មែរ' }}</span>
+          <span class="tracking-[0.03em]">{{ localeStore.currentLang === 'en' ? 'EN' : 'ខ្មែរ' }}</span>
         </button>
 
         <!-- Theme Toggle Button -->
         <button 
           @click="themeStore.toggleTheme()" 
-          class="theme-toggle-btn" 
+          class="w-9 h-9 rounded-full bg-slate-500/10 border border-[var(--border-color)] text-[var(--text-primary)] flex items-center justify-center cursor-pointer transition-all duration-200 hover:bg-indigo-500/15 hover:border-[var(--border-highlight)]" 
           :title="themeStore.isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
         >
-          <Sun v-if="themeStore.isDark" :size="19" class="sun-icon" />
-          <Moon v-else :size="19" class="moon-icon" />
+          <Sun v-if="themeStore.isDark" :size="19" class="text-amber-500" />
+          <Moon v-else :size="19" class="text-indigo-500" />
         </button>
 
         <!-- Notifications Bell Button -->
         <button 
+          v-if="authStore.isAuthenticated"
           @click="notifStore.toggleDrawer()" 
-          class="notif-bell-btn" 
+          class="relative w-9 h-9 rounded-full bg-slate-500/10 border border-[var(--border-color)] text-[var(--text-primary)] flex items-center justify-center cursor-pointer transition-all duration-200 hover:bg-indigo-500/15 hover:border-[var(--border-highlight)] hover:text-indigo-500" 
           title="Notifications"
         >
           <Bell :size="19" />
-          <span v-if="notifStore.unreadCount > 0" class="notif-badge-count">
+          <span v-if="notifStore.unreadCount > 0" class="absolute -top-0.5 -right-0.5 min-w-[17px] h-[17px] px-1 rounded-full bg-red-500 text-white text-[0.62rem] font-extrabold flex items-center justify-center shadow-[0_0_10px_rgba(239,68,68,0.6)]">
             {{ notifStore.unreadCount }}
           </span>
         </button>
@@ -93,7 +87,7 @@
         <button 
           v-if="canInstallPwa" 
           @click="installPwaApp" 
-          class="pwa-install-btn" 
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 text-white text-[0.78rem] font-bold border-none cursor-pointer shadow-[0_2px_10px_rgba(16,185,129,0.3)] transition-all duration-200 hover:-translate-y-px hover:shadow-[0_4px_14px_rgba(16,185,129,0.45)]" 
           title="Install DUC Library Mini App"
         >
           <Download :size="15" />
@@ -101,14 +95,14 @@
         </button>
 
         <template v-if="authStore.isAuthenticated">
-          <div class="user-pill" @click="isProfileModalOpen = true" title="Click to view My Full Profile">
-            <div class="user-avatar">
-              <img v-if="authStore.user?.profile_photo" :src="authStore.user.profile_photo" class="navbar-avatar-img" />
+          <div @click="router.push(authStore.user?.role === 'admin' ? '/admin/profile' : '/profile')" title="Click to view My Full Profile" class="flex items-center gap-2 lg:gap-2.5 px-2 lg:px-3 py-1.5 bg-slate-500/10 border border-[var(--border-color)] rounded-full cursor-pointer transition-all duration-200 hover:bg-indigo-500/15 hover:border-[var(--border-highlight)]" :class="{ 'bg-indigo-500/15 border-[var(--border-highlight)]': route.path === '/profile' || route.path === '/admin/profile' }">
+            <div class="w-[28px] h-[28px] lg:w-[30px] lg:h-[30px] rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 text-white flex items-center justify-center font-bold text-[0.85rem] overflow-hidden shrink-0">
+              <img v-if="authStore.user?.profile_photo" :src="authStore.user.profile_photo" class="w-full h-full object-cover rounded-full" />
               <span v-else>{{ authStore.user?.name?.charAt(0).toUpperCase() }}</span>
             </div>
-            <div class="user-info">
-              <span class="user-name">{{ authStore.user?.name }}</span>
-              <span class="user-role" :class="authStore.user?.role">{{ authStore.user?.role }}</span>
+            <div class="hidden xl:flex flex-col leading-tight">
+              <span class="text-[0.85rem] font-semibold truncate max-w-[120px]">{{ authStore.user?.name }}</span>
+              <span class="text-[0.7rem] text-[var(--text-muted)] uppercase" :class="{ 'text-violet-500 font-bold': authStore.user?.role === 'admin' }">{{ authStore.user?.role }}</span>
             </div>
           </div>
           <button @click="handleLogout" class="btn btn-secondary btn-sm" title="Log Out">
@@ -123,9 +117,6 @@
       </div>
     </div>
 
-    <!-- My Student Profile Modal -->
-    <UserProfileModal :isOpen="isProfileModalOpen" @close="isProfileModalOpen = false" />
-
     <!-- Notifications Drawer -->
     <NotificationsDrawer />
   </header>
@@ -138,12 +129,13 @@ import { useLocaleStore } from '../stores/locale';
 import { useBooksStore } from '../stores/books';
 import { useThemeStore } from '../stores/theme';
 import { useNotificationsStore } from '../stores/notifications';
+import { useConfirmStore } from '../stores/confirm';
 import { useRoute, useRouter } from 'vue-router';
-import UserProfileModal from './UserProfileModal.vue';
 import NotificationsDrawer from './NotificationsDrawer.vue';
 import { 
   Home, BookOpen, Library, BookmarkCheck, Heart, LayoutDashboard, 
-  BookPlus, ClipboardList, Users, LogOut, Sun, Moon, Globe, Download, Bell 
+  BookPlus, ClipboardList, Users, LogOut, Sun, Moon, Globe, Download, Bell,
+  Compass, Bookmark
 } from 'lucide-vue-next';
 
 const authStore = useAuthStore();
@@ -175,7 +167,6 @@ function openWishlist() {
   }
 }
 
-const isProfileModalOpen = ref(false);
 const deferredPrompt = ref(null);
 const canInstallPwa = computed(() => !!deferredPrompt.value);
 
@@ -212,296 +203,21 @@ function applyTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme);
 }
 
-function handleLogout() {
-  authStore.logout();
-  router.push('/login');
+async function handleLogout() {
+  const confirmStore = useConfirmStore();
+  const confirmed = await confirmStore.showConfirm({
+    title: 'Log Out',
+    message: 'Are you sure you want to log out of your account?',
+    confirmText: 'Log Out',
+    type: 'danger'
+  });
+
+  if (confirmed) {
+    notifStore.closeDrawer();
+    authStore.logout();
+    router.push('/login');
+  }
 }
 </script>
 
-<style scoped>
-.navbar-header {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  background: var(--bg-card);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border-color);
-  padding: 0.85rem 1.5rem;
-  transition: background-color 0.3s ease, border-color 0.3s ease;
-}
 
-.navbar-container {
-  max-width: 1280px;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1.5rem;
-}
-
-.brand-logo {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.navbar-duc-logo {
-  height: 52px;
-  width: auto;
-  object-fit: contain;
-  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.15));
-  transition: transform 0.2s ease;
-}
-
-.brand-logo:hover .navbar-duc-logo {
-  transform: scale(1.05);
-}
-
-.logo-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  background: var(--accent-gradient);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  box-shadow: var(--accent-glow);
-}
-
-.brand-title {
-  font-size: 1.35rem;
-  font-weight: 800;
-  color: var(--text-primary);
-}
-
-.nav-links {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.nav-link {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.5rem 0.85rem;
-  border-radius: var(--radius-md);
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: var(--text-secondary);
-  transition: all 0.2s ease;
-}
-
-.nav-link:hover {
-  color: var(--text-primary);
-  background: rgba(125, 125, 125, 0.1);
-}
-
-.nav-link.active {
-  color: var(--text-primary);
-  background: rgba(99, 102, 241, 0.15);
-  font-weight: 600;
-}
-
-.nav-btn-link {
-  background: transparent;
-  border: none;
-  font-family: inherit;
-  cursor: pointer;
-}
-
-.admin-nav-group {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.admin-divider {
-  width: 1px;
-  height: 20px;
-  background: var(--border-color);
-  margin: 0 0.4rem;
-}
-
-.admin-link.active {
-  background: rgba(139, 92, 246, 0.2);
-  color: #8b5cf6;
-}
-
-.nav-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-}
-
-.lang-toggle-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.4rem 0.75rem;
-  border-radius: 9999px;
-  background: rgba(125, 125, 125, 0.1);
-  border: 1px solid var(--border-color);
-  color: var(--text-primary);
-  font-size: 0.82rem;
-  font-weight: 700;
-  transition: all 0.2s ease;
-}
-
-.lang-toggle-btn:hover {
-  background: rgba(99, 102, 241, 0.15);
-  border-color: var(--border-highlight);
-}
-
-.lang-text {
-  letter-spacing: 0.03em;
-}
-
-.theme-toggle-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: rgba(125, 125, 125, 0.1);
-  border: 1px solid var(--border-color);
-  color: var(--text-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.theme-toggle-btn:hover {
-  background: rgba(99, 102, 241, 0.15);
-  border-color: var(--border-highlight);
-}
-
-.notif-bell-btn {
-  position: relative;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: rgba(125, 125, 125, 0.1);
-  border: 1px solid var(--border-color);
-  color: var(--text-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.notif-bell-btn:hover {
-  background: rgba(99, 102, 241, 0.15);
-  border-color: var(--border-highlight);
-  color: var(--accent-primary);
-}
-
-.notif-badge-count {
-  position: absolute;
-  top: -2px;
-  right: -2px;
-  min-width: 17px;
-  height: 17px;
-  padding: 0 4px;
-  border-radius: 9999px;
-  background: #ef4444;
-  color: #ffffff;
-  font-size: 0.62rem;
-  font-weight: 800;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 0 10px rgba(239, 68, 68, 0.6);
-}
-
-.sun-icon {
-  color: #f59e0b;
-}
-
-.moon-icon {
-  color: #6366f1;
-}
-
-.user-pill {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.35rem 0.75rem;
-  background: rgba(125, 125, 125, 0.08);
-  border: 1px solid var(--border-color);
-  border-radius: 9999px;
-}
-
-.user-avatar {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background: var(--accent-gradient);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 0.85rem;
-  overflow: hidden;
-}
-
-.navbar-avatar-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 50%;
-}
-
-.user-info {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.2;
-}
-
-.user-name {
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-
-.user-role {
-  font-size: 0.7rem;
-  color: var(--text-muted);
-  text-transform: uppercase;
-}
-
-.user-role.admin {
-  color: #8b5cf6;
-  font-weight: 700;
-}
-
-.pwa-install-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.4rem 0.75rem;
-  border-radius: 9999px;
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  color: #ffffff;
-  font-size: 0.78rem;
-  font-weight: 700;
-  border: none;
-  cursor: pointer;
-  box-shadow: 0 2px 10px rgba(16, 185, 129, 0.3);
-  transition: all 0.2s ease;
-}
-
-.pwa-install-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.45);
-}
-
-@media (max-width: 768px) {
-  .navbar-header {
-    display: none !important;
-  }
-}
-</style>

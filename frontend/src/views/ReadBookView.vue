@@ -1,166 +1,232 @@
 <template>
-  <div class="reader-page-wrapper" :class="themeMode">
+  <div class="flex flex-col min-h-screen w-screen overflow-hidden transition-colors duration-350 ease-in-out" :class="themeMode === 'theme-dark' ? 'bg-[#0b0f19] text-slate-50' : themeMode === 'theme-sepia' ? 'bg-[#f2e3c6] text-[#3b2a1a]' : 'bg-slate-200 text-slate-900'">
     <!-- Top Reading Header Navigation Bar -->
-    <header class="reader-nav-header">
-      <div class="nav-left">
-        <button @click="goBack" class="reader-back-btn" title="Back to Book Catalog">
+    <header class="h-[60px] px-5 flex items-center justify-between bg-slate-900 border-b border-white/10 z-[100] shadow-[0_4px_20px_rgba(0,0,0,0.4)] text-slate-50 max-sm:h-[52px] max-sm:px-2.5 gap-4">
+      <div class="flex items-center gap-3.5 min-w-0 flex-1">
+        <button @click="goBack" class="flex-shrink-0 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-white/10 border border-white/15 text-slate-50 text-[0.82rem] font-semibold cursor-pointer transition-all duration-200 hover:bg-indigo-500/25 hover:border-indigo-500" title="Back to Book Catalog">
           <ArrowLeft :size="16" /> <span>{{ localeStore.t('back') || 'Back' }}</span>
         </button>
 
-        <div class="book-meta-group">
-          <span class="category-badge">{{ book?.category_name || 'General' }}</span>
-          <div class="title-meta">
-            <h1 class="nav-book-title" :title="book?.title">{{ book?.title || 'Loading Book...' }}</h1>
-            <span class="nav-book-author">by {{ book?.author || 'DUC Library' }}</span>
+        <div class="flex items-center gap-3 min-w-0">
+          <span class="px-2.5 py-1 rounded-full bg-indigo-500/20 border border-indigo-500/40 text-indigo-300 text-[0.72rem] font-bold hidden lg:flex max-w-[120px] xl:max-w-[180px] truncate flex-shrink-0" :title="book?.category_name">{{ book?.category_name || 'General' }}</span>
+          
+          <div class="flex flex-col min-w-0 flex-1">
+            <h1 class="text-[0.95rem] font-bold whitespace-nowrap overflow-hidden text-ellipsis max-w-[280px] m-0 max-sm:max-w-[120px] max-sm:text-[0.85rem]" :title="book?.title">{{ book?.title || 'Loading Book...' }}</h1>
+            <span class="text-[0.75rem] text-slate-400 truncate">by {{ book?.author || 'DUC Library' }}</span>
           </div>
-          <div class="active-readers-pill" title="People reading this book online right now">
-            <span class="live-pulse-dot"></span>
-            <span>{{ activeReadersCount }} reading now</span>
+
+          <div class="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[0.72rem] font-semibold flex-shrink-0 whitespace-nowrap" title="People reading this book online right now">
+            <span class="w-[7px] h-[7px] flex-shrink-0 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981] animate-[pulse_1.8s_infinite]"></span>
+            <span class="hidden lg:inline-block">{{ activeReadersCount }} reading now</span>
+            <span class="lg:hidden">{{ activeReadersCount }}</span>
           </div>
         </div>
       </div>
 
-      <div class="nav-right">
-        <!-- Theme Mode Switcher -->
-        <div class="theme-picker-wrapper" title="Reading Background Theme">
-          <span class="picker-label">Theme:</span>
-          <div class="theme-picker">
+      <div class="flex items-center gap-2 sm:gap-3.5 flex-shrink-0">
+        <!-- Theme Mode Switcher Dropdown -->
+        <div class="relative flex items-center gap-2" title="Reading Background Theme">
+          <span class="text-[0.75rem] text-slate-400 hidden xl:inline-block">Theme:</span>
+          
+          <button 
+            @click="isThemeDropdownOpen = !isThemeDropdownOpen"
+            @blur="setTimeout(() => isThemeDropdownOpen = false, 200)"
+            class="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-2 rounded-full bg-white/10 border border-white/15 text-slate-50 text-[0.82rem] font-semibold cursor-pointer transition-all duration-200 hover:bg-white/20"
+          >
+            <Moon v-if="themeMode === 'theme-dark'" :size="14" />
+            <Coffee v-else-if="themeMode === 'theme-sepia'" :size="14" />
+            <Sun v-else :size="14" />
+            
+            <span class="btn-label hidden sm:inline-block">
+              {{ themeMode === 'theme-dark' ? 'Dark' : themeMode === 'theme-sepia' ? 'Sepia' : 'Light' }}
+            </span>
+            <ChevronDown :size="14" class="text-slate-400 transition-transform duration-200" :class="isThemeDropdownOpen ? 'rotate-180' : ''" />
+          </button>
+
+          <!-- Dropdown Menu -->
+          <div 
+            v-show="isThemeDropdownOpen" 
+            class="absolute top-full right-0 mt-2 w-36 bg-slate-800 border border-white/15 rounded-xl shadow-xl overflow-hidden z-[100] flex flex-col py-1 animate-in fade-in slide-in-from-top-2"
+          >
             <button 
-              @click="themeMode = 'theme-dark'" 
-              class="theme-btn dark" 
-              :class="{ active: themeMode === 'theme-dark' }"
-              title="Dark Mode"
+              @click="themeMode = 'theme-dark'; isThemeDropdownOpen = false" 
+              class="flex items-center gap-2 px-4 py-2.5 text-[0.8rem] font-semibold cursor-pointer transition-colors duration-200 text-left border-none"
+              :class="themeMode === 'theme-dark' ? 'bg-indigo-500/20 text-indigo-300' : 'bg-transparent text-slate-300 hover:bg-white/5'"
             >
-              <Moon :size="14" />
-              <span class="btn-label">Dark</span>
+              <Moon :size="14" /> Dark
             </button>
             <button 
-              @click="themeMode = 'theme-sepia'" 
-              class="theme-btn sepia" 
-              :class="{ active: themeMode === 'theme-sepia' }"
-              title="Warm Sepia Mode"
+              @click="themeMode = 'theme-sepia'; isThemeDropdownOpen = false" 
+              class="flex items-center gap-2 px-4 py-2.5 text-[0.8rem] font-semibold cursor-pointer transition-colors duration-200 text-left border-none"
+              :class="themeMode === 'theme-sepia' ? 'bg-amber-500/20 text-amber-300' : 'bg-transparent text-slate-300 hover:bg-white/5'"
             >
-              <Coffee :size="14" />
-              <span class="btn-label">Sepia</span>
+              <Coffee :size="14" /> Sepia
             </button>
             <button 
-              @click="themeMode = 'theme-light'" 
-              class="theme-btn light" 
-              :class="{ active: themeMode === 'theme-light' }"
-              title="Light Mode"
+              @click="themeMode = 'theme-light'; isThemeDropdownOpen = false" 
+              class="flex items-center gap-2 px-4 py-2.5 text-[0.8rem] font-semibold cursor-pointer transition-colors duration-200 text-left border-none"
+              :class="themeMode === 'theme-light' ? 'bg-sky-500/20 text-sky-300' : 'bg-transparent text-slate-300 hover:bg-white/5'"
             >
-              <Sun :size="14" />
-              <span class="btn-label">Light</span>
+              <Sun :size="14" /> Light
             </button>
           </div>
         </div>
 
         <!-- Fullscreen Toggle Button -->
-        <button @click="toggleFullscreen" class="header-action-btn" title="Toggle Fullscreen">
+        <button @click="toggleFullscreen" class="w-[34px] h-[34px] rounded-full bg-white/10 border border-white/15 text-slate-50 flex items-center justify-center cursor-pointer" title="Toggle Fullscreen">
           <Maximize2 v-if="!isFullscreen" :size="16" />
           <Minimize2 v-else :size="16" />
         </button>
 
         <!-- Borrow Book Action Button -->
-        <button v-if="book" @click="openBorrowModal" class="borrow-btn">
-          <BookmarkPlus :size="16" /> <span>Borrow Physical Copy</span>
+        <button v-if="book" @click="openBorrowModal" class="inline-flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 border-none text-white text-[0.8rem] font-bold cursor-pointer shadow-[0_4px_14px_rgba(99,102,241,0.35)]">
+          <BookmarkPlus :size="16" /> <span class="hidden lg:inline-block">Borrow Physical Copy</span>
         </button>
       </div>
     </header>
 
     <!-- Main Fullscreen Reading Area -->
-    <main class="reader-main-area" ref="mainAreaRef">
+    <main class="flex-1 relative overflow-hidden flex flex-col" ref="mainAreaRef">
       <!-- Loading State -->
-      <div v-if="loading || pdfLoading" class="loading-state">
-        <Loader2 :size="48" class="spin loader-icon" />
+      <div v-if="loading || pdfLoading" class="flex flex-col items-center justify-center gap-4 h-[calc(100vh-60px)] text-slate-400">
+        <Loader2 :size="48" class="animate-spin text-indigo-500" />
         <p>Loading Digital PDF Reader...</p>
       </div>
 
       <!-- Continuous Multi-Page PDF Canvas Reader View -->
       <div 
-        v-else-if="book?.pdf_url" 
-        class="ebook-canvas-container"
+        v-else-if="book?.pdf_url && viewMode === 'ebook'" 
+        class="w-full h-[calc(100vh-60px)] overflow-y-auto overflow-x-hidden relative flex flex-col items-center px-4 pb-24 pt-6 max-sm:px-1 max-sm:pb-22 max-sm:pt-3"
         ref="pdfScrollContainerRef"
         @scroll="onPdfScroll"
       >
-        <div class="paper-viewport-list">
+        <div class="flex flex-col items-center gap-7 w-full max-w-full">
           <div 
             v-for="pageNum in totalPdfPages" 
             :key="pageNum"
             :id="`pdf-page-${pageNum}`"
-            class="ebook-paper-sheet" 
-            :class="themeMode"
+            class="relative rounded-[var(--radius-md)] shadow-[0_16px_40px_rgba(0,0,0,0.45)] overflow-hidden transition-colors duration-300" 
+            :class="themeMode === 'theme-dark' ? 'bg-slate-900' : 'bg-white'"
           >
-            <canvas :ref="el => setCanvasRef(el, pageNum)" class="pdf-page-canvas"></canvas>
-            <div v-if="!renderedPagesSet.has(pageNum)" class="canvas-render-overlay">
-              <Loader2 :size="32" class="spin" />
+            <canvas :ref="el => setCanvasRef(el, pageNum)" class="block max-w-full h-auto"></canvas>
+            <div v-if="!renderedPagesSet.has(pageNum)" class="absolute inset-0 bg-slate-900/60 flex items-center justify-center text-indigo-500">
+              <Loader2 :size="32" class="animate-spin" />
             </div>
-            <div class="page-number-footer">Page {{ pageNum }} of {{ totalPdfPages }}</div>
+            <div class="text-center p-1.5 text-[0.72rem] text-slate-400 bg-slate-900/80">Page {{ pageNum }} of {{ totalPdfPages }}</div>
           </div>
         </div>
 
         <!-- Floating Reader Dock -->
-        <div class="ebook-floating-dock">
-          <button @click="scrollToPage(currentPageNum - 1)" :disabled="currentPageNum <= 1" class="dock-btn" title="Previous Page">
-            <ChevronLeft :size="18" /> <span>Prev</span>
+        <div class="fixed bottom-5 left-1/2 -translate-x-1/2 z-[99] flex items-center gap-3 px-4 py-2 rounded-full bg-slate-900/90 backdrop-blur-md border border-white/15 shadow-[0_12px_36px_rgba(0,0,0,0.5)] text-slate-50 max-sm:bottom-2.5 max-sm:px-2.5 max-sm:py-1.5 max-sm:gap-1.5">
+          <button @click="scrollToPage(currentPageNum - 1)" :disabled="currentPageNum <= 1" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 border border-white/15 text-slate-50 text-[0.78rem] font-semibold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed" title="Previous Page">
+            <ChevronLeft :size="18" /> <span class="max-sm:hidden">Prev</span>
           </button>
 
-          <div class="dock-page-info">
+          <div class="flex items-center gap-1.5 text-[0.8rem] text-slate-400">
             <span>Page</span>
             <input 
-              type="number" 
+              type="text" 
+              inputmode="numeric"
+              pattern="[0-9]*"
               v-model.number="currentPageNum" 
               @change="scrollToPage(currentPageNum)" 
-              min="1" 
-              :max="totalPdfPages"
-              class="page-input"
+              class="w-14 px-1 text-center bg-white/10 border border-white/15 rounded-md text-slate-50 text-[0.85rem] font-bold py-1 outline-none focus:ring-1 focus:ring-indigo-500 transition-all duration-200"
             />
             <span>of {{ totalPdfPages }}</span>
           </div>
 
-          <div class="dock-zoom-controls">
-            <button @click="zoomOut" class="dock-icon-btn" title="Zoom Out"><ZoomOut :size="16" /></button>
-            <span @click="resetZoom" class="zoom-label" title="Reset Zoom">{{ Math.round(pdfScale * 100) }}%</span>
-            <button @click="zoomIn" class="dock-icon-btn" title="Zoom In"><ZoomIn :size="16" /></button>
+          <div class="flex items-center gap-1.5 px-2 border-l border-r border-white/10">
+            <button @click="zoomOut" class="bg-transparent border-none text-slate-400 cursor-pointer hover:text-slate-200" title="Zoom Out"><ZoomOut :size="16" /></button>
+            <span @click="resetZoom" class="text-[0.75rem] font-bold text-sky-400 cursor-pointer" title="Reset Zoom">{{ Math.round(pdfScale * 100) }}%</span>
+            <button @click="zoomIn" class="bg-transparent border-none text-slate-400 cursor-pointer hover:text-slate-200" title="Zoom In"><ZoomIn :size="16" /></button>
           </div>
 
-          <button @click="scrollToPage(currentPageNum + 1)" :disabled="currentPageNum >= totalPdfPages" class="dock-btn primary" title="Next Page">
-            <span>Next</span> <ChevronRight :size="18" />
+          <button @click="scrollToPage(currentPageNum + 1)" :disabled="currentPageNum >= totalPdfPages" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-slate-50 text-[0.78rem] font-semibold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-br from-indigo-500 to-purple-500 border-none" title="Next Page">
+            <span class="max-sm:hidden">Next</span> <ChevronRight :size="18" />
           </button>
         </div>
       </div>
 
       <!-- Original Raw PDF Iframe View Fallback -->
-      <div v-else-if="book?.pdf_url && viewMode === 'raw'" class="pdf-container">
+      <div v-else-if="book?.pdf_url && viewMode === 'raw'" class="w-full h-[calc(100vh-60px)]">
         <iframe 
           :src="pdfUrlFormatted" 
-          class="fullscreen-pdf-iframe" 
+          class="w-full h-full border-none" 
           title="Digital PDF Reader"
         ></iframe>
       </div>
 
-      <!-- Physical Book Information Notice -->
-      <div v-else class="empty-reader-notice">
-        <div class="notice-card glass-panel">
-          <div class="notice-icon-circle">
-            <BookOpen :size="48" />
-          </div>
-          <h2>Physical Library Book</h2>
-          <p class="notice-desc">
-            <strong>"{{ book?.title }}"</strong> is available in physical copy at DUC Library!
-          </p>
-          <div class="copies-pill">
-            <PackageCheck :size="16" />
-            <span>{{ book?.copies_available || 0 }} of {{ book?.copies_total || 0 }} physical copies available for borrowing</span>
+      <!-- Premium Physical Book Information Notice -->
+      <div v-else class="flex items-center justify-center p-8 h-full relative overflow-hidden" :class="themeMode === 'theme-dark' ? 'bg-[#050811]' : themeMode === 'theme-light' ? 'bg-slate-50' : 'bg-[#eadeb5]'">
+        
+        <!-- Background Blur Effect using Book Cover -->
+        <div v-if="book?.cover_url" class="absolute inset-0 z-0 opacity-20 blur-[100px] scale-110 pointer-events-none transition-all duration-1000" :style="`background: url(${book.cover_url}) center/cover no-repeat;`"></div>
+
+        <div class="relative z-10 w-full max-w-[850px] flex max-md:flex-col items-center gap-12 p-10 rounded-[2.5rem] border transition-all duration-300"
+             :class="themeMode === 'theme-dark' ? 'bg-slate-900/60 border-white/10 shadow-[0_30px_60px_rgba(0,0,0,0.6)]' : themeMode === 'theme-light' ? 'bg-white/70 border-slate-200 shadow-[0_30px_60px_rgba(0,0,0,0.1)]' : 'bg-[#f5ebd2]/70 border-[#d1bd8e] shadow-[0_30px_60px_rgba(100,80,50,0.15)]'" style="backdrop-filter: blur(20px);">
+          
+          <!-- Book Cover with 3D Float Effect -->
+          <div class="relative shrink-0 perspective-1000 max-md:mt-4">
+            <div class="w-[220px] h-[320px] rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] animate-book-float group relative border border-white/10">
+              <img v-if="book?.cover_url" :src="book.cover_url" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Book Cover" />
+              <div v-else class="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white">
+                <BookOpen :size="64" class="opacity-50" />
+              </div>
+              <!-- Glare effect -->
+              <div class="absolute inset-0 bg-gradient-to-tr from-black/40 via-transparent to-white/20 pointer-events-none mix-blend-overlay"></div>
+            </div>
+            <!-- Ground Shadow -->
+            <div class="absolute -bottom-8 left-1/2 -translate-x-1/2 w-[180px] h-[12px] bg-black/40 rounded-[100%] blur-md animate-shadow-pulse"></div>
           </div>
 
-          <div class="notice-actions">
-            <button @click="goBack" class="btn btn-secondary">
-              <ArrowLeft :size="16" /> Back to Catalog
-            </button>
-            <button @click="openBorrowModal" class="btn btn-primary" :disabled="book?.copies_available <= 0">
-              <BookmarkPlus :size="16" /> Request Borrow Now
-            </button>
+          <div class="flex-1 text-center md:text-left flex flex-col items-center md:items-start w-full">
+            <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full mb-5" :class="themeMode === 'theme-dark' ? 'bg-white/10 text-slate-300 border border-white/10' : 'bg-slate-200 text-slate-700 border border-slate-300'">
+              <Library :size="14" />
+              <span class="text-[0.75rem] font-bold tracking-wider uppercase">Physical Collection</span>
+            </div>
+            
+            <h2 class="text-[2.5rem] font-extrabold mb-3 leading-tight max-sm:text-[2rem]" :class="themeMode === 'theme-dark' ? 'text-white' : 'text-slate-900'">
+              {{ book?.title }}
+            </h2>
+            
+            <p class="text-[1.05rem] leading-relaxed mb-8 max-w-[450px]" :class="themeMode === 'theme-dark' ? 'text-slate-400' : 'text-slate-600'">
+              This is a premium physical book in our library. Reserve your copy online and pick it up from the front desk today!
+            </p>
+
+            <div class="w-full h-[1px] mb-8" :class="themeMode === 'theme-dark' ? 'bg-gradient-to-r from-transparent via-white/15 to-transparent md:via-white/15 md:to-transparent' : 'bg-gradient-to-r from-transparent via-slate-300 to-transparent md:via-slate-300 md:to-transparent'"></div>
+
+            <div class="flex flex-wrap items-center justify-center md:justify-start gap-4 w-full mb-8">
+              <div class="flex items-center gap-4 px-5 py-3.5 rounded-2xl border" :class="themeMode === 'theme-dark' ? 'bg-black/40 border-white/10' : 'bg-slate-100 border-slate-200'">
+                <div class="w-12 h-12 rounded-full flex items-center justify-center" :class="book?.copies_available > 0 ? 'bg-emerald-500/20 text-emerald-500' : 'bg-rose-500/20 text-rose-500'">
+                  <PackageCheck v-if="book?.copies_available > 0" :size="24" />
+                  <PackageX v-else :size="24" />
+                </div>
+                <div class="flex flex-col text-left">
+                  <span class="text-[0.75rem] font-bold uppercase tracking-wider" :class="themeMode === 'theme-dark' ? 'text-slate-500' : 'text-slate-500'">Status</span>
+                  <span class="text-[1.2rem] font-extrabold" :class="book?.copies_available > 0 ? 'text-emerald-500' : 'text-rose-500'">
+                    {{ book?.copies_available > 0 ? 'Available' : 'Out of Stock' }}
+                  </span>
+                </div>
+              </div>
+              
+              <div class="flex items-center gap-4 px-5 py-3.5 rounded-2xl border" :class="themeMode === 'theme-dark' ? 'bg-black/40 border-white/10' : 'bg-slate-100 border-slate-200'">
+                <div class="flex flex-col text-left">
+                  <span class="text-[0.75rem] font-bold uppercase tracking-wider" :class="themeMode === 'theme-dark' ? 'text-slate-500' : 'text-slate-500'">Copies Left</span>
+                  <span class="text-[1.2rem] font-extrabold" :class="themeMode === 'theme-dark' ? 'text-slate-200' : 'text-slate-800'">
+                    {{ book?.copies_available || 0 }} <span class="text-slate-500 text-[1rem] font-semibold">/ {{ book?.copies_total || 0 }}</span>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex flex-wrap justify-center md:justify-start gap-4 w-full">
+              <button @click="goBack" class="flex-1 sm:flex-none flex justify-center items-center gap-2 px-6 py-4 rounded-xl font-bold transition-all duration-300 hover:-translate-y-1" :class="themeMode === 'theme-dark' ? 'bg-white/10 text-white hover:bg-white/20' : 'bg-slate-200 text-slate-800 hover:bg-slate-300'">
+                <ArrowLeft :size="18" /> Go Back
+              </button>
+              <button @click="openBorrowModal" :disabled="book?.copies_available <= 0" class="flex-[2] sm:flex-none flex justify-center items-center gap-2 px-8 py-4 rounded-xl text-white font-bold transition-all duration-300 hover:-translate-y-1 shadow-[0_10px_20px_rgba(99,102,241,0.3)] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:shadow-none" style="background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);">
+                <BookmarkPlus :size="18" /> Reserve Physical Copy
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -186,7 +252,7 @@ import BorrowModal from '../components/BorrowModal.vue';
 import { 
   ArrowLeft, ChevronLeft, ChevronRight, Moon, Coffee, Sun, 
   Maximize2, Minimize2, BookmarkPlus, Loader2, BookOpen, 
-  PackageCheck, ZoomIn, ZoomOut 
+  PackageCheck, PackageX, Library, ZoomIn, ZoomOut, ChevronDown 
 } from 'lucide-vue-next';
 
 const route = useRoute();
@@ -199,6 +265,7 @@ const book = ref(null);
 const loading = ref(true);
 const viewMode = ref('ebook');
 const themeMode = ref('theme-dark');
+const isThemeDropdownOpen = ref(false);
 const isFullscreen = ref(false);
 const isBorrowOpen = ref(false);
 const mainAreaRef = ref(null);
@@ -208,13 +275,17 @@ const pdfDoc = shallowRef(null);
 const currentPageNum = ref(1);
 const totalPdfPages = ref(0);
 const pdfScale = ref(1.25);
-const pdfLoading = ref(true);
+const pdfLoading = ref(false);
 const pdfError = ref(null);
 const canvasRefsMap = new Map();
 const renderedPagesSet = ref(new Set());
 const pdfScrollContainerRef = ref(null);
 
-const sessionId = 'session-' + Math.random().toString(36).substring(2, 11) + '-' + Date.now();
+let sessionId = sessionStorage.getItem('reader_session_id');
+if (!sessionId) {
+  sessionId = 'session-' + Math.random().toString(36).substring(2, 11) + '-' + Date.now();
+  sessionStorage.setItem('reader_session_id', sessionId);
+}
 const activeReadersCount = ref(1);
 let heartbeatTimer = null;
 
@@ -392,9 +463,12 @@ async function initPdfReader(url) {
 async function sendReadingPing(isInitial = false) {
   if (!book.value?.id) return;
   try {
-    const res = await fetch(`http://localhost:5001/api/books/${book.value.id}/ping-reading`, {
+    const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/books/${book.value.id}/read-ping`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        ...(authStore.token ? { 'Authorization': `Bearer ${authStore.token}` } : {})
+      },
       body: JSON.stringify({ session_id: sessionId })
     });
     if (res.ok) {
@@ -406,7 +480,32 @@ async function sendReadingPing(isInitial = false) {
   }
 }
 
+async function sendReadingLeave() {
+  if (!book.value?.id || !sessionId) return;
+  try {
+    const url = `${import.meta.env.VITE_API_URL || ''}/api/books/${book.value.id}/read-leave`;
+    const data = JSON.stringify({ session_id: sessionId });
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon(url, new Blob([data], { type: 'application/json' }));
+    } else {
+      await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: data,
+        keepalive: true
+      });
+    }
+  } catch (err) {
+    console.error('Reading leave error:', err);
+  }
+}
+
+const handleBeforeUnload = () => {
+  sendReadingLeave();
+};
+
 onMounted(async () => {
+  window.addEventListener('beforeunload', handleBeforeUnload);
   try {
     const bookId = route.params.id;
     book.value = await booksStore.fetchBookById(bookId);
@@ -426,7 +525,9 @@ onMounted(async () => {
 });
 
 onUnmounted(() => {
+  window.removeEventListener('beforeunload', handleBeforeUnload);
   if (heartbeatTimer) clearInterval(heartbeatTimer);
+  sendReadingLeave();
 });
 
 function goBack() {
@@ -465,390 +566,21 @@ function toggleFullscreen() {
 </script>
 
 <style scoped>
-.reader-page-wrapper {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  width: 100vw;
-  overflow: hidden;
-  transition: background-color 0.35s ease, color 0.35s ease;
+@keyframes book-float {
+  0%, 100% { transform: translateY(0) rotateX(5deg) rotateY(-5deg); }
+  50% { transform: translateY(-15px) rotateX(12deg) rotateY(-8deg); }
 }
-
-/* Theme Base Rules */
-.reader-page-wrapper.theme-dark {
-  background: #0b0f19;
-  color: #f8fafc;
+@keyframes shadow-pulse {
+  0%, 100% { transform: translateX(-50%) scale(1); opacity: 0.4; }
+  50% { transform: translateX(-50%) scale(0.85); opacity: 0.2; }
 }
-
-.reader-page-wrapper.theme-sepia {
-  background: #f2e3c6;
-  color: #3b2a1a;
+.animate-book-float {
+  animation: book-float 6s ease-in-out infinite;
 }
-
-.reader-page-wrapper.theme-light {
-  background: #e2e8f0;
-  color: #0f172a;
+.animate-shadow-pulse {
+  animation: shadow-pulse 6s ease-in-out infinite;
 }
-
-/* Header */
-.reader-nav-header {
-  height: 60px;
-  padding: 0 1.25rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: #0f172a;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  z-index: 100;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-  color: #f8fafc;
-}
-
-.nav-left, .nav-right {
-  display: flex;
-  align-items: center;
-  gap: 0.85rem;
-}
-
-.reader-back-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.45rem 0.85rem;
-  border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #f8fafc;
-  font-size: 0.82rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.reader-back-btn:hover {
-  background: rgba(99, 102, 241, 0.25);
-  border-color: #6366f1;
-}
-
-.book-meta-group {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.category-badge {
-  padding: 0.25rem 0.65rem;
-  border-radius: 9999px;
-  background: rgba(99, 102, 241, 0.2);
-  border: 1px solid rgba(99, 102, 241, 0.4);
-  color: #a5b4fc;
-  font-size: 0.72rem;
-  font-weight: 700;
-}
-
-.title-meta {
-  display: flex;
-  flex-direction: column;
-}
-
-.nav-book-title {
-  font-size: 0.95rem;
-  font-weight: 700;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 280px;
-  margin: 0;
-}
-
-.nav-book-author {
-  font-size: 0.75rem;
-  color: #94a3b8;
-}
-
-.active-readers-pill {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.25rem 0.65rem;
-  border-radius: 9999px;
-  background: rgba(16, 185, 129, 0.15);
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  color: #6ee7b7;
-  font-size: 0.72rem;
-  font-weight: 600;
-}
-
-.live-pulse-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #10b981;
-  box-shadow: 0 0 8px #10b981;
-  animation: pulse 1.8s infinite;
-}
-
-@keyframes pulse {
-  0% { transform: scale(0.95); opacity: 0.8; }
-  50% { transform: scale(1.25); opacity: 1; }
-  100% { transform: scale(0.95); opacity: 0.8; }
-}
-
-.theme-picker-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.picker-label {
-  font-size: 0.75rem;
-  color: #94a3b8;
-}
-
-.theme-picker {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  padding: 3px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 9999px;
-}
-
-.theme-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  padding: 0.35rem 0.65rem;
-  border-radius: 9999px;
-  background: transparent;
-  border: none;
-  color: #94a3b8;
-  font-size: 0.75rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.theme-btn.active {
-  background: rgba(255, 255, 255, 0.15);
-  color: #ffffff;
-}
-
-.header-action-btn {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #f8fafc;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-
-.borrow-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.45rem 0.95rem;
-  border-radius: 9999px;
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-  border: none;
-  color: #ffffff;
-  font-size: 0.8rem;
-  font-weight: 700;
-  cursor: pointer;
-  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
-}
-
-/* Main Area */
-.reader-main-area {
-  flex: 1;
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-.loading-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  height: calc(100vh - 60px);
-  color: #94a3b8;
-}
-
-.loader-icon {
-  color: #6366f1;
-}
-
-/* Continuous Multi-Page PDF Canvas Container */
-.ebook-canvas-container {
-  width: 100%;
-  height: calc(100vh - 60px);
-  overflow-y: auto;
-  overflow-x: hidden;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 1.5rem 1rem 6rem;
-  background: var(--reader-bg);
-}
-
-.paper-viewport-list {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.75rem;
-  width: 100%;
-  max-width: 100%;
-}
-
-.ebook-paper-sheet {
-  position: relative;
-  border-radius: var(--radius-md);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
-  background: #ffffff;
-  overflow: hidden;
-  transition: background 0.3s ease;
-}
-
-.theme-dark .ebook-paper-sheet {
-  background: #0f172a;
-}
-
-.pdf-page-canvas {
-  display: block;
-  max-width: 100%;
-  height: auto;
-}
-
-.canvas-render-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #6366f1;
-}
-
-.page-number-footer {
-  text-align: center;
-  padding: 0.4rem;
-  font-size: 0.72rem;
-  color: #94a3b8;
-  background: rgba(15, 23, 42, 0.8);
-}
-
-/* Floating Dock */
-.ebook-floating-dock {
-  position: fixed;
-  bottom: 1.25rem;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 99;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.5rem 1rem;
-  border-radius: 9999px;
-  background: rgba(15, 23, 42, 0.92);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5);
-  color: #f8fafc;
-}
-
-.dock-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  padding: 0.35rem 0.75rem;
-  border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #f8fafc;
-  font-size: 0.78rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.dock-btn.primary {
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-  border: none;
-}
-
-.dock-page-info {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  font-size: 0.8rem;
-  color: #94a3b8;
-}
-
-.page-input {
-  width: 44px;
-  text-align: center;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 6px;
-  color: #f8fafc;
-  font-size: 0.82rem;
-  font-weight: 700;
-  padding: 0.2rem 0;
-}
-
-.dock-zoom-controls {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0 0.5rem;
-  border-left: 1px solid rgba(255, 255, 255, 0.1);
-  border-right: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.dock-icon-btn {
-  background: transparent;
-  border: none;
-  color: #94a3b8;
-  cursor: pointer;
-}
-
-.zoom-label {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: #38bdf8;
-  cursor: pointer;
-}
-
-@media (max-width: 640px) {
-  .reader-nav-header {
-    height: 52px;
-    padding: 0 0.65rem;
-  }
-  .nav-book-title {
-    max-width: 120px;
-    font-size: 0.85rem;
-  }
-  .category-badge, .active-readers-pill, .picker-label, .borrow-btn span {
-    display: none;
-  }
-  .ebook-canvas-container {
-    padding: 0.75rem 0.25rem 5.5rem;
-  }
-  .ebook-floating-dock {
-    bottom: 0.65rem;
-    padding: 0.35rem 0.65rem;
-    gap: 0.4rem;
-  }
-  .dock-btn span {
-    display: none;
-  }
+.perspective-1000 {
+  perspective: 1000px;
 }
 </style>

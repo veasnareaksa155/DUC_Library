@@ -1,75 +1,87 @@
 <template>
-  <aside class="admin-sidebar glass-panel">
+  <aside class="w-[280px] h-fit max-h-[calc(100vh-2rem)] sticky top-4 self-start m-4 ml-4 flex flex-col p-6 rounded-[var(--radius-xl)] z-40 shrink-0 box-border max-[900px]:hidden glass-panel border border-[var(--border-color)] shadow-[0_8px_32px_rgba(0,0,0,0.05)] transition-all duration-300">
     <!-- Brand Header -->
-    <div class="sidebar-header">
-      <router-link to="/admin" class="brand-logo">
-        <img src="/duc-logo.png" alt="DUC Logo" class="sidebar-duc-logo" />
-        <div class="brand-text">
-          <span class="brand-title">DUC<span class="text-gradient">Library</span></span>
-          <span class="brand-subtitle">{{ localeStore.t('adminPortal') }}</span>
+    <div class="pb-6 mb-6 border-b border-[var(--border-color)]">
+      <router-link to="/admin" class="flex items-center gap-3.5 group">
+        <div class="w-12 h-12 rounded-[var(--radius-md)] bg-white p-1.5 shadow-md flex items-center justify-center transition-transform duration-300 group-hover:scale-105 group-hover:-rotate-3">
+          <img src="/duc-logo.png" alt="DUC Logo" class="w-full h-full object-contain" />
+        </div>
+        <div class="flex flex-col">
+          <span class="text-[1.35rem] font-extrabold text-[var(--text-primary)] tracking-tight">DUC<span class="text-transparent bg-clip-text [background-image:var(--accent-gradient)]">Library</span></span>
+          <span class="text-[0.68rem] text-indigo-500 font-bold uppercase tracking-[0.1em] mt-0.5">{{ localeStore.t('adminPortal') }}</span>
         </div>
       </router-link>
     </div>
 
     <!-- Navigation Menu -->
-    <nav class="sidebar-nav">
-      <div class="nav-section-title">MAIN MENU</div>
+    <nav class="flex flex-col gap-2 mb-6 flex-1">
+      <div class="flex items-center gap-3 px-2 mb-2">
+        <span class="text-[0.65rem] font-extrabold text-[var(--text-muted)] tracking-[0.15em] uppercase">Main Menu</span>
+        <div class="h-px bg-gradient-to-r from-[var(--border-color)] to-transparent flex-1"></div>
+      </div>
 
-      <router-link to="/admin" class="sidebar-link" active-class="active" exact>
-        <LayoutDashboard :size="18" />
-        <span>{{ localeStore.t('dashboard') }}</span>
+      <router-link to="/admin" class="group flex items-center gap-3.5 px-3.5 py-3 rounded-2xl text-[var(--text-secondary)] text-[0.92rem] font-semibold transition-all duration-300 hover:text-[var(--text-primary)] hover:bg-indigo-500/10 [&.active]:text-white [&.active]:[background:var(--accent-gradient)] [&.active]:shadow-[0_8px_20px_rgba(99,102,241,0.35)]" active-class="active" exact>
+        <div class="flex items-center justify-center w-8 h-8 rounded-[10px] transition-all duration-300 [&.active]:bg-white/20 group-[.active]:bg-white/20 group-hover:not(.active):text-indigo-500 group-hover:not(.active):bg-indigo-500/10">
+          <LayoutDashboard :size="18" class="transition-transform duration-300 group-hover:scale-110" />
+        </div>
+        <span class="tracking-wide">{{ localeStore.t('dashboard') }}</span>
       </router-link>
 
-      <router-link to="/admin/books" class="sidebar-link" active-class="active">
-        <BookPlus :size="18" />
-        <span>{{ localeStore.t('books') }}</span>
+      <router-link to="/admin/books" class="group flex items-center gap-3.5 px-3.5 py-3 rounded-2xl text-[var(--text-secondary)] text-[0.92rem] font-semibold transition-all duration-300 hover:text-[var(--text-primary)] hover:bg-indigo-500/10 [&.active]:text-white [&.active]:[background:var(--accent-gradient)] [&.active]:shadow-[0_8px_20px_rgba(99,102,241,0.35)]" active-class="active">
+        <div class="flex items-center justify-center w-8 h-8 rounded-[10px] transition-all duration-300 [&.active]:bg-white/20 group-[.active]:bg-white/20 group-hover:not(.active):text-indigo-500 group-hover:not(.active):bg-indigo-500/10">
+          <BookPlus :size="18" class="transition-transform duration-300 group-hover:scale-110" />
+        </div>
+        <span class="tracking-wide">{{ localeStore.t('books') }}</span>
       </router-link>
 
-      <router-link to="/admin/borrowings" class="sidebar-link" active-class="active">
-        <ClipboardList :size="18" />
-        <span>{{ localeStore.t('requests') }}</span>
-        <span v-if="pendingCount > 0" class="badge-count">{{ pendingCount }}</span>
+      <router-link to="/admin/borrowings" class="group flex items-center gap-3.5 px-3.5 py-3 rounded-2xl text-[var(--text-secondary)] text-[0.92rem] font-semibold transition-all duration-300 hover:text-[var(--text-primary)] hover:bg-indigo-500/10 [&.active]:text-white [&.active]:[background:var(--accent-gradient)] [&.active]:shadow-[0_8px_20px_rgba(99,102,241,0.35)]" active-class="active">
+        <div class="flex items-center justify-center w-8 h-8 rounded-[10px] transition-all duration-300 [&.active]:bg-white/20 group-[.active]:bg-white/20 group-hover:not(.active):text-indigo-500 group-hover:not(.active):bg-indigo-500/10 relative">
+          <ClipboardList :size="18" class="transition-transform duration-300 group-hover:scale-110" />
+          <span v-if="pendingCount > 0" class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full animate-ping"></span>
+          <span v-if="pendingCount > 0" class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border border-[var(--bg-card)]"></span>
+        </div>
+        <span class="tracking-wide flex-1">{{ localeStore.t('requests') }}</span>
+        <span v-if="pendingCount > 0" class="bg-red-500/10 text-red-500 group-[.active]:bg-white/20 group-[.active]:text-white text-[0.7rem] font-extrabold px-2 py-0.5 rounded-full transition-colors">{{ pendingCount }}</span>
       </router-link>
 
-      <router-link to="/admin/users" class="sidebar-link" active-class="active">
-        <Users :size="18" />
-        <span>{{ localeStore.t('users') }}</span>
+      <router-link to="/admin/users" class="group flex items-center gap-3.5 px-3.5 py-3 rounded-2xl text-[var(--text-secondary)] text-[0.92rem] font-semibold transition-all duration-300 hover:text-[var(--text-primary)] hover:bg-indigo-500/10 [&.active]:text-white [&.active]:[background:var(--accent-gradient)] [&.active]:shadow-[0_8px_20px_rgba(99,102,241,0.35)]" active-class="active">
+        <div class="flex items-center justify-center w-8 h-8 rounded-[10px] transition-all duration-300 [&.active]:bg-white/20 group-[.active]:bg-white/20 group-hover:not(.active):text-indigo-500 group-hover:not(.active):bg-indigo-500/10">
+          <Users :size="18" class="transition-transform duration-300 group-hover:scale-110" />
+        </div>
+        <span class="tracking-wide">{{ localeStore.t('users') }}</span>
       </router-link>
     </nav>
 
     <!-- Sidebar Footer Controls -->
-    <div class="sidebar-footer">
-      <div class="controls-row">
+    <div class="pt-6 mt-auto border-t border-[var(--border-color)] flex flex-col gap-4">
+      <div class="flex gap-3">
         <!-- Language Switcher -->
-        <button @click="toggleLanguage" class="ctrl-pill" title="Toggle Language">
-          <Globe :size="15" />
+        <button @click="toggleLanguage" class="group flex-1 flex items-center justify-center gap-2 p-2.5 rounded-xl bg-gray-500/5 border border-[var(--border-color)] text-[var(--text-primary)] text-[0.8rem] font-bold transition-all duration-300 hover:bg-gray-500/10 hover:border-indigo-500/30 hover:text-indigo-500 hover:-translate-y-0.5" title="Toggle Language">
+          <Globe :size="16" class="transition-transform duration-300 group-hover:rotate-12" />
           <span>{{ localeStore.currentLang === 'en' ? 'EN' : 'ខ្មែរ' }}</span>
         </button>
 
         <!-- Theme Toggle -->
-        <button @click="toggleTheme" class="ctrl-pill" title="Toggle Theme">
-          <Sun v-if="isDark" :size="15" class="sun-icon" />
-          <Moon v-else :size="15" class="moon-icon" />
+        <button @click="toggleTheme" class="group flex-1 flex items-center justify-center gap-2 p-2.5 rounded-xl bg-gray-500/5 border border-[var(--border-color)] text-[var(--text-primary)] text-[0.8rem] font-bold transition-all duration-300 hover:bg-gray-500/10 hover:border-indigo-500/30 hover:-translate-y-0.5" title="Toggle Theme">
+          <Sun v-if="isDark" :size="16" class="text-amber-500 transition-transform duration-300 group-hover:rotate-90" />
+          <Moon v-else :size="16" class="text-indigo-500 transition-transform duration-300 group-hover:-rotate-12" />
         </button>
       </div>
 
       <!-- Admin User Pill -->
-      <div class="admin-user-card" @click="isProfileModalOpen = true" style="cursor: pointer" title="Click to view My Full Profile">
-        <div class="user-avatar">
+      <div class="flex items-center gap-3 p-3 bg-gray-500/5 hover:bg-gray-500/10 border border-[var(--border-color)] rounded-2xl cursor-pointer transition-all duration-300 group" @click="router.push('/admin/profile')" title="Click to view My Full Profile">
+        <div class="w-10 h-10 rounded-xl [background:var(--accent-gradient)] text-white flex items-center justify-center font-extrabold text-[1rem] shadow-[0_4px_12px_rgba(99,102,241,0.3)] group-hover:scale-105 transition-transform duration-300">
           {{ authStore.user?.name?.charAt(0).toUpperCase() }}
         </div>
-        <div class="user-details">
-          <span class="user-name">{{ authStore.user?.name }}</span>
-          <span class="user-role">{{ authStore.user?.role?.toUpperCase() || 'USER' }}</span>
+        <div class="flex flex-col leading-tight flex-1 overflow-hidden">
+          <span class="text-[0.85rem] font-bold text-[var(--text-primary)] whitespace-nowrap overflow-hidden text-ellipsis">{{ authStore.user?.name }}</span>
+          <span class="text-[0.65rem] text-indigo-500 font-extrabold tracking-wider mt-0.5">{{ authStore.user?.role?.toUpperCase() || 'USER' }}</span>
         </div>
-        <button @click.stop="handleLogout" class="btn-logout" title="Log Out">
-          <LogOut :size="16" />
+        <button @click.stop="handleLogout" class="bg-transparent border-none text-[var(--text-muted)] p-2 rounded-lg transition-all duration-300 hover:text-red-500 hover:bg-red-500/15" title="Log Out">
+          <LogOut :size="18" class="group-hover:translate-x-0.5 transition-transform" />
         </button>
       </div>
     </div>
-
-    <!-- My Student Profile Modal -->
-    <UserProfileModal :isOpen="isProfileModalOpen" @close="isProfileModalOpen = false" />
   </aside>
 </template>
 
@@ -78,8 +90,8 @@ import { ref, computed, onMounted } from 'vue';
 import { useAuthStore } from '../stores/auth';
 import { useLocaleStore } from '../stores/locale';
 import { useBorrowingsStore } from '../stores/borrowings';
+import { useConfirmStore } from '../stores/confirm';
 import { useRouter } from 'vue-router';
-import UserProfileModal from './UserProfileModal.vue';
 import { 
   ShieldCheck, LayoutDashboard, BookPlus, ClipboardList, 
   Users, Globe, Sun, Moon, LogOut 
@@ -91,7 +103,6 @@ const borrowingsStore = useBorrowingsStore();
 const router = useRouter();
 
 const isDark = ref(true);
-const isProfileModalOpen = ref(false);
 
 const pendingCount = computed(() => borrowingsStore.dashboardStats?.pending_requests || 0);
 
@@ -117,233 +128,20 @@ function applyTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme);
 }
 
-function handleLogout() {
-  authStore.logout();
-  router.push('/login');
+async function handleLogout() {
+  const confirmStore = useConfirmStore();
+  const confirmed = await confirmStore.showConfirm({
+    title: 'Log Out',
+    message: 'Are you sure you want to log out of the admin portal?',
+    confirmText: 'Log Out',
+    type: 'danger'
+  });
+
+  if (confirmed) {
+    authStore.logout();
+    router.push('/login');
+  }
 }
 </script>
 
-<style scoped>
-.admin-sidebar {
-  width: 260px;
-  height: fit-content;
-  max-height: calc(100vh - 2rem);
-  position: sticky;
-  top: 1rem;
-  align-self: flex-start;
-  margin: 1rem 0 1rem 1rem;
-  display: flex;
-  flex-direction: column;
-  padding: 1.25rem 1rem;
-  border-radius: var(--radius-xl);
-  z-index: 40;
-  flex-shrink: 0;
-  box-sizing: border-box;
-}
 
-.sidebar-header {
-  padding-bottom: 1rem;
-  border-bottom: 1px solid var(--border-color);
-  margin-bottom: 1rem;
-}
-
-.brand-logo {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.sidebar-duc-logo {
-  height: 48px;
-  width: auto;
-  object-fit: contain;
-  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.15));
-}
-
-.logo-icon {
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
-  background: var(--accent-gradient);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: var(--accent-glow);
-}
-
-.brand-text {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.2;
-}
-
-.brand-title {
-  font-size: 1.2rem;
-  font-weight: 800;
-  color: var(--text-primary);
-}
-
-.brand-subtitle {
-  font-size: 0.7rem;
-  color: #8b5cf6;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.sidebar-nav {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  margin-bottom: 1rem;
-}
-
-.nav-section-title {
-  font-size: 0.68rem;
-  font-weight: 800;
-  color: var(--text-muted);
-  letter-spacing: 0.08em;
-  padding: 0.5rem 0.75rem 0.25rem;
-}
-
-.sidebar-link {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.65rem 0.85rem;
-  border-radius: var(--radius-md);
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-  font-weight: 600;
-  transition: all 0.25s var(--spring-ease);
-}
-
-.sidebar-link:hover {
-  color: var(--text-primary);
-  background: rgba(125, 125, 125, 0.1);
-  transform: translateX(4px);
-}
-
-.sidebar-link.active {
-  color: white;
-  background: var(--accent-gradient);
-  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.35);
-}
-
-.badge-count {
-  margin-left: auto;
-  background: #ef4444;
-  color: white;
-  font-size: 0.7rem;
-  font-weight: 800;
-  padding: 0.15rem 0.5rem;
-  border-radius: 9999px;
-  animation: pulseAlert 2s infinite;
-}
-
-.mt-4 {
-  margin-top: 1rem;
-}
-
-.sidebar-footer {
-  padding-top: 1rem;
-  border-top: 1px solid var(--border-color);
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.controls-row {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.ctrl-pill {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.35rem;
-  padding: 0.45rem;
-  border-radius: var(--radius-md);
-  background: rgba(125, 125, 125, 0.08);
-  border: 1px solid var(--border-color);
-  color: var(--text-primary);
-  font-size: 0.8rem;
-  font-weight: 700;
-  transition: all 0.2s ease;
-}
-
-.ctrl-pill:hover {
-  background: rgba(125, 125, 125, 0.18);
-}
-
-.sun-icon { color: #f59e0b; }
-.moon-icon { color: #6366f1; }
-
-.admin-user-card {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-  padding: 0.6rem 0.75rem;
-  background: rgba(125, 125, 125, 0.06);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-}
-
-.user-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: var(--accent-gradient);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 800;
-  font-size: 0.85rem;
-}
-
-.user-details {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.2;
-  flex: 1;
-  overflow: hidden;
-}
-
-.user-name {
-  font-size: 0.82rem;
-  font-weight: 700;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.user-role {
-  font-size: 0.65rem;
-  color: #8b5cf6;
-  font-weight: 800;
-}
-
-.btn-logout {
-  background: transparent;
-  border: none;
-  color: var(--text-muted);
-  padding: 0.25rem;
-  border-radius: 6px;
-  transition: all 0.2s ease;
-}
-
-.btn-logout:hover {
-  color: #ef4444;
-  background: rgba(239, 68, 68, 0.15);
-}
-
-@media (max-width: 900px) {
-  .admin-sidebar {
-    display: none;
-  }
-}
-</style>

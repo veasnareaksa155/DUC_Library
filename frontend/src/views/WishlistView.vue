@@ -1,28 +1,28 @@
 <template>
-  <div class="wishlist-page-container">
+  <div class="max-w-[1280px] mx-auto px-6 pb-16 pt-6 max-sm:px-2 max-sm:pb-20 max-sm:pt-3">
 
     <!-- Notification Toast -->
-    <div v-if="toastMessage" class="toast-alert glass-panel">
+    <div v-if="toastMessage" class="flex items-center gap-3 px-4 py-3 mb-6 bg-emerald-500/12 border border-emerald-500/30 text-emerald-400 rounded-md glass-panel">
       <CheckCircle2 :size="20" class="text-success" />
       <span>{{ toastMessage }}</span>
-      <button @click="toastMessage = ''" class="btn-close-toast"><X :size="16" /></button>
+      <button @click="toastMessage = ''" class="ml-auto bg-transparent border-none text-inherit cursor-pointer p-1"><X :size="16" /></button>
     </div>
 
     <!-- Main Content Section -->
-    <main class="wishlist-main-section">
+    <main>
       <!-- Loading State -->
-      <div v-if="booksStore.loading" class="loading-state">
-        <Loader2 :size="36" class="spin" />
+      <div v-if="booksStore.loading" class="text-center p-16 text-[var(--text-muted)]">
+        <Loader2 :size="36" class="animate-spin mx-auto mb-2" />
         <p>Loading your saved wishlist...</p>
       </div>
 
       <!-- Empty State -->
-      <div v-else-if="wishlistBooks.length === 0" class="empty-wishlist-card glass-panel text-center">
-        <div class="empty-heart-circle">
+      <div v-else-if="wishlistBooks.length === 0" class="max-w-[540px] mx-auto my-12 p-14 rounded-[var(--radius-lg)] glass-panel text-center">
+        <div class="w-[88px] h-[88px] mx-auto mb-6 rounded-full bg-red-500/12 border border-red-500/30 flex items-center justify-center shadow-[0_0_35px_rgba(239,68,68,0.25)]">
           <Heart :size="48" color="#ef4444" />
         </div>
-        <h2 class="empty-title">Your Wishlist is Empty</h2>
-        <p class="empty-desc">
+        <h2 class="text-[1.5rem] font-extrabold text-[var(--text-primary)] mb-2">Your Wishlist is Empty</h2>
+        <p class="text-[0.92rem] text-[var(--text-secondary)] leading-[1.55] mb-6">
           You haven't saved any books to your wishlist yet. Explore the library catalog and tap the heart icon on any book to save it here!
         </p>
         <router-link to="/catalog" class="btn btn-primary btn-lg mt-3">
@@ -31,60 +31,78 @@
       </div>
 
       <!-- Wishlist Books Grid -->
-      <div v-else class="wishlist-grid-wrapper">
-        <div class="grid-header-bar">
-          <span class="grid-label">Showing {{ wishlistBooks.length }} saved items</span>
-          <button @click="clearAllWishlist" class="btn-clear-wishlist">
-            <Trash2 :size="15" /> Clear All Wishlist
+      <div v-else>
+        <!-- Premium Header -->
+        <div class="flex items-center justify-between mb-8 pb-4 border-b border-[var(--border-color)]/60">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-red-500/10 flex items-center justify-center text-red-500 shadow-inner border border-red-500/20">
+              <Heart :size="24" fill="currentColor" />
+            </div>
+            <div>
+              <h1 class="text-[1.45rem] font-extrabold text-[var(--text-primary)] leading-tight m-0">My Collection</h1>
+              <span class="text-[0.9rem] font-medium text-[var(--text-muted)]">{{ wishlistBooks.length }} saved items</span>
+            </div>
+          </div>
+          <button @click="clearAllWishlist" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--bg-card)] border border-[var(--border-color)] text-red-500 text-[0.85rem] font-bold cursor-pointer shadow-sm transition-all duration-300 hover:bg-red-500 hover:text-white hover:border-red-500 hover:shadow-[0_6px_20px_rgba(239,68,68,0.25)] hover:-translate-y-0.5 group">
+            <Trash2 :size="16" class="group-hover:animate-bounce" /> <span class="max-sm:hidden">Clear All</span>
           </button>
         </div>
 
-        <div class="wishlist-row-list">
+        <div class="flex flex-col gap-5">
           <div 
             v-for="book in wishlistBooks" 
             :key="book.id" 
-            class="wishlist-row-card glass-panel"
+            class="group relative flex flex-row items-center gap-5 p-4 rounded-[1.25rem] bg-[var(--bg-card)] border border-[var(--border-color)] shadow-[0_4px_20px_rgba(0,0,0,0.03)] overflow-hidden transition-all duration-300 hover:shadow-[0_12px_40px_rgba(239,68,68,0.12)] hover:border-red-400/30 hover:-translate-y-1 max-sm:p-3 max-sm:gap-3"
           >
+            <!-- Subtle Hover Gradient Background -->
+            <div class="absolute inset-0 bg-gradient-to-r from-red-500/0 via-red-500/[0.03] to-red-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+
             <!-- Left Thumbnail Cover -->
-            <div class="row-cover-wrapper" @click="openReaderModal(book)">
-              <img :src="book.cover_url || fallbackCover" :alt="book.title" class="row-cover-img" loading="lazy" decoding="async" />
-              <div class="row-stock-badge" :class="{ 'out-of-stock': book.copies_available <= 0 }">
-                {{ book.copies_available > 0 ? `${book.copies_available} In Stock` : 'Out' }}
+            <div class="relative w-[100px] h-[140px] shrink-0 rounded-xl overflow-hidden cursor-pointer bg-slate-100 dark:bg-slate-800 shadow-[0_4px_15px_rgba(0,0,0,0.1)] group-hover:shadow-[0_8px_25px_rgba(0,0,0,0.15)] transition-all duration-300 transform group-hover:scale-[1.02] max-sm:w-[80px] max-sm:h-[115px]" @click="openReaderModal(book)">
+              <img :src="book.cover_url || fallbackCover" :alt="book.title" class="w-full h-full object-cover" loading="lazy" decoding="async" />
+              <!-- Glass Badge -->
+              <div class="absolute bottom-1.5 left-1.5 right-1.5 py-1 px-1.5 rounded-lg backdrop-blur-md bg-white/20 dark:bg-black/40 border border-white/30 dark:border-white/10 text-white text-[0.65rem] font-bold text-center whitespace-nowrap overflow-hidden text-ellipsis shadow-sm transition-colors duration-300" :class="book.copies_available <= 0 ? 'bg-red-500/70' : 'bg-emerald-500/70'">
+                {{ book.copies_available > 0 ? `${book.copies_available} In Stock` : 'Out of Stock' }}
               </div>
             </div>
 
             <!-- Center Book Meta Info & Actions -->
-            <div class="row-info-body">
-              <div class="row-header-meta">
-                <span class="row-category-tag">{{ book.category_name || 'General' }}</span>
-                <span class="row-author">by {{ book.author || 'DUC Library' }}</span>
+            <div class="flex-1 min-w-0 flex flex-col gap-2 py-1 relative z-10">
+              <div class="flex items-center gap-2.5 flex-wrap">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-[0.65rem] font-extrabold uppercase tracking-wider border border-indigo-500/20 shadow-sm">{{ book.category_name || 'General' }}</span>
+                <span class="text-[0.8rem] font-medium text-[var(--text-muted)] flex items-center gap-1.5">
+                  <span class="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-600"></span>
+                  by {{ book.author || 'DUC Library' }}
+                </span>
               </div>
 
-              <h3 class="row-book-title" @click="openReaderModal(book)">{{ book.title }}</h3>
+              <h3 class="text-[1.15rem] font-extrabold text-[var(--text-primary)] leading-snug cursor-pointer line-clamp-2 m-0 group-hover:text-indigo-500 transition-colors max-sm:text-[0.95rem]" @click="openReaderModal(book)">{{ book.title }}</h3>
 
-              <div class="row-actions">
-                <button @click="openReaderModal(book)" class="btn btn-primary btn-sm">
-                  <BookOpenCheck :size="14" /> Read
+              <div class="flex items-center gap-3 mt-2">
+                <button @click="openReaderModal(book)" class="btn btn-primary btn-sm !px-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 bg-gradient-to-r from-indigo-500 to-purple-500 border-0">
+                  <BookOpenCheck :size="15" /> Read Now
                 </button>
                 <button 
                   @click="openBorrowModal(book)" 
-                  class="btn btn-secondary btn-sm" 
+                  class="btn btn-secondary btn-sm !px-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 bg-[var(--bg-card)] border border-[var(--border-color)] hover:bg-slate-50 dark:hover:bg-slate-800" 
                   :disabled="book.copies_available <= 0"
                 >
-                  <BookmarkPlus :size="14" /> Borrow
+                  <BookmarkPlus :size="15" /> Borrow
                 </button>
               </div>
             </div>
 
             <!-- Right Remove Heart Action Button -->
-            <button 
-              @click.stop="removeFromWishlist(book)" 
-              class="row-remove-btn" 
-              title="Remove from Wishlist"
-            >
-              <Heart :size="16" fill="#ef4444" color="#ef4444" />
-              <span class="remove-text">Remove</span>
-            </button>
+            <div class="pl-4 pr-2 border-l border-[var(--border-color)]/60 shrink-0 self-stretch flex items-center justify-center max-sm:border-l-0 max-sm:pl-0 max-sm:pr-0 relative z-10">
+              <button 
+                @click.stop="removeFromWishlist(book)" 
+                class="flex flex-col items-center justify-center gap-1.5 w-[75px] h-[75px] rounded-2xl bg-red-500/5 border border-transparent text-red-500 hover:bg-red-500 hover:border-red-400 hover:text-white hover:shadow-[0_6px_20px_rgba(239,68,68,0.4)] hover:-translate-y-1 transition-all duration-300 max-sm:w-[45px] max-sm:h-[45px] max-sm:rounded-xl" 
+                title="Remove from Wishlist"
+              >
+                <Heart :size="24" class="fill-current transition-transform duration-300 group-hover:scale-110" />
+                <span class="text-[0.65rem] font-bold uppercase tracking-wider max-sm:hidden">Remove</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -178,346 +196,4 @@ function handleBorrowSuccess(msg) {
 }
 </script>
 
-<style scoped>
-.wishlist-page-container {
-  max-width: 1560px;
-  margin: 0 auto;
-  padding: 1.5rem 1.5rem 4rem;
-}
 
-.wishlist-hero-header {
-  padding: 2.25rem 2rem;
-  border-radius: var(--radius-lg);
-  margin-bottom: 2rem;
-  background: linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(99, 102, 241, 0.08) 100%);
-  border: 1px solid rgba(239, 68, 68, 0.2);
-}
-
-.hero-content {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-}
-
-.heart-badge-icon {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  background: rgba(239, 68, 68, 0.15);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 8px 25px rgba(239, 68, 68, 0.2);
-  flex-shrink: 0;
-}
-
-.header-text {
-  flex: 1;
-}
-
-.page-title {
-  font-size: 2.1rem;
-  font-weight: 800;
-  color: var(--text-primary);
-  margin-bottom: 0.3rem;
-}
-
-.text-gradient-red {
-  background: linear-gradient(135deg, #ef4444, #f43f5e);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.page-subtitle {
-  font-size: 0.95rem;
-  color: var(--text-secondary);
-}
-
-.wishlist-counter-pill {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  border-radius: 9999px;
-  background: rgba(239, 68, 68, 0.15);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  color: #f87171;
-  font-size: 0.88rem;
-  font-weight: 700;
-}
-
-.toast-alert {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.85rem 1.1rem;
-  margin-bottom: 1.5rem;
-  background: rgba(16, 185, 129, 0.12);
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  color: #6ee7b7;
-  border-radius: var(--radius-md);
-}
-
-.btn-close-toast {
-  margin-left: auto;
-  background: transparent;
-  border: none;
-  color: inherit;
-  cursor: pointer;
-}
-
-.empty-wishlist-card {
-  max-width: 540px;
-  margin: 3rem auto;
-  padding: 3.5rem 2rem;
-  border-radius: var(--radius-lg);
-}
-
-.empty-heart-circle {
-  width: 88px;
-  height: 88px;
-  margin: 0 auto 1.5rem;
-  border-radius: 50%;
-  background: rgba(239, 68, 68, 0.12);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 0 35px rgba(239, 68, 68, 0.25);
-}
-
-.empty-title {
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: var(--text-primary);
-  margin-bottom: 0.5rem;
-}
-
-.empty-desc {
-  font-size: 0.92rem;
-  color: var(--text-secondary);
-  line-height: 1.55;
-  margin-bottom: 1.5rem;
-}
-
-.grid-header-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1.25rem;
-}
-
-.grid-label {
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: var(--text-muted);
-}
-
-.btn-clear-wishlist {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.4rem 0.85rem;
-  border-radius: var(--radius-md);
-  background: rgba(239, 68, 68, 0.12);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  color: #f87171;
-  font-size: 0.82rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-clear-wishlist:hover {
-  background: rgba(239, 68, 68, 0.25);
-}
-
-.wishlist-row-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.85rem;
-}
-
-.wishlist-row-card {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 1rem;
-  padding: 0.85rem 1.1rem;
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-  animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.wishlist-row-card:hover {
-  border-color: rgba(239, 68, 68, 0.35);
-  box-shadow: 0 8px 24px rgba(239, 68, 68, 0.12);
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.row-cover-wrapper {
-  position: relative;
-  width: 96px;
-  height: 128px;
-  flex-shrink: 0;
-  border-radius: var(--radius-md, 10px);
-  overflow: hidden;
-  cursor: pointer;
-  background: #0f172a;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.row-cover-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.row-stock-badge {
-  position: absolute;
-  bottom: 4px;
-  left: 4px;
-  right: 4px;
-  padding: 0.1rem 0.2rem;
-  border-radius: 9999px;
-  background: rgba(16, 185, 129, 0.9);
-  color: #ffffff;
-  font-size: 0.58rem;
-  font-weight: 700;
-  text-align: center;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.row-stock-badge.out-of-stock {
-  background: rgba(239, 68, 68, 0.9);
-}
-
-.row-info-body {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.row-header-meta {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  flex-wrap: wrap;
-}
-
-.row-category-tag {
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: #818cf8;
-  text-transform: uppercase;
-}
-
-.row-author {
-  font-size: 0.78rem;
-  color: var(--text-muted);
-}
-
-.row-book-title {
-  font-size: 0.95rem;
-  font-weight: 800;
-  color: var(--text-primary);
-  line-height: 1.5;
-  padding: 0.1rem 0;
-  cursor: pointer;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  margin: 0;
-}
-
-.row-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 0.3rem;
-}
-
-.row-remove-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.45rem 0.8rem;
-  border-radius: 9999px;
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.25);
-  color: #f87171;
-  font-size: 0.78rem;
-  font-weight: 700;
-  cursor: pointer;
-  flex-shrink: 0;
-  transition: all 0.2s ease;
-}
-
-.row-remove-btn:hover {
-  background: rgba(239, 68, 68, 0.25);
-  border-color: rgba(239, 68, 68, 0.5);
-  transform: scale(1.05);
-}
-
-.loading-state {
-  text-align: center;
-  padding: 4rem;
-  color: var(--text-muted);
-}
-
-.spin {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-@media (max-width: 640px) {
-  .wishlist-page-container {
-    padding: 0.75rem 0.5rem 5rem;
-  }
-  .wishlist-row-card {
-    padding: 0.65rem 0.75rem;
-    gap: 0.65rem;
-  }
-  .row-cover-wrapper {
-    width: 82px;
-    height: 110px;
-  }
-  .row-book-title {
-    font-size: 0.84rem;
-  }
-  .row-remove-btn .remove-text {
-    display: none;
-  }
-  .row-remove-btn {
-    padding: 0.4rem;
-    border-radius: 50%;
-    width: 32px;
-    height: 32px;
-    justify-content: center;
-  }
-}
-</style>

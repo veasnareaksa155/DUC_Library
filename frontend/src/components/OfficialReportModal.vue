@@ -1,13 +1,13 @@
 <template>
-  <div v-if="isOpen" class="report-modal-backdrop" @click.self="close">
-    <div class="report-modal-container glass-panel">
+  <div v-if="isOpen" class="fixed inset-0 bg-[#0f172a]/75 backdrop-blur-[8px] z-[9999] flex justify-center items-start px-4 py-8 overflow-y-auto" @click.self="close">
+    <div class="w-full max-w-[900px] bg-white text-slate-800 rounded-xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.35)] overflow-hidden">
       <!-- Toolbar Header (Screen Only) -->
-      <header class="report-toolbar no-print">
-        <div class="toolbar-title">
-          <FileText :size="20" class="text-indigo" />
+      <header class="flex justify-between items-center px-6 py-4 bg-slate-50 border-b border-slate-200 print:hidden">
+        <div class="flex items-center gap-2 font-bold text-slate-900">
+          <FileText :size="20" class="text-indigo-600" />
           <span>Official Cambodian Library Activity Report Preview</span>
         </div>
-        <div class="toolbar-actions">
+        <div class="flex gap-3">
           <button @click="printReport" class="btn btn-primary btn-sm">
             <Printer :size="16" /> Print / Save as PDF
           </button>
@@ -18,185 +18,185 @@
       </header>
 
       <!-- Official Printable Document Canvas -->
-      <div class="official-paper-canvas" id="printable-report">
+      <div class="bg-white px-[3.5rem] py-[3rem] font-sans text-slate-900 leading-[1.6]" id="printable-report">
         <!-- 1. Official Kingdom Header -->
-        <div class="kingdom-header-grid">
+        <div class="relative min-h-[180px] mb-8 pb-[1.2rem]">
           <!-- Left: Crest Logo & University Names -->
-          <div class="header-left-block">
-            <img src="/duc-logo.png" alt="DUC Crest Logo" class="duc-official-crest-logo" />
-            <div class="duc-title-khmer">សាកលវិទ្យាល័យឌីជីថលកម្ពុជា</div>
-            <div class="duc-sub-khmer">បណ្ណាល័យសិក្សា</div>
+          <div class="absolute left-0 top-0 flex flex-col items-center text-center">
+            <img src="/duc-logo.png" alt="DUC Crest Logo" class="h-[105px] w-auto object-contain mb-2 block" />
+            <div class="font-['Moul','Moulpali','Khmer_OS_Muol_Light','Khmer_OS_Muol',serif] text-[1rem] font-normal text-slate-900 leading-[1.6]">សាកលវិទ្យាល័យឌីជីថលកម្ពុជា</div>
+            <div class="font-['Moul','Moulpali','Khmer_OS_Muol_Light','Khmer_OS_Muol',serif] text-[0.95rem] font-normal text-slate-900 mt-[0.2rem]">បណ្ណាល័យសិក្សា</div>
           </div>
 
           <!-- Center: Kingdom Motto -->
-          <div class="header-center-kingdom-block">
-            <h1 class="kingdom-title">ព្រះរាជាណាចក្រកម្ពុជា</h1>
-            <h2 class="kingdom-motto">ជាតិ សាសនា ព្រះមហាក្សត្រ</h2>
-            <div class="kingdom-ornament-wrap">
-              <img src="/khmer-ornament.png" alt="Cambodian Flourish Divider" class="khmer-flourish-img" />
+          <div class="absolute left-1/2 -translate-x-1/2 top-0 text-center w-max">
+            <h1 class="font-['Moul','Moulpali','Khmer_OS_Muol_Light','Khmer_OS_Muol',serif] text-[1.35rem] font-normal text-slate-900 mb-[0.4rem] leading-[1.5]">ព្រះរាជាណាចក្រកម្ពុជា</h1>
+            <h2 class="font-['Moul','Moulpali','Khmer_OS_Muol_Light','Khmer_OS_Muol',serif] text-[1.15rem] font-normal text-slate-900 mb-[0.6rem] leading-[1.5]">ជាតិ សាសនា ព្រះមហាក្សត្រ</h2>
+            <div class="flex justify-center items-center mt-[0.3rem]">
+              <img src="/khmer-ornament.png" alt="Cambodian Flourish Divider" class="h-[28px] w-auto max-w-[240px] object-contain" />
             </div>
           </div>
         </div>
 
         <!-- 2. Official Document Title -->
-        <div class="report-main-title">
-          <h2 class="report-heading">របាយការណ៍</h2>
-          <p class="report-subheading">
+        <div class="text-center my-6 mb-8">
+          <h2 class="font-['Moul','Moulpali','Khmer_OS_Muol_Light','Khmer_OS_Muol',serif] text-[1.75rem] font-normal text-slate-900 tracking-[1px] leading-[1.6]">របាយការណ៍</h2>
+          <p class="font-['Moul','Moulpali','Khmer_OS_Muol_Light','Khmer_OS_Muol',serif] text-[0.95rem] font-normal text-slate-900 mt-2 leading-[1.6]">
             ស្តីពីលទ្ធផលនិស្សិតប្រចាំ {{ periodKhmer }} ឆ្នាំ២០២៦
           </p>
         </div>
 
         <!-- 3. Section I: Student Reading Gender Summary Table -->
-        <div class="report-section">
-          <h3 class="section-title-khmer">I. លទ្ធផលនិស្សិតចូលអានសៀវភៅសរុបប្រចាំ {{ periodKhmer }}</h3>
-          <table class="khmer-official-table">
+        <div class="mb-8">
+          <h3 class="font-['Moul','Moulpali','Khmer_OS_Muol_Light','Khmer_OS_Muol',serif] text-[0.98rem] font-normal text-slate-900 mb-3 leading-[1.6]">I. លទ្ធផលនិស្សិតចូលអានសៀវភៅសរុបប្រចាំ {{ periodKhmer }}</h3>
+          <table class="w-full border-collapse text-[0.9rem]">
             <thead>
-              <tr class="header-blue-row">
-                <th width="70">ល.រ</th>
-                <th width="220">ភេទ</th>
-                <th width="180">ចំនួន</th>
-                <th>ផ្សេងៗ</th>
+              <tr class="bg-[#b4c6e7] text-slate-900 font-extrabold text-center">
+                <th class="border border-slate-400 px-[0.85rem] py-[0.6rem]" width="70">ល.រ</th>
+                <th class="border border-slate-400 px-[0.85rem] py-[0.6rem]" width="220">ភេទ</th>
+                <th class="border border-slate-400 px-[0.85rem] py-[0.6rem]" width="180">ចំនួន</th>
+                <th class="border border-slate-400 px-[0.85rem] py-[0.6rem]">ផ្សេងៗ</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td class="text-center">1</td>
-                <td class="text-center">ប្រុស</td>
-                <td class="text-center">{{ toKhmerNum(reportData?.gender_summary?.male ?? (reportData?.top_readers?.length || 0)) }} នាក់</td>
-                <td></td>
+              <tr class="even:bg-slate-50">
+                <td class="border border-slate-400 px-[0.85rem] py-[0.6rem] text-center">1</td>
+                <td class="border border-slate-400 px-[0.85rem] py-[0.6rem] text-center">ប្រុស</td>
+                <td class="border border-slate-400 px-[0.85rem] py-[0.6rem] text-center">{{ toKhmerNum(reportData?.gender_summary?.male ?? (reportData?.top_readers?.length || 0)) }} នាក់</td>
+                <td class="border border-slate-400 px-[0.85rem] py-[0.6rem]"></td>
+              </tr>
+              <tr class="even:bg-slate-50">
+                <td class="border border-slate-400 px-[0.85rem] py-[0.6rem] text-center">2</td>
+                <td class="border border-slate-400 px-[0.85rem] py-[0.6rem] text-center">ស្រី</td>
+                <td class="border border-slate-400 px-[0.85rem] py-[0.6rem] text-center">{{ toKhmerNum(reportData?.gender_summary?.female ?? 0) }} នាក់</td>
+                <td class="border border-slate-400 px-[0.85rem] py-[0.6rem]"></td>
               </tr>
               <tr>
-                <td class="text-center">2</td>
-                <td class="text-center">ស្រី</td>
-                <td class="text-center">{{ toKhmerNum(reportData?.gender_summary?.female ?? 0) }} នាក់</td>
-                <td></td>
-              </tr>
-              <tr class="summary-blue-footer">
-                <td colspan="2" class="text-center bold-val">សរុប</td>
-                <td class="text-center bold-val">{{ toKhmerNum(reportData?.gender_summary?.total ?? (reportData?.top_readers?.length || 0)) }} នាក់</td>
-                <td></td>
+                <td colspan="2" class="border border-slate-400 px-[0.85rem] py-[0.6rem] text-center font-extrabold text-[#1e1b4b] bg-[#b4c6e7]">សរុប</td>
+                <td class="border border-slate-400 px-[0.85rem] py-[0.6rem] text-center font-extrabold text-[#1e1b4b] bg-[#b4c6e7]">{{ toKhmerNum(reportData?.gender_summary?.total ?? (reportData?.top_readers?.length || 0)) }} នាក់</td>
+                <td class="border border-slate-400 px-[0.85rem] py-[0.6rem] bg-[#b4c6e7]"></td>
               </tr>
             </tbody>
           </table>
         </div>
 
         <!-- 4. Section II: Student Reading Activity List Table -->
-        <div class="report-section">
-          <h3 class="section-title-khmer">II. លទ្ធផលនិស្សិតចូលអានសៀវភៅប្រចាំ {{ periodKhmer }}</h3>
-          <table class="khmer-official-table">
+        <div class="mb-8">
+          <h3 class="font-['Moul','Moulpali','Khmer_OS_Muol_Light','Khmer_OS_Muol',serif] text-[0.98rem] font-normal text-slate-900 mb-3 leading-[1.6]">II. លទ្ធផលនិស្សិតចូលអានសៀវភៅប្រចាំ {{ periodKhmer }}</h3>
+          <table class="w-full border-collapse text-[0.9rem]">
             <thead>
-              <tr class="header-blue-row">
-                <th width="60">ល.រ</th>
-                <th width="200">ឈ្មោះ</th>
-                <th width="80">ភេទ</th>
-                <th width="240">ជំនាញសិក្សា</th>
-                <th>ផ្សេងៗ</th>
+              <tr class="bg-[#b4c6e7] text-slate-900 font-extrabold text-center">
+                <th class="border border-slate-400 px-[0.85rem] py-[0.6rem]" width="60">ល.រ</th>
+                <th class="border border-slate-400 px-[0.85rem] py-[0.6rem]" width="200">ឈ្មោះ</th>
+                <th class="border border-slate-400 px-[0.85rem] py-[0.6rem]" width="80">ភេទ</th>
+                <th class="border border-slate-400 px-[0.85rem] py-[0.6rem]" width="240">ជំនាញសិក្សា</th>
+                <th class="border border-slate-400 px-[0.85rem] py-[0.6rem]">ផ្សេងៗ</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-if="!reportData?.top_readers || reportData.top_readers.length === 0">
-                <td colspan="5" class="text-center text-muted">គ្មានទិន្នន័យសកម្មភាពសិស្សក្នុងអំឡុងពេលនេះឡើយ</td>
+              <tr class="even:bg-slate-50" v-if="!reportData?.top_readers || reportData.top_readers.length === 0">
+                <td colspan="5" class="border border-slate-400 px-[0.85rem] py-[0.6rem] text-center text-slate-500">គ្មានទិន្នន័យសកម្មភាពសិស្សក្នុងអំឡុងពេលនេះឡើយ</td>
               </tr>
-              <tr v-else v-for="(r, idx) in reportData.top_readers" :key="r.id">
-                <td class="text-center">{{ idx + 1 }}</td>
-                <td class="font-bold text-center">{{ r.name_khmer || r.name }}</td>
-                <td class="text-center">{{ r.gender || 'ស្រី' }}</td>
-                <td class="text-center">{{ r.major || 'ព័ត៌មានវិទ្យា' }}</td>
-                <td></td>
+              <tr class="even:bg-slate-50" v-else v-for="(r, idx) in reportData.top_readers" :key="r.id">
+                <td class="border border-slate-400 px-[0.85rem] py-[0.6rem] text-center">{{ idx + 1 }}</td>
+                <td class="border border-slate-400 px-[0.85rem] py-[0.6rem] font-bold text-center">{{ r.name_khmer || r.name }}</td>
+                <td class="border border-slate-400 px-[0.85rem] py-[0.6rem] text-center">{{ r.gender || 'ស្រី' }}</td>
+                <td class="border border-slate-400 px-[0.85rem] py-[0.6rem] text-center">{{ r.major || 'ព័ត៌មានវិទ្យា' }}</td>
+                <td class="border border-slate-400 px-[0.85rem] py-[0.6rem]"></td>
               </tr>
             </tbody>
           </table>
         </div>
 
         <!-- 5. Section III: Borrow & Return Book Summary Table -->
-        <div class="report-section">
-          <h3 class="section-title-khmer">III. លទ្ធផលនិស្សិតខ្ចី និងសងសៀវភៅសរុបប្រចាំ {{ periodKhmer }}</h3>
-          <table class="khmer-official-table">
+        <div class="mb-8">
+          <h3 class="font-['Moul','Moulpali','Khmer_OS_Muol_Light','Khmer_OS_Muol',serif] text-[0.98rem] font-normal text-slate-900 mb-3 leading-[1.6]">III. លទ្ធផលនិស្សិតខ្ចី និងសងសៀវភៅសរុបប្រចាំ {{ periodKhmer }}</h3>
+          <table class="w-full border-collapse text-[0.9rem]">
             <thead>
-              <tr class="header-blue-row">
-                <th width="70">ល.រ</th>
-                <th width="220">ទិន្នន័យសៀវភៅ</th>
-                <th width="180">ចំនួនសៀវភៅ</th>
-                <th>ផ្សេងៗ</th>
+              <tr class="bg-[#b4c6e7] text-slate-900 font-extrabold text-center">
+                <th class="border border-slate-400 px-[0.85rem] py-[0.6rem]" width="70">ល.រ</th>
+                <th class="border border-slate-400 px-[0.85rem] py-[0.6rem]" width="220">ទិន្នន័យសៀវភៅ</th>
+                <th class="border border-slate-400 px-[0.85rem] py-[0.6rem]" width="180">ចំនួនសៀវភៅ</th>
+                <th class="border border-slate-400 px-[0.85rem] py-[0.6rem]">ផ្សេងៗ</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td class="text-center">1</td>
-                <td class="text-center">ខ្ចី</td>
-                <td class="text-center">{{ toKhmerNum(reportData?.borrowings_summary?.total_borrowed || 0) }} ក្បាល</td>
-                <td></td>
+              <tr class="even:bg-slate-50">
+                <td class="border border-slate-400 px-[0.85rem] py-[0.6rem] text-center">1</td>
+                <td class="border border-slate-400 px-[0.85rem] py-[0.6rem] text-center">ខ្ចី</td>
+                <td class="border border-slate-400 px-[0.85rem] py-[0.6rem] text-center">{{ toKhmerNum(reportData?.borrowings_summary?.total_borrowed || 0) }} ក្បាល</td>
+                <td class="border border-slate-400 px-[0.85rem] py-[0.6rem]"></td>
+              </tr>
+              <tr class="even:bg-slate-50">
+                <td class="border border-slate-400 px-[0.85rem] py-[0.6rem] text-center">2</td>
+                <td class="border border-slate-400 px-[0.85rem] py-[0.6rem] text-center">សង</td>
+                <td class="border border-slate-400 px-[0.85rem] py-[0.6rem] text-center">{{ toKhmerNum(reportData?.borrowings_summary?.total_returned || 0) }} ក្បាល</td>
+                <td class="border border-slate-400 px-[0.85rem] py-[0.6rem]"></td>
               </tr>
               <tr>
-                <td class="text-center">2</td>
-                <td class="text-center">សង</td>
-                <td class="text-center">{{ toKhmerNum(reportData?.borrowings_summary?.total_returned || 0) }} ក្បាល</td>
-                <td></td>
-              </tr>
-              <tr class="summary-red-footer">
-                <td colspan="2" class="text-center bold-val">សរុបមិនទាន់សង</td>
-                <td class="text-center bold-val">{{ toKhmerNum(reportData?.borrowings_summary?.pending_return || 0) }} ក្បាល</td>
-                <td></td>
+                <td colspan="2" class="border border-slate-400 px-[0.85rem] py-[0.6rem] text-center font-extrabold text-[#1e1b4b] bg-red-300">សរុបមិនទាន់សង</td>
+                <td class="border border-slate-400 px-[0.85rem] py-[0.6rem] text-center font-extrabold text-[#1e1b4b] bg-red-300">{{ toKhmerNum(reportData?.borrowings_summary?.pending_return || 0) }} ក្បាល</td>
+                <td class="border border-slate-400 px-[0.85rem] py-[0.6rem] bg-red-300"></td>
               </tr>
             </tbody>
           </table>
         </div>
 
         <!-- 6. Section IV: Detailed Student Borrow & Return Breakdown Table -->
-        <div class="report-section">
-          <h3 class="section-title-khmer">IV. លទ្ធផលនិស្សិតខ្ចី និងសងសៀវភៅប្រចាំ {{ periodKhmer }}</h3>
-          <table class="khmer-official-table">
+        <div class="mb-8">
+          <h3 class="font-['Moul','Moulpali','Khmer_OS_Muol_Light','Khmer_OS_Muol',serif] text-[0.98rem] font-normal text-slate-900 mb-3 leading-[1.6]">IV. លទ្ធផលនិស្សិតខ្ចី និងសងសៀវភៅប្រចាំ {{ periodKhmer }}</h3>
+          <table class="w-full border-collapse text-[0.9rem]">
             <thead>
-              <tr class="header-blue-row">
-                <th width="50">ល.រ</th>
-                <th width="170">ឈ្មោះ</th>
-                <th width="70">ភេទ</th>
-                <th width="190">ជំនាញសិក្សា</th>
-                <th width="100">ចំនួនខ្ចី</th>
-                <th width="100">ចំនួនសង</th>
-                <th>ផ្សេងៗ</th>
+              <tr class="bg-[#b4c6e7] text-slate-900 font-extrabold text-center">
+                <th class="border border-slate-400 px-[0.85rem] py-[0.6rem]" width="50">ល.រ</th>
+                <th class="border border-slate-400 px-[0.85rem] py-[0.6rem]" width="170">ឈ្មោះ</th>
+                <th class="border border-slate-400 px-[0.85rem] py-[0.6rem]" width="70">ភេទ</th>
+                <th class="border border-slate-400 px-[0.85rem] py-[0.6rem]" width="190">ជំនាញសិក្សា</th>
+                <th class="border border-slate-400 px-[0.85rem] py-[0.6rem]" width="100">ចំនួនខ្ចី</th>
+                <th class="border border-slate-400 px-[0.85rem] py-[0.6rem]" width="100">ចំនួនសង</th>
+                <th class="border border-slate-400 px-[0.85rem] py-[0.6rem]">ផ្សេងៗ</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-if="!reportData?.student_borrow_return_list || reportData.student_borrow_return_list.length === 0">
-                <td colspan="7" class="text-center text-muted">គ្មានទិន្នន័យខ្ចី/សងសៀវភៅក្នុងអំឡុងពេលនេះឡើយ</td>
+              <tr class="even:bg-slate-50" v-if="!reportData?.student_borrow_return_list || reportData.student_borrow_return_list.length === 0">
+                <td colspan="7" class="border border-slate-400 px-[0.85rem] py-[0.6rem] text-center text-slate-500">គ្មានទិន្នន័យខ្ចី/សងសៀវភៅក្នុងអំឡុងពេលនេះឡើយ</td>
               </tr>
-              <tr v-else v-for="(st, idx) in reportData.student_borrow_return_list" :key="st.id">
-                <td class="text-center">{{ idx + 1 }}</td>
-                <td class="font-bold text-center">{{ st.name_khmer || st.name }}</td>
-                <td class="text-center">{{ st.gender || 'ស្រី' }}</td>
-                <td class="text-center">{{ st.major || 'ព័ត៌មានវិទ្យា' }}</td>
-                <td class="text-center font-bold">{{ toKhmerNum(st.total_borrowed) }} ក្បាល</td>
-                <td class="text-center font-bold text-emerald">{{ toKhmerNum(st.total_returned) }} ក្បាល</td>
-                <td></td>
+              <tr class="even:bg-slate-50" v-else v-for="(st, idx) in reportData.student_borrow_return_list" :key="st.id">
+                <td class="border border-slate-400 px-[0.85rem] py-[0.6rem] text-center">{{ idx + 1 }}</td>
+                <td class="border border-slate-400 px-[0.85rem] py-[0.6rem] font-bold text-center">{{ st.name_khmer || st.name }}</td>
+                <td class="border border-slate-400 px-[0.85rem] py-[0.6rem] text-center">{{ st.gender || 'ស្រី' }}</td>
+                <td class="border border-slate-400 px-[0.85rem] py-[0.6rem] text-center">{{ st.major || 'ព័ត៌មានវិទ្យា' }}</td>
+                <td class="border border-slate-400 px-[0.85rem] py-[0.6rem] text-center font-bold">{{ toKhmerNum(st.total_borrowed) }} ក្បាល</td>
+                <td class="border border-slate-400 px-[0.85rem] py-[0.6rem] text-center font-bold text-emerald-600">{{ toKhmerNum(st.total_returned) }} ក្បាល</td>
+                <td class="border border-slate-400 px-[0.85rem] py-[0.6rem]"></td>
               </tr>
             </tbody>
           </table>
         </div>
 
         <!-- 6. Official Footer & Signatures Block -->
-        <div class="report-signature-block">
-          <div class="signature-top-date">
+        <div class="mt-12 break-inside-avoid">
+          <div class="text-right text-[0.95rem] font-bold text-slate-700 mb-6">
             រាជធានីភ្នំពេញ, ថ្ងៃទី{{ toKhmerNum(currentDay) }} ខែ{{ currentMonthKhmer }} ឆ្នាំ២០២៦
           </div>
 
-          <div class="signature-roles-grid">
-            <div class="sig-col left-sig">
-              <div class="sig-role-title">បានឃើញ និង ត្រួតពិនិត្យ</div>
-              <div class="sig-role-sub">ប្រធានបណ្ណាល័យ DUC Library</div>
-              <div class="sig-space">
-                <span class="official-stamp-box">ត្រាផ្លូវការ</span>
+          <div class="flex justify-between">
+            <div class="w-[45%] text-center">
+              <div class="text-[1rem] font-extrabold text-[#1e1b4b]">បានឃើញ និង ត្រួតពិនិត្យ</div>
+              <div class="text-[0.85rem] text-slate-500">ប្រធានបណ្ណាល័យ DUC Library</div>
+              <div class="h-[90px] flex items-center justify-center">
+                <span class="inline-block px-4 py-1.5 border-2 border-dashed border-slate-400 text-slate-400 text-[0.78rem] rounded-full -rotate-12">ត្រាផ្លូវការ</span>
               </div>
-              <div class="sig-name">សេង មករា</div>
+              <div class="text-[1.05rem] font-extrabold text-[#1e1b4b] border-t border-slate-300 pt-1 inline-block min-w-[160px]">សេង មករា</div>
             </div>
 
-            <div class="sig-col right-sig">
-              <div class="sig-role-title">អ្នកធ្វើរបាយការណ៍</div>
-              <div class="sig-role-sub">មន្ត្រីគ្រប់គ្រងបណ្ណាល័យ</div>
-              <div class="sig-space">
-                <span class="digital-sig-text">បានចុះហត្ថលេខាឌីជីថល</span>
+            <div class="w-[45%] text-center">
+              <div class="text-[1rem] font-extrabold text-[#1e1b4b]">អ្នកធ្វើរបាយការណ៍</div>
+              <div class="text-[0.85rem] text-slate-500">មន្ត្រីគ្រប់គ្រងបណ្ណាល័យ</div>
+              <div class="h-[90px] flex items-center justify-center">
+                <span class="font-['Brush_Script_MT',cursive,sans-serif] text-[1.3rem] text-blue-500 font-bold">បានចុះហត្ថលេខាឌីជីថល</span>
               </div>
-              <div class="sig-name">មិន មុនីនាថ</div>
+              <div class="text-[1.05rem] font-extrabold text-[#1e1b4b] border-t border-slate-300 pt-1 inline-block min-w-[160px]">មិន មុនីនាថ</div>
             </div>
           </div>
         </div>
@@ -247,293 +247,6 @@ const currentMonthKhmer = khmerMonths[now.getMonth()];
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Moul&family=Moulpali&family=Kantumruy+Pro:ital,wght@0,300..700;1,300..700&display=swap');
-
-.report-modal-backdrop {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(15, 23, 42, 0.75);
-  backdrop-filter: blur(8px);
-  z-index: 9999;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  padding: 2rem 1rem;
-  overflow-y: auto;
-}
-
-.report-modal-container {
-  width: 100%;
-  max-width: 900px;
-  background: #ffffff;
-  color: #1e293b;
-  border-radius: 12px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
-  overflow: hidden;
-}
-
-.report-toolbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem 1.5rem;
-  background: #f8fafc;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.toolbar-title {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-weight: 700;
-  color: #0f172a;
-}
-
-.toolbar-actions {
-  display: flex;
-  gap: 0.75rem;
-}
-
-/* Official Printable Paper Canvas */
-.official-paper-canvas {
-  background: #ffffff;
-  padding: 3rem 3.5rem;
-  font-family: 'Kantumruy Pro', 'Khmer OS Battambang', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: #0f172a;
-  line-height: 1.6;
-}
-
-/* Kingdom Header Grid */
-.kingdom-header-grid {
-  position: relative;
-  min-height: 180px;
-  margin-bottom: 2rem;
-  padding-bottom: 1.2rem;
-}
-
-.header-left-block {
-  position: absolute;
-  left: 0;
-  top: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-}
-
-.duc-official-crest-logo {
-  height: 105px;
-  width: auto;
-  object-fit: contain;
-  margin-bottom: 0.5rem;
-  display: block;
-}
-
-.duc-title-khmer {
-  font-family: 'Moul', 'Moulpali', 'Khmer OS Muol Light', 'Khmer OS Muol', serif !important;
-  font-size: 1rem;
-  font-weight: 400 !important;
-  color: #0f172a;
-  line-height: 1.6;
-}
-
-.duc-sub-khmer {
-  font-family: 'Moul', 'Moulpali', 'Khmer OS Muol Light', 'Khmer OS Muol', serif !important;
-  font-size: 0.95rem;
-  font-weight: 400 !important;
-  color: #0f172a;
-  margin-top: 0.2rem;
-}
-
-.header-center-kingdom-block {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  top: 0;
-  text-align: center;
-  width: max-content;
-}
-
-.kingdom-title {
-  font-family: 'Moul', 'Moulpali', 'Khmer OS Muol Light', 'Khmer OS Muol', serif !important;
-  font-size: 1.35rem;
-  font-weight: 400 !important;
-  color: #0f172a;
-  margin-bottom: 0.4rem;
-  line-height: 1.5;
-}
-
-.kingdom-motto {
-  font-family: 'Moul', 'Moulpali', 'Khmer OS Muol Light', 'Khmer OS Muol', serif !important;
-  font-size: 1.15rem;
-  font-weight: 400 !important;
-  color: #0f172a;
-  margin-bottom: 0.6rem;
-  line-height: 1.5;
-}
-
-.kingdom-ornament-wrap {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 0.3rem;
-}
-
-.khmer-flourish-img {
-  height: 28px;
-  width: auto;
-  max-width: 240px;
-  object-fit: contain;
-}
-
-/* Report Main Title */
-.report-main-title {
-  text-align: center;
-  margin: 1.5rem 0 2rem 0;
-}
-
-.report-heading {
-  font-family: 'Moul', 'Moulpali', 'Khmer OS Muol Light', 'Khmer OS Muol', serif !important;
-  font-size: 1.75rem;
-  font-weight: 400 !important;
-  color: #0f172a;
-  letter-spacing: 1px;
-  line-height: 1.6;
-}
-
-.report-subheading {
-  font-family: 'Moul', 'Moulpali', 'Khmer OS Muol Light', 'Khmer OS Muol', serif !important;
-  font-size: 0.95rem;
-  font-weight: 400 !important;
-  color: #0f172a;
-  margin-top: 0.5rem;
-  line-height: 1.6;
-}
-
-/* Section & Tables */
-.report-section {
-  margin-bottom: 2rem;
-}
-
-.section-title-khmer {
-  font-family: 'Moul', 'Moulpali', 'Khmer OS Muol Light', 'Khmer OS Muol', serif !important;
-  font-size: 0.98rem;
-  font-weight: 400 !important;
-  color: #0f172a;
-  margin-bottom: 0.75rem;
-  line-height: 1.6;
-}
-
-.khmer-official-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.9rem;
-}
-
-.khmer-official-table th,
-.khmer-official-table td {
-  border: 1px solid #94a3b8;
-  padding: 0.6rem 0.85rem;
-}
-
-.khmer-official-table th {
-  background: #b4c6e7;
-  color: #0f172a;
-  font-weight: 800;
-  text-align: center;
-}
-
-.summary-blue-footer td {
-  background: #b4c6e7;
-  font-weight: 800;
-  color: #0f172a;
-}
-
-.summary-red-footer td {
-  background: #fca5a5;
-  font-weight: 800;
-  color: #0f172a;
-}
-
-.khmer-official-table tbody tr:nth-child(even) {
-  background: #f8fafc;
-}
-
-.bold-val {
-  font-weight: 800;
-  color: #1e1b4b;
-}
-
-/* Signatures */
-.report-signature-block {
-  margin-top: 3rem;
-  page-break-inside: avoid;
-}
-
-.signature-top-date {
-  text-align: right;
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: #334155;
-  margin-bottom: 1.5rem;
-}
-
-.signature-roles-grid {
-  display: flex;
-  justify-content: space-between;
-}
-
-.sig-col {
-  width: 45%;
-  text-align: center;
-}
-
-.sig-role-title {
-  font-size: 1rem;
-  font-weight: 800;
-  color: #1e1b4b;
-}
-
-.sig-role-sub {
-  font-size: 0.85rem;
-  color: #64748b;
-}
-
-.sig-space {
-  height: 90px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.official-stamp-box {
-  display: inline-block;
-  padding: 0.4rem 1rem;
-  border: 2px dashed #94a3b8;
-  color: #94a3b8;
-  font-size: 0.78rem;
-  border-radius: 50%;
-  transform: rotate(-12deg);
-}
-
-.digital-sig-text {
-  font-family: 'Brush Script MT', cursive, sans-serif;
-  font-size: 1.3rem;
-  color: #3b82f6;
-  font-weight: 700;
-}
-
-.sig-name {
-  font-size: 1.05rem;
-  font-weight: 800;
-  color: #1e1b4b;
-  border-top: 1px solid #cbd5e1;
-  padding-top: 0.3rem;
-  display: inline-block;
-  min-width: 160px;
-}
 
 /* Print Specific Rules */
 @media print {

@@ -2,7 +2,6 @@ const { google } = require('googleapis');
 const path = require('path');
 const fs = require('fs');
 const bcrypt = require('bcryptjs');
-const { get, run, all } = require('./db');
 
 // Path to Google Service Account Credentials JSON (checks both .json and .json.json)
 function getCredentialsPath() {
@@ -207,62 +206,6 @@ async function fetchStudentsFromSheet(spreadsheetId) {
 }
 
 /**
- * Sync Google Sheet student records into SQLite database users table
- */
-async function syncStudentsToDb(spreadsheetId) {
-  const students = await fetchStudentsFromSheet(spreadsheetId);
-  let count = 0;
-  let updated = 0;
-
-  for (const st of students) {
-    if (!st.studentId) continue;
-
-    // Unique email per Student ID (e.g. duc2024-0060@duc.com)
-    const cleanId = st.studentId.toLowerCase().trim();
-    const email = `${cleanId}@duc.com`;
-    const name = st.latinName || st.khmerName || st.studentId;
-
-    // Check unique email match only
-    const existing = await get('SELECT id FROM users WHERE email = ?', [email]);
-    if (!existing) {
-      // Default password is set to Student ID (e.g. DUC2024-0060)
-      const hashedPassword = await bcrypt.hash(st.studentId, 10);
-      await run(
-        `INSERT INTO users (
-          name, email, password, role, student_id, dorm_room, name_khmer, name_latin, gender,
-          date_of_birth, profile_photo, high_school, province, exam_year, grade, major,
-          degree_level, class_code, academic_status, generation, academic_year, phone, telegram, guardian_phone
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-          name, email, hashedPassword, 'user', st.studentId, st.dormRoom, st.khmerName, st.latinName, st.gender,
-          st.dateOfBirth, st.profilePhoto, st.highSchool, st.province, st.examYear, st.grade, st.major,
-          st.degreeLevel, st.classCode, st.academicStatus, st.generation, st.academicYear, st.phone, st.telegram, st.guardianPhone
-        ]
-      );
-      count++;
-    } else {
-      await run(
-        `UPDATE users SET 
-          student_id = ?, dorm_room = ?, name_khmer = ?, name_latin = ?, gender = ?,
-          date_of_birth = ?, profile_photo = ?, high_school = ?, province = ?, exam_year = ?, grade = ?, major = ?,
-          degree_level = ?, class_code = ?, academic_status = ?, generation = ?, academic_year = ?, phone = ?, telegram = ?, guardian_phone = ?
-        WHERE email = ?`,
-        [
-          st.studentId, st.dormRoom, st.khmerName, st.latinName, st.gender,
-          st.dateOfBirth, st.profilePhoto, st.highSchool, st.province, st.examYear, st.grade, st.major,
-          st.degreeLevel, st.classCode, st.academicStatus, st.generation, st.academicYear, st.phone, st.telegram, st.guardianPhone,
-          email
-        ]
-      );
-      updated++;
-    }
-  }
-
-  console.log(`[GoogleSheets] Synced ${count} new student accounts, ${updated} existing into database. Total: ${students.length}`);
-  return { total: students.length, newlyAdded: count, existing: updated, students };
-}
-
-/**
  * Fetch and parse multi-column Category book blocks from Google Sheet
  */
 async function fetchBooksFromSheet(spreadsheetId) {
@@ -373,100 +316,9 @@ async function fetchBooksFromSheet(spreadsheetId) {
   return categoryBlocks;
 }
 
-/**
- * Sync parsed Google Sheet category books into SQLite database
- */
-async function syncBooksToDb(spreadsheetId) {
-  const categoryBlocks = await fetchBooksFromSheet(spreadsheetId);
-  let totalNewBooks = 0;
-  let totalUpdatedBooks = 0;
-  let totalCategories = 0;
-
-  const defaultCovers = {
-    'IT': 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=600&q=80',
-    'Marketing': 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&q=80',
-    'Leadership': 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=600&q=80',
-    'Culture': 'https://images.unsplash.com/photo-1461360370896-922624d12aa1?auto=format&fit=crop&w=600&q=80',
-    'General': 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&w=600&q=80'
-  };
-
-  for (const block of categoryBlocks) {
-    const catName = block.categoryName;
-    
-    // Check or insert category
-    let cat = await get('SELECT id FROM categories WHERE LOWER(name) = LOWER(?)', [catName]);
-    let catId;
-
-    if (!cat) {
-      const result = await run('INSERT INTO categories (name, description) VALUES (?, ?)', [
-        catName,
-        `Library books under ${catName}`
-      ]);
-      catId = result.id;
-      totalCategories++;
-    } else {
-      catId = cat.id;
-    }
-
-    // Assign cover based on category keywords
-    let coverUrl = defaultCovers.General;
-    if (catName.toUpperCase().includes('IT') || catName.toLowerCase().includes('information') || catName.includes('វិទ្យា')) {
-      coverUrl = defaultCovers.IT;
-    } else if (catName.toUpperCase().includes('MS') || catName.toLowerCase().includes('market')) {
-      coverUrl = defaultCovers.Marketing;
-    } else if (catName.toUpperCase().includes('LDS') || catName.toLowerCase().includes('leader')) {
-      coverUrl = defaultCovers.Leadership;
-    } else if (catName.toUpperCase().includes('CUL') || catName.toLowerCase().includes('culture') || catName.includes('វប្បធម៌')) {
-      coverUrl = defaultCovers.Culture;
-    }
-
-    for (const b of block.books) {
-      const existingBook = await get('SELECT id FROM books WHERE LOWER(title) = LOWER(?) AND category_id = ?', [
-        b.title,
-        catId
-      ]);
-
-      if (!existingBook) {
-        const uniqueIsbn = `ISBN-${catId}-${totalNewBooks + 1}-${Math.floor(100 + Math.random() * 900)}`;
-        await run(
-          `INSERT INTO books (title, author, isbn, category_id, description, cover_url, copies_total, copies_available)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-          [
-            b.title,
-            'DUC Library',
-            uniqueIsbn,
-            catId,
-            `Official DUC Library book under category ${catName}.`,
-            coverUrl,
-            b.copies,
-            b.copies
-          ]
-        );
-        totalNewBooks++;
-      } else {
-        await run(
-          'UPDATE books SET copies_total = ?, copies_available = ? WHERE id = ?',
-          [b.copies, b.copies, existingBook.id]
-        );
-        totalUpdatedBooks++;
-      }
-    }
-  }
-
-  console.log(`[GoogleSheets] Synced ${totalNewBooks} new books, ${totalUpdatedBooks} updated across ${categoryBlocks.length} categories.`);
-  return {
-    totalCategories: categoryBlocks.length,
-    newlyAddedBooks: totalNewBooks,
-    updatedBooks: totalUpdatedBooks,
-    categories: categoryBlocks
-  };
-}
-
 module.exports = {
   fetchStudentsFromSheet,
-  syncStudentsToDb,
   fetchBooksFromSheet,
-  syncBooksToDb,
   getServiceAccountEmail,
   SAMPLE_STUDENTS
 };

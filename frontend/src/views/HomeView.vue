@@ -1,70 +1,58 @@
 <template>
   <div class="home-container">
-    <!-- Featured Books Hero Slider Banner -->
-    <section v-if="featuredBooks.length > 0" class="featured-slider-section">
-      <div 
-        class="slider-viewport"
-        :class="{ dragging: isDragging }"
-        @mousedown="handleMouseDown"
-        @mousemove="handleMouseMove"
-        @mouseup="handleMouseUp"
-        @mouseleave="handleMouseLeave"
-        @touchstart="handleSliderTouchStart"
-        @touchend="handleSliderTouchEnd"
+    <!-- Featured Books Hero Slider Banner (Swiper) -->
+    <section v-if="booksStore.loading" class="relative mb-6 w-full h-[320px] rounded-[var(--radius-xl)] overflow-hidden shadow-[0_16px_40px_rgba(0,0,0,0.4)] bg-[var(--bg-card)] border border-[var(--border-color)] animate-pulse max-lg:h-[250px] max-sm:h-[210px] max-[440px]:h-[205px]">
+      <div class="absolute inset-0 bg-slate-800/50"></div>
+    </section>
+    <section v-else-if="featuredBooks.length > 0" class="relative mb-6 rounded-[var(--radius-xl)] overflow-hidden shadow-[0_16px_40px_rgba(0,0,0,0.4)]">
+      <Swiper
+        :modules="swiperModules"
+        :slides-per-view="1"
+        :loop="true"
+        :autoplay="{ delay: 4500, disableOnInteraction: false }"
+        :pagination="{ clickable: true }"
+        :navigation="true"
+        class="w-full h-[320px] bg-slate-900 max-lg:h-[250px] max-sm:h-[210px] max-[440px]:h-[205px] custom-swiper"
       >
-        <div 
-          class="slider-track" 
-          :style="{ transform: `translateX(-${currentSlideIndex * 100}%)` }"
-        >
-          <div 
-            v-for="(slide, idx) in featuredBooks" 
-            :key="slide.id" 
-            class="slider-card"
-          >
-            <div class="slide-image-wrapper">
-              <img :src="getLibraryBg(idx)" :alt="slide.title" class="slide-bg-img" />
-              <div class="slide-overlay-gradient"></div>
+        <SwiperSlide v-for="(slide, idx) in featuredBooks" :key="slide.id">
+          <div class="relative w-full h-full flex items-center overflow-hidden">
+            <div class="absolute inset-0">
+              <img :src="getLibraryBg(idx)" :alt="slide.title" class="w-full h-full object-cover brightness-60 contrast-110 scale-105" />
+              <div class="absolute inset-0 bg-gradient-to-r from-slate-900/[0.95] via-slate-900/75 to-slate-900/30"></div>
             </div>
             
-            <div class="slide-content">
-              <span class="slide-badge"><Sparkles :size="13" /> Featured Book #{{ idx + 1 }}</span>
-              <h2 class="slide-title">{{ slide.title }}</h2>
+            <div class="relative z-[2] py-[3rem] px-[4.5rem] pt-[2.5rem] max-w-[900px] w-full text-slate-50 max-lg:px-[3.6rem] max-lg:py-[2.4rem] max-lg:pt-[1.6rem] max-lg:max-w-[680px] max-sm:px-12 max-sm:py-8 max-sm:pt-4 max-[440px]:px-[2.6rem] max-[440px]:py-[1.8rem] max-[440px]:pt-[0.85rem]">
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/[0.35] border border-indigo-200/50 text-indigo-100 text-[0.78rem] font-bold mb-2.5 max-sm:text-[0.68rem] max-sm:px-2 max-sm:py-1 max-sm:mb-1.5"><Sparkles :size="13" /> Featured Book #{{ idx + 1 }}</span>
+              <h2 class="text-white text-[1.7rem] font-extrabold leading-[1.55] py-0.5 mb-1 line-clamp-2 max-lg:text-[1.45rem] max-sm:text-[1.12rem] max-sm:leading-relaxed max-sm:mb-1 max-[440px]:text-[1.05rem]">{{ slide.title }}</h2>
 
-              <div class="slide-actions">
-                <button @click="openReaderModal(slide)" class="btn btn-primary btn-sm">
+              <div class="flex gap-3 max-sm:gap-2 mt-4">
+                <button @click="openReaderModal(slide)" class="btn btn-primary btn-sm px-5 py-2 text-[0.88rem] max-sm:px-3 max-sm:py-1.5 max-sm:text-[0.78rem]">
                   <BookOpenCheck :size="16" /> Read Book
                 </button>
-                <button @click="openBorrowModal(slide)" class="btn btn-secondary btn-sm" :disabled="slide.copies_available <= 0">
+                <button @click="openBorrowModal(slide)" class="btn btn-secondary btn-sm px-5 py-2 text-[0.88rem] bg-white/[0.18] border border-white/40 text-white backdrop-blur-md hover:bg-white/30 hover:text-white disabled:opacity-50 max-sm:px-3 max-sm:py-1.5 max-sm:text-[0.78rem]" :disabled="slide.copies_available <= 0">
                   <BookmarkPlus :size="16" /> Borrow
                 </button>
               </div>
             </div>
           </div>
-        </div>
-
-        <!-- Slider Arrow Controls -->
-        <button @click="prevSlide" class="slider-arrow prev-arrow" title="Previous Slide">
-          <ChevronLeft :size="20" />
-        </button>
-        <button @click="nextSlide" class="slider-arrow next-arrow" title="Next Slide">
-          <ChevronRight :size="20" />
-        </button>
-
-        <!-- Slider Indicators -->
-        <div class="slider-dots">
-          <span 
-            v-for="(_, idx) in featuredBooks" 
-            :key="idx"
-            @click="goToSlide(idx)"
-            class="dot"
-            :class="{ active: currentSlideIndex === idx }"
-          ></span>
-        </div>
-      </div>
+        </SwiperSlide>
+      </Swiper>
     </section>
 
     <!-- Trending / Popular Books Horizontal Shelf ("កំពុងពេញនិយម") -->
-    <section v-if="featuredBooks.length > 0" class="trending-shelf-section">
+    <section v-if="booksStore.loading" class="trending-shelf-section">
+      <div class="shelf-header">
+        <div class="h-6 w-32 bg-slate-800/60 rounded animate-pulse"></div>
+      </div>
+      <div class="shelf-scroll-row overflow-hidden">
+        <div v-for="i in 6" :key="'skeleton-shelf-' + i" class="shelf-card">
+          <div class="shelf-cover-wrapper bg-slate-800/50 animate-pulse"></div>
+          <div class="h-3 w-3/4 bg-slate-800/60 rounded mt-2 animate-pulse"></div>
+          <div class="h-3 w-1/2 bg-slate-800/60 rounded mt-1 animate-pulse"></div>
+        </div>
+      </div>
+    </section>
+    <section v-else-if="featuredBooks.length > 0" class="trending-shelf-section">
       <div class="shelf-header">
         <h3 class="shelf-title">កំពុងពេញនិយម</h3>
         <span class="shelf-badge">Popular</span>
@@ -93,8 +81,9 @@
       <!-- Spotlight Search Bar Container -->
       <div class="spotlight-search-container">
         <div class="search-box-pill" :class="{ focused: isSearchFocused || booksStore.searchQuery }">
-          <Search :size="19" class="search-icon" />
+          <Search :size="19" class="search-icon cursor-pointer" @click="() => searchInputRef?.focus()" />
           <input 
+            ref="searchInputRef"
             v-model="booksStore.searchQuery"
             @focus="isSearchFocused = true"
             @blur="handleSearchBlur"
@@ -108,32 +97,7 @@
           </button>
         </div>
 
-        <!-- Live Quick Search Dropdown Results -->
-        <transition name="fade">
-          <div v-if="isSearchFocused && booksStore.searchQuery" class="live-search-dropdown glass-panel">
-            <div v-if="booksStore.books.length > 0" class="live-results-list">
-              <div class="live-results-header">
-                <span>Found {{ booksStore.books.length }} matching books</span>
-              </div>
-              <div 
-                v-for="book in booksStore.books.slice(0, 4)" 
-                :key="book.id"
-                @mousedown="openReaderModal(book)"
-                class="live-result-item"
-              >
-                <img :src="book.cover_url || fallbackCover" :alt="book.title" class="live-thumb" />
-                <div class="live-info">
-                  <h4 class="live-title">{{ book.title }}</h4>
-                </div>
-                <button class="live-read-btn btn btn-primary btn-sm">Read</button>
-              </div>
-            </div>
-            <div v-else class="live-empty-state">
-              <BookX :size="24" class="text-muted" />
-              <span>No books matching "{{ booksStore.searchQuery }}"</span>
-            </div>
-          </div>
-        </transition>
+        <!-- Live Quick Search Dropdown has been removed. Filtering applies directly to the catalog grid. -->
       </div>
 
       <!-- Category Filter Pills & Stock Checkbox -->
@@ -188,28 +152,69 @@
           <span class="catalog-count-badge" v-if="!booksStore.loading">{{ displayedBooks.length }} books</span>
         </div>
       </div>
-      <div v-if="booksStore.loading" class="loading-state">
-        <Loader2 :size="36" class="spin" />
-        <p>Loading library catalog...</p>
+      <div v-if="booksStore.loading" class="books-grid">
+        <BookSkeleton v-for="i in 12" :key="i" />
       </div>
 
-      <div v-else-if="displayedBooks.length === 0" class="empty-state glass-panel">
-        <Heart v-if="booksStore.selectedCategory === 'wishlist'" :size="48" color="#ef4444" />
-        <BookX v-else :size="48" class="text-muted" />
-        <h3>{{ booksStore.selectedCategory === 'wishlist' ? 'Your Wishlist is Empty' : 'No books found' }}</h3>
+      <div v-else-if="displayedBooks.length === 0" class="flex flex-col items-center justify-center text-center p-14 text-[var(--text-muted)] empty-state glass-panel">
+        <Heart v-if="booksStore.selectedCategory === 'wishlist'" :size="48" color="#ef4444" class="mb-3" />
+        <BookX v-else :size="48" class="text-muted mb-3" />
+        <h3 class="text-lg font-bold mb-1">{{ booksStore.selectedCategory === 'wishlist' ? 'Your Wishlist is Empty' : 'No books found' }}</h3>
         <p>{{ booksStore.selectedCategory === 'wishlist' ? 'Click the heart icon on any book card to save it to your wishlist.' : 'Try searching for a different keyword or select another category.' }}</p>
-        <button @click="resetFilters" class="btn btn-secondary btn-sm mt-3">Reset Filters</button>
+        <button @click="resetFilters" class="btn btn-secondary btn-sm mt-4">Reset Filters</button>
       </div>
 
       <div v-else class="books-grid">
         <BookCard 
-          v-for="book in displayedBooks" 
+          v-for="book in paginatedBooks" 
           :key="book.id" 
           :book="book"
           @read="openReaderModal"
           @borrow="openBorrowModal"
           @toast="showToast"
         />
+      </div>
+
+      <!-- Smart Pagination Controls -->
+      <div v-if="totalPages > 1 && !booksStore.loading" class="mt-14 flex flex-col items-center justify-center gap-4">
+        <div class="flex items-center gap-1.5 bg-[var(--bg-card)] p-2 rounded-2xl border border-[var(--border-color)] shadow-[0_8px_30px_rgba(0,0,0,0.08)]">
+          <button 
+            @click="goToPage(currentPage - 1)" 
+            :disabled="currentPage === 1"
+            class="flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-200"
+            :class="currentPage === 1 ? 'opacity-40 cursor-not-allowed text-[var(--text-muted)]' : 'hover:bg-indigo-500/12 text-[var(--text-primary)] hover:text-indigo-500 cursor-pointer'"
+            title="Previous Page"
+          >
+            <ChevronLeft :size="20" />
+          </button>
+          
+          <div class="flex items-center gap-1 px-1 sm:px-2">
+            <template v-for="(page, index) in visiblePages" :key="index">
+              <span v-if="page === '...'" class="w-6 sm:w-8 text-center text-[var(--text-muted)] select-none">...</span>
+              <button 
+                v-else
+                @click="goToPage(page)"
+                class="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-xl text-[0.9rem] sm:text-[0.95rem] font-bold transition-all duration-300 cursor-pointer"
+                :class="currentPage === page ? '[background:var(--accent-gradient)] text-white shadow-[0_4px_12px_rgba(99,102,241,0.4)]' : 'hover:bg-indigo-500/12 text-[var(--text-secondary)] hover:text-indigo-500'"
+              >
+                {{ page }}
+              </button>
+            </template>
+          </div>
+
+          <button 
+            @click="goToPage(currentPage + 1)" 
+            :disabled="currentPage === totalPages"
+            class="flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-200"
+            :class="currentPage === totalPages ? 'opacity-40 cursor-not-allowed text-[var(--text-muted)]' : 'hover:bg-indigo-500/12 text-[var(--text-primary)] hover:text-indigo-500 cursor-pointer'"
+            title="Next Page"
+          >
+            <ChevronRight :size="20" />
+          </button>
+        </div>
+        <div class="text-[0.85rem] text-[var(--text-muted)] font-medium">
+          Showing <span class="text-[var(--text-primary)]">{{ (currentPage - 1) * itemsPerPage + 1 }}</span> to <span class="text-[var(--text-primary)]">{{ Math.min(currentPage * itemsPerPage, displayedBooks.length) }}</span> of <span class="text-[var(--text-primary)]">{{ displayedBooks.length }}</span> entries
+        </div>
       </div>
     </section>
 
@@ -232,20 +237,27 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useBooksStore } from '../stores/books';
 import { useAuthStore } from '../stores/auth';
 import { useLocaleStore } from '../stores/locale';
 import { useWishlistStore } from '../stores/wishlist';
 import { useRouter } from 'vue-router';
 import BookCard from '../components/BookCard.vue';
+import BookSkeleton from '../components/BookSkeleton.vue';
 import ReaderModal from '../components/ReaderModal.vue';
 import BorrowModal from '../components/BorrowModal.vue';
+import { Swiper, SwiperSlide } from 'swiper/vue';
+import { Autoplay, Pagination, Navigation } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/pagination';
+import 'swiper/css/navigation';
 import { 
   Sparkles, Search, X, CheckCircle2, Loader2, BookX, Heart, Bell, Globe,
   ChevronLeft, ChevronRight, BookOpenCheck, BookmarkPlus 
 } from 'lucide-vue-next';
 
+const swiperModules = [Autoplay, Pagination, Navigation];
 const booksStore = useBooksStore();
 const authStore = useAuthStore();
 const localeStore = useLocaleStore();
@@ -257,6 +269,69 @@ const displayedBooks = computed(() => {
     return booksStore.books.filter(b => wishlistStore.isInWishlist(b.id));
   }
   return booksStore.books;
+});
+
+const currentPage = ref(1);
+const itemsPerPage = 12;
+
+const totalPages = computed(() => {
+  return Math.max(1, Math.ceil(displayedBooks.value.length / itemsPerPage));
+});
+
+const visiblePages = computed(() => {
+  const total = totalPages.value;
+  const current = currentPage.value;
+  const delta = 1; // Number of pages to show before and after current
+  
+  if (total <= 5) {
+    return Array.from({ length: total }, (_, i) => i + 1);
+  }
+  
+  const range = [];
+  const rangeWithDots = [];
+  let l;
+  
+  for (let i = 1; i <= total; i++) {
+    if (i === 1 || i === total || (i >= current - delta && i <= current + delta)) {
+      range.push(i);
+    }
+  }
+  
+  for (let i of range) {
+    if (l) {
+      if (i - l === 2) {
+        rangeWithDots.push(l + 1);
+      } else if (i - l !== 1) {
+        rangeWithDots.push('...');
+      }
+    }
+    rangeWithDots.push(i);
+    l = i;
+  }
+  
+  return rangeWithDots;
+});
+
+function goToPage(page) {
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page;
+    const section = document.querySelector('.catalog-section');
+    if (section) {
+      // scroll to just above the catalog section (accounting for sticky header if any)
+      const y = section.getBoundingClientRect().top + window.scrollY - 80;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    }
+  }
+}
+
+const paginatedBooks = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage;
+  const end = start + itemsPerPage;
+  return displayedBooks.value.slice(start, end);
+});
+
+watch(() => [booksStore.selectedCategory, booksStore.searchQuery], () => {
+  currentPage.value = 1;
 });
 
 function showToast(msg) {
@@ -303,32 +378,37 @@ function handleCategoryWheel(e) {
 // Spotlight Search State
 const isSearchFocused = ref(false);
 
-// Featured Slider State
-const currentSlideIndex = ref(0);
-let sliderTimer = null;
-let touchStartX = 0;
-let touchEndX = 0;
-
 const featuredBooks = computed(() => {
-  if (!booksStore.books || booksStore.books.length === 0) return [];
-  const manualFeatured = booksStore.books.filter(b => b.is_featured === 1 || b.is_featured === true);
+  if (!booksStore.masterBooks || booksStore.masterBooks.length === 0) return [];
+  const manualFeatured = booksStore.masterBooks.filter(b => b.is_featured === 1 || b.is_featured === true);
   if (manualFeatured.length > 0) {
     return manualFeatured;
   }
-  return booksStore.books.slice(0, 5);
+  return booksStore.masterBooks.slice(0, 5);
 });
 
 let searchTimeout;
+
+const searchInputRef = ref(null);
+
+function handleGlobalKeydown(e) {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+    e.preventDefault();
+    if (searchInputRef.value) {
+      searchInputRef.value.focus();
+    }
+  }
+}
 
 onMounted(() => {
   booksStore.selectedCategory = 'all';
   booksStore.fetchCategories();
   booksStore.fetchBooks();
-  startSliderAutoPlay();
+  window.addEventListener('keydown', handleGlobalKeydown);
 });
 
 onUnmounted(() => {
-  stopSliderAutoPlay();
+  window.removeEventListener('keydown', handleGlobalKeydown);
 });
 
 function handleSearchBlur() {
@@ -337,101 +417,8 @@ function handleSearchBlur() {
   }, 200);
 }
 
-function startSliderAutoPlay() {
-  stopSliderAutoPlay();
-  sliderTimer = setInterval(() => {
-    nextSlide();
-  }, 4500);
-}
-
-function stopSliderAutoPlay() {
-  if (sliderTimer) {
-    clearInterval(sliderTimer);
-    sliderTimer = null;
-  }
-}
-
-function nextSlide() {
-  if (featuredBooks.value.length === 0) return;
-  currentSlideIndex.value = (currentSlideIndex.value + 1) % featuredBooks.value.length;
-}
-
-function prevSlide() {
-  if (featuredBooks.value.length === 0) return;
-  currentSlideIndex.value = (currentSlideIndex.value - 1 + featuredBooks.value.length) % featuredBooks.value.length;
-}
-
-function goToSlide(idx) {
-  currentSlideIndex.value = idx;
-  startSliderAutoPlay();
-}
-
-const isDragging = ref(false);
-let startX = 0;
-let dragOccurred = false;
-
-function handleMouseDown(e) {
-  if (e.target.closest('button') || e.target.closest('.dot')) return;
-  isDragging.value = true;
-  dragOccurred = false;
-  startX = e.clientX;
-}
-
-function handleMouseMove(e) {
-  if (!isDragging.value) return;
-  if (Math.abs(e.clientX - startX) > 8) {
-    dragOccurred = true;
-  }
-}
-
-function handleMouseUp(e) {
-  if (!isDragging.value) return;
-  isDragging.value = false;
-  
-  const diff = startX - e.clientX;
-  if (Math.abs(diff) > 40) {
-    if (diff > 0) {
-      nextSlide();
-    } else {
-      prevSlide();
-    }
-    startSliderAutoPlay();
-  } else if (!dragOccurred) {
-    const viewport = e.currentTarget.getBoundingClientRect();
-    const clickX = e.clientX - viewport.left;
-    if (clickX > viewport.width / 2) {
-      nextSlide();
-    } else {
-      prevSlide();
-    }
-    startSliderAutoPlay();
-  }
-}
-
-function handleMouseLeave() {
-  isDragging.value = false;
-}
-
-function handleSliderTouchStart(e) {
-  touchStartX = e.touches[0].clientX;
-}
-
-function handleSliderTouchEnd(e) {
-  touchEndX = e.changedTouches[0].clientX;
-  if (touchStartX - touchEndX > 40) {
-    nextSlide();
-    startSliderAutoPlay();
-  } else if (touchEndX - touchStartX > 40) {
-    prevSlide();
-    startSliderAutoPlay();
-  }
-}
-
 function handleSearch() {
-  clearTimeout(searchTimeout);
-  searchTimeout = setTimeout(() => {
-    booksStore.fetchBooks();
-  }, 300);
+  // Search is handled instantly via client-side computed property
 }
 
 function clearSearch() {
@@ -478,9 +465,67 @@ function handleBorrowSuccess(msg) {
 }
 </script>
 
+<style>
+/* Custom Swiper Styles */
+.custom-swiper {
+  --swiper-navigation-size: 18px;
+}
+
+.custom-swiper .swiper-button-next,
+.custom-swiper .swiper-button-prev {
+  color: white !important;
+  background-color: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(8px);
+  width: 42px !important;
+  height: 42px !important;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.2);
+  transition: all 0.2s ease;
+}
+
+.custom-swiper .swiper-button-next::after,
+.custom-swiper .swiper-button-prev::after {
+  font-size: 18px !important;
+  font-weight: 900;
+}
+
+.custom-swiper .swiper-button-next svg,
+.custom-swiper .swiper-button-prev svg {
+  width: 20px !important;
+  height: 20px !important;
+}
+
+.custom-swiper .swiper-button-next:hover,
+.custom-swiper .swiper-button-prev:hover {
+  background-color: rgba(99, 102, 241, 0.85);
+  border-color: transparent;
+  transform: scale(1.05);
+}
+
+.custom-swiper .swiper-pagination-bullet {
+  background: rgba(255,255,255,0.35) !important;
+  opacity: 1 !important;
+  transition: all 0.3s ease;
+}
+
+.custom-swiper .swiper-pagination-bullet-active {
+  background: #38bdf8 !important;
+  width: 20px !important;
+  border-radius: 10px !important;
+}
+
+@media (max-width: 640px) {
+  .custom-swiper .swiper-button-next,
+  .custom-swiper .swiper-button-prev {
+    width: 32px !important;
+    height: 32px !important;
+  }
+}
+</style>
+
 <style scoped>
 .home-container {
-  max-width: 1560px;
+  max-width: 1280px;
   margin: 0 auto;
   padding: 1.25rem 1.5rem 3rem;
 }

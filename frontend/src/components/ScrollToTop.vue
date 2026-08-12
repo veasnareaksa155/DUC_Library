@@ -3,7 +3,7 @@
     <button 
       v-if="isVisible" 
       @click="scrollToTop" 
-      class="scroll-to-top-btn glass-panel"
+      class="fixed bottom-6 right-6 max-md:bottom-[108px] max-md:right-[14px] w-[44px] h-[44px] max-md:w-[40px] max-md:h-[40px] rounded-full bg-[var(--bg-card,rgba(30,41,59,0.85))] backdrop-blur-[16px] border border-[var(--border-highlight,rgba(99,102,241,0.4))] text-[var(--text-primary,#ffffff)] flex items-center justify-center cursor-pointer z-[999] shadow-[0_10px_25px_rgba(0,0,0,0.25),0_0_15px_rgba(99,102,241,0.3)] transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] select-none hover:-translate-y-1 hover:scale-110 hover:bg-[var(--accent-gradient,linear-gradient(135deg,#6366f1_0%,#8b5cf6_100%))] hover:text-white hover:border-transparent hover:shadow-[0_14px_30px_rgba(99,102,241,0.5)] active:scale-95 glass-panel"
       title="Back to Top"
       aria-label="Back to Top"
     >
@@ -39,50 +39,6 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.scroll-to-top-btn {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: var(--bg-card, rgba(30, 41, 59, 0.85));
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--border-highlight, rgba(99, 102, 241, 0.4));
-  color: var(--text-primary, #ffffff);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 999;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25), 0 0 15px rgba(99, 102, 241, 0.3);
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  user-select: none;
-}
-
-.scroll-to-top-btn:hover {
-  transform: translateY(-4px) scale(1.1);
-  background: var(--accent-gradient, linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%));
-  color: #ffffff;
-  border-color: transparent;
-  box-shadow: 0 14px 30px rgba(99, 102, 241, 0.5);
-}
-
-.scroll-to-top-btn:active {
-  transform: scale(0.92);
-}
-
-/* Mobile positioning - sit neatly right above bottom tab bar */
-@media (max-width: 768px) {
-  .scroll-to-top-btn {
-    bottom: 74px;
-    right: 14px;
-    width: 40px;
-    height: 40px;
-  }
-}
-
 .fab-bounce-enter-active,
 .fab-bounce-leave-active {
   transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);

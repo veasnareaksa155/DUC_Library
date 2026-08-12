@@ -1,25 +1,25 @@
 <template>
-  <div class="charts-section-grid">
+  <div class="grid grid-cols-[1.6fr_1fr] max-lg:grid-cols-1 gap-5 mb-8">
     <!-- Bar Chart: Monthly Activity Trends -->
-    <div class="chart-card glass-panel">
-      <div class="chart-header">
+    <div class="p-6 flex flex-col glass-panel">
+      <div class="flex justify-between items-start mb-5">
         <div>
-          <h3>Monthly Borrowing & Return Trends</h3>
-          <p class="chart-subtitle">Annual borrowing activity breakdown (2026)</p>
+          <h3 class="text-[1.1rem] font-bold">Monthly Borrowing & Return Trends</h3>
+          <p class="text-[0.8rem] text-[var(--text-muted)]">Annual borrowing activity breakdown (2026)</p>
         </div>
-        <div class="chart-legend">
-          <span class="legend-item"><span class="dot dot-indigo"></span> Borrowed</span>
-          <span class="legend-item"><span class="dot dot-emerald"></span> Returned</span>
+        <div class="flex gap-[0.85rem] text-[0.8rem] text-[var(--text-secondary)]">
+          <span class="flex items-center gap-[0.35rem] font-semibold"><span class="w-[9px] h-[9px] rounded-full inline-block bg-indigo-500"></span> Borrowed</span>
+          <span class="flex items-center gap-[0.35rem] font-semibold"><span class="w-[9px] h-[9px] rounded-full inline-block bg-emerald-500"></span> Returned</span>
         </div>
       </div>
 
-      <div class="bar-chart-wrapper">
-        <svg viewBox="0 0 500 180" class="bar-chart-svg">
+      <div class="w-full h-[200px]">
+        <svg viewBox="0 0 500 180" class="w-full h-full">
           <!-- Horizontal Grid lines -->
-          <line x1="30" y1="30" x2="480" y2="30" class="chart-grid-line" />
-          <line x1="30" y1="75" x2="480" y2="75" class="chart-grid-line" />
-          <line x1="30" y1="120" x2="480" y2="120" class="chart-grid-line" />
-          <line x1="30" y1="150" x2="480" y2="150" class="chart-axis-line" />
+          <line x1="30" y1="30" x2="480" y2="30" class="stroke-[rgba(125,125,125,0.12)] [stroke-dasharray:4_4]" />
+          <line x1="30" y1="75" x2="480" y2="75" class="stroke-[rgba(125,125,125,0.12)] [stroke-dasharray:4_4]" />
+          <line x1="30" y1="120" x2="480" y2="120" class="stroke-[rgba(125,125,125,0.12)] [stroke-dasharray:4_4]" />
+          <line x1="30" y1="150" x2="480" y2="150" class="stroke-[var(--border-color)] stroke-[1.5]" />
 
           <!-- Monthly Bar Groups (Jan to Dec) -->
           <g v-for="(m, i) in monthlyData" :key="i" :transform="`translate(${45 + i * 36}, 0)`">
@@ -30,7 +30,7 @@
               width="11" 
               :height="m.borrowed ? Math.max(8, (m.borrowed / (maxVal || 1)) * 120) : 0" 
               rx="3"
-              class="bar-rect bar-borrowed"
+              class="transition-all duration-500 ease-[var(--spring-ease)] hover:opacity-85 hover:cursor-pointer fill-indigo-500"
             >
               <title>{{ m.month }}: {{ m.borrowed }} Borrowed</title>
             </rect>
@@ -42,30 +42,30 @@
               width="11" 
               :height="m.returned ? Math.max(8, (m.returned / (maxVal || 1)) * 120) : 0" 
               rx="3"
-              class="bar-rect bar-returned"
+              class="transition-all duration-500 ease-[var(--spring-ease)] hover:opacity-85 hover:cursor-pointer fill-emerald-500"
             >
               <title>{{ m.month }}: {{ m.returned }} Returned</title>
             </rect>
 
             <!-- Month Label -->
-            <text :x="11" y="168" text-anchor="middle" class="bar-label">{{ m.month }}</text>
+            <text :x="11" y="168" text-anchor="middle" class="text-[10px] fill-[var(--text-muted)] font-semibold">{{ m.month }}</text>
           </g>
         </svg>
       </div>
     </div>
 
     <!-- Doughnut Chart & Category Breakdown -->
-    <div class="chart-card glass-panel">
-      <div class="chart-header">
+    <div class="p-6 flex flex-col glass-panel">
+      <div class="flex justify-between items-start mb-5">
         <div>
-          <h3>Borrowing Status Distribution</h3>
-          <p class="chart-subtitle">Real-time status metrics of all requests</p>
+          <h3 class="text-[1.1rem] font-bold">Borrowing Status Distribution</h3>
+          <p class="text-[0.8rem] text-[var(--text-muted)]">Real-time status metrics of all requests</p>
         </div>
       </div>
 
-      <div class="status-donut-wrapper">
-        <div class="donut-svg-container">
-          <svg viewBox="0 0 100 100" class="donut-svg">
+      <div class="flex items-center gap-6 my-auto">
+        <div class="relative w-[120px] h-[120px] shrink-0">
+          <svg viewBox="0 0 100 100" class="w-full h-full -rotate-90">
             <circle 
               cx="50" cy="50" r="38" 
               fill="none" 
@@ -80,7 +80,7 @@
               stroke-width="12" 
               :stroke-dasharray="`${statusPercent.approved * 2.38} 238`"
               stroke-dashoffset="0"
-              class="donut-segment"
+              class="transition-all duration-700 ease-[var(--spring-ease)]"
             />
             <!-- Returned Arc -->
             <circle 
@@ -90,7 +90,7 @@
               stroke-width="12" 
               :stroke-dasharray="`${statusPercent.returned * 2.38} 238`"
               :stroke-dashoffset="`-${statusPercent.approved * 2.38}`"
-              class="donut-segment"
+              class="transition-all duration-700 ease-[var(--spring-ease)]"
             />
             <!-- Pending Arc -->
             <circle 
@@ -100,142 +100,169 @@
               stroke-width="12" 
               :stroke-dasharray="`${statusPercent.pending * 2.38} 238`"
               :stroke-dashoffset="`-${(statusPercent.approved + statusPercent.returned) * 2.38}`"
-              class="donut-segment"
+              class="transition-all duration-700 ease-[var(--spring-ease)]"
             />
           </svg>
-          <div class="donut-center-text">
-            <span class="donut-total">{{ totalCount }}</span>
-            <span class="donut-label">Total</span>
+          <div class="absolute inset-0 flex flex-col items-center justify-center">
+            <span class="text-[1.4rem] font-extrabold leading-none">{{ totalCount }}</span>
+            <span class="text-[0.7rem] text-[var(--text-muted)] uppercase">Total</span>
           </div>
         </div>
 
-        <div class="donut-legend-list">
-          <div class="legend-row">
-            <span class="dot dot-blue"></span>
-            <span class="legend-name">Approved</span>
-            <span class="legend-val">{{ stats?.active_borrowings || 0 }}</span>
+        <div class="flex flex-col gap-2 flex-1">
+          <div class="flex items-center gap-2 text-[0.85rem]">
+            <span class="w-[9px] h-[9px] rounded-full inline-block bg-blue-500"></span>
+            <span class="text-[var(--text-secondary)] flex-1">Approved</span>
+            <span class="font-bold text-[var(--text-primary)]">{{ stats?.active_borrowings || 0 }}</span>
           </div>
 
-          <div class="legend-row">
-            <span class="dot dot-amber"></span>
-            <span class="legend-name">Pending</span>
-            <span class="legend-val">{{ stats?.pending_requests || 0 }}</span>
+          <div class="flex items-center gap-2 text-[0.85rem]">
+            <span class="w-[9px] h-[9px] rounded-full inline-block bg-amber-500"></span>
+            <span class="text-[var(--text-secondary)] flex-1">Pending</span>
+            <span class="font-bold text-[var(--text-primary)]">{{ stats?.pending_requests || 0 }}</span>
           </div>
 
-          <div class="legend-row">
-            <span class="dot dot-emerald"></span>
-            <span class="legend-name">Returned</span>
-            <span class="legend-val">{{ returnedCount }}</span>
+          <div class="flex items-center gap-2 text-[0.85rem]">
+            <span class="w-[9px] h-[9px] rounded-full inline-block bg-emerald-500"></span>
+            <span class="text-[var(--text-secondary)] flex-1">Returned</span>
+            <span class="font-bold text-[var(--text-primary)]">{{ returnedCount }}</span>
           </div>
 
-          <div class="legend-row">
-            <span class="dot dot-rose"></span>
-            <span class="legend-name">Overdue</span>
-            <span class="legend-val">{{ stats?.overdue_count || 0 }}</span>
+          <div class="flex items-center gap-2 text-[0.85rem]">
+            <span class="w-[9px] h-[9px] rounded-full inline-block bg-rose-500"></span>
+            <span class="text-[var(--text-secondary)] flex-1">Overdue</span>
+            <span class="font-bold text-[var(--text-primary)]">{{ stats?.overdue_count || 0 }}</span>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Unified Single Live & Periodic Library Analytics Card -->
-    <div class="chart-card glass-panel full-width-card mt-4">
-      <div class="chart-header flex-between flex-wrap gap-3">
+    <div class="p-6 flex flex-col glass-panel col-span-full mt-4">
+      <div class="flex justify-between items-start mb-5 flex-wrap gap-3">
         <div>
-          <h3 class="flex-heading">
-            <span class="live-pulse-dot"></span> Live & Periodic Library Analytics
+          <h3 class="flex items-center gap-2 text-[1.1rem] font-bold">
+            <span class="w-[10px] h-[10px] rounded-full bg-emerald-500 inline-block animate-[pulse-ring_1.8s_infinite]"></span> Live & Periodic Library Analytics
           </h3>
-          <p class="chart-subtitle">Real-time student readers online & official activity reports for {{ currentPeriodName }}</p>
+          <p class="text-[0.8rem] text-[var(--text-muted)]">Real-time student readers online & official activity reports for {{ currentPeriodName }}</p>
         </div>
 
-        <div class="report-filter-group">
-          <div class="live-count-pill mr-2">
+        <div class="flex items-center gap-[0.4rem] flex-wrap">
+          <div class="bg-emerald-500/15 text-emerald-500 border border-emerald-500/30 px-[0.85rem] py-[0.35rem] rounded-full text-[0.85rem] font-bold mr-2">
             🟢 <strong>{{ stats?.active_readers_count || 0 }}</strong> Online Now
           </div>
 
           <button 
             @click="fetchReport('1day')" 
-            class="report-tab-btn" 
-            :class="{ active: currentPeriod === '1day' }"
+            class="px-[0.75rem] py-[0.35rem] rounded-full bg-[rgba(125,125,125,0.1)] border border-[var(--border-color)] text-[var(--text-secondary)] text-[0.8rem] font-semibold cursor-pointer transition-all duration-200 hover:bg-indigo-500/15 hover:text-indigo-600 dark:hover:text-indigo-400" 
+            :class="{ '!bg-gradient-to-r !from-indigo-500 !to-indigo-600 !text-white !border-transparent shadow-sm': currentPeriod === '1day' }"
           >
             Today (1 Day)
           </button>
           <button 
             @click="fetchReport('1week')" 
-            class="report-tab-btn" 
-            :class="{ active: currentPeriod === '1week' }"
+            class="px-[0.75rem] py-[0.35rem] rounded-full bg-[rgba(125,125,125,0.1)] border border-[var(--border-color)] text-[var(--text-secondary)] text-[0.8rem] font-semibold cursor-pointer transition-all duration-200 hover:bg-indigo-500/15 hover:text-indigo-600 dark:hover:text-indigo-400" 
+            :class="{ '!bg-gradient-to-r !from-indigo-500 !to-indigo-600 !text-white !border-transparent shadow-sm': currentPeriod === '1week' }"
           >
             This Week (7 Days)
           </button>
           <button 
             @click="fetchReport('1month')" 
-            class="report-tab-btn" 
-            :class="{ active: currentPeriod === '1month' }"
+            class="px-[0.75rem] py-[0.35rem] rounded-full bg-[rgba(125,125,125,0.1)] border border-[var(--border-color)] text-[var(--text-secondary)] text-[0.8rem] font-semibold cursor-pointer transition-all duration-200 hover:bg-indigo-500/15 hover:text-indigo-600 dark:hover:text-indigo-400" 
+            :class="{ '!bg-gradient-to-r !from-indigo-500 !to-indigo-600 !text-white !border-transparent shadow-sm': currentPeriod === '1month' }"
           >
             This Month (30 Days)
           </button>
           <button 
             @click="fetchReport('all')" 
-            class="report-tab-btn" 
-            :class="{ active: currentPeriod === 'all' }"
+            class="px-[0.75rem] py-[0.35rem] rounded-full bg-[rgba(125,125,125,0.1)] border border-[var(--border-color)] text-[var(--text-secondary)] text-[0.8rem] font-semibold cursor-pointer transition-all duration-200 hover:bg-indigo-500/15 hover:text-indigo-600 dark:hover:text-indigo-400" 
+            :class="{ '!bg-gradient-to-r !from-indigo-500 !to-indigo-600 !text-white !border-transparent shadow-sm': currentPeriod === 'all' }"
           >
             All Time
           </button>
 
-          <button @click="printOfficialReport" class="btn btn-primary btn-sm export-report-btn">
+          <button @click="printOfficialReport" class="btn btn-primary btn-sm ml-2 font-bold">
             🖨️ Export / Print Report
           </button>
         </div>
       </div>
 
-      <div v-if="reportLoading" class="loading-report-box">
-        <Loader2 :size="24" class="spin" /> Generating {{ currentPeriodName }} Analytics Report...
+      <div v-if="reportLoading" class="flex items-center justify-center gap-3 p-12 text-[var(--text-muted)]">
+        <Loader2 :size="24" class="animate-spin" /> Generating {{ currentPeriodName }} Analytics Report...
       </div>
 
-      <div v-else-if="reportData" class="report-summary-grid">
+      <div v-else-if="reportData" class="mt-6">
         <!-- Report Metrics Summary Row -->
-        <div class="report-kpi-row">
-          <div class="report-mini-kpi">
-            <span class="mini-kpi-val">{{ reportData.total_reads }}</span>
-            <span class="mini-kpi-lbl">Total Borrowing Activity</span>
+        <div class="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-5 mb-6">
+          <div class="flex items-center gap-4 p-5 glass-panel bg-white/5 border border-[var(--border-color)] hover:border-indigo-500/30 transition-all duration-300">
+            <div class="w-12 h-12 rounded-[14px] flex items-center justify-center text-white shrink-0 bg-gradient-to-br from-indigo-500 to-indigo-600 shadow-md">
+              <Activity :size="24" stroke-width="2.5" />
+            </div>
+            <div class="flex flex-col">
+              <span class="text-[1.75rem] font-extrabold leading-none text-[var(--text-primary)]">{{ reportData.total_reads }}</span>
+              <span class="text-[0.78rem] text-[var(--text-muted)] font-semibold mt-1">Total Borrowing Activity</span>
+            </div>
           </div>
-          <div class="report-mini-kpi">
-            <span class="mini-kpi-val">{{ reportData.borrowings_summary?.total_borrowings || 0 }}</span>
-            <span class="mini-kpi-lbl">Physical Borrowings</span>
+
+          <div class="flex items-center gap-4 p-5 glass-panel bg-white/5 border border-[var(--border-color)] hover:border-blue-500/30 transition-all duration-300">
+            <div class="w-12 h-12 rounded-[14px] flex items-center justify-center text-white shrink-0 bg-gradient-to-br from-blue-500 to-cyan-500 shadow-md">
+              <BookCopy :size="24" stroke-width="2.5" />
+            </div>
+            <div class="flex flex-col">
+              <span class="text-[1.75rem] font-extrabold leading-none text-[var(--text-primary)]">{{ reportData.borrowings_summary?.total_borrowings || 0 }}</span>
+              <span class="text-[0.78rem] text-[var(--text-muted)] font-semibold mt-1">Physical Borrowings</span>
+            </div>
           </div>
-          <div class="report-mini-kpi">
-            <span class="mini-kpi-val text-emerald">{{ reportData.borrowings_summary?.total_returned || 0 }}</span>
-            <span class="mini-kpi-lbl">Books Returned</span>
+
+          <div class="flex items-center gap-4 p-5 glass-panel bg-white/5 border border-[var(--border-color)] hover:border-emerald-500/30 transition-all duration-300">
+            <div class="w-12 h-12 rounded-[14px] flex items-center justify-center text-white shrink-0 bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-md">
+              <ArrowDownToLine :size="24" stroke-width="2.5" />
+            </div>
+            <div class="flex flex-col">
+              <span class="text-[1.75rem] font-extrabold leading-none text-emerald-500">{{ reportData.borrowings_summary?.total_returned || 0 }}</span>
+              <span class="text-[0.78rem] text-[var(--text-muted)] font-semibold mt-1">Books Returned</span>
+            </div>
           </div>
-          <div class="report-mini-kpi">
-            <span class="mini-kpi-val text-purple">{{ stats?.active_readers_count || 0 }}</span>
-            <span class="mini-kpi-lbl">Live Active Readers Online</span>
+
+          <div class="flex items-center gap-4 p-5 glass-panel bg-white/5 border border-[var(--border-color)] hover:border-purple-500/30 transition-all duration-300 relative overflow-hidden">
+            <div class="absolute -right-6 -top-6 w-24 h-24 bg-purple-500/10 blur-[20px] rounded-full pointer-events-none"></div>
+            <div class="w-12 h-12 rounded-[14px] flex items-center justify-center text-white shrink-0 bg-gradient-to-br from-purple-500 to-pink-500 shadow-md relative z-10">
+              <Users :size="24" stroke-width="2.5" />
+            </div>
+            <div class="flex flex-col relative z-10">
+              <span class="text-[1.75rem] font-extrabold leading-none text-purple-500 flex items-center gap-2">
+                {{ stats?.active_readers_count || 0 }}
+                <span v-if="stats?.active_readers_count > 0" class="w-[8px] h-[8px] rounded-full bg-emerald-500 inline-block animate-[pulse-ring_1.8s_infinite] mb-2"></span>
+              </span>
+              <span class="text-[0.78rem] text-[var(--text-muted)] font-semibold mt-1">Live Active Readers Online</span>
+            </div>
           </div>
         </div>
 
-        <div class="report-details-grid">
+        <div class="grid grid-cols-2 gap-6 max-lg:grid-cols-1">
           <!-- Left Column: Current Active Readers & Top Student Borrowers -->
-          <div class="report-col-group">
+          <div>
             <!-- 1. Current Active Readers (Right Now) -->
-            <div class="report-col mb-4">
-              <h4 class="col-title">🟢 Current Active Readers (Right Now)</h4>
-              <div v-if="!stats?.active_readers_detail || stats.active_readers_detail.length === 0" class="empty-analytics-box">
-                <p class="text-muted">No students are currently reading online right now.</p>
+            <div class="bg-[rgba(125,125,125,0.03)] p-5 rounded-[var(--radius-md)] border border-[var(--border-color)] mb-4">
+              <h4 class="text-[0.95rem] font-bold mb-4 text-[var(--text-primary)]">🟢 Current Active Readers (Right Now)</h4>
+              <div v-if="!stats?.active_readers_detail || stats.active_readers_detail.length === 0" class="bg-[rgba(125,125,125,0.05)] p-8 rounded-[var(--radius-md)] text-center">
+                <p class="text-[var(--text-muted)]">No students are currently reading online right now.</p>
               </div>
-              <div v-else class="active-readers-list">
-                <div v-for="item in stats.active_readers_detail" :key="item.session_db_id || item.session_id" class="reader-row">
-                  <div class="user-avatar-sm">
-                    <img v-if="item.profile_photo" :src="item.profile_photo" class="avatar-img-sm" />
+              <div v-else class="flex flex-col gap-3">
+                <div v-for="item in stats.active_readers_detail" :key="item.session_db_id || item.session_id" class="flex items-center gap-4 px-4 py-3 bg-[rgba(125,125,125,0.06)] border border-[var(--border-color)] rounded-[var(--radius-md)]">
+                  <div class="w-[38px] h-[38px] rounded-full bg-[var(--accent-gradient)] text-white flex items-center justify-center font-bold text-[0.95rem] overflow-hidden shrink-0">
+                    <img v-if="item.profile_photo" :src="item.profile_photo" class="w-full h-full object-cover" />
                     <span v-else>{{ (item.user_name || 'G').charAt(0).toUpperCase() }}</span>
                   </div>
-                  <div class="reader-book-info">
-                    <div class="reader-user-name">
+                  <div class="flex-1">
+                    <div class="text-[0.92rem] font-bold text-[var(--text-primary)] flex items-center gap-[0.4rem] flex-wrap">
                       {{ item.name_khmer || item.user_name || 'Guest Student' }}
-                      <span v-if="item.student_id" class="student-id-pill">{{ item.student_id }}</span>
-                      <span v-if="item.dorm_room" class="room-pill-sm">Room {{ item.dorm_room }}</span>
+                      <span v-if="item.student_id" class="bg-indigo-500/18 text-indigo-400 px-2 py-[0.1rem] rounded-full text-[0.72rem] font-bold">{{ item.student_id }}</span>
+                      <span v-if="item.dorm_room" class="bg-emerald-500/15 text-emerald-500 px-2 py-[0.1rem] rounded-full text-[0.72rem] font-bold">Room {{ item.dorm_room }}</span>
                     </div>
-                    <div class="reader-book-title-sub">📖 Reading: <strong>{{ item.book_title }}</strong></div>
-                    <div class="reader-status-badge">
-                      <span class="live-pulse-dot small"></span> Active Online Now
+                    <div class="text-[0.82rem] text-[var(--text-secondary)] mt-[0.15rem]">📖 Reading: <strong>{{ item.book_title }}</strong></div>
+                    <div class="inline-flex items-center gap-[0.35rem] text-[0.78rem] text-emerald-500 font-semibold mt-1">
+                      <span class="w-[6px] h-[6px] rounded-full bg-emerald-500 inline-block animate-[pulse-ring_1.8s_infinite]"></span> Active Online Now
                     </div>
                   </div>
                 </div>
@@ -243,23 +270,23 @@
             </div>
 
             <!-- 2. Top Active Student Borrowers -->
-            <div class="report-col">
-              <h4 class="col-title">🏆 Top Active Student Borrowers ({{ reportData.period_name }})</h4>
-              <div v-if="!reportData.top_readers || reportData.top_readers.length === 0" class="empty-analytics-box">
-                <p class="text-muted">No borrowing activity recorded for {{ reportData.period_name }}.</p>
+            <div class="bg-[rgba(125,125,125,0.03)] p-5 rounded-[var(--radius-md)] border border-[var(--border-color)]">
+              <h4 class="text-[0.95rem] font-bold mb-4 text-[var(--text-primary)]">🏆 Top Active Student Borrowers ({{ reportData.period_name }})</h4>
+              <div v-if="!reportData.top_readers || reportData.top_readers.length === 0" class="bg-[rgba(125,125,125,0.05)] p-8 rounded-[var(--radius-md)] text-center">
+                <p class="text-[var(--text-muted)]">No borrowing activity recorded for {{ reportData.period_name }}.</p>
               </div>
-              <div v-else class="top-readers-list">
-                <div v-for="(r, idx) in reportData.top_readers" :key="r.id" class="top-reader-item">
-                  <span class="rank-badge">#{{ idx + 1 }}</span>
-                  <div class="user-avatar-sm">
-                    <img v-if="r.profile_photo" :src="r.profile_photo" class="avatar-img-sm" />
+              <div v-else class="flex flex-col gap-[0.65rem] mt-4">
+                <div v-for="(r, idx) in reportData.top_readers" :key="r.id" class="flex items-center gap-3 px-[0.85rem] py-[0.65rem] bg-[rgba(125,125,125,0.05)] rounded-[var(--radius-sm)] border border-[var(--border-color)]">
+                  <span class="font-extrabold text-[var(--accent-primary)] min-w-[24px]">#{{ idx + 1 }}</span>
+                  <div class="w-[38px] h-[38px] rounded-full bg-[var(--accent-gradient)] text-white flex items-center justify-center font-bold text-[0.95rem] overflow-hidden shrink-0">
+                    <img v-if="r.profile_photo" :src="r.profile_photo" class="w-full h-full object-cover" />
                     <span v-else>{{ (r.name || 'S').charAt(0).toUpperCase() }}</span>
                   </div>
-                  <div class="reader-details">
-                    <div class="reader-name-title">{{ r.name_khmer || r.name }}</div>
-                    <div class="reader-sub-info font-mono">{{ r.student_id || r.email }}</div>
+                  <div class="flex-1">
+                    <div class="text-[0.88rem] font-bold">{{ r.name_khmer || r.name }}</div>
+                    <div class="text-[0.75rem] text-[var(--text-muted)] font-mono">{{ r.student_id || r.email }}</div>
                   </div>
-                  <div class="sessions-badge">
+                  <div class="bg-indigo-500/12 text-[var(--accent-primary)] px-[0.65rem] py-[0.25rem] rounded-full text-[0.78rem] font-bold">
                     📖 <strong>{{ r.read_sessions }}</strong> Activity
                   </div>
                 </div>
@@ -268,21 +295,21 @@
           </div>
 
           <!-- Right Column: Top Popular Books -->
-          <div class="report-col-group">
-            <div class="report-col h-100">
-              <h4 class="col-title">🔥 Top Popular Books ({{ reportData.period_name }})</h4>
-              <div v-if="!reportData.top_books || reportData.top_books.length === 0" class="empty-analytics-box">
-                <p class="text-muted">No book borrowing activity recorded for {{ reportData.period_name }}.</p>
+          <div>
+            <div class="bg-[rgba(125,125,125,0.03)] p-5 rounded-[var(--radius-md)] border border-[var(--border-color)] h-full">
+              <h4 class="text-[0.95rem] font-bold mb-4 text-[var(--text-primary)]">🔥 Top Popular Books ({{ reportData.period_name }})</h4>
+              <div v-if="!reportData.top_books || reportData.top_books.length === 0" class="bg-[rgba(125,125,125,0.05)] p-8 rounded-[var(--radius-md)] text-center">
+                <p class="text-[var(--text-muted)]">No book borrowing activity recorded for {{ reportData.period_name }}.</p>
               </div>
-              <div v-else class="top-books-report-list">
-                <div v-for="(b, idx) in reportData.top_books" :key="b.id" class="top-book-item">
-                  <span class="rank-badge">#{{ idx + 1 }}</span>
-                  <img :src="b.cover_url || fallbackCover" class="top-book-cover-sm" />
-                  <div class="top-book-details">
-                    <div class="top-book-name">{{ b.title }}</div>
-                    <div class="top-book-cat">{{ b.category_name || 'General' }}</div>
+              <div v-else class="flex flex-col gap-[0.65rem] mt-4">
+                <div v-for="(b, idx) in reportData.top_books" :key="b.id" class="flex items-center gap-3 px-[0.85rem] py-[0.65rem] bg-[rgba(125,125,125,0.05)] rounded-[var(--radius-sm)] border border-[var(--border-color)]">
+                  <span class="font-extrabold text-[var(--accent-primary)] min-w-[24px]">#{{ idx + 1 }}</span>
+                  <img :src="b.cover_url || fallbackCover" class="w-[32px] h-[44px] object-cover rounded" />
+                  <div class="flex-1">
+                    <div class="text-[0.88rem] font-bold">{{ b.title }}</div>
+                    <div class="text-[0.75rem] text-[var(--text-muted)]">{{ b.category_name || 'General' }}</div>
                   </div>
-                  <div class="period-reads-badge">
+                  <div class="bg-indigo-500/12 text-[var(--accent-primary)] px-[0.65rem] py-[0.25rem] rounded-full text-[0.78rem] font-bold">
                     👁️ <strong>{{ b.period_reads }}</strong> Activity
                   </div>
                 </div>
@@ -305,8 +332,8 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
+import { Loader2, Printer, CheckCircle, Search, Clock, FileText, Download, TrendingUp, RefreshCw, Activity, BookCopy, ArrowDownToLine, Users } from 'lucide-vue-next';
 import { useAuthStore } from '../stores/auth';
-import { Loader2 } from 'lucide-vue-next';
 import OfficialReportModal from './OfficialReportModal.vue';
 
 const props = defineProps({
@@ -332,7 +359,7 @@ async function fetchReport(period = '1day') {
   currentPeriod.value = period;
   reportLoading.value = true;
   try {
-    const res = await fetch(`/api/admin/reading-reports?period=${period}`, {
+    const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/admin/reading-reports?period=${period}`, {
       headers: { Authorization: `Bearer ${authStore.token}` }
     });
     if (res.ok) {
@@ -398,500 +425,6 @@ const statusPercent = computed(() => {
 </script>
 
 <style scoped>
-.charts-section-grid {
-  display: grid;
-  grid-template-columns: 1.6fr 1fr;
-  gap: 1.25rem;
-  margin-bottom: 2rem;
-}
-
-.chart-card {
-  padding: 1.5rem;
-  display: flex;
-  flex-direction: column;
-}
-
-.chart-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 1.25rem;
-}
-
-.chart-header h3 {
-  font-size: 1.1rem;
-  font-weight: 700;
-}
-
-.chart-subtitle {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-}
-
-.chart-legend {
-  display: flex;
-  gap: 0.85rem;
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-}
-
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  font-weight: 600;
-}
-
-.dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  display: inline-block;
-}
-
-.dot-indigo { background: #6366f1; }
-.dot-emerald { background: #10b981; }
-.dot-blue { background: #3b82f6; }
-.dot-amber { background: #f59e0b; }
-.dot-rose { background: #ef4444; }
-
-.bar-chart-wrapper {
-  width: 100%;
-  height: 200px;
-}
-
-.bar-chart-svg {
-  width: 100%;
-  height: 100%;
-}
-
-.chart-grid-line {
-  stroke: rgba(125, 125, 125, 0.12);
-  stroke-dasharray: 4 4;
-}
-
-.chart-axis-line {
-  stroke: var(--border-color);
-  stroke-width: 1.5;
-}
-
-.bar-rect {
-  transition: height 0.6s var(--spring-ease), y 0.6s var(--spring-ease), opacity 0.2s ease;
-}
-
-.bar-borrowed {
-  fill: url(#borrowedGradient);
-  fill: #6366f1;
-}
-
-.bar-returned {
-  fill: #10b981;
-}
-
-.bar-rect:hover {
-  opacity: 0.85;
-  cursor: pointer;
-}
-
-.bar-label {
-  font-size: 10px;
-  fill: var(--text-muted);
-  font-weight: 600;
-}
-
-.status-donut-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  margin: auto 0;
-}
-
-.donut-svg-container {
-  position: relative;
-  width: 120px;
-  height: 120px;
-  flex-shrink: 0;
-}
-
-.donut-svg {
-  width: 100%;
-  height: 100%;
-  transform: rotate(-90deg);
-}
-
-.donut-segment {
-  transition: stroke-dasharray 0.8s var(--spring-ease), stroke-dashoffset 0.8s var(--spring-ease);
-}
-
-.donut-center-text {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.donut-total {
-  font-size: 1.4rem;
-  font-weight: 800;
-  line-height: 1;
-}
-
-.donut-label {
-  font-size: 0.7rem;
-  color: var(--text-muted);
-  text-transform: uppercase;
-}
-
-.donut-legend-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  flex: 1;
-}
-
-.legend-row {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.85rem;
-}
-
-.legend-name {
-  color: var(--text-secondary);
-  flex: 1;
-}
-
-.legend-val {
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-@media (max-width: 1024px) {
-  .charts-section-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-.full-width-card {
-  grid-column: 1 / -1;
-}
-
-.flex-heading {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.live-count-pill {
-  background: rgba(16, 185, 129, 0.15);
-  color: #10b981;
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  padding: 0.35rem 0.85rem;
-  border-radius: 9999px;
-  font-size: 0.85rem;
-  font-weight: 700;
-}
-
-.readers-analytics-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-  margin-top: 1.5rem;
-}
-
-.col-title {
-  font-size: 0.95rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-  color: var(--text-primary);
-}
-
-.empty-analytics-box {
-  background: rgba(125, 125, 125, 0.05);
-  padding: 2rem;
-  border-radius: var(--radius-md);
-  text-align: center;
-}
-
-.active-readers-list, .top-books-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.reader-row, .top-book-row {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 0.75rem 1rem;
-  background: rgba(125, 125, 125, 0.06);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-}
-
-.reader-book-cover, .top-book-cover {
-  width: 38px;
-  height: 52px;
-  object-fit: cover;
-  border-radius: 4px;
-}
-
-.reader-book-info, .top-book-info {
-  flex: 1;
-}
-
-.reader-book-title, .top-book-title {
-  font-size: 0.9rem;
-  font-weight: 700;
-}
-
-.reader-status-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  font-size: 0.78rem;
-  color: #10b981;
-  font-weight: 600;
-  margin-top: 0.2rem;
-}
-
-.rank-num {
-  font-size: 1rem;
-  font-weight: 800;
-  color: var(--accent-primary);
-  min-width: 28px;
-}
-
-.top-book-meta {
-  font-size: 0.78rem;
-  color: var(--text-muted);
-}
-
-.reads-count-badge {
-  background: rgba(99, 102, 241, 0.12);
-  color: var(--accent-primary);
-  padding: 0.3rem 0.7rem;
-  border-radius: 9999px;
-  font-size: 0.8rem;
-  font-weight: 700;
-}
-
-.live-pulse-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: #10b981;
-  box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
-  animation: pulse-ring 1.8s infinite;
-  display: inline-block;
-}
-
-.live-pulse-dot.small {
-  width: 6px;
-  height: 6px;
-}
-
-.user-avatar-sm {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  background: var(--accent-gradient);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 0.95rem;
-  overflow: hidden;
-  flex-shrink: 0;
-}
-
-.avatar-img-sm {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.reader-user-name {
-  font-size: 0.92rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  flex-wrap: wrap;
-}
-
-.student-id-pill {
-  background: rgba(99, 102, 241, 0.18);
-  color: #818cf8;
-  padding: 0.1rem 0.5rem;
-  border-radius: 9999px;
-  font-size: 0.72rem;
-  font-weight: 700;
-}
-
-.room-pill-sm {
-  background: rgba(16, 185, 129, 0.15);
-  color: #10b981;
-  padding: 0.1rem 0.5rem;
-  border-radius: 9999px;
-  font-size: 0.72rem;
-  font-weight: 700;
-}
-
-.reader-book-title-sub {
-  font-size: 0.82rem;
-  color: var(--text-secondary);
-  margin-top: 0.15rem;
-}
-
-.report-filter-group {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  flex-wrap: wrap;
-}
-
-.report-tab-btn {
-  padding: 0.35rem 0.75rem;
-  border-radius: 9999px;
-  background: rgba(125, 125, 125, 0.1);
-  border: 1px solid var(--border-color);
-  color: var(--text-secondary);
-  font-size: 0.8rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.report-tab-btn:hover {
-  background: rgba(99, 102, 241, 0.15);
-  color: var(--accent-primary);
-}
-
-.report-tab-btn.active {
-  background: var(--accent-gradient);
-  color: white;
-  border-color: transparent;
-}
-
-.export-report-btn {
-  margin-left: 0.5rem;
-  font-weight: 700;
-}
-
-.loading-report-box {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  padding: 3rem;
-  color: var(--text-muted);
-}
-
-.report-summary-grid {
-  margin-top: 1.5rem;
-}
-
-.report-kpi-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.report-mini-kpi {
-  background: rgba(125, 125, 125, 0.06);
-  border: 1px solid var(--border-color);
-  padding: 1rem;
-  border-radius: var(--radius-md);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.mini-kpi-val {
-  font-size: 1.6rem;
-  font-weight: 800;
-  color: var(--accent-primary);
-}
-
-.mini-kpi-lbl {
-  font-size: 0.78rem;
-  color: var(--text-muted);
-  font-weight: 600;
-  margin-top: 0.2rem;
-}
-
-.report-details-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
-}
-
-.report-col {
-  background: rgba(125, 125, 125, 0.03);
-  padding: 1.25rem;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-color);
-}
-
-.top-readers-list, .top-books-report-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.65rem;
-  margin-top: 1rem;
-}
-
-.top-reader-item, .top-book-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.65rem 0.85rem;
-  background: rgba(125, 125, 125, 0.05);
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-color);
-}
-
-.rank-badge {
-  font-weight: 800;
-  color: var(--accent-primary);
-  min-width: 24px;
-}
-
-.reader-details, .top-book-details {
-  flex: 1;
-}
-
-.reader-name-title, .top-book-name {
-  font-size: 0.88rem;
-  font-weight: 700;
-}
-
-.reader-sub-info, .top-book-cat {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-}
-
-.sessions-badge, .period-reads-badge {
-  background: rgba(99, 102, 241, 0.12);
-  color: var(--accent-primary);
-  padding: 0.25rem 0.65rem;
-  border-radius: 9999px;
-  font-size: 0.78rem;
-  font-weight: 700;
-}
-
-.top-book-cover-sm {
-  width: 32px;
-  height: 44px;
-  object-fit: cover;
-  border-radius: 4px;
-}
-
 @keyframes pulse-ring {
   0% {
     transform: scale(0.95);

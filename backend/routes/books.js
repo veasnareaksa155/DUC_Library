@@ -1,7 +1,7 @@
 const express = require('express');
-const { all, get, run } = require('../db');
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
-const { syncBooksToDb } = require('../googleSheets');
+const { uploadPdfToCloudinary, uploadImageToCloudinary } = require('../cloudinary');
+const ORM = require('../googleSheetsORM');
 let pdfParse;
 try {
   pdfParse = require('pdf-parse');
@@ -38,20 +38,10 @@ async function autoExtractTextFromPdfIfNeeded(pdfUrl, digitalContent) {
 
 // Sync books inventory from Google Sheet (Admin only)
 router.post('/sync-sheet', authenticateToken, requireAdmin, async (req, res) => {
-  try {
-    const { spreadsheet_id } = req.body;
-    if (!spreadsheet_id) {
-      return res.status(400).json({ message: 'Spreadsheet ID is required.' });
-    }
-    const result = await syncBooksToDb(spreadsheet_id);
-    res.json({
-      message: `Successfully synced ${result.newlyAddedBooks} new books & ${result.updatedBooks} updated across ${result.totalCategories} categories!`,
-      details: result
-    });
-  } catch (error) {
-    console.error('Google Sheet book sync error:', error);
-    res.status(500).json({ message: 'Failed to sync book inventory from Google Sheet.' });
-  }
+  res.json({
+    message: `Sync is no longer needed. The database is already Google Sheets!`,
+    details: { synced: true }
+  });
 });
 
 // Get list of books (supports search query, category filter, and availability filter)
@@ -59,38 +49,60 @@ router.get('/', async (req, res) => {
   try {
     const { search, category_id, available_only } = req.query;
 
-    let query = `
-      SELECT 
-        b.id, b.title, b.author, b.isbn, b.category_id, b.description, 
-        b.cover_url, b.copies_total, b.copies_available, b.publisher, 
-        b.publish_year, b.created_at, b.is_featured,
-        (CASE WHEN b.pdf_url IS NOT NULL AND length(b.pdf_url) > 0 THEN 1 ELSE 0 END) as has_pdf,
-        (CASE WHEN b.digital_content IS NOT NULL AND length(b.digital_content) > 0 THEN 1 ELSE 0 END) as has_digital_content,
-        c.name as category_name 
-      FROM books b
-      LEFT JOIN categories c ON b.category_id = c.id
-      WHERE 1=1
-    `;
-    const params = [];
+    const categories = await ORM.getAll('Categories');
+    const categoriesMap = {};
+    categories.forEach(c => {
+      categoriesMap[c.id] = c.name;
+    });
 
-    if (search) {
-      query += ` AND (b.title LIKE ? OR b.author LIKE ? OR b.isbn LIKE ? OR b.description LIKE ?)`;
-      const searchParam = `%${search}%`;
-      params.push(searchParam, searchParam, searchParam, searchParam);
-    }
+    let books = await ORM.getAll('Books');
+
+    // Sort by created_at desc (newest first)
+    books.sort((a, b) => {
+      if (!a.created_at) return 1;
+      if (!b.created_at) return -1;
+      return new Date(b.created_at) - new Date(a.created_at);
+    });
 
     if (category_id && category_id !== 'all') {
-      query += ` AND b.category_id = ?`;
-      params.push(category_id);
+      books = books.filter(b => String(b.category_id) === String(category_id));
     }
-
+    
     if (available_only === 'true') {
-      query += ` AND b.copies_available > 0`;
+      books = books.filter(b => Number(b.copies_available) > 0);
     }
 
-    query += ` ORDER BY b.id DESC`;
+    // Map fields to what frontend expects
+    books = books.map(b => ({
+      id: b.id,
+      title: b.title,
+      author: b.author,
+      isbn: b.isbn,
+      category_id: b.category_id,
+      description: b.description,
+      cover_url: b.cover_url,
+      copies_total: Number(b.copies_total) || 0,
+      copies_available: Number(b.copies_available) || 0,
+      publisher: b.publisher,
+      publish_year: b.publish_year,
+      created_at: b.created_at,
+      is_featured: b.is_featured === '1' || b.is_featured === 1 || b.is_featured === true || String(b.is_featured).toLowerCase() === 'true' ? 1 : 0,
+      has_pdf: (b.pdf_url && b.pdf_url.length > 0) ? 1 : 0,
+      has_digital_content: (b.digital_content && b.digital_content.length > 0) ? 1 : 0,
+      category_name: b.category_id ? categoriesMap[b.category_id] : null
+    }));
 
-    const books = await all(query, params);
+    if (search) {
+      const lowerSearch = search.toLowerCase();
+      books = books.filter(b => 
+        (b.title && b.title.toLowerCase().includes(lowerSearch)) ||
+        (b.author && b.author.toLowerCase().includes(lowerSearch)) ||
+        (b.category_name && b.category_name.toLowerCase().includes(lowerSearch)) ||
+        (b.isbn && String(b.isbn).toLowerCase().includes(lowerSearch)) ||
+        (b.description && b.description.toLowerCase().includes(lowerSearch))
+      );
+    }
+
     res.json(books);
   } catch (error) {
     console.error('Error getting books:', error);
@@ -101,20 +113,77 @@ router.get('/', async (req, res) => {
 // Get single book by ID
 router.get('/:id', async (req, res) => {
   try {
-    const book = await get(`
-      SELECT b.*, c.name as category_name 
-      FROM books b
-      LEFT JOIN categories c ON b.category_id = c.id
-      WHERE b.id = ?
-    `, [req.params.id]);
-
+    const book = await ORM.getById('Books', req.params.id);
     if (!book) {
       return res.status(404).json({ message: 'Book not found.' });
     }
+    
+    if (book.category_id) {
+      const cat = await ORM.getById('Categories', book.category_id);
+      if (cat) {
+        book.category_name = cat.name;
+      }
+    }
+    
+    book.copies_total = Number(book.copies_total) || 0;
+    book.copies_available = Number(book.copies_available) || 0;
+    book.is_featured = book.is_featured === '1' || book.is_featured === 1 || String(book.is_featured).toLowerCase() === 'true' ? 1 : 0;
 
     res.json(book);
   } catch (error) {
+    console.error('Error getting single book:', error);
     res.status(500).json({ message: 'Failed to fetch book details.' });
+  }
+});
+
+// Add read-ping endpoint to track live readers
+router.post('/:id/read-ping', async (req, res) => {
+  try {
+    const { session_id } = req.body;
+    if (session_id) {
+      const activeReadersService = require('../services/activeReaders');
+      
+      // Try to extract user from token if available, but don't strictly require it
+      let user = null;
+      const authHeader = req.headers['authorization'];
+      if (authHeader) {
+        const token = authHeader.split(' ')[1];
+        if (token) {
+          try {
+            const jwt = require('jsonwebtoken');
+            const { JWT_SECRET } = require('../middleware/auth');
+            user = jwt.verify(token, JWT_SECRET);
+          } catch (e) {}
+        }
+      }
+
+      activeReadersService.pingReader(session_id, req.params.id, user);
+      
+      const count = activeReadersService.getActiveReadersForBook(req.params.id);
+      return res.json({ active_readers_count: count });
+    }
+    res.json({ active_readers_count: 1 });
+  } catch (error) {
+    console.error('Read ping error:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+// Add read-leave endpoint to immediately decrement reader count
+router.post('/:id/read-leave', async (req, res) => {
+  try {
+    const { session_id } = req.body;
+    if (session_id) {
+      const activeReadersService = require('../services/activeReaders');
+      activeReadersService.removeReader(session_id);
+      
+      const count = activeReadersService.getActiveReadersForBook(req.params.id);
+      return res.json({ active_readers_count: count });
+    }
+    res.json({ active_readers_count: 0 });
+  } catch (error) {
+    console.error('Read leave error:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 });
 
@@ -122,18 +191,8 @@ router.get('/:id', async (req, res) => {
 router.post('/', authenticateToken, requireAdmin, async (req, res) => {
   try {
     const {
-      title,
-      author,
-      isbn,
-      category_id,
-      description,
-      cover_url,
-      pdf_url,
-      digital_content,
-      copies_total,
-      publisher,
-      publish_year,
-      is_featured
+      title, author, isbn, category_id, description, cover_url, pdf_url, digital_content,
+      copies_total, publisher, publish_year, is_featured
     } = req.body;
 
     if (!title || !author) {
@@ -143,29 +202,37 @@ router.post('/', authenticateToken, requireAdmin, async (req, res) => {
     const total = parseInt(copies_total) || 1;
     const finalContent = await autoExtractTextFromPdfIfNeeded(pdf_url, digital_content);
 
-    const result = await run(`
-      INSERT INTO books (
-        title, author, isbn, category_id, description, cover_url, pdf_url, digital_content,
-        copies_total, copies_available, publisher, publish_year, is_featured
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `, [
+    let finalPdfUrl = pdf_url || '';
+    if (finalPdfUrl.startsWith('data:application/pdf;base64,')) {
+      const filename = `${title.replace(/[^a-zA-Z0-9]/g, '_')}_${Date.now()}.pdf`;
+      finalPdfUrl = await uploadPdfToCloudinary(finalPdfUrl, filename);
+    }
+
+    let finalCoverUrl = cover_url || '';
+    if (finalCoverUrl.startsWith('data:image/')) {
+      const filename = `${title.replace(/[^a-zA-Z0-9]/g, '_')}_cover_${Date.now()}`;
+      finalCoverUrl = await uploadImageToCloudinary(finalCoverUrl, filename);
+    }
+
+    const newBookData = {
       title,
       author,
-      isbn || null,
-      category_id || null,
-      description || '',
-      cover_url || '',
-      pdf_url || '',
-      finalContent || '',
-      total,
-      total,
-      publisher || '',
-      publish_year || new Date().getFullYear(),
-      is_featured ? 1 : 0
-    ]);
+      isbn: isbn || '',
+      category_id: category_id ? String(category_id) : '',
+      description: description || '',
+      cover_url: finalCoverUrl,
+      pdf_url: finalPdfUrl,
+      digital_content: finalContent || '',
+      copies_total: total,
+      copies_available: total,
+      publisher: publisher || '',
+      publish_year: publish_year || new Date().getFullYear(),
+      is_featured: is_featured ? 1 : 0,
+      read_count: 0
+    };
 
-    const newBook = await get('SELECT * FROM books WHERE id = ?', [result.id]);
-    res.status(201).json({ message: 'Book added successfully', book: newBook });
+    const inserted = await ORM.insert('Books', newBookData);
+    res.status(201).json({ message: 'Book added successfully', book: inserted });
   } catch (error) {
     console.error('Error adding book:', error);
     res.status(500).json({ message: 'Failed to add new book.' });
@@ -176,66 +243,49 @@ router.post('/', authenticateToken, requireAdmin, async (req, res) => {
 router.put('/:id', authenticateToken, requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
-    const existingBook = await get('SELECT * FROM books WHERE id = ?', [id]);
+    const existingBook = await ORM.getById('Books', id);
     if (!existingBook) {
       return res.status(404).json({ message: 'Book not found.' });
     }
 
     const {
-      title,
-      author,
-      isbn,
-      category_id,
-      description,
-      cover_url,
-      pdf_url,
-      digital_content,
-      copies_total,
-      copies_available,
-      publisher,
-      publish_year,
-      is_featured
+      title, author, isbn, category_id, description, cover_url, pdf_url, digital_content,
+      copies_total, copies_available, publisher, publish_year, is_featured
     } = req.body;
 
-    const targetPdf = pdf_url !== undefined ? pdf_url : existingBook.pdf_url;
+    let targetPdf = pdf_url !== undefined ? pdf_url : existingBook.pdf_url;
     const targetContent = digital_content !== undefined ? digital_content : existingBook.digital_content;
     const finalContent = await autoExtractTextFromPdfIfNeeded(targetPdf, targetContent);
 
-    await run(`
-      UPDATE books SET
-        title = ?,
-        author = ?,
-        isbn = ?,
-        category_id = ?,
-        description = ?,
-        cover_url = ?,
-        pdf_url = ?,
-        digital_content = ?,
-        copies_total = ?,
-        copies_available = ?,
-        publisher = ?,
-        publish_year = ?,
-        is_featured = ?
-      WHERE id = ?
-    `, [
-      title || existingBook.title,
-      author || existingBook.author,
-      isbn !== undefined ? isbn : existingBook.isbn,
-      category_id !== undefined ? category_id : existingBook.category_id,
-      description !== undefined ? description : existingBook.description,
-      cover_url !== undefined ? cover_url : existingBook.cover_url,
-      targetPdf,
-      finalContent,
-      copies_total !== undefined ? parseInt(copies_total) : existingBook.copies_total,
-      copies_available !== undefined ? parseInt(copies_available) : existingBook.copies_available,
-      publisher !== undefined ? publisher : existingBook.publisher,
-      publish_year !== undefined ? parseInt(publish_year) : existingBook.publish_year,
-      is_featured !== undefined ? (is_featured ? 1 : 0) : existingBook.is_featured,
-      id
-    ]);
+    if (targetPdf && targetPdf.startsWith('data:application/pdf;base64,')) {
+      const filename = `${(title || existingBook.title).replace(/[^a-zA-Z0-9]/g, '_')}_${Date.now()}.pdf`;
+      targetPdf = await uploadPdfToCloudinary(targetPdf, filename);
+    }
 
-    const updatedBook = await get('SELECT * FROM books WHERE id = ?', [id]);
-    res.json({ message: 'Book updated successfully', book: updatedBook });
+    let targetCover = cover_url !== undefined ? cover_url : existingBook.cover_url;
+    if (targetCover && targetCover.startsWith('data:image/')) {
+      const filename = `${(title || existingBook.title).replace(/[^a-zA-Z0-9]/g, '_')}_cover_${Date.now()}`;
+      targetCover = await uploadImageToCloudinary(targetCover, filename);
+    }
+
+    const updateData = {
+      title: title || existingBook.title,
+      author: author || existingBook.author,
+      isbn: isbn !== undefined ? isbn : existingBook.isbn,
+      category_id: category_id !== undefined ? String(category_id) : existingBook.category_id,
+      description: description !== undefined ? description : existingBook.description,
+      cover_url: targetCover,
+      pdf_url: targetPdf,
+      digital_content: finalContent,
+      copies_total: copies_total !== undefined ? parseInt(copies_total) : existingBook.copies_total,
+      copies_available: copies_available !== undefined ? parseInt(copies_available) : existingBook.copies_available,
+      publisher: publisher !== undefined ? publisher : existingBook.publisher,
+      publish_year: publish_year !== undefined ? parseInt(publish_year) : existingBook.publish_year,
+      is_featured: is_featured !== undefined ? (is_featured ? 1 : 0) : existingBook.is_featured
+    };
+
+    const updated = await ORM.update('Books', id, updateData);
+    res.json({ message: 'Book updated successfully', book: updated });
   } catch (error) {
     console.error('Error updating book:', error);
     res.status(500).json({ message: 'Failed to update book.' });
@@ -246,11 +296,13 @@ router.put('/:id', authenticateToken, requireAdmin, async (req, res) => {
 router.patch('/:id/toggle-featured', authenticateToken, requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
-    const book = await get('SELECT * FROM books WHERE id = ?', [id]);
-    if (!book) return res.status(404).json({ message: 'Book not found.' });
+    const doc = await ORM.getById('Books', id);
+    if (!doc) return res.status(404).json({ message: 'Book not found.' });
 
-    const newFeatured = book.is_featured ? 0 : 1;
-    await run('UPDATE books SET is_featured = ? WHERE id = ?', [newFeatured, id]);
+    const isCurrentlyFeatured = doc.is_featured === '1' || doc.is_featured === 1 || String(doc.is_featured).toLowerCase() === 'true';
+    const newFeatured = isCurrentlyFeatured ? 0 : 1;
+    
+    await ORM.update('Books', id, { is_featured: newFeatured });
     res.json({ message: 'Featured status updated', is_featured: newFeatured });
   } catch (error) {
     console.error('Error toggling featured status:', error);
@@ -264,16 +316,17 @@ router.delete('/:id', authenticateToken, requireAdmin, async (req, res) => {
     const { id } = req.params;
     
     // Check if book has active borrowings
-    const activeBorrow = await get(`
-      SELECT id FROM borrowings 
-      WHERE book_id = ? AND status IN ('pending', 'approved')
-    `, [id]);
+    const borrowings = await ORM.getAll('Borrowings');
+    const activeBorrow = borrowings.find(b => 
+      String(b.book_id) === String(id) && 
+      (b.status === 'pending' || b.status === 'approved')
+    );
 
     if (activeBorrow) {
       return res.status(400).json({ message: 'Cannot delete book with active or pending borrowings.' });
     }
 
-    await run('DELETE FROM books WHERE id = ?', [id]);
+    await ORM.remove('Books', id);
     res.json({ message: 'Book deleted successfully.' });
   } catch (error) {
     console.error('Error deleting book:', error);
@@ -287,15 +340,22 @@ router.put('/:id/pdf', authenticateToken, requireAdmin, async (req, res) => {
     const { id } = req.params;
     const { pdf_url } = req.body;
 
-    const book = await get('SELECT id, digital_content FROM books WHERE id = ?', [id]);
+    const book = await ORM.getById('Books', id);
     if (!book) {
       return res.status(404).json({ message: 'Book not found.' });
     }
-
+    
     const extractedText = await autoExtractTextFromPdfIfNeeded(pdf_url, book.digital_content);
 
-    await run('UPDATE books SET pdf_url = ?, digital_content = ? WHERE id = ?', [pdf_url || '', extractedText || '', id]);
-    const updatedBook = await get('SELECT b.*, c.name as category_name FROM books b LEFT JOIN categories c ON b.category_id = c.id WHERE b.id = ?', [id]);
+    const updatedBook = await ORM.update('Books', id, {
+      pdf_url: pdf_url || '',
+      digital_content: extractedText || ''
+    });
+    
+    if (updatedBook.category_id) {
+      const cat = await ORM.getById('Categories', updatedBook.category_id);
+      if (cat) updatedBook.category_name = cat.name;
+    }
 
     res.json({
       message: extractedText && extractedText.length > 50
@@ -308,43 +368,19 @@ router.put('/:id/pdf', authenticateToken, requireAdmin, async (req, res) => {
     res.status(500).json({ message: 'Failed to update book PDF.' });
   }
 });
+
 // Register or ping active digital reading session
 router.post('/:id/read-ping', async (req, res) => {
   try {
     const { id } = req.params;
-    const { session_id, user_id, is_initial } = req.body;
-
-    if (!session_id) {
-      return res.status(400).json({ message: 'Session ID is required.' });
-    }
-
-    // Auto-clean stale active sessions older than 2 minutes (Do NOT store persistent reading history)
-    await run("DELETE FROM active_readers WHERE last_ping < datetime('now', '-2 minutes')");
-
-    // Insert or update active reader session (Upsert by user_id & book_id if logged in, or session_id if guest)
-    let existing;
-    if (user_id) {
-      existing = await get('SELECT id FROM active_readers WHERE user_id = ? AND book_id = ?', [user_id, id]);
-    } else {
-      existing = await get('SELECT id FROM active_readers WHERE session_id = ?', [session_id]);
-    }
-
-    if (existing) {
-      await run("UPDATE active_readers SET last_ping = CURRENT_TIMESTAMP, session_id = ? WHERE id = ?", [session_id, existing.id]);
-    } else {
-      await run("INSERT INTO active_readers (book_id, session_id, user_id) VALUES (?, ?, ?)", [id, session_id, user_id || null]);
-    }
-
-    // Get active count for this book & total active count across all books
-    const activeBookCount = await get("SELECT COUNT(*) as count FROM active_readers WHERE book_id = ? AND last_ping >= datetime('now', '-2 minutes')", [id]);
-    const activeTotalCount = await get("SELECT COUNT(*) as count FROM active_readers WHERE last_ping >= datetime('now', '-2 minutes')");
-    const bookData = await get("SELECT read_count FROM books WHERE id = ?", [id]);
+    // We mock active readers for Google Sheets DB to avoid excessive quota usage
+    const bookDoc = await ORM.getById('Books', id);
 
     res.json({
-      book_id: parseInt(id),
-      active_readers_count: activeBookCount?.count || 0,
-      total_active_readers: activeTotalCount?.count || 0,
-      read_count: bookData?.read_count || 0
+      book_id: id,
+      active_readers_count: 1,
+      total_active_readers: 1,
+      read_count: bookDoc ? (Number(bookDoc.read_count) || 0) : 0
     });
   } catch (error) {
     console.error('Reading ping error:', error);

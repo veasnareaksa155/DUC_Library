@@ -1,52 +1,52 @@
 <template>
   <div v-if="isOpen" class="modal-backdrop" @click.self="$emit('close')">
-    <div class="modal-content reader-modal glass-panel">
-      <header class="reader-header">
-        <div class="reader-title-group">
-          <span class="reading-badge"><BookOpen :size="14" /> {{ localeStore.t('readerTitle') }}</span>
-          <h2>{{ activeBook?.title }}</h2>
-          <p class="reader-meta">By {{ activeBook?.author }} • {{ activeBook?.publisher }} ({{ activeBook?.publish_year }})</p>
+    <div class="modal-content max-w-[850px] max-h-[92vh] flex flex-col p-0 overflow-hidden glass-panel">
+      <header class="flex justify-between items-start px-8 py-6 border-b border-[var(--border-color)] bg-[var(--bg-secondary)]">
+        <div>
+          <span class="inline-flex items-center gap-[0.35rem] text-[0.75rem] font-bold text-violet-500 uppercase tracking-wide mb-1"><BookOpen :size="14" /> {{ localeStore.t('readerTitle') }}</span>
+          <h2 class="text-[1.35rem] font-bold text-[var(--text-primary)]">{{ activeBook?.title }}</h2>
+          <p class="text-[0.85rem] text-[var(--text-secondary)]">By {{ activeBook?.author }} • {{ activeBook?.publisher }} ({{ activeBook?.publish_year }})</p>
         </div>
-        <button @click="$emit('close')" class="btn-close">
+        <button @click="$emit('close')" class="bg-transparent border-none text-[var(--text-muted)] p-[0.4rem] rounded-full transition-all duration-200 hover:text-[var(--text-primary)] hover:bg-[rgba(125,125,125,0.15)]">
           <X :size="20" />
         </button>
       </header>
 
-      <div class="reader-controls">
-        <div class="font-controls">
-          <span class="control-label">{{ localeStore.t('fontSize') }}:</span>
-          <button @click="fontSize = Math.max(13, fontSize - 2)" class="ctrl-btn">-</button>
-          <span class="font-size-val">{{ fontSize }}px</span>
-          <button @click="fontSize = Math.min(24, fontSize + 2)" class="ctrl-btn">+</button>
+      <div class="flex justify-between items-center px-8 py-3 bg-[var(--bg-glass)] border-b border-[var(--border-color)]">
+        <div class="flex items-center gap-2">
+          <span class="text-[0.85rem] text-[var(--text-muted)]">{{ localeStore.t('fontSize') }}:</span>
+          <button @click="fontSize = Math.max(13, fontSize - 2)" class="w-[28px] h-[28px] rounded-md bg-[rgba(125,125,125,0.1)] text-[var(--text-primary)] border border-[var(--border-color)] flex items-center justify-center font-bold hover:bg-[rgba(125,125,125,0.2)]">-</button>
+          <span class="text-[0.85rem] font-semibold min-w-[40px] text-center">{{ fontSize }}px</span>
+          <button @click="fontSize = Math.min(24, fontSize + 2)" class="w-[28px] h-[28px] rounded-md bg-[rgba(125,125,125,0.1)] text-[var(--text-primary)] border border-[var(--border-color)] flex items-center justify-center font-bold hover:bg-[rgba(125,125,125,0.2)]">+</button>
         </div>
 
-        <div class="reader-mode">
-          <span class="mode-tag">{{ localeStore.t('digitalEdition') }}</span>
+        <div>
+          <span class="text-[0.75rem] text-[var(--text-muted)] bg-[rgba(125,125,125,0.08)] px-[0.6rem] py-[0.2rem] rounded">{{ localeStore.t('digitalEdition') }}</span>
         </div>
       </div>
 
-      <div class="reader-body" :style="{ fontSize: fontSize + 'px' }">
-        <div v-if="loadingFullBook" class="empty-content">
-          <Loader2 :size="36" class="spin" />
+      <div class="flex-1 overflow-y-auto p-8 bg-[var(--reader-bg)] text-[var(--text-primary)] leading-[1.8] transition-colors duration-300" :style="{ fontSize: fontSize + 'px' }">
+        <div v-if="loadingFullBook" class="flex flex-col items-center justify-center py-16 px-4 gap-4 text-[var(--text-muted)]">
+          <Loader2 :size="36" class="animate-spin" />
           <p>Loading digital edition...</p>
         </div>
-        <div v-else-if="activeBook?.digital_content" class="digital-text">
+        <div v-else-if="activeBook?.digital_content" class="text-justify [&>p]:mb-6">
           <p v-for="(paragraph, index) in formattedParagraphs" :key="index">
             {{ paragraph }}
           </p>
         </div>
 
-        <div v-else-if="activeBook?.pdf_url" class="pdf-wrapper">
-          <iframe :src="activeBook.pdf_url" class="pdf-iframe"></iframe>
+        <div v-else-if="activeBook?.pdf_url">
+          <iframe :src="activeBook.pdf_url" class="w-full h-[500px] border-none rounded-[var(--radius-md)]"></iframe>
         </div>
 
-        <div v-else class="empty-content">
-          <FileQuestion :size="48" class="text-muted" />
+        <div v-else class="flex flex-col items-center justify-center py-16 px-4 gap-4 text-[var(--text-muted)]">
+          <FileQuestion :size="48" class="text-[var(--text-muted)]" />
           <p>{{ localeStore.t('noDigitalContent') }}</p>
         </div>
       </div>
 
-      <footer class="reader-footer">
+      <footer class="flex justify-between items-center px-8 py-5 border-t border-[var(--border-color)] bg-[#0f172a]/60">
         <button @click="$emit('close')" class="btn btn-secondary btn-sm">{{ localeStore.t('closeReader') }}</button>
         <button @click="$emit('borrow', activeBook)" class="btn btn-primary btn-sm">
           <BookmarkPlus :size="16" /> {{ localeStore.t('borrowPhysical') }}
@@ -104,152 +104,3 @@ const formattedParagraphs = computed(() => {
 });
 </script>
 
-<style scoped>
-.reader-modal {
-  max-width: 850px;
-  max-height: 92vh;
-  display: flex;
-  flex-direction: column;
-  padding: 0;
-  overflow: hidden;
-}
-
-.reader-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 1.5rem 2rem;
-  border-bottom: 1px solid var(--border-color);
-  background: var(--bg-secondary);
-}
-
-.reading-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: #8b5cf6;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 0.25rem;
-}
-
-.reader-title-group h2 {
-  font-size: 1.35rem;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.reader-meta {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-}
-
-.btn-close {
-  background: transparent;
-  border: none;
-  color: var(--text-muted);
-  padding: 0.4rem;
-  border-radius: 50%;
-  transition: all 0.2s ease;
-}
-
-.btn-close:hover {
-  color: var(--text-primary);
-  background: rgba(125, 125, 125, 0.15);
-}
-
-.reader-controls {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.75rem 2rem;
-  background: var(--bg-glass);
-  border-bottom: 1px solid var(--border-color);
-}
-
-.font-controls {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.control-label {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-}
-
-.ctrl-btn {
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
-  background: rgba(125, 125, 125, 0.1);
-  color: var(--text-primary);
-  border: 1px solid var(--border-color);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-}
-
-.ctrl-btn:hover {
-  background: rgba(125, 125, 125, 0.2);
-}
-
-.font-size-val {
-  font-size: 0.85rem;
-  font-weight: 600;
-  min-width: 40px;
-  text-align: center;
-}
-
-.mode-tag {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  background: rgba(125, 125, 125, 0.08);
-  padding: 0.2rem 0.6rem;
-  border-radius: 4px;
-}
-
-.reader-body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 2rem;
-  background: var(--reader-bg);
-  color: var(--text-primary);
-  line-height: 1.8;
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-.digital-text p {
-  margin-bottom: 1.5rem;
-  text-align: justify;
-}
-
-.pdf-iframe {
-  width: 100%;
-  height: 500px;
-  border: none;
-  border-radius: var(--radius-md);
-}
-
-.empty-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 4rem 1rem;
-  gap: 1rem;
-  color: var(--text-muted);
-}
-
-.reader-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.25rem 2rem;
-  border-top: 1px solid var(--border-color);
-  background: rgba(15, 23, 42, 0.6);
-}
-</style>

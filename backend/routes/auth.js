@@ -1,9 +1,9 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { get, run, all } = require('../db');
 const { JWT_SECRET, authenticateToken } = require('../middleware/auth');
-const { syncStudentsToDb, SAMPLE_STUDENTS, getServiceAccountEmail } = require('../googleSheets');
+const { getServiceAccountEmail } = require('../googleSheets');
+const ORM = require('../googleSheetsORM');
 
 const router = express.Router();
 
@@ -16,18 +16,23 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ message: 'Name, email, and password are required.' });
     }
 
-    const existingUser = await get('SELECT id FROM users WHERE email = ?', [email]);
-    if (existingUser) {
+    const existingUsers = await ORM.find('Users', u => u.email === email);
+    if (existingUsers.length > 0) {
       return res.status(400).json({ message: 'Email address is already registered.' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const result = await run(
-      'INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)',
-      [name, email, hashedPassword, 'user']
-    );
+    const newUser = {
+      name,
+      email,
+      password: hashedPassword,
+      role: 'user',
+      created_at: new Date().toISOString()
+    };
 
-    const user = { id: result.id, name, email, role: 'user' };
+    const inserted = await ORM.insert('Users', newUser);
+
+    const user = { id: inserted.id, name, email, role: 'user' };
     const token = jwt.sign({ id: user.id, email: user.email, role: user.role, name: user.name }, JWT_SECRET, { expiresIn: '7d' });
 
     res.status(201).json({
@@ -41,7 +46,7 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// Login user or admin (Supports Email, Student ID, or Name from Google Sheet)
+// Login user or admin
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -50,43 +55,97 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ message: 'Username / Student ID / Email and password are required.' });
     }
 
-    const identifier = email.trim();
+    const identifier = email.trim().toLowerCase();
+    
+    // Find user by email, student_id, or name
+    const users = await ORM.getAll('Users');
+    
+    let userDoc = users.find(u => 
+      (u.email && u.email.toLowerCase() === identifier) ||
+      (u.email && u.email.toLowerCase() === `${identifier}@duc.com`) ||
+      (u.student_id && u.student_id.toLowerCase() === identifier) ||
+      (u.name && u.name.toLowerCase() === identifier)
+    );
 
-    // Query user by Email, Name, or Student ID prefix
-    let user = await get(`
-      SELECT * FROM users 
-      WHERE email = ? OR LOWER(name) = LOWER(?) OR email LIKE ?
-    `, [identifier, identifier, `${identifier.toLowerCase()}@duc.com`]);
+    const { fetchStudentsFromSheet } = require('../googleSheets');
+    const LIVE_STUDENTS = await fetchStudentsFromSheet(process.env.GOOGLE_SHEET_ID || '1YWZoN8THhaxO7H734gRxa7ahGsJoNHWcvyeR-QSa3LU') || [];
 
-    // If user not found yet, check sample student data or sync from sheet
-    if (!user) {
-      const matchSample = SAMPLE_STUDENTS.find(s => 
+    // Auto-create sample student if not found
+    if (!userDoc) {
+      const matchSample = LIVE_STUDENTS.find(s => 
         s.studentId.toLowerCase() === identifier.toLowerCase() ||
         s.latinName.toLowerCase() === identifier.toLowerCase() ||
         s.khmerName === identifier
       );
 
       if (matchSample) {
-        // Auto-create student user account
         const userEmail = `${matchSample.studentId.toLowerCase()}@duc.com`;
         const hashedPassword = await bcrypt.hash(matchSample.studentId, 10);
-        const resInsert = await run(
-          'INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)',
-          [matchSample.latinName, userEmail, hashedPassword, 'user']
-        );
-        user = await get('SELECT * FROM users WHERE id = ?', [resInsert.id]);
+        
+        const newUser = {
+          name: matchSample.latinName,
+          email: userEmail,
+          password: hashedPassword,
+          role: 'user',
+          student_id: matchSample.studentId,
+          name_khmer: matchSample.khmerName,
+          gender: matchSample.gender || '',
+          dob: matchSample.dateOfBirth || '',
+          pob: matchSample.province || '',
+          high_school: matchSample.highSchool || '',
+          telegram: matchSample.telegram || '',
+          guardian_phone: matchSample.guardianPhone || '',
+          major: matchSample.major || '',
+          degree_level: matchSample.degreeLevel || '',
+          class_code: matchSample.classCode || '',
+          status: matchSample.academicStatus || 'Active Student',
+          academic_year: matchSample.academicYear || '',
+          generation: matchSample.generation || '',
+          bac2_grade: matchSample.grade || '',
+          phone: matchSample.phone || '',
+          created_at: new Date().toISOString()
+        };
+
+        const inserted = await ORM.insert('Users', newUser);
+        userDoc = inserted;
+      }
+    } else {
+      // Backfill missing fields from Live Master Student List for existing Firebase-migrated users
+      if (!userDoc.dob || !userDoc.pob || !userDoc.bac2_grade) {
+        const matchSample = LIVE_STUDENTS.find(s => s.studentId && userDoc.student_id && s.studentId.toLowerCase() === userDoc.student_id.toLowerCase());
+        if (matchSample) {
+          userDoc.gender = matchSample.gender || userDoc.gender || '';
+          userDoc.dob = matchSample.dateOfBirth || userDoc.dob || '';
+          userDoc.pob = matchSample.province || userDoc.pob || '';
+          userDoc.high_school = matchSample.highSchool || userDoc.high_school || '';
+          userDoc.telegram = matchSample.telegram || userDoc.telegram || '';
+          userDoc.guardian_phone = matchSample.guardianPhone || userDoc.guardian_phone || '';
+          userDoc.major = matchSample.major || userDoc.major || '';
+          userDoc.degree_level = matchSample.degreeLevel || userDoc.degree_level || '';
+          userDoc.class_code = matchSample.classCode || userDoc.class_code || '';
+          userDoc.status = matchSample.academicStatus || userDoc.status || 'Active Student';
+          userDoc.academic_year = matchSample.academicYear || userDoc.academic_year || '';
+          userDoc.generation = matchSample.generation || userDoc.generation || '';
+          userDoc.bac2_grade = matchSample.grade || userDoc.bac2_grade || '';
+          userDoc.phone = matchSample.phone || userDoc.phone || '';
+          
+          await ORM.update('Users', userDoc.id, userDoc);
+        }
       }
     }
 
-    if (!user) {
+    if (!userDoc) {
       return res.status(401).json({ message: 'Invalid username, Student ID, or password.' });
     }
 
-    // Compare password (also allow Student ID as default password)
-    let validPassword = await bcrypt.compare(password, user.password);
-    if (!validPassword && user.email.includes('@duc.com')) {
-      const studentIdFromEmail = user.email.split('@')[0].toUpperCase();
-      if (password === studentIdFromEmail || password === user.name) {
+    let validPassword = false;
+    if (userDoc.password) {
+      validPassword = await bcrypt.compare(password, userDoc.password);
+    }
+    
+    if (!validPassword && userDoc.email && userDoc.email.includes('@duc.com')) {
+      const studentIdFromEmail = userDoc.email.split('@')[0].toUpperCase();
+      if (password === studentIdFromEmail || password === userDoc.name) {
         validPassword = true;
       }
     }
@@ -96,45 +155,21 @@ router.post('/login', async (req, res) => {
     }
 
     const tokenPayload = {
-      id: user.id,
-      email: user.email,
-      role: user.role,
-      name: user.name,
-      student_id: user.student_id
+      id: userDoc.id,
+      email: userDoc.email,
+      role: userDoc.role || 'user',
+      name: userDoc.name,
+      student_id: userDoc.student_id
     };
     const token = jwt.sign(tokenPayload, JWT_SECRET, { expiresIn: '7d' });
 
-    const userResponse = {
-      id: user.id,
-      email: user.email,
-      role: user.role,
-      name: user.name,
-      student_id: user.student_id,
-      dorm_room: user.dorm_room,
-      name_khmer: user.name_khmer,
-      name_latin: user.name_latin,
-      gender: user.gender,
-      date_of_birth: user.date_of_birth,
-      profile_photo: user.profile_photo,
-      high_school: user.high_school,
-      province: user.province,
-      exam_year: user.exam_year,
-      grade: user.grade,
-      major: user.major,
-      degree_level: user.degree_level,
-      class_code: user.class_code,
-      academic_status: user.academic_status,
-      generation: user.generation,
-      academic_year: user.academic_year,
-      phone: user.phone,
-      telegram: user.telegram,
-      guardian_phone: user.guardian_phone
-    };
+    // Hide password before returning
+    delete userDoc.password;
 
     res.json({
       message: 'Login successful',
       token,
-      user: userResponse
+      user: userDoc
     });
   } catch (error) {
     console.error('Login error:', error);
@@ -144,18 +179,12 @@ router.post('/login', async (req, res) => {
 
 // Trigger Google Sheet Students Sync (Admin or System)
 router.post('/sync-sheet', async (req, res) => {
-  try {
-    const { spreadsheet_id } = req.body;
-    const result = await syncStudentsToDb(spreadsheet_id);
-    res.json({
-      message: `Successfully synced ${result.students.length} student records from Google Sheet!`,
-      details: result,
-      service_account_email: getServiceAccountEmail()
-    });
-  } catch (error) {
-    console.error('Google Sheet sync error:', error);
-    res.status(500).json({ message: 'Failed to sync Google Sheet data.' });
-  }
+  // Sync is no longer needed since Google Sheets is the DB
+  res.json({
+    message: `Sync is no longer needed. The database is already Google Sheets!`,
+    details: { synced: true },
+    service_account_email: getServiceAccountEmail()
+  });
 });
 
 // Get Service Account Email info
@@ -170,15 +199,11 @@ router.get('/service-account', (req, res) => {
 // Get current user profile
 router.get('/me', authenticateToken, async (req, res) => {
   try {
-    const user = await get(`
-      SELECT id, name, email, role, created_at, student_id, dorm_room, name_khmer, name_latin, gender,
-             date_of_birth, profile_photo, high_school, province, exam_year, grade, major,
-             degree_level, class_code, academic_status, generation, academic_year, phone, telegram, guardian_phone
-      FROM users WHERE id = ?
-    `, [req.user.id]);
+    const user = await ORM.getById('Users', req.user.id);
     if (!user) {
       return res.status(404).json({ message: 'User not found.' });
     }
+    delete user.password;
     res.json({ user });
   } catch (error) {
     res.status(500).json({ message: 'Failed to fetch user profile.' });
@@ -188,35 +213,25 @@ router.get('/me', authenticateToken, async (req, res) => {
 // Update user profile
 router.put('/profile', authenticateToken, async (req, res) => {
   try {
-    const {
-      name, name_khmer, name_latin, student_id, dorm_room, gender, date_of_birth,
-      high_school, province, exam_year, grade, major, degree_level, class_code,
-      academic_status, generation, academic_year, phone, telegram, guardian_phone
-    } = req.body;
+    const updateData = {};
+    const fields = [
+      'name', 'name_khmer', 'name_latin', 'student_id', 'dorm_room', 'gender', 'date_of_birth',
+      'high_school', 'province', 'exam_year', 'grade', 'major', 'degree_level', 'class_code',
+      'academic_status', 'generation', 'academic_year', 'phone', 'telegram', 'guardian_phone'
+    ];
 
-    await run(`
-      UPDATE users SET 
-        name = COALESCE(?, name),
-        name_khmer = ?, name_latin = ?, student_id = ?, dorm_room = ?, gender = ?,
-        date_of_birth = ?, high_school = ?, province = ?, exam_year = ?, grade = ?,
-        major = ?, degree_level = ?, class_code = ?, academic_status = ?, generation = ?,
-        academic_year = ?, phone = ?, telegram = ?, guardian_phone = ?
-      WHERE id = ?
-    `, [
-      name || null, name_khmer || null, name_latin || null, student_id || null, dorm_room || null, gender || null,
-      date_of_birth || null, high_school || null, province || null, exam_year || null, grade || null,
-      major || null, degree_level || null, class_code || null, academic_status || null, generation || null,
-      academic_year || null, phone || null, telegram || null, guardian_phone || null,
-      req.user.id
-    ]);
+    for (const field of fields) {
+      if (req.body[field] !== undefined) {
+        updateData[field] = req.body[field];
+      }
+    }
 
-    const updatedUser = await get(`
-      SELECT id, name, email, role, created_at, student_id, dorm_room, name_khmer, name_latin, gender,
-             date_of_birth, profile_photo, high_school, province, exam_year, grade, major,
-             degree_level, class_code, academic_status, generation, academic_year, phone, telegram, guardian_phone
-      FROM users WHERE id = ?
-    `, [req.user.id]);
+    if (Object.keys(updateData).length > 0) {
+      await ORM.update('Users', req.user.id, updateData);
+    }
 
+    const updatedUser = await ORM.getById('Users', req.user.id);
+    delete updatedUser.password;
     res.json({ message: 'Profile updated successfully!', user: updatedUser });
   } catch (error) {
     console.error('Error updating profile:', error);
@@ -232,14 +247,9 @@ router.put('/profile-photo', authenticateToken, async (req, res) => {
       return res.status(400).json({ message: 'Profile photo is required.' });
     }
 
-    await run('UPDATE users SET profile_photo = ? WHERE id = ?', [profile_photo, req.user.id]);
-
-    const updatedUser = await get(`
-      SELECT id, name, email, role, created_at, student_id, dorm_room, name_khmer, name_latin, gender,
-             date_of_birth, profile_photo, high_school, province, exam_year, grade, major,
-             degree_level, class_code, academic_status, generation, academic_year, phone, telegram, guardian_phone
-      FROM users WHERE id = ?
-    `, [req.user.id]);
+    await ORM.update('Users', req.user.id, { profile_photo });
+    const updatedUser = await ORM.getById('Users', req.user.id);
+    delete updatedUser.password;
 
     res.json({ message: 'Profile photo updated successfully!', user: updatedUser });
   } catch (error) {

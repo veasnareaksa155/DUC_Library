@@ -1,44 +1,44 @@
 <template>
-  <div class="book-card glass-panel">
-    <div class="cover-wrapper">
-      <img :src="book.cover_url || fallbackCover" :alt="book.title" class="book-cover" loading="lazy" decoding="async" />
-      <div class="cover-gradient-overlay"></div>
+  <div class="group flex flex-col h-full rounded-[var(--radius-xl,20px)] overflow-hidden relative bg-[var(--bg-card,rgba(30,41,59,0.7))] border border-[var(--border-color,rgba(255,255,255,0.08))] shadow-[0_8px_24px_rgba(0,0,0,0.12)] transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] select-none animate-[fadeInUp_0.4s_cubic-bezier(0.16,1,0.3,1)_both] max-sm:rounded-[10px] max-sm:shadow-[0_3px_10px_rgba(0,0,0,0.08)]">
+    <div class="relative w-full h-[210px] overflow-hidden bg-slate-900 max-sm:aspect-[3/4] max-sm:h-auto">
+      <img :src="book.cover_url || fallbackCover" :alt="book.title" class="w-full h-full object-cover" loading="lazy" decoding="async" />
+      <div class="absolute inset-0 bg-gradient-to-b from-slate-900/25 via-slate-900/5 to-slate-900/65 pointer-events-none"></div>
       
-      <div class="category-badge">
+      <div class="absolute top-2.5 left-2.5 bg-slate-900/70 backdrop-blur-md border border-white/20 text-slate-100 text-[0.7rem] font-bold tracking-[0.02em] px-2.5 py-1 rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.25)] z-[2] transition-transform duration-250 ease-out group-hover:-translate-y-0.5 max-sm:hidden">
         {{ book.category_name || 'General' }}
       </div>
 
       <button 
         @click.stop="handleWishlistToggle" 
-        class="btn-wishlist-toggle"
-        :class="{ active: isSaved }"
+        class="absolute top-2.5 right-2.5 w-8 h-8 rounded-full bg-slate-900/70 backdrop-blur-md border border-white/20 text-slate-400 flex items-center justify-center cursor-pointer z-10 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] shadow-[0_4px_12px_rgba(0,0,0,0.25)] hover:scale-[1.15] hover:bg-slate-900/90 hover:text-red-500 max-sm:w-[22px] max-sm:h-[22px] max-sm:top-1 max-sm:right-1"
+        :class="{ 'bg-red-500/25 border-red-500/60 text-red-500 animate-[heartPop_0.35s_cubic-bezier(0.34,1.56,0.64,1)]': isSaved }"
         :title="isSaved ? 'Remove from Wishlist' : 'Add to Wishlist'"
       >
-        <Heart :size="16" :fill="isSaved ? '#ef4444' : 'none'" />
+        <Heart :size="16" :fill="isSaved ? '#ef4444' : 'none'" class="max-sm:scale-75" />
       </button>
       
-      <div class="availability-tag" :class="{ 'out-of-stock': book.copies_available <= 0 }">
-        <span class="status-dot"></span>
+      <div class="absolute bottom-2.5 right-2.5 inline-flex items-center gap-1.5 bg-emerald-500/90 backdrop-blur-sm text-white border border-white/30 text-[0.7rem] font-bold px-2.5 py-1 rounded-full shadow-[0_4px_12px_rgba(16,185,129,0.35)] z-[2] transition-transform duration-250 ease-out max-sm:text-[0.52rem] max-sm:px-1.5 max-sm:py-0.5 max-sm:bottom-1 max-sm:right-1" :class="{ 'bg-red-500/90 shadow-[0_4px_12px_rgba(239,68,68,0.35)]': book.copies_available <= 0 }">
+        <span class="w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_8px_white] animate-[pulse-dot_1.8s_infinite]"></span>
         {{ book.copies_available > 0 ? `${book.copies_available} ${localeStore.t('available')}` : localeStore.t('outOfStock') }}
       </div>
     </div>
 
-    <div class="book-info">
-      <h3 class="book-title" :title="book.title">{{ book.title }}</h3>
+    <div class="p-4 pb-[1.1rem] flex flex-col flex-1 max-sm:px-1.5 max-sm:py-[0.35rem] max-sm:pb-[0.45rem]">
+      <h3 class="text-[0.95rem] font-bold text-[var(--text-primary)] leading-[1.55] py-0.5 mb-1 line-clamp-2 break-words max-sm:text-[0.75rem] max-sm:leading-[1.5] max-sm:mb-0.5" :title="book.title">{{ book.title }}</h3>
 
-      <div class="card-footer">
-        <button @click.stop="$emit('read', book)" class="btn-read-action">
+      <div class="flex items-center gap-2.5 mt-auto max-sm:gap-1 max-sm:mt-1">
+        <button @click.stop="$emit('read', book)" class="flex-1 inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 text-white border-none text-[0.84rem] font-bold cursor-pointer shadow-[0_4px_14px_rgba(99,102,241,0.4)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(99,102,241,0.6)] hover:brightness-110 active:scale-[0.96] max-sm:px-1.5 max-sm:py-1 max-sm:text-[0.68rem] max-sm:h-[26px]">
           <BookOpenCheck :size="15" />
-          <span class="read-text">{{ localeStore.t('read') }}</span>
+          <span>{{ localeStore.t('read') }}</span>
         </button>
         <button 
           @click.stop="$emit('borrow', book)" 
-          class="btn-borrow-action"
+          class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-full bg-white/10 border border-white/15 text-[var(--text-primary)] text-[0.82rem] font-semibold cursor-pointer backdrop-blur-md transition-all duration-200 hover:not(:disabled):bg-indigo-500/15 hover:not(:disabled):border-indigo-500 hover:not(:disabled):text-indigo-500 hover:not(:disabled):-translate-y-0.5 disabled:opacity-40 disabled:cursor-not-allowed max-sm:w-[26px] max-sm:h-[26px] max-sm:p-0 max-sm:shrink-0"
           :disabled="book.copies_available <= 0"
           :title="localeStore.t('borrow')"
         >
-          <BookmarkPlus :size="15" />
-          <span class="borrow-text">{{ localeStore.t('borrow') }}</span>
+          <BookmarkPlus :size="15" class="max-sm:scale-90" />
+          <span class="max-sm:hidden">{{ localeStore.t('borrow') }}</span>
         </button>
       </div>
     </div>
@@ -80,339 +80,4 @@ function truncateText(text, length) {
 }
 </script>
 
-<style scoped>
-.book-card {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  border-radius: var(--radius-xl, 20px);
-  overflow: hidden;
-  position: relative;
-  background: var(--bg-card, rgba(30, 41, 59, 0.7));
-  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), 
-              box-shadow 0.3s ease, 
-              border-color 0.3s ease;
-  user-select: none;
-  animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
 
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.cover-wrapper {
-  position: relative;
-  width: 100%;
-  height: 210px;
-  overflow: hidden;
-  background: #0f172a;
-}
-
-.book-cover {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.cover-gradient-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(15, 23, 42, 0.25) 0%, rgba(15, 23, 42, 0.05) 50%, rgba(15, 23, 42, 0.65) 100%);
-  pointer-events: none;
-}
-
-/* Category Badge */
-.category-badge {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  background: rgba(15, 23, 42, 0.7);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #f1f5f9;
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  padding: 0.25rem 0.7rem;
-  border-radius: 9999px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-  z-index: 2;
-  transition: transform 0.25s ease;
-}
-
-.book-card:hover .category-badge {
-  transform: translateY(-2px);
-}
-
-/* Wishlist Toggle Button */
-.btn-wishlist-toggle {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: rgba(15, 23, 42, 0.7);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #94a3b8;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 5;
-  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-}
-
-.btn-wishlist-toggle:hover {
-  transform: scale(1.15);
-  background: rgba(15, 23, 42, 0.9);
-  color: #ef4444;
-}
-
-.btn-wishlist-toggle.active {
-  background: rgba(239, 68, 68, 0.25);
-  border-color: rgba(239, 68, 68, 0.6);
-  color: #ef4444;
-  animation: heartPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-@keyframes heartPop {
-  0% { transform: scale(0.8); }
-  50% { transform: scale(1.3); }
-  100% { transform: scale(1); }
-}
-
-/* Availability Tag */
-.availability-tag {
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  background: rgba(16, 185, 129, 0.88);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  font-size: 0.7rem;
-  font-weight: 700;
-  padding: 0.25rem 0.65rem;
-  border-radius: 9999px;
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
-  z-index: 2;
-  transition: transform 0.25s ease;
-}
-
-.status-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #ffffff;
-  box-shadow: 0 0 8px #ffffff;
-  animation: pulse-dot 1.8s infinite;
-}
-
-@keyframes pulse-dot {
-  0% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.4; transform: scale(0.8); }
-  100% { opacity: 1; transform: scale(1); }
-}
-
-.availability-tag.out-of-stock {
-  background: rgba(239, 68, 68, 0.88);
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35);
-}
-
-.book-info {
-  padding: 1rem 1.1rem 1.1rem;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-}
-
-.book-title {
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  line-height: 1.55;
-  padding: 0.1rem 0;
-  margin-bottom: 0.3rem;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  word-break: break-word;
-}
-
-.book-author {
-  font-size: 0.82rem;
-  color: var(--accent-primary, #6366f1);
-  font-weight: 600;
-  margin-bottom: 0.75rem;
-  opacity: 0.9;
-}
-
-.book-desc {
-  font-size: 0.82rem;
-  color: var(--text-secondary);
-  line-height: 1.45;
-  margin-bottom: 1.1rem;
-  flex: 1;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.card-footer {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  margin-top: auto;
-}
-
-.btn-read-action {
-  flex: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.45rem;
-  padding: 0.55rem 1rem;
-  border-radius: 9999px;
-  background: var(--accent-gradient, linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%));
-  color: #ffffff;
-  border: none;
-  font-size: 0.84rem;
-  font-weight: 700;
-  cursor: pointer;
-  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
-}
-
-.btn-read-action:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6);
-  filter: brightness(1.08);
-}
-
-.btn-read-action:active {
-  transform: scale(0.96);
-}
-
-.btn-borrow-action {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
-  padding: 0.55rem 0.9rem;
-  border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.15));
-  color: var(--text-primary);
-  font-size: 0.82rem;
-  font-weight: 600;
-  cursor: pointer;
-  backdrop-filter: blur(8px);
-  transition: all 0.2s ease;
-}
-
-.btn-borrow-action:hover:not(:disabled) {
-  background: rgba(99, 102, 241, 0.15);
-  border-color: var(--accent-primary);
-  color: var(--accent-primary);
-  transform: translateY(-2px);
-}
-
-.btn-borrow-action:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-/* Mini App & Mobile Responsiveness */
-@media (max-width: 640px) {
-  .book-card {
-    border-radius: 10px;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
-  }
-  .cover-wrapper {
-    width: 100%;
-    aspect-ratio: 3 / 4;
-    height: auto;
-  }
-  .book-cover {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  .category-badge {
-    display: none;
-  }
-  .btn-wishlist-toggle {
-    width: 22px;
-    height: 22px;
-    top: 4px;
-    right: 4px;
-  }
-  .availability-tag {
-    font-size: 0.52rem;
-    padding: 0.08rem 0.3rem;
-    bottom: 4px;
-    right: 4px;
-  }
-  .book-info {
-    padding: 0.35rem 0.4rem 0.45rem;
-  }
-  .book-title {
-    font-size: 0.75rem;
-    line-height: 1.5;
-    padding: 0.1rem 0;
-    margin-bottom: 0.2rem;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    word-break: break-word;
-  }
-  .book-author {
-    font-size: 0.62rem;
-    margin-bottom: 0.2rem;
-  }
-  .book-desc {
-    display: none;
-  }
-  .card-footer {
-    gap: 0.25rem;
-    margin-top: 0.2rem;
-  }
-  .btn-read-action {
-    padding: 0.25rem 0.4rem;
-    font-size: 0.68rem;
-    height: 26px;
-    border-radius: 9999px;
-  }
-  .btn-borrow-action {
-    width: 26px;
-    height: 26px;
-    padding: 0;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-  .btn-borrow-action .borrow-text {
-    display: none;
-  }
-}
-</style>

@@ -2,29 +2,63 @@
   <Transition name="toast-slide">
     <div 
       v-if="toastStore.isVisible" 
-      class="toast-popup-container"
+      class="fixed top-6 right-6 max-sm:top-4 max-sm:right-4 max-sm:left-4 z-[99999] w-auto max-sm:w-auto min-w-[320px] max-w-[420px] pointer-events-auto"
       :class="toastStore.type"
       @click="toastStore.hide"
     >
-      <div class="toast-popup-card glass-panel">
-        <div class="toast-icon-circle">
-          <Heart v-if="toastStore.type === 'wishlist-add'" :size="20" fill="#ef4444" color="#ef4444" />
-          <HeartOff v-else-if="toastStore.type === 'wishlist-remove'" :size="20" color="#f87171" />
-          <CheckCircle2 v-else-if="toastStore.type === 'success'" :size="20" color="#10b981" />
-          <Info v-else :size="20" color="#6366f1" />
+      <div 
+        class="flex items-start gap-4 px-4 py-4 rounded-2xl bg-[var(--bg-card)] backdrop-blur-2xl relative overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.15)] border border-[var(--border-color)] cursor-pointer group hover:scale-[1.02] transition-transform duration-300"
+        :class="{
+          'border-red-500/40 shadow-[0_20px_50px_rgba(239,68,68,0.15)]': toastStore.type === 'wishlist-add',
+          'border-red-400/30': toastStore.type === 'wishlist-remove',
+          'border-emerald-500/40 shadow-[0_20px_50px_rgba(16,185,129,0.15)]': toastStore.type === 'success',
+          'border-indigo-500/40 shadow-[0_20px_50px_rgba(99,102,241,0.15)]': !['wishlist-add', 'wishlist-remove', 'success'].includes(toastStore.type)
+        }"
+      >
+        <!-- Icon Container -->
+        <div 
+          class="w-[42px] h-[42px] rounded-[14px] flex items-center justify-center shrink-0 shadow-sm relative mt-0.5"
+          :class="{
+            'bg-red-500/15 border border-red-500/30 text-red-500': toastStore.type === 'wishlist-add',
+            'bg-red-400/15 border border-red-400/30 text-red-400': toastStore.type === 'wishlist-remove',
+            'bg-emerald-500/15 border border-emerald-500/30 text-emerald-500': toastStore.type === 'success',
+            'bg-indigo-500/15 border border-indigo-500/30 text-indigo-500': !['wishlist-add', 'wishlist-remove', 'success'].includes(toastStore.type)
+          }"
+        >
+          <!-- Glowing effect behind icon -->
+          <div class="absolute inset-0 blur-md opacity-40 rounded-[14px]" :class="{
+            'bg-red-500': toastStore.type === 'wishlist-add',
+            'bg-red-400': toastStore.type === 'wishlist-remove',
+            'bg-emerald-500': toastStore.type === 'success',
+            'bg-indigo-500': !['wishlist-add', 'wishlist-remove', 'success'].includes(toastStore.type)
+          }"></div>
+
+          <Heart v-if="toastStore.type === 'wishlist-add'" :size="20" class="relative z-10 fill-current" />
+          <HeartOff v-else-if="toastStore.type === 'wishlist-remove'" :size="20" class="relative z-10" />
+          <CheckCircle2 v-else-if="toastStore.type === 'success'" :size="22" class="relative z-10" stroke-width="2.5" />
+          <Info v-else :size="22" class="relative z-10" stroke-width="2.5" />
         </div>
 
-        <div class="toast-content-body">
-          <h4 class="toast-title">{{ toastStore.title }}</h4>
-          <p class="toast-message">{{ toastStore.message }}</p>
+        <!-- Text Content -->
+        <div class="flex-1 min-w-0 flex flex-col justify-center mt-0.5">
+          <h4 class="text-[0.95rem] font-extrabold text-[var(--text-primary)] m-0 mb-1.5 leading-tight tracking-tight">{{ toastStore.title }}</h4>
+          <p class="text-[0.82rem] text-[var(--text-secondary)] m-0 leading-snug line-clamp-2 font-medium">{{ toastStore.message }}</p>
         </div>
 
-        <button @click.stop="toastStore.hide" class="btn-toast-close" title="Close">
-          <X :size="16" />
+        <!-- Close Button -->
+        <button @click.stop="toastStore.hide" class="bg-transparent border-none text-[var(--text-muted)] p-1.5 -mr-1.5 -mt-1 rounded-full cursor-pointer transition-colors hover:text-[var(--text-primary)] hover:bg-gray-500/10">
+          <X :size="16" stroke-width="2.5" />
         </button>
 
         <!-- Animated Progress Bar -->
-        <div class="toast-progress-bar"></div>
+        <div class="absolute bottom-0 left-0 h-[4px] bg-gradient-to-r w-full"
+             :class="{
+               'from-red-600 to-red-400': toastStore.type === 'wishlist-add',
+               'from-red-500 to-red-300': toastStore.type === 'wishlist-remove',
+               'from-emerald-600 to-emerald-400': toastStore.type === 'success',
+               'from-indigo-600 via-purple-500 to-indigo-400': !['wishlist-add', 'wishlist-remove', 'success'].includes(toastStore.type)
+             }"
+             style="animation: toastProgress 3s linear forwards;"></div>
       </div>
     </div>
   </Transition>
@@ -38,151 +72,27 @@ const toastStore = useToastStore();
 </script>
 
 <style scoped>
-.toast-popup-container {
-  position: fixed;
-  top: 24px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 99999;
-  width: 92%;
-  max-width: 440px;
-  pointer-events: auto;
-}
-
-.toast-popup-card {
-  display: flex;
-  align-items: center;
-  gap: 0.85rem;
-  padding: 0.85rem 1.1rem;
-  border-radius: var(--radius-xl, 18px);
-  background: rgba(15, 23, 42, 0.92);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4), 0 0 25px rgba(99, 102, 241, 0.25);
-  position: relative;
-  overflow: hidden;
-  user-select: none;
-  cursor: pointer;
-}
-
-/* Color theme variations */
-.wishlist-add .toast-popup-card {
-  border-color: rgba(239, 68, 68, 0.45);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4), 0 0 30px rgba(239, 68, 68, 0.3);
-}
-
-.wishlist-add .toast-icon-circle {
-  background: rgba(239, 68, 68, 0.18);
-  border-color: rgba(239, 68, 68, 0.4);
-}
-
-.wishlist-remove .toast-popup-card {
-  border-color: rgba(248, 113, 113, 0.35);
-}
-
-.success .toast-popup-card {
-  border-color: rgba(16, 185, 129, 0.45);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4), 0 0 30px rgba(16, 185, 129, 0.25);
-}
-
-.success .toast-icon-circle {
-  background: rgba(16, 185, 129, 0.18);
-  border-color: rgba(16, 185, 129, 0.4);
-}
-
-.toast-icon-circle {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  background: rgba(99, 102, 241, 0.18);
-  border: 1px solid rgba(99, 102, 241, 0.35);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.toast-content-body {
-  flex: 1;
-  min-width: 0;
-}
-
-.toast-title {
-  font-size: 0.92rem;
-  font-weight: 800;
-  color: #ffffff;
-  margin: 0 0 0.12rem 0;
-  line-height: 1.3;
-}
-
-.toast-message {
-  font-size: 0.8rem;
-  color: #cbd5e1;
-  margin: 0;
-  line-height: 1.35;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.btn-toast-close {
-  background: transparent;
-  border: none;
-  color: #94a3b8;
-  padding: 0.25rem;
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-}
-
-.btn-toast-close:hover {
-  color: #ffffff;
-  background: rgba(255, 255, 255, 0.12);
-}
-
-.toast-progress-bar {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  height: 3px;
-  width: 100%;
-  background: linear-gradient(90deg, #6366f1, #8b5cf6, #ef4444);
-  animation: toastProgress 3s linear forwards;
-}
-
 @keyframes toastProgress {
   from { width: 100%; }
   to { width: 0%; }
 }
 
-/* Spring entrance slide animation */
+/* Spring entrance slide animation for Top Right */
 .toast-slide-enter-active {
-  transition: all 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .toast-slide-leave-active {
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.3s cubic-bezier(0.36, 0, 0.66, -0.56);
 }
 
 .toast-slide-enter-from {
   opacity: 0;
-  transform: translate(-50%, -35px) scale(0.85);
+  transform: translateX(100px) scale(0.9);
 }
 
 .toast-slide-leave-to {
   opacity: 0;
-  transform: translate(-50%, -20px) scale(0.95);
-}
-
-@media (max-width: 640px) {
-  .toast-popup-container {
-    top: 14px;
-    width: calc(100% - 24px);
-  }
+  transform: translateX(100px) scale(0.9);
 }
 </style>

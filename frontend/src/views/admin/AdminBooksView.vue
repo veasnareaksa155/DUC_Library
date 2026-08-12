@@ -1,16 +1,16 @@
 <template>
-  <div class="admin-layout-wrapper">
+  <div class="flex items-start min-h-screen w-full">
     <!-- Left Admin Sidebar -->
     <AdminSidebar />
 
     <!-- Main Content Area -->
-    <main class="admin-main-content">
-      <header class="admin-header">
+    <main class="flex-1 py-6 px-8 pb-16 w-[calc(100%-280px)] max-w-none">
+      <header class="flex justify-between items-end mb-8">
         <div>
-          <h1 class="page-title">{{ localeStore.t('books') }} <span class="text-gradient">Management</span></h1>
-          <p class="page-subtitle">Add new books, update stock counts, edit digital content, or remove books.</p>
+          <h1 class="text-[2.2rem] font-extrabold">{{ localeStore.t('books') }} <span class="text-gradient">Management</span></h1>
+          <p class="text-[var(--text-secondary)]">Add new books, update stock counts, edit digital content, or remove books.</p>
         </div>
-        <div class="header-actions">
+        <div class="flex items-center gap-2">
           <button @click="openBookSyncModal" class="btn btn-secondary mr-2">
             <FileSpreadsheet :size="18" /> Sync Books from Sheet
           </button>
@@ -21,70 +21,148 @@
       </header>
 
       <!-- Books Table -->
-      <div class="glass-panel main-panel">
-        <div class="search-filter-bar">
-          <div class="search-input">
-            <Search :size="18" class="icon" />
+      <div class="p-6 glass-panel">
+        <div class="mb-6 flex flex-wrap gap-4 items-center">
+          <div class="relative flex-1 min-w-[280px] max-w-[450px] flex items-center">
+            <Search :size="18" class="absolute left-4 text-[var(--text-muted)] pointer-events-none" />
             <input 
               v-model="booksStore.searchQuery" 
               @input="booksStore.fetchBooks()" 
               type="text" 
-              placeholder="Search by title, author, or ISBN..." 
+              class="w-full pl-11 bg-gray-500/5 border border-[var(--border-color)] text-[var(--text-primary)] rounded-[var(--radius-md)] py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/50 transition-all font-medium shadow-sm hover:bg-gray-500/10 placeholder:text-[var(--text-muted)]/70"
+              placeholder="Search by title, author, category, or ISBN..." 
             />
+          </div>
+          
+          <div class="relative min-w-[240px]">
+            <Library :size="18" class="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)] pointer-events-none" />
+            <select 
+              v-model="booksStore.selectedCategory"
+              class="w-full appearance-none pl-11 pr-10 py-2.5 bg-gray-500/5 border border-[var(--border-color)] text-[var(--text-primary)] rounded-[var(--radius-md)] focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/50 transition-all font-semibold cursor-pointer shadow-sm hover:bg-gray-500/10"
+            >
+              <option value="all" class="bg-[var(--bg-card)] font-medium">All Categories (Catalog)</option>
+              <option v-for="cat in booksStore.categories" :key="cat.id" :value="cat.id" class="bg-[var(--bg-card)] font-medium">
+                {{ cat.name }}
+              </option>
+            </select>
+            <ChevronDown :size="16" class="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)] pointer-events-none" />
           </div>
         </div>
 
-        <div class="table-responsive">
-          <table class="admin-table">
+        <!-- Premium Glassmorphic Skeleton Loader -->
+        <div v-if="booksStore.loading && booksStore.books.length === 0" class="animate-pulse w-full overflow-x-auto">
+          <table class="w-full border-collapse text-left opacity-70">
             <thead>
               <tr>
-                <th>Cover & Title</th>
-                <th>Author</th>
-                <th>Category</th>
-                <th>Stock / Available</th>
-                <th>ISBN</th>
-                <th>Actions</th>
+                <th v-for="i in 6" :key="'th-'+i" class="px-4 py-3.5 bg-gray-500/5 border-b border-[var(--border-color)]">
+                  <div class="h-4 bg-[var(--border-color)] rounded w-20"></div>
+                </th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="book in paginatedBooks" :key="book.id">
-                <td>
-                  <div class="book-cell">
-                    <img :src="book.cover_url || fallbackCover" class="table-cover" />
-                    <div>
-                      <div class="book-title-text">{{ book.title }}</div>
-                      <div class="publisher-text">{{ book.publisher || 'Unknown Publisher' }} ({{ book.publish_year || 'N/A' }})</div>
+              <tr v-for="i in 5" :key="'tr-'+i">
+                <td class="p-4 border-b border-[var(--border-color)]">
+                  <div class="flex items-center gap-3.5">
+                    <div class="w-[42px] h-[60px] bg-[var(--border-color)] rounded"></div>
+                    <div class="flex flex-col gap-2">
+                      <div class="h-4 bg-[var(--border-color)] rounded w-32"></div>
+                      <div class="h-3 bg-[var(--border-color)] rounded w-24"></div>
                     </div>
                   </div>
                 </td>
-                <td>{{ book.author }}</td>
-                <td>
-                  <span class="cat-pill">{{ book.category_name || 'General' }}</span>
-                  <span v-if="book.pdf_url" class="pdf-tag ml-1" title="Digital PDF Document Attached"><FileText :size="12" /> PDF</span>
+                <td class="p-4 border-b border-[var(--border-color)]"><div class="h-4 bg-[var(--border-color)] rounded w-24"></div></td>
+                <td class="p-4 border-b border-[var(--border-color)]"><div class="h-6 bg-[var(--border-color)] rounded-full w-20"></div></td>
+                <td class="p-4 border-b border-[var(--border-color)]"><div class="h-4 bg-[var(--border-color)] rounded w-16"></div></td>
+                <td class="p-4 border-b border-[var(--border-color)]"><div class="h-4 bg-[var(--border-color)] rounded w-28"></div></td>
+                <td class="p-4 border-b border-[var(--border-color)]">
+                  <div class="flex gap-1.5">
+                    <div class="h-8 bg-[var(--border-color)] rounded w-20"></div>
+                    <div class="h-8 bg-[var(--border-color)] rounded w-16"></div>
+                    <div class="h-8 bg-[var(--border-color)] rounded w-10"></div>
+                  </div>
                 </td>
-                <td>
-                  <span class="stock-count" :class="{ empty: book.copies_available === 0 }">
-                    {{ book.copies_available }} / {{ book.copies_total }} copies
-                  </span>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div v-else class="overflow-x-auto">
+          <table class="w-full text-left border-collapse min-w-[950px]">
+            <thead>
+              <tr class="bg-gray-500/5 text-[var(--text-muted)] text-[0.75rem] font-extrabold uppercase tracking-wider">
+                <th class="px-6 py-4 border-b border-[var(--border-color)] whitespace-nowrap">Cover & Title</th>
+                <th class="px-6 py-4 border-b border-[var(--border-color)] whitespace-nowrap">Author</th>
+                <th class="px-6 py-4 border-b border-[var(--border-color)] whitespace-nowrap">Category</th>
+                <th class="px-6 py-4 border-b border-[var(--border-color)] whitespace-nowrap">Stock / Available</th>
+                <th class="px-6 py-4 border-b border-[var(--border-color)] whitespace-nowrap">ISBN</th>
+                <th class="px-6 py-4 border-b border-[var(--border-color)] text-right whitespace-nowrap">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[var(--border-color)]">
+              <tr v-for="book in paginatedBooks" :key="book.id" class="group hover:bg-indigo-500/[0.03] dark:hover:bg-indigo-500/[0.05] transition-colors duration-200">
+                <td class="px-6 py-4">
+                  <div class="flex items-center gap-4">
+                    <img :src="book.cover_url || fallbackCover" class="w-[50px] h-[72px] object-cover rounded-md shadow-[0_4px_10px_rgba(0,0,0,0.15)] border border-[var(--border-color)]/50 group-hover:shadow-[0_4px_15px_rgba(99,102,241,0.25)] group-hover:-translate-y-0.5 transition-all duration-300" />
+                    <div class="flex flex-col">
+                      <span class="font-extrabold text-[0.98rem] text-[var(--text-primary)] group-hover:text-indigo-500 dark:group-hover:text-indigo-400 transition-colors line-clamp-1 max-w-[280px]" :title="book.title">{{ book.title }}</span>
+                      <span class="text-[0.78rem] text-[var(--text-muted)] font-medium mt-0.5 truncate max-w-[280px]">{{ book.publisher || 'Unknown Publisher' }} ({{ book.publish_year || 'N/A' }})</span>
+                    </div>
+                  </div>
                 </td>
-                <td class="font-mono">{{ book.isbn || 'N/A' }}</td>
-                <td>
-                  <div class="action-buttons">
+                <td class="px-6 py-4 text-[0.92rem] font-semibold text-[var(--text-secondary)]">{{ book.author }}</td>
+                <td class="px-6 py-4">
+                  <div class="flex items-center gap-2 flex-wrap max-w-[180px]">
+                    <span class="bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400 px-3 py-1 rounded-full text-[0.75rem] font-bold tracking-wide whitespace-nowrap">{{ book.category_name || 'General' }}</span>
+                    <span v-if="book.pdf_url" class="inline-flex items-center gap-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 px-2 py-1 rounded-full text-[0.72rem] font-bold whitespace-nowrap" title="Digital PDF Document Attached"><FileText :size="12" stroke-width="2.5" /> PDF</span>
+                  </div>
+                </td>
+                <td class="px-6 py-4">
+                  <div class="flex items-center gap-2">
+                    <div class="w-1.5 h-1.5 rounded-full" :class="book.copies_available === 0 ? 'bg-red-500' : 'bg-emerald-500'"></div>
+                    <span class="font-bold text-[0.9rem]" :class="book.copies_available === 0 ? 'text-red-500' : 'text-emerald-600 dark:text-emerald-400'">
+                      {{ book.copies_available }} / {{ book.copies_total }}
+                    </span>
+                    <span class="text-[0.78rem] text-[var(--text-muted)] font-medium">copies</span>
+                  </div>
+                </td>
+                <td class="px-6 py-4 font-mono text-[0.88rem] text-[var(--text-secondary)] font-medium">{{ book.isbn || 'N/A' }}</td>
+                <td class="px-6 py-4 text-right">
+                  <div class="flex justify-end gap-2">
                     <button 
                       @click="toggleFeatured(book)" 
-                      class="btn btn-sm"
-                      :class="book.is_featured ? 'btn-warning-star' : 'btn-secondary'"
+                      class="btn btn-sm !px-3 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5"
+                      :class="[
+                        book.is_featured ? 'bg-amber-500/15 text-amber-600 dark:text-amber-500 border border-amber-500/30 hover:bg-amber-500/25' : 'bg-gray-500/5 text-[var(--text-secondary)] border border-[var(--border-color)] hover:border-amber-500/50 hover:text-amber-500',
+                        loadingFeatureId === book.id ? 'opacity-70 cursor-not-allowed' : ''
+                      ]"
                       :title="book.is_featured ? 'Remove from Popular/Featured' : 'Add to Popular/Featured'"
+                      :disabled="loadingFeatureId === book.id"
                     >
-                      <Star :size="14" :fill="book.is_featured ? '#f59e0b' : 'none'" color="#f59e0b" />
-                      <span>{{ book.is_featured ? 'Featured' : 'Feature' }}</span>
+                      <Loader2 v-if="loadingFeatureId === book.id" :size="15" class="animate-spin text-amber-500" />
+                      <Star v-else :size="15" :fill="book.is_featured ? 'currentColor' : 'none'" :stroke-width="book.is_featured ? 2 : 2.5" />
                     </button>
-                    <button @click="openEditModal(book)" class="btn btn-secondary btn-sm" title="Edit Book">
-                      <Pencil :size="14" /> Edit
+                    <button @click="openEditModal(book)" class="btn btn-sm bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 hover:bg-indigo-500 hover:text-white !px-3 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5" title="Edit Book">
+                      <Pencil :size="15" stroke-width="2.5" />
                     </button>
-                    <button @click="confirmDelete(book)" class="btn btn-danger btn-sm" title="Delete Book">
-                      <Trash2 :size="14" />
+                    <button @click="confirmDelete(book)" class="btn btn-sm bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500 hover:text-white !px-3 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5" title="Delete Book">
+                      <Trash2 :size="15" stroke-width="2.5" />
                     </button>
+                  </div>
+                </td>
+              </tr>
+              
+              <!-- Empty State -->
+              <tr v-if="!booksStore.loading && paginatedBooks.length === 0">
+                <td colspan="6" class="px-6 py-20 text-center bg-gray-500/5">
+                  <div class="flex flex-col items-center justify-center text-[var(--text-muted)] gap-4">
+                    <div class="w-20 h-20 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-color)] flex items-center justify-center shadow-sm">
+                      <Search :size="36" class="opacity-50 text-indigo-400" />
+                    </div>
+                    <div class="flex flex-col gap-1">
+                      <p class="font-extrabold text-[1.1rem] text-[var(--text-primary)]">No books found</p>
+                      <p class="text-[0.88rem] max-w-sm mx-auto leading-relaxed">We couldn't find any books matching "{{ booksStore.searchQuery }}" or the selected category filter. Try adjusting your search criteria.</p>
+                    </div>
+                    <button @click="booksStore.searchQuery = ''; booksStore.selectedCategory = 'all'" class="mt-2 text-indigo-500 text-[0.85rem] font-bold hover:underline">Clear Filters</button>
                   </div>
                 </td>
               </tr>
@@ -93,26 +171,26 @@
         </div>
 
         <!-- Pagination Bar -->
-        <div v-if="booksStore.books.length > 0" class="pagination-bar">
-          <div class="pagination-info">
+        <div v-if="booksStore.books.length > 0" class="flex justify-between items-center pt-5 mt-4 border-t border-[var(--border-color)]">
+          <div class="text-[0.85rem] text-[var(--text-muted)] font-medium">
             Showing {{ (currentPage - 1) * itemsPerPage + 1 }} to {{ Math.min(currentPage * itemsPerPage, booksStore.books.length) }} of {{ booksStore.books.length }} books
           </div>
 
-          <div class="pagination-controls">
+          <div class="flex items-center gap-3">
             <button 
               @click="currentPage--" 
               :disabled="currentPage === 1" 
-              class="btn-page"
+              class="w-[34px] h-[34px] rounded-[var(--radius-md)] bg-gray-500/10 border border-[var(--border-color)] text-[var(--text-primary)] flex items-center justify-center transition-all duration-200 cursor-pointer hover:not(:disabled):bg-[var(--accent-gradient)] hover:not(:disabled):text-white hover:not(:disabled):border-transparent disabled:opacity-35 disabled:cursor-not-allowed"
             >
               <ChevronLeft :size="16" />
             </button>
 
-            <span class="page-indicator">Page {{ currentPage }} of {{ totalPages }}</span>
+            <span class="text-[0.85rem] font-bold text-[var(--text-primary)]">Page {{ currentPage }} of {{ totalPages }}</span>
 
             <button 
               @click="currentPage++" 
               :disabled="currentPage >= totalPages" 
-              class="btn-page"
+              class="w-[34px] h-[34px] rounded-[var(--radius-md)] bg-gray-500/10 border border-[var(--border-color)] text-[var(--text-primary)] flex items-center justify-center transition-all duration-200 cursor-pointer hover:not(:disabled):bg-[var(--accent-gradient)] hover:not(:disabled):text-white hover:not(:disabled):border-transparent disabled:opacity-35 disabled:cursor-not-allowed"
             >
               <ChevronRight :size="16" />
             </button>
@@ -121,101 +199,154 @@
       </div>
 
       <!-- Add / Edit Book Modal -->
-      <div v-if="isModalOpen" class="modal-backdrop" @click.self="isModalOpen = false">
-        <div class="modal-content glass-panel modal-lg">
-          <header class="modal-header">
-            <h2>{{ isEditing ? 'Edit Book Inventory' : 'Add New Book to Library' }}</h2>
-            <button @click="isModalOpen = false" class="btn-close"><X :size="20" /></button>
+      <div v-if="isModalOpen" class="modal-backdrop z-[99999] backdrop-blur-[10px]" @click.self="isModalOpen = false">
+        <div class="modal-content glass-panel max-w-[850px] p-0 overflow-hidden flex flex-col max-h-[90vh] shadow-[0_20px_60px_rgba(0,0,0,0.4)] border border-[var(--border-color)]/60">
+          <header class="flex justify-between items-center px-8 py-5 border-b border-[var(--border-color)] bg-white/5 backdrop-blur-md shrink-0 relative">
+            <div class="absolute inset-0 bg-gradient-to-r from-indigo-500/5 to-transparent pointer-events-none"></div>
+            <h2 class="text-[1.35rem] font-extrabold relative z-10 text-[var(--text-primary)]">{{ isEditing ? 'Edit Book Inventory' : 'Add New Book to Library' }}</h2>
+            <button @click="isModalOpen = false" class="relative z-10 w-9 h-9 rounded-full bg-gray-500/10 flex items-center justify-center text-[var(--text-muted)] border border-[var(--border-color)]/50 hover:bg-gray-500/20 hover:text-[var(--text-primary)] transition-all duration-300"><X :size="18" stroke-width="2.5" /></button>
           </header>
 
-          <form @submit.prevent="saveBook" class="modal-form">
-            <div class="form-grid">
-              <div class="form-group full-width">
-                <label>Book Title *</label>
-                <input v-model="form.title" type="text" required placeholder="e.g. Clean Code" />
-              </div>
+          <form @submit.prevent="saveBook" class="flex flex-col flex-1 overflow-hidden">
+            <div class="p-8 overflow-y-auto flex-1 custom-scrollbar space-y-8 bg-[var(--bg-card)]/40 relative">
+              
+              <!-- Core Information -->
+              <div class="space-y-4">
+                <h3 class="text-[0.85rem] font-extrabold text-indigo-400 uppercase tracking-widest border-b border-indigo-500/10 pb-2.5 flex items-center gap-2">
+                  <Star :size="15" stroke-width="2.5" /> Core Information
+                </h3>
+                
+                <div class="grid grid-cols-2 gap-6">
+                  <div class="col-span-2">
+                    <label class="block text-[0.82rem] font-bold text-[var(--text-secondary)] mb-2 uppercase tracking-wide">Book Title *</label>
+                    <input v-model="form.title" type="text" class="w-full bg-gray-500/5 border border-[var(--border-color)] text-[var(--text-primary)] rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/50 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-medium" required placeholder="e.g. Clean Code" />
+                  </div>
 
-              <div class="form-group">
-                <label>Author *</label>
-                <input v-model="form.author" type="text" required placeholder="e.g. Robert C. Martin" />
-              </div>
+                  <div>
+                    <label class="block text-[0.82rem] font-bold text-[var(--text-secondary)] mb-2 uppercase tracking-wide">Author *</label>
+                    <input v-model="form.author" type="text" class="w-full bg-gray-500/5 border border-[var(--border-color)] text-[var(--text-primary)] rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/50 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-medium" required placeholder="e.g. Robert C. Martin" />
+                  </div>
 
-              <div class="form-group">
-                <label>Category *</label>
-                <select v-model="form.category_id" required>
-                  <option v-for="cat in booksStore.categories" :key="cat.id" :value="cat.id">
-                    {{ cat.name }}
-                  </option>
-                </select>
-              </div>
-
-              <div class="form-group">
-                <label>ISBN Number</label>
-                <input v-model="form.isbn" type="text" placeholder="978-..." />
-              </div>
-
-              <div class="form-group">
-                <label>Total Physical Copies</label>
-                <input v-model.number="form.copies_total" type="number" min="1" required />
-              </div>
-
-              <div class="form-group">
-                <label>Publisher</label>
-                <input v-model="form.publisher" type="text" placeholder="Publisher name" />
-              </div>
-
-              <div class="form-group">
-                <label>Publish Year</label>
-                <input v-model.number="form.publish_year" type="number" placeholder="2024" />
-              </div>
-
-              <div class="form-group full-width">
-                <label>Cover Image URL</label>
-                <input v-model="form.cover_url" type="url" placeholder="https://images.unsplash.com/..." />
-              </div>
-
-              <div class="form-group full-width">
-                <label class="pdf-label"><FileText :size="16" /> Book PDF Document (For Online Reading)</label>
-                <div class="pdf-upload-row">
-                  <input v-model="form.pdf_url" type="text" placeholder="Paste PDF URL (https://...) or choose a PDF file to upload" class="pdf-url-input" />
-                  <button type="button" @click="triggerPdfSelect" class="btn btn-secondary btn-sm upload-pdf-btn">
-                    <Upload :size="15" /> Choose PDF File
-                  </button>
-                  <input type="file" ref="pdfFileInputRef" accept="application/pdf" @change="onPdfFileSelected" style="display: none" />
-                </div>
-                <div v-if="form.pdf_url" class="pdf-attached-badge mt-2">
-                  <CheckCircle :size="14" /> PDF Document Attached & Ready!
-                  <span v-if="form.digital_content" class="text-extracted-pill ml-2">
-                    ⚡ PDF Text Auto-Extracted for Fast Reading ({{ form.digital_content.length }} chars)
-                  </span>
+                  <div>
+                    <label class="block text-[0.82rem] font-bold text-[var(--text-secondary)] mb-2 uppercase tracking-wide">Category *</label>
+                    <select v-model="form.category_id" class="w-full bg-gray-500/5 border border-[var(--border-color)] text-[var(--text-primary)] rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/50 transition-all shadow-sm font-medium" required>
+                      <option v-for="cat in booksStore.categories" :key="cat.id" :value="cat.id" class="bg-[var(--bg-primary)]">
+                        {{ cat.name }}
+                      </option>
+                    </select>
+                  </div>
                 </div>
               </div>
 
-              <div class="form-group full-width">
-                <label>Book Description</label>
-                <textarea v-model="form.description" rows="3" placeholder="Brief summary of the book content..."></textarea>
+              <!-- Physical Details -->
+              <div class="space-y-4">
+                <h3 class="text-[0.85rem] font-extrabold text-emerald-400 uppercase tracking-widest border-b border-emerald-500/10 pb-2.5 flex items-center gap-2">
+                  <Bookmark :size="15" stroke-width="2.5" /> Publishing & Inventory
+                </h3>
+                
+                <div class="grid grid-cols-2 gap-6">
+                  <div>
+                    <label class="block text-[0.82rem] font-bold text-[var(--text-secondary)] mb-2 uppercase tracking-wide">ISBN Number</label>
+                    <input v-model="form.isbn" type="text" class="w-full bg-gray-500/5 border border-[var(--border-color)] text-[var(--text-primary)] rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-mono text-[0.9rem]" placeholder="978-..." />
+                  </div>
+
+                  <div>
+                    <label class="block text-[0.82rem] font-bold text-[var(--text-secondary)] mb-2 uppercase tracking-wide">Total Copies</label>
+                    <input v-model.number="form.copies_total" type="number" class="w-full bg-gray-500/5 border border-[var(--border-color)] text-[var(--text-primary)] rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all shadow-sm font-mono text-[0.9rem]" min="1" required />
+                  </div>
+
+                  <div>
+                    <label class="block text-[0.82rem] font-bold text-[var(--text-secondary)] mb-2 uppercase tracking-wide">Publisher</label>
+                    <input v-model="form.publisher" type="text" class="w-full bg-gray-500/5 border border-[var(--border-color)] text-[var(--text-primary)] rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-medium" placeholder="Publisher name" />
+                  </div>
+
+                  <div>
+                    <label class="block text-[0.82rem] font-bold text-[var(--text-secondary)] mb-2 uppercase tracking-wide">Publish Year</label>
+                    <input v-model.number="form.publish_year" type="number" class="w-full bg-gray-500/5 border border-[var(--border-color)] text-[var(--text-primary)] rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-mono text-[0.9rem]" placeholder="2024" />
+                  </div>
+                </div>
               </div>
 
-              <div class="form-group full-width">
-                <label>Online Digital Text Content (For E-Reader)</label>
-                <textarea v-model="form.digital_content" rows="5" placeholder="Chapter 1 content or book excerpt for reading online..."></textarea>
-              </div>
+              <!-- Digital Assets -->
+              <div class="space-y-4">
+                <h3 class="text-[0.85rem] font-extrabold text-pink-400 uppercase tracking-widest border-b border-pink-500/10 pb-2.5 flex items-center gap-2">
+                  <Image :size="15" stroke-width="2.5" /> Media & Digital Assets
+                </h3>
 
-              <div class="form-group full-width featured-checkbox-group">
-                <label class="checkbox-label flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" v-model="form.is_featured" class="feature-checkbox" />
-                  <span class="font-semibold text-warning">⭐ Feature this book in Popular / Slider ("កំពុងពេញនិយម")</span>
-                </label>
+                <div class="grid grid-cols-2 gap-6">
+                  <div class="col-span-2">
+                    <label class="block text-[0.82rem] font-bold text-[var(--text-secondary)] mb-2 uppercase tracking-wide">Cover Image (URL or Upload)</label>
+                    <div class="flex gap-3 items-stretch mt-1.5">
+                      <div class="relative flex-1">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[var(--text-muted)]/60">
+                          <Image :size="16" />
+                        </div>
+                        <input v-model="form.cover_url" type="text" placeholder="https://..." class="w-full bg-gray-500/5 border border-[var(--border-color)] text-[var(--text-primary)] rounded-lg pl-11 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-500/30 focus:border-pink-500/50 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-mono text-[0.85rem]" />
+                      </div>
+                      <button type="button" @click="triggerImageSelect" class="flex items-center gap-2 bg-pink-500/10 hover:bg-pink-500/20 text-pink-500 border border-pink-500/30 rounded-lg px-5 font-bold transition-all whitespace-nowrap shadow-sm hover:shadow-md">
+                        <Upload :size="16" stroke-width="2.5" /> Upload
+                      </button>
+                      <input type="file" ref="imageFileInputRef" accept="image/*" @change="onImageFileSelected" style="display: none" />
+                    </div>
+                  </div>
+
+                  <div class="col-span-2">
+                    <label class="block text-[0.82rem] font-bold text-[var(--text-secondary)] mb-2 uppercase tracking-wide">Book PDF (For Online Reading)</label>
+                    <div class="flex gap-3 items-stretch mt-1.5">
+                      <div class="relative flex-1">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[var(--text-muted)]/60">
+                          <FileText :size="16" />
+                        </div>
+                        <input v-model="form.pdf_url" type="text" placeholder="https://..." class="w-full bg-gray-500/5 border border-[var(--border-color)] text-[var(--text-primary)] rounded-lg pl-11 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-500/30 focus:border-pink-500/50 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-mono text-[0.85rem]" />
+                      </div>
+                      <button type="button" @click="triggerPdfSelect" class="flex items-center gap-2 bg-pink-500/10 hover:bg-pink-500/20 text-pink-500 border border-pink-500/30 rounded-lg px-5 font-bold transition-all whitespace-nowrap shadow-sm hover:shadow-md">
+                        <Upload :size="16" stroke-width="2.5" /> Upload
+                      </button>
+                      <input type="file" ref="pdfFileInputRef" accept="application/pdf" @change="onPdfFileSelected" style="display: none" />
+                    </div>
+                    
+                    <div v-if="form.pdf_url" class="flex flex-col gap-2 mt-4 p-4 bg-emerald-500/5 border border-emerald-500/20 rounded-lg">
+                      <div class="inline-flex items-center gap-2 text-emerald-500 text-[0.85rem] font-bold">
+                        <CheckCircle :size="16" stroke-width="2.5" /> PDF Document Attached
+                      </div>
+                      <div v-if="form.digital_content" class="inline-flex items-center gap-2 text-indigo-400 text-[0.78rem] font-bold mt-1">
+                        <Star :size="14" stroke-width="2.5" /> Text Auto-Extracted ({{ form.digital_content.length }} chars)
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-span-2">
+                    <label class="block text-[0.82rem] font-bold text-[var(--text-secondary)] mb-2 uppercase tracking-wide">Book Description</label>
+                    <textarea v-model="form.description" rows="3" class="w-full bg-gray-500/5 border border-[var(--border-color)] text-[var(--text-primary)] rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-500/30 focus:border-pink-500/50 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-medium" placeholder="Brief summary of the book content..."></textarea>
+                  </div>
+
+                  <div class="col-span-2">
+                    <label class="block text-[0.82rem] font-bold text-[var(--text-secondary)] mb-2 uppercase tracking-wide">Digital Text (For E-Reader)</label>
+                    <textarea v-model="form.digital_content" rows="4" class="w-full bg-gray-500/5 border border-[var(--border-color)] text-[var(--text-primary)] rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-500/30 focus:border-pink-500/50 transition-all shadow-sm font-mono text-[0.82rem] placeholder:text-[var(--text-muted)]/50" placeholder="Chapter 1 content or book excerpt..."></textarea>
+                  </div>
+
+                  <div class="col-span-2 mt-2">
+                    <label class="flex items-center gap-3 cursor-pointer p-4 bg-amber-500/10 border border-amber-500/20 rounded-lg hover:bg-amber-500/15 transition-colors group">
+                      <div class="relative w-5 h-5 flex items-center justify-center">
+                        <input type="checkbox" v-model="form.is_featured" class="peer appearance-none w-5 h-5 border-2 border-amber-500/50 rounded flex-shrink-0 checked:bg-amber-500 checked:border-0 transition-all cursor-pointer" />
+                        <Check :size="14" stroke-width="3" class="absolute text-[var(--bg-primary)] opacity-0 peer-checked:opacity-100 pointer-events-none" />
+                      </div>
+                      <span class="font-bold text-amber-500 text-[0.95rem] group-hover:text-amber-400 transition-colors flex items-center gap-1.5"><Star :size="16" :fill="form.is_featured ? 'currentColor' : 'none'" /> Feature this book in Popular List</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+              
+              <div v-if="formError" class="p-4 bg-red-500/10 border border-red-500/30 text-red-500 font-bold rounded-lg text-[0.9rem] flex items-center gap-2">
+                <AlertCircle :size="18" stroke-width="2.5" /> {{ formError }}
               </div>
             </div>
 
-            <div v-if="formError" class="error-msg">{{ formError }}</div>
-
-            <footer class="modal-footer">
-              <button type="button" @click="isModalOpen = false" class="btn btn-secondary">Cancel</button>
-              <button type="submit" class="btn btn-primary" :disabled="saving">
-                <Save :size="18" />
-                {{ saving ? 'Saving Book...' : 'Save Book' }}
+            <footer class="flex justify-end gap-3 px-8 py-5 border-t border-[var(--border-color)] bg-white/5 backdrop-blur-md shrink-0">
+              <button type="button" @click="isModalOpen = false" class="btn btn-secondary !px-6 !py-2.5">Cancel</button>
+              <button type="submit" class="btn btn-primary !px-8 !py-2.5 flex items-center gap-2" :disabled="saving">
+                <Save :size="18" :class="{ 'animate-pulse': saving }" />
+                {{ saving ? 'Saving...' : 'Save Book' }}
               </button>
             </footer>
           </form>
@@ -225,39 +356,40 @@
       <!-- Sync Google Sheet Book Inventory Modal -->
       <div v-if="isBookSyncModalOpen" class="modal-backdrop" @click.self="isBookSyncModalOpen = false">
         <div class="modal-content glass-panel">
-          <header class="modal-header">
+          <header class="flex justify-between items-center mb-6">
             <h2>Sync Books from Google Sheet</h2>
-            <button @click="isBookSyncModalOpen = false" class="btn-close"><X :size="20" /></button>
+            <button @click="isBookSyncModalOpen = false" class="bg-transparent border-none text-[var(--text-muted)] cursor-pointer hover:text-slate-200"><X :size="20" /></button>
           </header>
 
           <div class="modal-body">
-            <p class="modal-desc">
+            <p class="text-[0.9rem] text-[var(--text-secondary)] mb-4 leading-relaxed">
               Import book inventory, categories, titles, and physical stock counts automatically from your Google Sheet!
             </p>
 
-            <div class="form-group mt-3">
-              <label>Book Inventory Google Spreadsheet ID</label>
+            <div class="mt-4">
+              <label class="block text-[0.82rem] font-semibold text-[var(--text-secondary)] mb-1.5">Book Inventory Google Spreadsheet ID</label>
               <input 
                 v-model="bookSpreadsheetId" 
                 type="text" 
+                class="w-full"
                 placeholder="e.g. 1YWZoN8THhaxO7H734gRxa7ahGsJoNHWcvyeR-QSa3LU" 
               />
-              <small class="help-text">Found in your Google Sheet URL between <code>/d/</code> and <code>/edit</code></small>
+              <small class="text-[0.78rem] text-[var(--text-muted)] block mt-1">Found in your Google Sheet URL between <code>/d/</code> and <code>/edit</code></small>
             </div>
 
-            <div v-if="bookSyncMessage" class="success-box">
+            <div v-if="bookSyncMessage" class="flex items-center gap-2 px-4 py-3 bg-emerald-500/15 text-emerald-500 rounded-[var(--radius-md)] mt-4 text-[0.88rem]">
               <CheckCircle :size="16" /> {{ bookSyncMessage }}
             </div>
 
-            <div v-if="bookSyncError" class="error-box">
+            <div v-if="bookSyncError" class="flex items-center gap-2 px-4 py-3 bg-red-500/15 text-red-500 rounded-[var(--radius-md)] mt-4 text-[0.88rem]">
               <AlertCircle :size="16" /> {{ bookSyncError }}
             </div>
           </div>
 
-          <footer class="modal-footer">
+          <footer class="flex justify-end gap-3 mt-6">
             <button @click="isBookSyncModalOpen = false" class="btn btn-secondary">Cancel</button>
             <button @click="handleBookSync" class="btn btn-primary" :disabled="bookSyncing">
-              <RefreshCw :size="16" :class="{ spin: bookSyncing }" />
+              <RefreshCw :size="16" :class="{ 'animate-spin': bookSyncing }" />
               {{ bookSyncing ? 'Importing Books...' : 'Sync Book Inventory Now' }}
             </button>
           </footer>
@@ -265,22 +397,22 @@
       </div>
       <!-- Custom Delete Confirmation Modal -->
       <div v-if="isDeleteModalOpen" class="modal-backdrop" @click.self="isDeleteModalOpen = false">
-        <div class="modal-content glass-panel modal-sm text-center">
-          <div class="delete-icon-wrapper">
-            <div class="delete-icon-bg">
-              <AlertTriangle :size="32" class="delete-icon" />
+        <div class="modal-content glass-panel max-w-[440px] px-6 py-8 text-center">
+          <div class="flex justify-center mb-4">
+            <div class="w-16 h-16 rounded-full bg-red-500/12 border border-red-500/30 flex items-center justify-center shadow-[0_0_25px_rgba(239,68,68,0.2)]">
+              <AlertTriangle :size="32" class="text-red-500" />
             </div>
           </div>
 
-          <h2 class="modal-title">Delete Book</h2>
-          <p class="delete-confirm-text">
-            Are you sure you want to delete <strong class="highlight-title">"{{ bookToDelete?.title }}"</strong> from library inventory?
+          <h2 class="text-[1.35rem] font-extrabold mb-2">Delete Book</h2>
+          <p class="text-[0.95rem] text-[var(--text-primary)] mb-1.5 leading-relaxed">
+            Are you sure you want to delete <strong class="text-[var(--accent-primary)]">"{{ bookToDelete?.title }}"</strong> from library inventory?
           </p>
-          <small class="delete-subtext">This action cannot be undone and will permanently remove the book from the catalog.</small>
+          <small class="text-[0.78rem] text-[var(--text-muted)] block mb-5">This action cannot be undone and will permanently remove the book from the catalog.</small>
 
-          <footer class="modal-footer justify-center mt-4">
+          <footer class="flex justify-center gap-3 mt-4">
             <button @click="isDeleteModalOpen = false" class="btn btn-secondary">Cancel</button>
-            <button @click="executeDeleteBook" class="btn btn-danger-gradient" :disabled="deleting">
+            <button @click="executeDeleteBook" class="bg-gradient-to-br from-red-500 to-red-600 text-white border-none font-bold shadow-[0_4px_15px_rgba(239,68,68,0.35)] transition-all duration-250 ease-[var(--spring-ease)] hover:-translate-y-[2px] hover:shadow-[0_6px_20px_rgba(239,68,68,0.5)] px-4 py-2 rounded-md flex items-center gap-2" :disabled="deleting">
               <Trash2 :size="16" />
               {{ deleting ? 'Deleting...' : 'Yes, Delete Book' }}
             </button>
@@ -289,19 +421,19 @@
       </div>
 
       <!-- Delete Success Popup Modal -->
-      <div v-if="isDeleteSuccessOpen" class="modal-backdrop success-backdrop" @click="isDeleteSuccessOpen = false">
-        <div class="modal-content glass-panel success-popup-content text-center">
-          <div class="success-icon-wrapper">
-            <div class="success-icon-bg">
-              <CheckCircle :size="36" class="success-icon" />
+      <div v-if="isDeleteSuccessOpen" class="modal-backdrop backdrop-blur-[8px]" @click="isDeleteSuccessOpen = false">
+        <div class="modal-content glass-panel max-w-[420px] px-7 py-9 animate-[modalPopIn_0.35s_var(--spring-ease)] text-center">
+          <div class="flex justify-center mb-4">
+            <div class="w-[70px] h-[70px] rounded-full bg-emerald-500/15 border border-emerald-500/40 flex items-center justify-center shadow-[0_0_30px_rgba(16,185,129,0.3)]">
+              <CheckCircle :size="36" class="text-emerald-500" />
             </div>
           </div>
 
-          <h2 class="success-modal-title">Book Deleted Successfully!</h2>
-          <p class="success-modal-subtitle">
-            <strong class="highlight-title">"{{ deleteSuccessTitle }}"</strong> has been removed from the library catalog.
+          <h2 class="text-[1.3rem] font-extrabold text-emerald-500 mb-2">Book Deleted Successfully!</h2>
+          <p class="text-[0.9rem] text-[var(--text-secondary)] leading-relaxed">
+            <strong class="text-[var(--accent-primary)]">"{{ deleteSuccessTitle }}"</strong> has been removed from the library catalog.
           </p>
-          <button @click="isDeleteSuccessOpen = false" class="btn btn-primary btn-sm mt-3">OK, Got It</button>
+          <button @click="isDeleteSuccessOpen = false" class="btn btn-primary btn-sm mt-5">OK, Got It</button>
         </div>
       </div>
     </main>
@@ -313,20 +445,46 @@ import { ref, reactive, computed, watch, onMounted } from 'vue';
 import { useBooksStore } from '../../stores/books';
 import { useAuthStore } from '../../stores/auth';
 import { useLocaleStore } from '../../stores/locale';
+import { useToastStore } from '../../stores/toast';
 import AdminSidebar from '../../components/AdminSidebar.vue';
-import { Star, Plus, Search, Pencil, Trash2, X, Save, FileSpreadsheet, RefreshCw, CheckCircle, AlertCircle, AlertTriangle, ChevronLeft, ChevronRight, FileText, Upload } from 'lucide-vue-next';
+import { Star, Plus, Search, Pencil, Trash2, X, Save, FileSpreadsheet, RefreshCw, CheckCircle, AlertCircle, 
+AlertTriangle, ChevronLeft, ChevronRight, FileText, Upload, Bookmark, Image, Loader2, Library, ChevronDown } from 'lucide-vue-next';
 
 const booksStore = useBooksStore();
 const authStore = useAuthStore();
 const localeStore = useLocaleStore();
+const toastStore = useToastStore();
 const fallbackCover = 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&w=600&q=80';
 
 const pdfFileInputRef = ref(null);
+const imageFileInputRef = ref(null);
 
 function triggerPdfSelect() {
   if (pdfFileInputRef.value) {
     pdfFileInputRef.value.click();
   }
+}
+
+function triggerImageSelect() {
+  if (imageFileInputRef.value) {
+    imageFileInputRef.value.click();
+  }
+}
+
+function onImageFileSelected(e) {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+
+  if (file.size > 5 * 1024 * 1024) {
+    formError.value = 'Image file size must be less than 5MB.';
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = (evt) => {
+    form.cover_url = evt.target.result;
+  };
+  reader.readAsDataURL(file);
 }
 
 function onPdfFileSelected(e) {
@@ -388,7 +546,7 @@ async function handleBookSync() {
   bookSyncError.value = '';
 
   try {
-    const res = await fetch('/api/books/sync-sheet', {
+    const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/books/sync-sheet`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -430,19 +588,35 @@ onMounted(() => {
   booksStore.fetchBooks();
 });
 
+const loadingFeatureId = ref(null);
+
 async function toggleFeatured(book) {
+  if (loadingFeatureId.value) return;
+  loadingFeatureId.value = book.id;
+  
   try {
-    const res = await fetch(`/api/books/${book.id}/toggle-featured`, {
+    const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/books/${book.id}/toggle-featured`, {
       method: 'PATCH',
       headers: {
         Authorization: `Bearer ${authStore.token}`
       }
     });
     if (res.ok) {
+      const isNowFeatured = !book.is_featured;
       await booksStore.fetchBooks();
+      toastStore.showSuccess(
+        isNowFeatured ? `"${book.title}" added to Popular list! ⭐` : `"${book.title}" removed from Popular list.`,
+        'Success'
+      );
+    } else {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.message || 'Failed to toggle featured status');
     }
   } catch (err) {
     console.error('Failed to toggle featured status:', err);
+    toastStore.show(err.message || 'An error occurred while updating.', { type: 'error', title: 'Error' });
+  } finally {
+    loadingFeatureId.value = null;
   }
 }
 
@@ -536,481 +710,4 @@ async function executeDeleteBook() {
 }
 </script>
 
-<style scoped>
-.admin-layout-wrapper {
-  display: flex;
-  align-items: flex-start;
-  min-height: 100vh;
-  width: 100%;
-}
 
-.admin-main-content {
-  flex: 1;
-  padding: 1.5rem 2rem 4rem;
-  width: calc(100% - 280px);
-  max-width: none !important;
-}
-
-.admin-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  margin-bottom: 2rem;
-}
-
-.page-title {
-  font-size: 2.2rem;
-  font-weight: 800;
-}
-
-.page-subtitle {
-  color: var(--text-secondary);
-}
-
-.main-panel {
-  padding: 1.5rem;
-}
-
-.search-filter-bar {
-  margin-bottom: 1.5rem;
-}
-
-.search-input {
-  position: relative;
-  max-width: 400px;
-  display: flex;
-  align-items: center;
-}
-
-.search-input .icon {
-  position: absolute;
-  left: 1rem;
-  color: var(--text-muted);
-}
-
-.search-input input {
-  width: 100%;
-  padding-left: 2.75rem;
-}
-
-.table-responsive {
-  overflow-x: auto;
-}
-
-.admin-table {
-  width: 100%;
-  border-collapse: collapse;
-  text-align: left;
-}
-
-.admin-table th {
-  padding: 0.85rem 1rem;
-  background: rgba(125, 125, 125, 0.05);
-  color: var(--text-muted);
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.admin-table td {
-  padding: 1rem;
-  border-bottom: 1px solid var(--border-color);
-  font-size: 0.9rem;
-}
-
-.book-cell {
-  display: flex;
-  align-items: center;
-  gap: 0.85rem;
-}
-
-.table-cover {
-  width: 42px;
-  height: 60px;
-  object-fit: cover;
-  border-radius: 4px;
-}
-
-.book-title-text {
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.publisher-text {
-  font-size: 0.78rem;
-  color: var(--text-muted);
-}
-
-.cat-pill {
-  background: rgba(99, 102, 241, 0.15);
-  color: var(--accent-primary);
-  padding: 0.2rem 0.6rem;
-  border-radius: 9999px;
-  font-size: 0.78rem;
-  font-weight: 600;
-}
-
-.pdf-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  background: rgba(16, 185, 129, 0.15);
-  color: #10b981;
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  padding: 0.15rem 0.45rem;
-  border-radius: 9999px;
-  font-size: 0.72rem;
-  font-weight: 700;
-}
-
-.pdf-upload-row {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-  margin-top: 0.35rem;
-}
-
-.pdf-url-input {
-  flex: 1;
-}
-
-.upload-pdf-btn {
-  white-space: nowrap;
-}
-
-.pdf-attached-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  background: rgba(16, 185, 129, 0.12);
-  color: #10b981;
-  padding: 0.3rem 0.75rem;
-  border-radius: var(--radius-sm);
-  font-size: 0.8rem;
-  font-weight: 600;
-}
-
-.stock-count {
-  font-weight: 600;
-  color: var(--success);
-}
-
-.stock-count.empty {
-  color: var(--danger);
-}
-
-.font-mono {
-  font-family: monospace;
-  font-size: 0.85rem;
-  color: var(--text-muted);
-}
-
-.action-buttons {
-  display: flex;
-  gap: 0.4rem;
-}
-
-.modal-lg {
-  max-width: 750px;
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-}
-
-.btn-close {
-  background: transparent;
-  border: none;
-  color: var(--text-muted);
-}
-
-.form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-
-  margin-bottom: 1.5rem;
-}
-
-.full-width {
-  grid-column: span 2;
-}
-
-.form-group label {
-  display: block;
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  margin-bottom: 0.35rem;
-}
-
-.form-group input, .form-group select, .form-group textarea {
-  width: 100%;
-}
-
-.error-msg {
-  padding: 0.75rem;
-  background: var(--danger-bg);
-  color: #ef4444;
-  border-radius: var(--radius-md);
-  margin-bottom: 1rem;
-  font-size: 0.85rem;
-}
-
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.pdf-attached-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  background: rgba(16, 185, 129, 0.15);
-  color: #10b981;
-  padding: 0.3rem 0.75rem;
-  border-radius: var(--radius-md);
-  font-size: 0.82rem;
-  font-weight: 600;
-}
-
-.text-extracted-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  background: rgba(99, 102, 241, 0.18);
-  color: #818cf8;
-  border: 1px solid rgba(99, 102, 241, 0.3);
-  padding: 0.15rem 0.6rem;
-  border-radius: 9999px;
-  font-size: 0.76rem;
-  font-weight: 700;
-  margin-left: 0.5rem;
-}
-
-.mr-2 {
-  margin-right: 0.5rem;
-}
-
-.mt-3 {
-  margin-top: 1rem;
-}
-
-.modal-desc {
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-  margin-bottom: 1rem;
-  line-height: 1.5;
-}
-
-.help-text {
-  font-size: 0.78rem;
-  color: var(--text-muted);
-  display: block;
-  margin-top: 0.25rem;
-}
-
-.success-box {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  background: rgba(16, 185, 129, 0.15);
-  color: #10b981;
-  border-radius: var(--radius-md);
-  margin-top: 1rem;
-  font-size: 0.88rem;
-}
-
-.error-box {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  background: rgba(239, 68, 68, 0.15);
-  color: #ef4444;
-  border-radius: var(--radius-md);
-  margin-top: 1rem;
-  font-size: 0.88rem;
-}
-
-.modal-sm {
-  max-width: 440px;
-  padding: 2rem 1.5rem;
-}
-
-.text-center {
-  text-align: center;
-}
-
-.justify-center {
-  justify-content: center;
-}
-
-.delete-icon-wrapper, .success-icon-wrapper {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 1rem;
-}
-
-.delete-icon-bg {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  background: rgba(239, 68, 68, 0.12);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 0 25px rgba(239, 68, 68, 0.2);
-}
-
-.delete-icon {
-  color: #ef4444;
-}
-
-.modal-title {
-  font-size: 1.35rem;
-  font-weight: 800;
-  margin-bottom: 0.5rem;
-}
-
-.delete-confirm-text {
-  font-size: 0.95rem;
-  color: var(--text-primary);
-  margin-bottom: 0.35rem;
-  line-height: 1.4;
-}
-
-.highlight-title {
-  color: var(--accent-primary);
-}
-
-.delete-subtext {
-  font-size: 0.78rem;
-  color: var(--text-muted);
-  display: block;
-  margin-bottom: 1.25rem;
-}
-
-.btn-danger-gradient {
-  background: linear-gradient(135deg, #ef4444, #dc2626);
-  color: white;
-  border: none;
-  font-weight: 700;
-  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.35);
-  transition: all 0.25s var(--spring-ease);
-}
-
-.btn-danger-gradient:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.5);
-}
-
-.btn-warning-star {
-  background: rgba(245, 158, 11, 0.18);
-  color: #f59e0b;
-  border: 1px solid rgba(245, 158, 11, 0.4);
-}
-
-.btn-warning-star:hover {
-  background: rgba(245, 158, 11, 0.3);
-  transform: translateY(-1px);
-}
-
-.success-backdrop {
-  backdrop-filter: blur(8px);
-}
-
-.success-popup-content {
-  max-width: 420px;
-  padding: 2.25rem 1.75rem;
-  animation: modalPopIn 0.35s var(--spring-ease);
-}
-
-.success-icon-bg {
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  background: rgba(16, 185, 129, 0.15);
-  border: 1px solid rgba(16, 185, 129, 0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 0 30px rgba(16, 185, 129, 0.3);
-}
-
-.success-icon {
-  color: #10b981;
-}
-
-.success-modal-title {
-  font-size: 1.3rem;
-  font-weight: 800;
-  color: #10b981;
-  margin-bottom: 0.5rem;
-}
-
-.success-modal-subtitle {
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-  line-height: 1.4;
-}
-
-.pagination-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-top: 1.25rem;
-  margin-top: 1rem;
-  border-top: 1px solid var(--border-color);
-}
-
-.pagination-info {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  font-weight: 500;
-}
-
-.pagination-controls {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.btn-page {
-  width: 34px;
-  height: 34px;
-  border-radius: var(--radius-md);
-  background: rgba(125, 125, 125, 0.08);
-  border: 1px solid var(--border-color);
-  color: var(--text-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-  cursor: pointer;
-}
-
-.btn-page:hover:not(:disabled) {
-  background: var(--accent-gradient);
-  color: white;
-  border-color: transparent;
-}
-
-.btn-page:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
-}
-
-.page-indicator {
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-</style>

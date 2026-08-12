@@ -14,7 +14,7 @@ export const useBorrowingsStore = defineStore('borrowings', () => {
   async function fetchMyBorrowings() {
     loading.value = true;
     try {
-      const res = await fetch('/api/borrowings/my', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/borrowings/my`, {
         headers: { Authorization: `Bearer ${authStore.token}` }
       });
       const data = await res.json();
@@ -30,7 +30,7 @@ export const useBorrowingsStore = defineStore('borrowings', () => {
   async function requestBorrow(bookId, days = 14) {
     loading.value = true;
     try {
-      const res = await fetch('/api/borrowings/request', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/borrowings/request`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -53,7 +53,7 @@ export const useBorrowingsStore = defineStore('borrowings', () => {
   async function returnBook(borrowingId) {
     loading.value = true;
     try {
-      const res = await fetch(`/api/borrowings/${borrowingId}/return`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/borrowings/${borrowingId}/return`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${authStore.token}` }
       });
@@ -71,8 +71,9 @@ export const useBorrowingsStore = defineStore('borrowings', () => {
 
   // Admin Actions
   async function fetchAdminDashboardStats() {
+    loading.value = true;
     try {
-      const res = await fetch('/api/admin/dashboard-stats', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/admin/dashboard-stats`, {
         headers: { Authorization: `Bearer ${authStore.token}` }
       });
       const data = await res.json();
@@ -81,13 +82,15 @@ export const useBorrowingsStore = defineStore('borrowings', () => {
       }
     } catch (err) {
       console.error('Failed to fetch dashboard stats:', err);
+    } finally {
+      loading.value = false;
     }
   }
 
   async function fetchAdminBorrowings(statusFilter = 'all') {
     loading.value = true;
     try {
-      const res = await fetch(`/api/admin/borrowings?status=${statusFilter}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/admin/borrowings?status=${statusFilter}`, {
         headers: { Authorization: `Bearer ${authStore.token}` }
       });
       const data = await res.json();
@@ -103,7 +106,7 @@ export const useBorrowingsStore = defineStore('borrowings', () => {
   async function updateBorrowStatus(id, status, notes = '') {
     loading.value = true;
     try {
-      const res = await fetch(`/api/admin/borrowings/${id}/status`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/admin/borrowings/${id}/status`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

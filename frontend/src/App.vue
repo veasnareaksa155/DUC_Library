@@ -1,49 +1,50 @@
 <template>
-  <div id="app-root">
+  <div id="app-root" class="flex flex-col min-h-screen">
     <Navbar v-if="!hideGlobalNav" />
     <MobileHeader v-if="!hideGlobalNav" />
-    <main class="app-main">
+    <main class="flex-1 max-md:pb-[72px]">
       <router-view v-slot="{ Component }">
         <transition name="page-fade" mode="out-in">
           <component :is="Component" />
         </transition>
       </router-view>
     </main>
-    <MobileAppNavBar />
+    <MobileAppNavBar v-if="!hideGlobalNav" />
     <ScrollToTop />
     <ToastNotification />
-    <footer v-if="!hideGlobalNav" class="app-footer">
-      <div class="footer-container">
-        <div class="footer-grid">
+    <ConfirmModal />
+    <footer v-if="!hideGlobalNav" class="hidden md:block border-t border-[var(--border-color)] bg-[var(--bg-card)] pt-12 pb-6 text-[0.85rem] text-[var(--text-muted)] transition-colors duration-300">
+      <div class="max-w-[1280px] mx-auto px-6 max-sm:px-3">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1.2fr] gap-8 lg:gap-10 mb-10">
           <!-- Col 1: Brand & Mission -->
-          <div class="footer-col brand-col">
-            <div class="footer-logo-row">
-              <img src="/duc-logo.png" alt="DUC Logo" class="footer-duc-logo" />
-              <span class="footer-brand-title">DUC <span class="text-gradient">Digital Library</span></span>
+          <div class="flex flex-col">
+            <div class="flex items-center gap-3 mb-3.5">
+              <img src="/duc-logo.png" alt="DUC Logo" class="h-11 w-auto object-contain" />
+              <span class="text-[1.2rem] font-extrabold text-[var(--text-primary)]">DUC <span class="bg-gradient-to-br from-indigo-500 to-violet-500 bg-clip-text text-transparent">Digital Library</span></span>
             </div>
-            <p class="footer-about">
+            <p class="text-[0.84rem] leading-relaxed text-[var(--text-secondary)] mb-4">
               Empowering students, faculty, and researchers with digital learning resources, e-books, physical book reservations, and academic tools.
             </p>
-            <div class="footer-accreditation">
-              <span class="accreditation-badge">DUC Academic Excellence System</span>
+            <div>
+              <span class="inline-block text-[0.72rem] font-bold px-2.5 py-1 rounded-full bg-indigo-500/12 border border-indigo-500/30 text-indigo-500">DUC Academic Excellence System</span>
             </div>
           </div>
 
           <!-- Col 2: Quick Links -->
-          <div class="footer-col">
-            <h4 class="footer-heading">Quick Navigation</h4>
-            <ul class="footer-links-list">
-              <li><router-link to="/">Library Catalog</router-link></li>
-              <li><router-link to="/my-borrowings">My Borrowed Books</router-link></li>
-              <li><router-link to="/login">Student & Staff Portal</router-link></li>
-              <li><router-link to="/register">Create Library Account</router-link></li>
+          <div class="flex flex-col">
+            <h4 class="text-[0.95rem] font-bold text-[var(--text-primary)] mb-4 tracking-[0.02em]">Quick Navigation</h4>
+            <ul class="list-none p-0 m-0 flex flex-col gap-2">
+              <li><router-link to="/" class="text-[var(--text-secondary)] no-underline transition-colors hover:text-indigo-500">Library Catalog</router-link></li>
+              <li><router-link to="/my-borrowings" class="text-[var(--text-secondary)] no-underline transition-colors hover:text-indigo-500">My Borrowed Books</router-link></li>
+              <li><router-link to="/login" class="text-[var(--text-secondary)] no-underline transition-colors hover:text-indigo-500">Student & Staff Portal</router-link></li>
+              <li><router-link to="/register" class="text-[var(--text-secondary)] no-underline transition-colors hover:text-indigo-500">Create Library Account</router-link></li>
             </ul>
           </div>
 
           <!-- Col 3: Services & Support -->
-          <div class="footer-col">
-            <h4 class="footer-heading">Library Services</h4>
-            <ul class="footer-links-list">
+          <div class="flex flex-col">
+            <h4 class="text-[0.95rem] font-bold text-[var(--text-primary)] mb-4 tracking-[0.02em]">Library Services</h4>
+            <ul class="list-none p-0 m-0 flex flex-col gap-2 text-[var(--text-secondary)]">
               <li><span>Digital PDF E-Reader</span></li>
               <li><span>Online Book Reservation</span></li>
               <li><span>Physical Book Borrowing</span></li>
@@ -52,22 +53,22 @@
           </div>
 
           <!-- Col 4: Contact & Hours -->
-          <div class="footer-col">
-            <h4 class="footer-heading">Contact & Hours</h4>
-            <div class="contact-info-list">
-              <p><strong>Hours:</strong> Mon - Sat (7:30 AM - 8:00 PM)</p>
-              <p><strong>Campus:</strong> DUC Resource Center</p>
-              <p><strong>Email:</strong> library@duc.edu.kh</p>
-              <p><strong>Desk:</strong> +855 (0) 23 888 999</p>
+          <div class="flex flex-col">
+            <h4 class="text-[0.95rem] font-bold text-[var(--text-primary)] mb-4 tracking-[0.02em]">Contact & Hours</h4>
+            <div class="flex flex-col gap-1.5 text-[0.82rem] text-[var(--text-secondary)] leading-relaxed">
+              <p class="m-0"><strong class="text-[var(--text-primary)]">Hours:</strong> Mon - Sat (7:30 AM - 8:00 PM)</p>
+              <p class="m-0"><strong class="text-[var(--text-primary)]">Campus:</strong> DUC Resource Center</p>
+              <p class="m-0"><strong class="text-[var(--text-primary)]">Email:</strong> library@duc.edu.kh</p>
+              <p class="m-0"><strong class="text-[var(--text-primary)]">Desk:</strong> +855 (0) 23 888 999</p>
             </div>
           </div>
         </div>
 
-        <div class="footer-bottom-bar">
-          <p>&copy; 2026 <strong>DUC Digital Library</strong>. All Rights Reserved. Dewey International University Library.</p>
-          <div class="footer-legal-pills">
-            <span>Privacy Policy</span> •
-            <span>Library Regulations</span> •
+        <div class="border-t border-[var(--border-color)] pt-6 flex flex-col md:flex-row md:items-center justify-between gap-4 text-[0.8rem] text-[var(--text-muted)]">
+          <p class="m-0">&copy; 2026 <strong class="text-[var(--text-primary)]">DUC Digital Library</strong>. All Rights Reserved. Dewey International University Library.</p>
+          <div class="flex gap-2">
+            <span>Privacy Policy</span> &bull;
+            <span>Library Regulations</span> &bull;
             <span>Terms of Service</span>
           </div>
         </div>
@@ -84,6 +85,7 @@ import MobileHeader from './components/MobileHeader.vue';
 import MobileAppNavBar from './components/MobileAppNavBar.vue';
 import ScrollToTop from './components/ScrollToTop.vue';
 import ToastNotification from './components/ToastNotification.vue';
+import ConfirmModal from './components/ConfirmModal.vue';
 import { useAuthStore } from './stores/auth';
 import { requestPhoneNotificationPermission } from './services/notificationService';
 
@@ -97,161 +99,4 @@ onMounted(() => {
 });
 </script>
 
-<style scoped>
-#app-root {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
 
-.app-main {
-  flex: 1;
-}
-
-.app-footer {
-  border-top: 1px solid var(--border-color);
-  background: var(--bg-card);
-  padding: 3rem 1.5rem 1.5rem;
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  transition: background-color 0.3s ease, border-color 0.3s ease;
-}
-
-.footer-container {
-  max-width: 1560px;
-  margin: 0 auto;
-}
-
-.footer-grid {
-  display: grid;
-  grid-template-columns: 1.5fr 1fr 1fr 1.2fr;
-  gap: 2.5rem;
-  margin-bottom: 2.5rem;
-}
-
-.footer-col {
-  display: flex;
-  flex-direction: column;
-}
-
-.footer-logo-row {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 0.85rem;
-}
-
-.footer-duc-logo {
-  height: 44px;
-  width: auto;
-  object-fit: contain;
-}
-
-.footer-brand-title {
-  font-size: 1.2rem;
-  font-weight: 800;
-  color: var(--text-primary);
-}
-
-.footer-about {
-  font-size: 0.84rem;
-  line-height: 1.5;
-  color: var(--text-secondary);
-  margin-bottom: 1rem;
-}
-
-.accreditation-badge {
-  display: inline-block;
-  font-size: 0.72rem;
-  font-weight: 700;
-  padding: 0.25rem 0.65rem;
-  border-radius: 9999px;
-  background: rgba(99, 102, 241, 0.12);
-  border: 1px solid rgba(99, 102, 241, 0.3);
-  color: var(--accent-primary, #6366f1);
-}
-
-.footer-heading {
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: 1rem;
-  letter-spacing: 0.02em;
-}
-
-.footer-links-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.55rem;
-}
-
-.footer-links-list a {
-  color: var(--text-secondary);
-  text-decoration: none;
-  transition: color 0.2s ease;
-}
-
-.footer-links-list a:hover {
-  color: var(--accent-primary);
-}
-
-.footer-links-list span {
-  color: var(--text-secondary);
-}
-
-.contact-info-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.45rem;
-  font-size: 0.82rem;
-  color: var(--text-secondary);
-}
-
-.contact-info-list p {
-  margin: 0;
-  line-height: 1.4;
-}
-
-.contact-info-list strong {
-  color: var(--text-primary);
-}
-
-.footer-bottom-bar {
-  border-top: 1px solid var(--border-color);
-  padding-top: 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  font-size: 0.8rem;
-  color: var(--text-muted);
-}
-
-.footer-bottom-bar p {
-  margin: 0;
-}
-
-.footer-legal-pills {
-  display: flex;
-  gap: 0.5rem;
-}
-
-@media (max-width: 1024px) {
-  .footer-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
-  }
-}
-
-@media (max-width: 768px) {
-  .app-main {
-    padding-bottom: 72px;
-  }
-  .app-footer {
-    display: none;
-  }
-}
-</style>

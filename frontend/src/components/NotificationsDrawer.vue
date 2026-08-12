@@ -1,358 +1,135 @@
 <template>
   <Teleport to="body">
     <Transition name="drawer-fade">
-      <div 
-        v-if="notifStore.isDrawerOpen" 
-        class="drawer-backdrop" 
-        @click.self="notifStore.closeDrawer"
-      >
-        <div class="notif-drawer-content glass-panel">
-          <!-- Drawer Mobile Drag Handle -->
-          <div class="mobile-drag-handle">
-            <span class="handle-bar"></span>
-          </div>
-
-          <!-- Drawer Header -->
-          <header class="drawer-header">
-            <div class="drawer-title-group">
-              <div class="title-badge-row">
-                <Bell :size="20" class="notif-bell-icon" />
-                <h3 class="drawer-title">Notifications</h3>
-                <span v-if="notifStore.unreadCount > 0" class="unread-pill">
-                  {{ notifStore.unreadCount }} new
-                </span>
-              </div>
-              <p class="drawer-subtitle">DUC Library announcements & borrowing updates</p>
+        <div 
+          v-if="notifStore.isDrawerOpen" 
+          class="fixed inset-0 z-[99999] bg-[#0b0f19]/65 backdrop-blur-[8px] flex justify-end max-sm:items-stretch" 
+          @click.self="notifStore.closeDrawer"
+        >
+          <div class="w-full max-w-[420px] max-sm:max-w-[340px] max-sm:w-[88vw] h-full bg-[var(--bg-secondary)] backdrop-blur-[24px] border-l border-[var(--border-color)] flex flex-col shadow-[-10px_0_40px_rgba(0,0,0,0.3)] max-sm:shadow-[-10px_0_40px_rgba(0,0,0,0.5)] notif-drawer-content glass-panel">
+            <!-- Drawer Mobile Drag Handle -->
+            <div class="hidden">
+              <span class="handle-bar"></span>
             </div>
-
-            <button @click="notifStore.closeDrawer" class="btn-close-drawer" title="Close">
-              <X :size="20" />
-            </button>
-          </header>
-
-          <!-- Drawer Actions Sub-bar -->
-          <div v-if="notifStore.notifications.length > 0" class="drawer-actions-bar">
-            <button @click="notifStore.markAllAsRead" class="action-btn text-accent">
-              <CheckCheck :size="15" /> Mark all read
-            </button>
-            <button @click="notifStore.clearAll" class="action-btn text-muted">
-              <Trash2 :size="15" /> Clear all
-            </button>
-          </div>
-
-          <!-- Notifications List Body -->
-          <div class="drawer-body">
-            <!-- Empty State -->
-            <div v-if="notifStore.notifications.length === 0" class="empty-notif-state">
-              <div class="empty-bell-circle">
-                <BellOff :size="40" class="text-muted" />
+  
+            <!-- Drawer Header -->
+            <header class="px-6 pt-5 pb-4 flex items-start justify-between border-b border-[var(--border-color)] bg-[var(--bg-secondary)]">
+              <div class="drawer-title-group">
+                <div class="flex items-center gap-2">
+                  <Bell :size="20" class="text-[var(--accent-primary)]" />
+                  <h3 class="text-[1.15rem] font-extrabold text-[var(--text-primary)] m-0">Notifications</h3>
+                  <span v-if="notifStore.unreadCount > 0" class="text-[0.7rem] font-bold px-2 py-0.5 rounded-full bg-red-500/15 border border-red-500/40 text-red-500">
+                    {{ notifStore.unreadCount }} new
+                  </span>
+                </div>
+                <p class="text-[0.78rem] text-[var(--text-muted)] m-0 mt-1">DUC Library announcements & borrowing updates</p>
               </div>
-              <h4>No Notifications</h4>
-              <p>You're all caught up! Borrowing updates and library announcements will appear here.</p>
+  
+              <button @click="notifStore.closeDrawer" class="bg-transparent border-none text-[var(--text-muted)] p-1 rounded-full cursor-pointer flex items-center justify-center transition-all duration-200 hover:text-[var(--text-primary)] hover:bg-gray-500/15" title="Close">
+                <X :size="20" />
+              </button>
+            </header>
+  
+            <!-- Drawer Actions Sub-bar -->
+            <div v-if="notifStore.notifications.length > 0" class="flex items-center justify-between px-6 py-2.5 bg-[var(--bg-primary)] border-b border-[var(--border-color)]">
+              <button @click="notifStore.markAllAsRead" class="bg-transparent border-none inline-flex items-center gap-1.5 text-[0.78rem] font-semibold cursor-pointer px-1.5 py-1 rounded transition-opacity duration-200 hover:opacity-80 text-[var(--accent-primary)]">
+                <CheckCheck :size="15" /> Mark all read
+              </button>
+              <button @click="notifStore.clearAll" class="bg-transparent border-none inline-flex items-center gap-1.5 text-[0.78rem] font-semibold cursor-pointer px-1.5 py-1 rounded transition-opacity duration-200 hover:opacity-80 text-[var(--text-muted)]">
+                <Trash2 :size="15" /> Clear all
+              </button>
             </div>
-
-            <!-- Notification Items -->
-            <div v-else class="notif-items-list">
-              <div 
-                v-for="item in notifStore.notifications" 
-                :key="item.id"
-                class="notif-card"
-                :class="{ unread: !item.read }"
-                @click="notifStore.markAsRead(item.id)"
-              >
-                <div class="notif-card-header">
-                  <div class="icon-title-group">
-                    <span class="type-icon-dot" :class="item.type || 'info'"></span>
-                    <h4 class="notif-card-title">{{ item.title }}</h4>
+  
+            <!-- Notifications List Body -->
+            <div class="flex-1 overflow-y-auto p-5 bg-[var(--bg-primary)]">
+              <!-- Notification Items & Empty State -->
+              <TransitionGroup name="notif-list" tag="div" class="flex flex-col gap-3 relative w-full min-h-[300px]">
+                
+                <!-- Empty State -->
+                <div v-if="notifStore.notifications.length === 0" key="empty-state" class="text-center py-14 px-6 text-[var(--text-muted)] w-full absolute inset-0 m-auto h-fit transition-all duration-300">
+                  <div class="w-[72px] h-[72px] mx-auto mb-5 rounded-full bg-[var(--bg-card)] border border-[var(--border-color)] flex items-center justify-center">
+                    <BellOff :size="40" class="text-[var(--text-muted)]" />
                   </div>
-                  <span class="notif-time">{{ item.time }}</span>
+                  <h4 class="text-[1.1rem] font-bold text-[var(--text-primary)] mb-1.5">No Notifications</h4>
+                  <p class="text-[0.82rem] leading-relaxed">You're all caught up! Borrowing updates and library announcements will appear here.</p>
                 </div>
 
-                <p class="notif-card-msg">{{ item.message }}</p>
-
-                <div class="notif-card-footer">
-                  <span v-if="!item.read" class="unread-indicator">● New</span>
-                  <button 
-                    @click.stop="notifStore.removeNotification(item.id)" 
-                    class="btn-remove-item"
-                    title="Remove"
-                  >
-                    <Trash2 :size="14" />
-                  </button>
+                <!-- Notification Items -->
+                <div 
+                  v-for="item in notifStore.notifications" 
+                  :key="item.id"
+                  class="px-4 py-3.5 rounded-[var(--radius-md)] bg-[var(--bg-card)] border border-[var(--border-color)] cursor-pointer transition-all duration-200 relative shadow-[0_2px_8px_rgba(0,0,0,0.05)] hover:border-[var(--border-highlight)]"
+                  :class="{ 'bg-indigo-500/10 border-indigo-500/35': !item.read }"
+                  @click="notifStore.markAsRead(item.id)"
+                >
+                  <div class="flex items-start justify-between gap-2 mb-1.5">
+                    <div class="flex items-center gap-2 flex-1">
+                      <span class="w-2 h-2 rounded-full shrink-0" :class="{
+                        'bg-indigo-500 shadow-[0_0_8px_#6366f1]': !item.type || item.type === 'info',
+                        'bg-amber-500 shadow-[0_0_8px_#f59e0b]': item.type === 'featured',
+                        'bg-emerald-500 shadow-[0_0_8px_#10b981]': item.type === 'system'
+                      }"></span>
+                      <h4 class="text-[0.88rem] font-bold text-[var(--text-primary)] m-0 leading-[1.35]">{{ item.title }}</h4>
+                    </div>
+                    <span class="text-[0.7rem] text-[var(--text-muted)] whitespace-nowrap shrink-0">{{ formatTime(item.timestamp) }}</span>
+                  </div>
+  
+                  <p class="text-[0.8rem] text-[var(--text-secondary)] leading-[1.4] m-0 mb-2">{{ item.message }}</p>
+  
+                  <div class="flex items-center justify-between">
+                    <span v-if="!item.read" class="text-[0.68rem] font-bold text-indigo-400">● New</span>
+                    <button 
+                      @click.stop="notifStore.removeNotification(item.id)" 
+                      class="bg-transparent border-none text-[var(--text-muted)] cursor-pointer p-1 rounded ml-auto transition-colors duration-200 hover:text-red-400"
+                      title="Remove"
+                    >
+                      <Trash2 :size="14" />
+                    </button>
+                  </div>
                 </div>
-              </div>
+              </TransitionGroup>
             </div>
           </div>
         </div>
-      </div>
     </Transition>
   </Teleport>
 </template>
 
 <script setup>
+import { ref, onMounted, onUnmounted } from 'vue';
 import { useNotificationsStore } from '../stores/notifications';
 import { Bell, BellOff, X, CheckCheck, Trash2 } from 'lucide-vue-next';
 
 const notifStore = useNotificationsStore();
+
+const now = ref(Date.now());
+let timer = null;
+
+onMounted(() => {
+  timer = setInterval(() => {
+    now.value = Date.now();
+  }, 60000);
+});
+
+onUnmounted(() => {
+  if (timer) clearInterval(timer);
+});
+
+function formatTime(timestamp) {
+  if (!timestamp) return 'Just now';
+  const diff = Math.max(0, now.value - timestamp);
+  const minutes = Math.floor(diff / 60000);
+  if (minutes < 1) return 'Just now';
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days === 1) return 'Yesterday';
+  return `${days}d ago`;
+}
 </script>
 
 <style scoped>
-.drawer-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 99999;
-  background: rgba(11, 15, 25, 0.65);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  display: flex;
-  justify-content: flex-end;
-}
-
-.notif-drawer-content {
-  width: 100%;
-  max-width: 420px;
-  height: 100%;
-  background: var(--bg-secondary);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border-left: 1px solid var(--border-color);
-  display: flex;
-  flex-direction: column;
-  box-shadow: -10px 0 40px rgba(0, 0, 0, 0.3);
-}
-
-.mobile-drag-handle {
-  display: none;
-}
-
-.drawer-header {
-  padding: 1.25rem 1.5rem 1rem;
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  border-bottom: 1px solid var(--border-color);
-  background: var(--bg-secondary);
-}
-
-.title-badge-row {
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
-}
-
-.notif-bell-icon {
-  color: var(--accent-primary, #6366f1);
-}
-
-.drawer-title {
-  font-size: 1.15rem;
-  font-weight: 800;
-  color: var(--text-primary) !important;
-  margin: 0;
-}
-
-.unread-pill {
-  font-size: 0.7rem;
-  font-weight: 700;
-  padding: 0.15rem 0.55rem;
-  border-radius: 9999px;
-  background: rgba(239, 68, 68, 0.15);
-  border: 1px solid rgba(239, 68, 68, 0.4);
-  color: #ef4444;
-}
-
-.drawer-subtitle {
-  font-size: 0.78rem;
-  color: var(--text-muted) !important;
-  margin: 0.25rem 0 0 0;
-}
-
-.btn-close-drawer {
-  background: transparent;
-  border: none;
-  color: var(--text-muted);
-  padding: 0.3rem;
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-}
-
-.btn-close-drawer:hover {
-  color: var(--text-primary);
-  background: rgba(125, 125, 125, 0.15);
-}
-
-.drawer-actions-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.6rem 1.5rem;
-  background: var(--bg-primary);
-  border-bottom: 1px solid var(--border-color);
-}
-
-.action-btn {
-  background: transparent;
-  border: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  font-size: 0.78rem;
-  font-weight: 600;
-  cursor: pointer;
-  padding: 0.2rem 0.4rem;
-  border-radius: 4px;
-  transition: opacity 0.2s ease;
-}
-
-.action-btn:hover {
-  opacity: 0.8;
-}
-
-.text-accent { color: var(--accent-primary, #6366f1); }
-.text-muted { color: var(--text-muted); }
-
-.drawer-body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 1rem 1.25rem;
-  background: var(--bg-primary);
-}
-
-.empty-notif-state {
-  text-align: center;
-  padding: 3.5rem 1.5rem;
-  color: var(--text-muted);
-}
-
-.empty-bell-circle {
-  width: 72px;
-  height: 72px;
-  margin: 0 auto 1.25rem;
-  border-radius: 50%;
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.empty-notif-state h4 {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: 0.35rem;
-}
-
-.empty-notif-state p {
-  font-size: 0.82rem;
-  line-height: 1.45;
-}
-
-.notif-items-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.notif-card {
-  padding: 0.9rem 1rem;
-  border-radius: var(--radius-md, 12px);
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  position: relative;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-
-.notif-card.unread {
-  background: rgba(99, 102, 241, 0.08);
-  border-color: rgba(99, 102, 241, 0.35);
-}
-
-.notif-card:hover {
-  border-color: var(--border-highlight);
-}
-
-.notif-card-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 0.5rem;
-  margin-bottom: 0.35rem;
-}
-
-.icon-title-group {
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-  flex: 1;
-}
-
-.type-icon-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.type-icon-dot.info { background: #6366f1; box-shadow: 0 0 8px #6366f1; }
-.type-icon-dot.featured { background: #f59e0b; box-shadow: 0 0 8px #f59e0b; }
-.type-icon-dot.system { background: #10b981; box-shadow: 0 0 8px #10b981; }
-
-.notif-card-title {
-  font-size: 0.88rem;
-  font-weight: 700;
-  color: var(--text-primary) !important;
-  margin: 0;
-  line-height: 1.35;
-}
-
-.notif-time {
-  font-size: 0.7rem;
-  color: var(--text-muted) !important;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.notif-card-msg {
-  font-size: 0.8rem;
-  color: var(--text-secondary) !important;
-  line-height: 1.4;
-  margin: 0 0 0.5rem 0;
-}
-
-.notif-card-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.unread-indicator {
-  font-size: 0.68rem;
-  font-weight: 700;
-  color: #818cf8;
-}
-
-.btn-remove-item {
-  background: transparent;
-  border: none;
-  color: var(--text-muted);
-  cursor: pointer;
-  padding: 0.2rem;
-  border-radius: 4px;
-  margin-left: auto;
-  transition: color 0.2s ease;
-}
-
-.btn-remove-item:hover {
-  color: #f87171;
-}
-
 /* Animations */
 .drawer-fade-enter-active,
 .drawer-fade-leave-active {
@@ -380,24 +157,26 @@ const notifStore = useNotificationsStore();
   transform: translateX(100%);
 }
 
-/* Mobile Right-Side Drawer Style */
-@media (max-width: 640px) {
-  .drawer-backdrop {
-    align-items: stretch;
-    justify-content: flex-end;
-  }
+/* Notification List Animations */
+.notif-list-move,
+.notif-list-enter-active,
+.notif-list-leave-active {
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
 
-  .notif-drawer-content {
-    width: 88vw;
-    max-width: 340px;
-    height: 100%;
-    border-left: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 0;
-    box-shadow: -10px 0 40px rgba(0, 0, 0, 0.5);
-  }
+.notif-list-enter-from {
+  opacity: 0;
+  transform: translateY(20px) scale(0.95);
+}
 
-  .mobile-drag-handle {
-    display: none;
-  }
+.notif-list-leave-to {
+  opacity: 0;
+  transform: translateX(40px) scale(0.95);
+}
+
+.notif-list-leave-active {
+  position: absolute;
+  left: 0;
+  right: 0;
 }
 </style>

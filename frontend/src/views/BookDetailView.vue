@@ -1,42 +1,42 @@
 <template>
-  <div class="detail-container">
-    <button @click="router.back()" class="btn btn-secondary btn-sm back-btn">
+  <div class="max-w-[1100px] mx-auto px-6 pb-16 pt-10">
+    <button @click="router.back()" class="btn btn-secondary btn-sm mb-6">
       <ArrowLeft :size="16" /> Back to Catalog
     </button>
 
-    <div v-if="loading" class="loading-state">
-      <Loader2 :size="36" class="spin" />
+    <div v-if="loading" class="text-center p-16 text-[var(--text-muted)]">
+      <Loader2 :size="36" class="animate-spin mx-auto mb-2" />
       <p>Loading book details...</p>
     </div>
 
-    <div v-else-if="book" class="book-detail-card glass-panel">
-      <div class="detail-grid">
-        <div class="cover-col">
-          <img :src="book.cover_url || fallbackCover" :alt="book.title" class="detail-cover" />
+    <div v-else-if="book" class="p-10 max-sm:p-6 glass-panel">
+      <div class="grid grid-cols-[280px_1fr] gap-10 max-md:grid-cols-1 max-sm:gap-6">
+        <div>
+          <img :src="book.cover_url || fallbackCover" :alt="book.title" class="w-full rounded-[var(--radius-lg)] shadow-[0_12px_30px_rgba(0,0,0,0.4)]" />
         </div>
 
-        <div class="info-col">
-          <span class="cat-badge">{{ book.category_name || 'General' }}</span>
-          <h1 class="book-title">{{ book.title }}</h1>
-          <p class="book-author">by {{ book.author }}</p>
+        <div>
+          <span class="inline-block text-[0.8rem] font-bold text-purple-400 uppercase tracking-[0.05em] mb-2">{{ book.category_name || 'General' }}</span>
+          <h1 class="text-[2.2rem] font-extrabold leading-[1.2] mb-1.5 max-sm:text-[1.8rem] text-[var(--text-primary)]">{{ book.title }}</h1>
+          <p class="text-[1.1rem] text-[var(--accent-primary)] font-semibold mb-5">by {{ book.author }}</p>
 
-          <div class="meta-row">
-            <span class="meta-item">Publisher: <strong>{{ book.publisher || 'N/A' }}</strong></span>
-            <span class="meta-item">Year: <strong>{{ book.publish_year || 'N/A' }}</strong></span>
-            <span class="meta-item">ISBN: <strong>{{ book.isbn || 'N/A' }}</strong></span>
+          <div class="flex gap-6 text-[0.88rem] text-[var(--text-secondary)] mb-5 pb-5 border-b border-[var(--border-color)] max-sm:flex-col max-sm:gap-2">
+            <span>Publisher: <strong>{{ book.publisher || 'N/A' }}</strong></span>
+            <span>Year: <strong>{{ book.publish_year || 'N/A' }}</strong></span>
+            <span>ISBN: <strong>{{ book.isbn || 'N/A' }}</strong></span>
           </div>
 
-          <div class="stock-banner" :class="{ 'out-of-stock': book.copies_available <= 0 }">
+          <div class="flex items-center gap-2.5 py-3 px-5 rounded-[var(--radius-md)] font-semibold text-[0.9rem] mb-6 border" :class="book.copies_available <= 0 ? 'bg-red-500/10 text-red-400 border-red-500/30' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'">
             <PackageCheck :size="18" />
             <span>{{ book.copies_available > 0 ? `${book.copies_available} of ${book.copies_total} physical copies available` : 'Currently Out of Stock' }}</span>
           </div>
 
-          <div class="desc-section">
-            <h3>Synopsis & Description</h3>
-            <p>{{ book.description || 'No description provided.' }}</p>
+          <div class="mb-8">
+            <h3 class="text-[1.1rem] font-bold mb-2 text-[var(--text-primary)]">Synopsis & Description</h3>
+            <p class="text-[var(--text-secondary)] leading-[1.7]">{{ book.description || 'No description provided.' }}</p>
           </div>
 
-          <div class="detail-actions">
+          <div class="flex gap-4 max-sm:flex-col max-sm:gap-3">
             <button @click="router.push(`/read/${book.id}`)" class="btn btn-secondary">
               <BookOpen :size="18" /> Read Digital Book
             </button>
@@ -119,115 +119,3 @@ function handleBorrowSuccess(msg) {
 }
 </script>
 
-<style scoped>
-.detail-container {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 2.5rem 1.5rem 4rem;
-}
-
-.back-btn {
-  margin-bottom: 1.5rem;
-}
-
-.book-detail-card {
-  padding: 2.5rem;
-}
-
-.detail-grid {
-  display: grid;
-  grid-template-columns: 280px 1fr;
-  gap: 2.5rem;
-}
-
-.detail-cover {
-  width: 100%;
-  border-radius: var(--radius-lg);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
-}
-
-.cat-badge {
-  display: inline-block;
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: #a78bfa;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 0.5rem;
-}
-
-.book-title {
-  font-size: 2.2rem;
-  font-weight: 800;
-  line-height: 1.2;
-  margin-bottom: 0.35rem;
-}
-
-.book-author {
-  font-size: 1.1rem;
-  color: var(--accent-primary);
-  font-weight: 600;
-  margin-bottom: 1.25rem;
-}
-
-.meta-row {
-  display: flex;
-  gap: 1.5rem;
-  font-size: 0.88rem;
-  color: var(--text-secondary);
-  margin-bottom: 1.25rem;
-  padding-bottom: 1.25rem;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.stock-banner {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.85rem 1.25rem;
-  background: var(--success-bg);
-  color: #6ee7b7;
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  border-radius: var(--radius-md);
-  font-weight: 600;
-  font-size: 0.9rem;
-  margin-bottom: 1.5rem;
-}
-
-.stock-banner.out-of-stock {
-  background: var(--danger-bg);
-  color: #fca5a5;
-  border-color: rgba(239, 68, 68, 0.3);
-}
-
-.desc-section {
-  margin-bottom: 2rem;
-}
-
-.desc-section h3 {
-  font-size: 1.1rem;
-  margin-bottom: 0.5rem;
-}
-
-.desc-section p {
-  color: var(--text-secondary);
-  line-height: 1.7;
-}
-
-.detail-actions {
-  display: flex;
-  gap: 1rem;
-}
-
-.loading-state {
-  text-align: center;
-  padding: 4rem 1rem;
-  color: var(--text-muted);
-}
-
-@media (max-width: 768px) {
-  .detail-grid {
-    grid-template-columns: 1fr;
-  }
-}
-</style>

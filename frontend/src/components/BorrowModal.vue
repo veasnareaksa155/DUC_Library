@@ -1,47 +1,47 @@
 <template>
   <div v-if="isOpen" class="modal-backdrop" @click.self="$emit('close')">
     <div class="modal-content glass-panel">
-      <header class="modal-header">
+      <header class="flex justify-between items-center mb-6">
         <h2>{{ localeStore.t('borrowTitle') }}</h2>
-        <button @click="$emit('close')" class="btn-close"><X :size="20" /></button>
+        <button @click="$emit('close')" class="bg-transparent border-none text-[var(--text-muted)] cursor-pointer hover:text-slate-200"><X :size="20" /></button>
       </header>
 
       <div class="modal-body">
-        <div class="book-summary">
-          <img :src="book?.cover_url || fallbackCover" :alt="book?.title" class="summary-cover" />
+        <div class="flex gap-4 p-4 bg-gray-500/5 rounded-[var(--radius-md)] border border-[var(--border-color)] mb-6">
+          <img :src="book?.cover_url || fallbackCover" :alt="book?.title" class="w-[60px] h-[85px] object-cover rounded-md" />
           <div class="summary-details">
-            <h3>{{ book?.title }}</h3>
-            <p class="author">By {{ book?.author }}</p>
-            <span class="stock-badge">{{ book?.copies_available }} {{ localeStore.t('available') }}</span>
+            <h3 class="text-base font-bold mb-1">{{ book?.title }}</h3>
+            <p class="text-[0.85rem] text-[var(--text-secondary)] mb-1.5">By {{ book?.author }}</p>
+            <span class="text-[0.75rem] text-[var(--success)] font-semibold">{{ book?.copies_available }} {{ localeStore.t('available') }}</span>
           </div>
         </div>
 
         <div class="duration-selector">
-          <label class="form-label">{{ localeStore.t('selectDuration') }}</label>
-          <div class="duration-options">
+          <label class="block text-[0.9rem] font-semibold mb-2 text-[var(--text-primary)]">{{ localeStore.t('selectDuration') }}</label>
+          <div class="grid grid-cols-4 gap-2 mb-6">
             <button 
               v-for="d in [7, 14, 21, 30]" 
               :key="d"
               @click="selectedDays = d"
-              class="duration-btn"
-              :class="{ active: selectedDays === d }"
+              class="p-2.5 border rounded-[var(--radius-md)] font-semibold text-[0.85rem] transition-all duration-200 cursor-pointer"
+              :class="selectedDays === d ? 'bg-[var(--accent-primary)] text-white border-[var(--accent-primary)] shadow-[0_0_10px_rgba(99,102,241,0.4)]' : 'bg-gray-500/10 border-[var(--border-color)] text-[var(--text-secondary)]'"
             >
               {{ d }} {{ localeStore.t('days') }}
             </button>
           </div>
         </div>
 
-        <div class="due-date-preview">
-          <Calendar :size="18" class="icon-calendar" />
+        <div class="flex items-center gap-2.5 p-3.5 bg-indigo-500/10 border border-dashed border-indigo-500/30 rounded-[var(--radius-md)] text-[0.9rem] text-[var(--text-primary)] mb-6">
+          <Calendar :size="18" class="text-[var(--accent-primary)]" />
           <span>{{ localeStore.t('expectedReturn') }} <strong>{{ calculatedDueDate }}</strong></span>
         </div>
 
-        <div v-if="error" class="error-msg">
+        <div v-if="error" class="p-3 bg-[var(--danger-bg)] text-red-500 rounded-[var(--radius-md)] text-[0.85rem] mb-4">
           {{ error }}
         </div>
       </div>
 
-      <footer class="modal-footer">
+      <footer class="flex justify-end gap-3">
         <button @click="$emit('close')" class="btn btn-secondary">{{ localeStore.t('cancel') }}</button>
         <button @click="handleConfirm" class="btn btn-primary" :disabled="loading">
           <BookmarkPlus :size="18" />
@@ -95,117 +95,3 @@ async function handleConfirm() {
 }
 </script>
 
-<style scoped>
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-}
-
-.btn-close {
-  background: transparent;
-  border: none;
-  color: var(--text-muted);
-}
-
-.book-summary {
-  display: flex;
-  gap: 1rem;
-  padding: 1rem;
-  background: rgba(125, 125, 125, 0.05);
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-color);
-  margin-bottom: 1.5rem;
-}
-
-.summary-cover {
-  width: 60px;
-  height: 85px;
-  object-fit: cover;
-  border-radius: 6px;
-}
-
-.summary-details h3 {
-  font-size: 1rem;
-  font-weight: 700;
-  margin-bottom: 0.2rem;
-}
-
-.summary-details .author {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  margin-bottom: 0.4rem;
-}
-
-.stock-badge {
-  font-size: 0.75rem;
-  color: var(--success);
-  font-weight: 600;
-}
-
-.form-label {
-  display: block;
-  font-size: 0.9rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  color: var(--text-primary);
-}
-
-.duration-options {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
-}
-
-.duration-btn {
-  padding: 0.6rem;
-  background: rgba(125, 125, 125, 0.08);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  color: var(--text-secondary);
-  font-weight: 600;
-  font-size: 0.85rem;
-  transition: all 0.2s ease;
-}
-
-.duration-btn.active {
-  background: var(--accent-primary);
-  color: white;
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 10px rgba(99, 102, 241, 0.4);
-}
-
-.due-date-preview {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.85rem;
-  background: rgba(99, 102, 241, 0.1);
-  border: 1px dashed rgba(99, 102, 241, 0.3);
-  border-radius: var(--radius-md);
-  font-size: 0.9rem;
-  color: var(--text-primary);
-  margin-bottom: 1.5rem;
-}
-
-.icon-calendar {
-  color: var(--accent-primary);
-}
-
-.error-msg {
-  padding: 0.75rem;
-  background: var(--danger-bg);
-  color: #ef4444;
-  border-radius: var(--radius-md);
-  font-size: 0.85rem;
-  margin-bottom: 1rem;
-}
-
-.modal-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
-}
-</style>

@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const { initDb } = require('./db');
+const ORM = require('./googleSheetsORM');
 
 const authRoutes = require('./routes/auth');
 const bookRoutes = require('./routes/books');
@@ -23,6 +23,10 @@ app.use((req, res, next) => {
   next();
 });
 
+app.get('/', (req, res) => {
+  res.send('Server is running...!');
+})
+
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/books', bookRoutes);
@@ -32,7 +36,7 @@ app.use('/api/admin', adminRoutes);
 
 // Health Check
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', service: 'DUC-Library API', timestamp: new Date() });
+  res.json({ status: 'ok', service: 'DUC-Library API (Google Sheets DB)', timestamp: new Date() });
 });
 
 // Global Error Handler
@@ -41,24 +45,35 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: err.message || 'Internal Server Error' });
 });
 
-// Start Server & Initialize DB
-initDb().then(() => {
-  const server = app.listen(PORT, () => {
-    console.log(`=======================================================`);
-    console.log(`🚀 DUC-Library Backend Server is running on port ${PORT}`);
-    console.log(`👉 API Base URL: http://localhost:${PORT}/api`);
-    console.log(`=======================================================`);
-  });
+// Initialize Google Sheets and start server
+async function startServer() {
+  try {
+    await ORM.initializeSheets();
+    console.log('[GoogleSheetsORM] Initialized successfully');
+    
+    // Start Server
+    const server = app.listen(PORT, () => {
+      console.log(`=======================================================`);
+      console.log(`🚀 DUC-Library Backend Server is running on port ${PORT}`);
+      console.log(`👉 API Base URL: http://localhost:${PORT}/api`);
+      console.log(`🔥 Database: Google Sheets`);
+      console.log(`=======================================================`);
+    });
 
-  server.on('error', (err) => {
-    if (err.code === 'EADDRINUSE') {
-      console.error(`\n⚠️  Port ${PORT} is already in use by an active backend process.`);
-      console.error(`👉 The backend is ALREADY running on http://localhost:${PORT}/api !`);
-      console.error(`   (You do not need to start it again, or close existing node window to restart)\n`);
-    } else {
-      console.error('Server error:', err);
-    }
-  });
-}).catch(err => {
-  console.error('Failed to initialize database:', err);
-});
+    server.on('error', (err) => {
+      if (err.code === 'EADDRINUSE') {
+        console.error(`\n⚠️  Port ${PORT} is already in use by an active backend process.`);
+        console.error(`👉 The backend is ALREADY running on http://localhost:${PORT}/api !`);
+        console.error(`   (You do not need to start it again, or close existing node window to restart)\n`);
+      } else {
+        console.error('Server error:', err);
+      }
+    });
+
+  } catch (err) {
+    console.error('[GoogleSheetsORM] Initialization error:', err.message);
+    process.exit(1);
+  }
+}
+
+startServer();

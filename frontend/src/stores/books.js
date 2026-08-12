@@ -21,8 +21,8 @@ export const useBooksStore = defineStore('books', () => {
     let result = masterBooks.value;
 
     if (selectedCategory.value && selectedCategory.value !== 'all' && selectedCategory.value !== 'wishlist') {
-      const catId = parseInt(selectedCategory.value);
-      result = result.filter(b => b.category_id === catId);
+      const catId = String(selectedCategory.value);
+      result = result.filter(b => String(b.category_id) === catId);
     }
 
     if (availableOnly.value) {
@@ -32,10 +32,10 @@ export const useBooksStore = defineStore('books', () => {
     if (searchQuery.value && searchQuery.value.trim()) {
       const q = searchQuery.value.toLowerCase().trim();
       result = result.filter(b => 
-        (b.title && b.title.toLowerCase().includes(q)) ||
-        (b.author && b.author.toLowerCase().includes(q)) ||
-        (b.isbn && b.isbn.toLowerCase().includes(q)) ||
-        (b.description && b.description.toLowerCase().includes(q))
+        (b.title && String(b.title).toLowerCase().includes(q)) ||
+        (b.author && String(b.author).toLowerCase().includes(q)) ||
+        (b.isbn && String(b.isbn).toLowerCase().includes(q)) ||
+        (b.description && String(b.description).toLowerCase().includes(q))
       );
     }
 
@@ -44,7 +44,7 @@ export const useBooksStore = defineStore('books', () => {
 
   async function fetchCategories() {
     try {
-      const res = await fetch('/api/categories');
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/categories`);
       const data = await res.json();
       if (res.ok) {
         categories.value = data;
@@ -60,7 +60,7 @@ export const useBooksStore = defineStore('books', () => {
     }
     error.value = '';
     try {
-      const res = await fetch('/api/books');
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/books`);
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || 'Failed to load books');
 
@@ -74,7 +74,7 @@ export const useBooksStore = defineStore('books', () => {
 
   async function fetchBookById(id) {
     try {
-      const res = await fetch(`/api/books/${id}`);
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/books/${id}`);
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || 'Book not found');
       currentBook.value = data;
@@ -86,7 +86,7 @@ export const useBooksStore = defineStore('books', () => {
   }
 
   async function addBook(bookData) {
-    const res = await fetch('/api/books', {
+    const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/books`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -101,7 +101,7 @@ export const useBooksStore = defineStore('books', () => {
   }
 
   async function updateBook(id, bookData) {
-    const res = await fetch(`/api/books/${id}`, {
+    const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/books/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -116,7 +116,7 @@ export const useBooksStore = defineStore('books', () => {
   }
 
   async function deleteBook(id) {
-    const res = await fetch(`/api/books/${id}`, {
+    const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/books/${id}`, {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${authStore.token}` }
     });

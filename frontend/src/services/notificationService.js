@@ -1,4 +1,5 @@
 import { useNotificationsStore } from '../stores/notifications';
+import { useAuthStore } from '../stores/auth';
 
 export async function requestPhoneNotificationPermission() {
   if (!('Notification' in window)) {
@@ -18,15 +19,37 @@ export async function requestPhoneNotificationPermission() {
   return false;
 }
 
-export async function sendPhoneAndDrawerNotification({ title, message, type = 'info', icon = '/duc-logo.png' }) {
+export async function sendPhoneAndDrawerNotification({ title, message, type = 'info', icon = '/duc-logo.png', target_user_id = null }) {
   // 1. Add to local notification drawer store
   try {
-    const notifStore = useNotificationsStore();
-    notifStore.addNotification({
-      title,
-      message,
-      type
-    });
+    const authStore = useAuthStore();
+    const currentUserId = authStore.user?.id;
+
+    if (target_user_id && String(target_user_id) !== String(currentUserId)) {
+      // Admin is sending notification to another user - save directly to their localStorage
+      const key = `duc_notifications_${target_user_id}`;
+      const existingStr = localStorage.getItem(key);
+      const existing = existingStr ? JSON.parse(existingStr) : [];
+      
+      existing.unshift({
+        id: Date.now(),
+        timestamp: Date.now(),
+        title,
+        message,
+        type,
+        read: false
+      });
+      
+      localStorage.setItem(key, JSON.stringify(existing));
+    } else {
+      // Add to current user's active store
+      const notifStore = useNotificationsStore();
+      notifStore.addNotification({
+        title,
+        message,
+        type
+      });
+    }
   } catch (e) {
     console.warn('Store add notification warning:', e);
   }

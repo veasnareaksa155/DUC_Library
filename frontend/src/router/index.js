@@ -9,11 +9,14 @@ import ReadBookView from '../views/ReadBookView.vue';
 import LoginView from '../views/LoginView.vue';
 import RegisterView from '../views/RegisterView.vue';
 import MyBorrowingsView from '../views/MyBorrowingsView.vue';
+import ProfileView from '../views/ProfileView.vue';
 
 import AdminDashboardView from '../views/admin/AdminDashboardView.vue';
 import AdminBooksView from '../views/admin/AdminBooksView.vue';
 import AdminBorrowingsView from '../views/admin/AdminBorrowingsView.vue';
 import AdminUsersView from '../views/admin/AdminUsersView.vue';
+import AdminProfileView from '../views/admin/AdminProfileView.vue';
+import AdminLoginView from '../views/admin/AdminLoginView.vue';
 
 const routes = [
   {
@@ -57,7 +60,18 @@ const routes = [
     component: MyBorrowingsView,
     meta: { requiresAuth: true }
   },
+  {
+    path: '/profile',
+    name: 'profile',
+    component: ProfileView,
+    meta: { requiresAuth: true }
+  },
   // Admin Routes
+  {
+    path: '/admin/login',
+    name: 'admin-login',
+    component: AdminLoginView
+  },
   {
     path: '/admin',
     name: 'admin-dashboard',
@@ -81,6 +95,12 @@ const routes = [
     name: 'admin-users',
     component: AdminUsersView,
     meta: { requiresAuth: true, requiresAdmin: true }
+  },
+  {
+    path: '/admin/profile',
+    name: 'admin-profile',
+    component: AdminProfileView,
+    meta: { requiresAuth: true, requiresAdmin: true }
   }
 ];
 
@@ -92,11 +112,23 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore();
   
-  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
+  // Set context based on route
+  const isTargetAdmin = to.path.startsWith('/admin');
+  authStore.setContext(isTargetAdmin ? 'admin' : 'user');
+
+  if (to.meta.requiresAuth && !authStore.isUserAuthenticated && !isTargetAdmin) {
     return next({ name: 'login', query: { redirect: to.fullPath } });
   }
 
-  if (to.meta.requiresAdmin && !authStore.isAdmin) {
+  if (to.meta.requiresAdmin && !authStore.isAdminAuthenticated) {
+    return next({ name: 'admin-login', query: { redirect: to.fullPath } });
+  }
+
+  // Prevent authenticated admins from going to user login, and users to admin login
+  if (to.name === 'admin-login' && authStore.isAdminAuthenticated) {
+    return next({ name: 'admin-dashboard' });
+  }
+  if (to.name === 'login' && authStore.isUserAuthenticated) {
     return next({ name: 'home' });
   }
 
