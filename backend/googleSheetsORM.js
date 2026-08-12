@@ -38,7 +38,8 @@ const SCHEMAS = {
   'Users': ['id', 'name', 'email', 'password', 'role', 'student_id', 'dorm_room', 'phone', 'gender', 'dob', 'pob', 'high_school', 'telegram', 'guardian_phone', 'major', 'degree_level', 'class_code', 'status', 'academic_year', 'generation', 'bac2_grade', 'profile_photo', 'created_at'],
   'Books': ['id', 'title', 'author', 'isbn', 'category_id', 'description', 'cover_url', 'pdf_url', 'digital_content', 'copies_total', 'copies_available', 'publisher', 'publish_year', 'is_featured', 'read_count', 'created_at'],
   'Categories': ['id', 'name', 'icon', 'created_at'],
-  'Borrowings': ['id', 'book_id', 'user_id', 'borrow_date', 'due_date', 'return_date', 'status', 'admin_notes']
+  'Borrowings': ['id', 'book_id', 'user_id', 'borrow_date', 'due_date', 'return_date', 'status', 'admin_notes'],
+  'Notifications': ['id', 'user_id', 'title', 'message', 'type', 'is_read', 'created_at']
 };
 
 /**

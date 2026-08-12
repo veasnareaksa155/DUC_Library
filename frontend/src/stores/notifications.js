@@ -8,56 +8,40 @@ export const useNotificationsStore = defineStore('notifications', () => {
   
   const authStore = useAuthStore();
 
-  function getStorageKey() {
-    const userId = authStore.user?.id || 'guest';
-    return `duc_notifications_${userId}`;
-  }
-
-  function loadNotifications() {
-    const stored = localStorage.getItem(getStorageKey());
-    if (stored) {
-      notifications.value = JSON.parse(stored);
-      // Migrate old ones without timestamp
-      notifications.value = notifications.value.map(n => {
-        if (!n.timestamp) n.timestamp = Date.now();
-        return n;
-      });
-    } else {
-      notifications.value = [
-        {
-          id: 1,
-          title: 'Welcome to DUC Library! 📚',
-          message: 'Explore hundreds of e-books, read online, and reserve physical copies with ease.',
-          timestamp: Date.now() - 60000,
-          read: false,
-          type: 'info'
-        },
-        {
-          id: 2,
-          title: 'New Featured Books Added ⭐',
-          message: 'Check out the popular shelf on the Home page for newly featured university books.',
-          timestamp: Date.now() - 7200000,
-          read: false,
-          type: 'featured'
-        },
-        {
-          id: 3,
-          title: 'Easy Book Borrowing System 🔖',
-          message: 'Submit a borrowing request anytime. Library staff will prepare your physical book for pickup.',
-          timestamp: Date.now() - 86400000,
-          read: false,
-          type: 'system'
+  async function loadNotifications() {
+    if (!authStore.token) {
+      notifications.value = [];
+      return;
+    }
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/notifications`, {
+        headers: {
+          'Authorization': `Bearer ${authStore.token}`
         }
-      ];
-      saveNotifications();
+      });
+      if (res.ok) {
+        const data = await res.json();
+        notifications.value = data.map(n => ({
+          id: n.id,
+          title: n.title,
+          message: n.message,
+          timestamp: new Date(n.created_at).getTime(),
+          read: n.is_read === 'true',
+          type: n.type
+        }));
+      }
+    } catch (err) {
+      console.error('Failed to load notifications:', err);
     }
   }
 
-  // Load immediately for current user
-  loadNotifications();
+  // Load immediately if user exists
+  if (authStore.token) {
+    loadNotifications();
+  }
 
   // Reload when the user changes (login/logout)
-  watch(() => authStore.user?.id, () => {
+  watch(() => authStore.token, () => {
     loadNotifications();
   });
 
@@ -75,27 +59,45 @@ export const useNotificationsStore = defineStore('notifications', () => {
     isDrawerOpen.value = false;
   }
 
-  function markAllAsRead() {
-    notifications.value.forEach(n => n.read = true);
-    saveNotifications();
+  async function markAllAsRead() {
+    if (!authStore.token) return;
+    try {
+      await fetch(`${import.meta.env.VITE_API_URL || ''}/api/notifications/read-all`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${authStore.token}`
+        }
+      });
+      notifications.value.forEach(n => n.read = true);
+    } catch (err) {
+      console.error(err);
+    }
   }
 
-  function markAsRead(id) {
-    const item = notifications.value.find(n => n.id === id);
-    if (item) {
-      item.read = true;
-      saveNotifications();
+  async function markAsRead(id) {
+    if (!authStore.token) return;
+    try {
+      await fetch(`${import.meta.env.VITE_API_URL || ''}/api/notifications/${id}/read`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${authStore.token}`
+        }
+      });
+      const item = notifications.value.find(n => n.id === id);
+      if (item) {
+        item.read = true;
+      }
+    } catch (err) {
+      console.error(err);
     }
   }
 
   function removeNotification(id) {
     notifications.value = notifications.value.filter(n => n.id !== id);
-    saveNotifications();
   }
 
   function clearAll() {
     notifications.value = [];
-    saveNotifications();
   }
 
   function addNotification(notif) {
@@ -106,11 +108,6 @@ export const useNotificationsStore = defineStore('notifications', () => {
       type: 'info',
       ...notif
     });
-    saveNotifications();
-  }
-
-  function saveNotifications() {
-    localStorage.setItem(getStorageKey(), JSON.stringify(notifications.value));
   }
 
   return {
@@ -124,6 +121,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
     markAsRead,
     removeNotification,
     clearAll,
-    addNotification
+    addNotification,
+    loadNotifications
   };
 });

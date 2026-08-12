@@ -26,21 +26,23 @@ export async function sendPhoneAndDrawerNotification({ title, message, type = 'i
     const currentUserId = authStore.user?.id;
 
     if (target_user_id && String(target_user_id) !== String(currentUserId)) {
-      // Admin is sending notification to another user - save directly to their localStorage
-      const key = `duc_notifications_${target_user_id}`;
-      const existingStr = localStorage.getItem(key);
-      const existing = existingStr ? JSON.parse(existingStr) : [];
-      
-      existing.unshift({
-        id: Date.now(),
-        timestamp: Date.now(),
-        title,
-        message,
-        type,
-        read: false
-      });
-      
-      localStorage.setItem(key, JSON.stringify(existing));
+      // Admin is sending notification to another user - POST to backend
+      const token = authStore.token;
+      if (token) {
+        await fetch(`${import.meta.env.VITE_API_URL || ''}/api/notifications`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            target_user_id,
+            title,
+            message,
+            type
+          })
+        });
+      }
     } else {
       // Add to current user's active store
       const notifStore = useNotificationsStore();
