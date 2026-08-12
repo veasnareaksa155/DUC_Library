@@ -32,11 +32,25 @@
   
             <!-- Drawer Actions Sub-bar -->
             <div v-if="notifStore.notifications.length > 0" class="flex items-center justify-between px-6 py-2.5 bg-[var(--bg-primary)] border-b border-[var(--border-color)]">
-              <button @click="notifStore.markAllAsRead" class="bg-transparent border-none inline-flex items-center gap-1.5 text-[0.78rem] font-semibold cursor-pointer px-1.5 py-1 rounded transition-opacity duration-200 hover:opacity-80 text-[var(--accent-primary)]">
-                <CheckCheck :size="15" /> Mark all read
+              <button 
+                @click="handleMarkAllRead" 
+                class="bg-transparent border-none inline-flex items-center gap-1.5 text-[0.78rem] font-semibold cursor-pointer px-1.5 py-1 rounded transition-opacity duration-200 hover:opacity-80 text-[var(--accent-primary)] disabled:opacity-50 disabled:cursor-not-allowed"
+                :disabled="isMarkingAllRead"
+              >
+                <Loader2 v-if="isMarkingAllRead" :size="15" class="animate-spin text-[var(--accent-primary)]" />
+                <CheckCheck v-else :size="15" /> 
+                <span v-if="isMarkingAllRead">Marking...</span>
+                <span v-else>Mark all read</span>
               </button>
-              <button @click="notifStore.clearAll" class="bg-transparent border-none inline-flex items-center gap-1.5 text-[0.78rem] font-semibold cursor-pointer px-1.5 py-1 rounded transition-opacity duration-200 hover:opacity-80 text-[var(--text-muted)]">
-                <Trash2 :size="15" /> Clear all
+              <button 
+                @click="handleClearAll" 
+                class="bg-transparent border-none inline-flex items-center gap-1.5 text-[0.78rem] font-semibold cursor-pointer px-1.5 py-1 rounded transition-opacity duration-200 hover:opacity-80 text-[var(--text-muted)] disabled:opacity-50 disabled:cursor-not-allowed"
+                :disabled="isClearingAll"
+              >
+                <Loader2 v-if="isClearingAll" :size="15" class="animate-spin text-[var(--text-muted)]" />
+                <Trash2 v-else :size="15" /> 
+                <span v-if="isClearingAll">Clearing...</span>
+                <span v-else>Clear all</span>
               </button>
             </div>
   
@@ -79,11 +93,13 @@
                   <div class="flex items-center justify-between">
                     <span v-if="!item.read" class="text-[0.68rem] font-bold text-indigo-400">● New</span>
                     <button 
-                      @click.stop="notifStore.removeNotification(item.id)" 
-                      class="bg-transparent border-none text-[var(--text-muted)] cursor-pointer p-1 rounded ml-auto transition-colors duration-200 hover:text-red-400"
+                      @click.stop="handleRemove(item.id)" 
+                      class="bg-transparent border-none text-[var(--text-muted)] cursor-pointer p-1 rounded ml-auto transition-colors duration-200 hover:text-red-400 disabled:opacity-50 disabled:cursor-not-allowed"
                       title="Remove"
+                      :disabled="deletingId === item.id"
                     >
-                      <Trash2 :size="14" />
+                      <Loader2 v-if="deletingId === item.id" :size="14" class="animate-spin text-red-400" />
+                      <Trash2 v-else :size="14" />
                     </button>
                   </div>
                 </div>
@@ -98,9 +114,34 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useNotificationsStore } from '../stores/notifications';
-import { Bell, BellOff, X, CheckCheck, Trash2 } from 'lucide-vue-next';
+import { Bell, BellOff, X, CheckCheck, Trash2, Loader2 } from 'lucide-vue-next';
 
 const notifStore = useNotificationsStore();
+
+const deletingId = ref(null);
+const isClearingAll = ref(false);
+const isMarkingAllRead = ref(false);
+
+async function handleRemove(id) {
+  if (deletingId.value) return;
+  deletingId.value = id;
+  await notifStore.removeNotification(id);
+  deletingId.value = null;
+}
+
+async function handleClearAll() {
+  if (isClearingAll.value) return;
+  isClearingAll.value = true;
+  await notifStore.clearAll();
+  isClearingAll.value = false;
+}
+
+async function handleMarkAllRead() {
+  if (isMarkingAllRead.value) return;
+  isMarkingAllRead.value = true;
+  await notifStore.markAllAsRead();
+  isMarkingAllRead.value = false;
+}
 
 const now = ref(Date.now());
 let timer = null;

@@ -61,6 +61,8 @@ export const useNotificationsStore = defineStore('notifications', () => {
 
   async function markAllAsRead() {
     if (!authStore.token) return;
+    // Optimistic UI update
+    notifications.value.forEach(n => n.read = true);
     try {
       await fetch(`${import.meta.env.VITE_API_URL || ''}/api/notifications/read-all`, {
         method: 'PUT',
@@ -68,7 +70,6 @@ export const useNotificationsStore = defineStore('notifications', () => {
           'Authorization': `Bearer ${authStore.token}`
         }
       });
-      notifications.value.forEach(n => n.read = true);
     } catch (err) {
       console.error(err);
     }
@@ -76,17 +77,20 @@ export const useNotificationsStore = defineStore('notifications', () => {
 
   async function markAsRead(id) {
     if (!authStore.token) return;
+    
+    // Optimistic UI update
+    const item = notifications.value.find(n => n.id === id);
+    if (item) {
+      item.read = true;
+    }
+
     try {
-      await fetch(`${import.meta.env.VITE_API_URL || ''}/api/notifications/${id}/read`, {
+      fetch(`${import.meta.env.VITE_API_URL || ''}/api/notifications/${id}/read`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${authStore.token}`
         }
       });
-      const item = notifications.value.find(n => n.id === id);
-      if (item) {
-        item.read = true;
-      }
     } catch (err) {
       console.error(err);
     }
@@ -94,6 +98,11 @@ export const useNotificationsStore = defineStore('notifications', () => {
 
   async function removeNotification(id) {
     if (!authStore.token) return;
+    
+    // Optimistic UI update
+    const previousState = [...notifications.value];
+    notifications.value = notifications.value.filter(n => n.id !== id);
+    
     try {
       await fetch(`${import.meta.env.VITE_API_URL || ''}/api/notifications/${id}`, {
         method: 'DELETE',
@@ -101,14 +110,20 @@ export const useNotificationsStore = defineStore('notifications', () => {
           'Authorization': `Bearer ${authStore.token}`
         }
       });
-      notifications.value = notifications.value.filter(n => n.id !== id);
     } catch (err) {
       console.error(err);
+      // Revert on failure
+      notifications.value = previousState;
     }
   }
 
   async function clearAll() {
     if (!authStore.token) return;
+    
+    // Optimistic UI update
+    const previousState = [...notifications.value];
+    notifications.value = [];
+    
     try {
       await fetch(`${import.meta.env.VITE_API_URL || ''}/api/notifications`, {
         method: 'DELETE',
@@ -116,9 +131,10 @@ export const useNotificationsStore = defineStore('notifications', () => {
           'Authorization': `Bearer ${authStore.token}`
         }
       });
-      notifications.value = [];
     } catch (err) {
       console.error(err);
+      // Revert on failure
+      notifications.value = previousState;
     }
   }
 
