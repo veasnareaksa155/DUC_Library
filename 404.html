@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236366f1' stroke-width='2'><path d='M4 19.5A2.5 2.5 0 0 1 6.5 17H20'/><path d='M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z'/></svg>" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <title>DUC-Library | Digital Book & Borrowing Management</title>
+    
+    <!-- PWA Meta Tags for Mobile Mini App -->
+    <link rel="manifest" href="/DUC_Libray/manifest.json" />
+    <meta name="theme-color" content="#0f172a" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="DUC Library" />
+
+    <!-- Google Fonts: Siemreap, Inter, Outfit, and Kantumruy Pro (Khmer) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Siemreap&family=Inter:wght@300;400;500;600;700;800&family=Kantumruy+Pro:ital,wght@0,300..700;1,300..700&family=Moul&family=Moulpali&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <script type="module" crossorigin src="/DUC_Libray/assets/index-G6ekj0Nv.js"></script>
+    <link rel="stylesheet" crossorigin href="/DUC_Libray/assets/index-5sB9OCRu.css">
+  </head>
+  <body>
+    <div id="app"></div>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch((err) => {
+            console.log('SW registration failed:', err);
+          });
+        });
+      }
+    </script>
+  </body>
+</html>
