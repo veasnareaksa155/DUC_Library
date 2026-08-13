@@ -27,7 +27,7 @@
       </button>
 
       <!-- Notification Badge Button -->
-      <button @click="notifStore.toggleDrawer()" class="relative inline-flex items-center justify-center w-[32px] h-[32px] rounded-full bg-[rgba(125,125,125,0.12)] border border-[var(--border-color)] text-[var(--text-primary)] cursor-pointer" title="Notifications">
+      <button v-if="authStore.isAuthenticated" @click="notifStore.toggleDrawer()" class="relative inline-flex items-center justify-center w-[32px] h-[32px] rounded-full bg-[rgba(125,125,125,0.12)] border border-[var(--border-color)] text-[var(--text-primary)] cursor-pointer" title="Notifications">
         <Bell :size="17" />
         <span v-if="notifStore.unreadCount > 0" class="absolute -top-[2px] -right-[2px] min-w-[16px] h-[16px] px-1 rounded-full bg-red-500 text-white text-[0.58rem] font-extrabold flex items-center justify-center shadow-[0_0_8px_rgba(239,68,68,0.6)]">
           {{ notifStore.unreadCount }}
