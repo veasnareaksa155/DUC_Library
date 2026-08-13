@@ -5,7 +5,7 @@
     <div class="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-pink-500/15 blur-[120px] pointer-events-none"></div>
 
     <div class="w-full max-w-[460px] relative z-10 animate-[fadeInUp_0.5s_cubic-bezier(0.16,1,0.3,1)_both]">
-      <div class="px-10 py-12 max-sm:px-6 max-sm:py-10 rounded-[2rem] bg-white/70 dark:bg-slate-900/60 backdrop-blur-2xl border border-white/50 dark:border-slate-700/50 shadow-[0_8px_40px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_40px_rgba(0,0,0,0.4)] transition-all duration-300">
+      <div class="px-10 py-12 max-sm:px-6 max-sm:py-10 rounded-[2rem] bg-[var(--bg-card)] backdrop-blur-2xl border border-[var(--border-color)] shadow-[var(--shadow-panel)] transition-all duration-300">
         <header class="text-center mb-8">
           <div class="w-16 h-16 rounded-[1.25rem] bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 text-white flex items-center justify-center mx-auto mb-5 shadow-[0_8px_20px_rgba(99,102,241,0.4)] transform hover:scale-105 transition-transform duration-300">
             <UserPlus :size="32" stroke-width="2.5" />
@@ -21,7 +21,7 @@
               <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[var(--text-muted)] group-focus-within:text-indigo-500 transition-colors duration-300">
                 <User :size="18" stroke-width="2.5" />
               </div>
-              <input v-model="name" type="text" placeholder="John Doe" required class="w-full bg-slate-50/50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 text-[var(--text-primary)] text-[0.95rem] rounded-xl pl-11 pr-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition-all shadow-sm placeholder:text-[var(--text-muted)]/70 font-medium" />
+              <input v-model="name" type="text" placeholder="John Doe" required class="w-full bg-[var(--bg-input)] border border-[var(--border-color)] text-[var(--text-primary)] text-[0.95rem] rounded-xl pl-11 pr-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition-all shadow-sm placeholder:text-[var(--text-muted)]/70 font-medium" />
             </div>
           </div>
 
@@ -31,7 +31,7 @@
               <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[var(--text-muted)] group-focus-within:text-indigo-500 transition-colors duration-300">
                 <Mail :size="18" stroke-width="2.5" />
               </div>
-              <input v-model="email" type="email" placeholder="john@example.com" required class="w-full bg-slate-50/50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 text-[var(--text-primary)] text-[0.95rem] rounded-xl pl-11 pr-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition-all shadow-sm placeholder:text-[var(--text-muted)]/70 font-medium" />
+              <input v-model="email" type="email" placeholder="john@example.com" required class="w-full bg-[var(--bg-input)] border border-[var(--border-color)] text-[var(--text-primary)] text-[0.95rem] rounded-xl pl-11 pr-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition-all shadow-sm placeholder:text-[var(--text-muted)]/70 font-medium" />
             </div>
           </div>
 
@@ -41,7 +41,7 @@
               <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[var(--text-muted)] group-focus-within:text-indigo-500 transition-colors duration-300">
                 <Lock :size="18" stroke-width="2.5" />
               </div>
-              <input v-model="password" type="password" placeholder="••••••••" required minlength="6" class="w-full bg-slate-50/50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 text-[var(--text-primary)] text-[0.95rem] rounded-xl pl-11 pr-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition-all shadow-sm placeholder:text-[var(--text-muted)]/70 font-medium" />
+              <input v-model="password" type="password" placeholder="••••••••" required minlength="6" class="w-full bg-[var(--bg-input)] border border-[var(--border-color)] text-[var(--text-primary)] text-[0.95rem] rounded-xl pl-11 pr-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition-all shadow-sm placeholder:text-[var(--text-muted)]/70 font-medium" />
             </div>
           </div>
 
@@ -55,7 +55,7 @@
           </button>
         </form>
 
-        <footer class="text-center mt-8 text-[0.92rem] font-medium text-[var(--text-secondary)] pt-6 border-t border-slate-200 dark:border-slate-700/50">
+        <footer class="text-center mt-8 text-[0.92rem] font-medium text-[var(--text-secondary)] pt-6 border-t border-[var(--border-color)]">
           <p class="m-0">Already have an account? <router-link to="/login" class="text-indigo-500 dark:text-indigo-400 font-extrabold hover:text-indigo-600 dark:hover:text-indigo-300 hover:underline transition-colors">Sign in</router-link></p>
         </footer>
       </div>

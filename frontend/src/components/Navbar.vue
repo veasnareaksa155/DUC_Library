@@ -53,7 +53,7 @@
         <!-- Language Switcher Dropdown / Toggle -->
         <button 
           @click="localeStore.toggleLanguage()" 
-          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-500/10 border border-[var(--border-color)] text-[var(--text-primary)] text-[0.82rem] font-bold transition-all duration-200 hover:bg-indigo-500/15 hover:border-[var(--border-highlight)] cursor-pointer"
+          class="inline-flex items-center justify-center gap-1.5 px-3 h-9 rounded-full bg-slate-500/10 border border-[var(--border-color)] text-[var(--text-primary)] text-[0.82rem] font-bold transition-all duration-200 hover:bg-indigo-500/15 hover:border-[var(--border-highlight)] cursor-pointer"
           :title="localeStore.currentLang === 'en' ? 'Switch to Khmer (ភាសាខ្មែរ)' : 'Switch to English'"
         >
           <Globe :size="16" />
