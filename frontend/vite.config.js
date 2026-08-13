@@ -26,7 +26,7 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src')
     }
   },
-  base: process.env.NODE_ENV === 'production' ? '/DUC_Libray/' : '/',
+  base: process.env.NODE_ENV === 'production' ? '/DUC_Library/' : '/',
   server: {
     port: 3000,
     proxy: {
