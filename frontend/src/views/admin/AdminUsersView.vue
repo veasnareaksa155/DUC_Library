@@ -383,15 +383,12 @@ async function openProfileModal(student) {
 const filteredUsers = computed(() => {
   if (!searchQuery.value.trim()) return users.value;
   const q = searchQuery.value.toLowerCase().trim();
-  return users.value.filter(u => 
-    (u.name && u.name.toLowerCase().includes(q)) ||
-    (u.name_khmer && u.name_khmer.toLowerCase().includes(q)) ||
-    (u.name_latin && u.name_latin.toLowerCase().includes(q)) ||
-    (u.student_id && u.student_id.toLowerCase().includes(q)) ||
-    (u.dorm_room && u.dorm_room.toLowerCase().includes(q)) ||
-    (u.major && u.major.toLowerCase().includes(q)) ||
-    (u.phone && u.phone.includes(q))
-  );
+  return users.value.filter(u => {
+    const searchable = [
+      u.name, u.name_khmer, u.name_latin, u.student_id, u.dorm_room, u.major, u.phone
+    ].filter(Boolean).map(s => String(s).toLowerCase());
+    return searchable.some(s => s.includes(q));
+  });
 });
 
 const totalPages = computed(() => Math.ceil(filteredUsers.value.length / itemsPerPage.value) || 1);
