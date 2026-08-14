@@ -92,6 +92,14 @@
               </tr>
             </thead>
             <tbody>
+              <tr v-if="filteredUsers.length === 0" class="w-full">
+                <td colspan="6" class="p-8 text-center text-[var(--text-muted)] text-[0.95rem]">
+                  <div class="flex flex-col items-center justify-center gap-2">
+                    <Search :size="32" class="opacity-20 mb-2 mx-auto" />
+                    <span>No students found matching your search.</span>
+                  </div>
+                </td>
+              </tr>
               <tr v-for="u in paginatedUsers" :key="u.id">
                 <td class="p-4 border-b border-[var(--border-color)] text-[0.9rem]">
                   <div class="flex flex-col gap-1">
