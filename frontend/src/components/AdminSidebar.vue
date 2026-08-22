@@ -34,6 +34,13 @@
         <span class="tracking-wide">{{ localeStore.t('books') }}</span>
       </router-link>
 
+      <router-link to="/admin/categories" class="group flex items-center gap-3.5 px-3.5 py-3 rounded-2xl text-[var(--text-secondary)] text-[0.92rem] font-semibold transition-all duration-300 hover:text-[var(--text-primary)] hover:bg-indigo-500/10 [&.active]:text-white [&.active]:[background:var(--accent-gradient)] [&.active]:shadow-[0_8px_20px_rgba(99,102,241,0.35)]" active-class="active">
+        <div class="flex items-center justify-center w-8 h-8 rounded-[10px] transition-all duration-300 [&.active]:bg-white/20 group-[.active]:bg-white/20 group-hover:not(.active):text-indigo-500 group-hover:not(.active):bg-indigo-500/10">
+          <Tags :size="18" class="transition-transform duration-300 group-hover:scale-110" />
+        </div>
+        <span class="tracking-wide">{{ localeStore.t('categories', 'Categories') }}</span>
+      </router-link>
+
       <router-link to="/admin/borrowings" class="group flex items-center gap-3.5 px-3.5 py-3 rounded-2xl text-[var(--text-secondary)] text-[0.92rem] font-semibold transition-all duration-300 hover:text-[var(--text-primary)] hover:bg-indigo-500/10 [&.active]:text-white [&.active]:[background:var(--accent-gradient)] [&.active]:shadow-[0_8px_20px_rgba(99,102,241,0.35)]" active-class="active">
         <div class="flex items-center justify-center w-8 h-8 rounded-[10px] transition-all duration-300 [&.active]:bg-white/20 group-[.active]:bg-white/20 group-hover:not(.active):text-indigo-500 group-hover:not(.active):bg-indigo-500/10 relative">
           <ClipboardList :size="18" class="transition-transform duration-300 group-hover:scale-110" />
@@ -70,8 +77,9 @@
 
       <!-- Admin User Pill -->
       <div class="flex items-center gap-3 p-3 bg-gray-500/5 hover:bg-gray-500/10 border border-[var(--border-color)] rounded-2xl cursor-pointer transition-all duration-300 group" @click="router.push('/admin/profile')" title="Click to view My Full Profile">
-        <div class="w-10 h-10 rounded-xl [background:var(--accent-gradient)] text-white flex items-center justify-center font-extrabold text-[1rem] shadow-[0_4px_12px_rgba(99,102,241,0.3)] group-hover:scale-105 transition-transform duration-300">
-          {{ authStore.user?.name?.charAt(0).toUpperCase() }}
+        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 text-white flex items-center justify-center font-extrabold text-[1.1rem] shadow-[0_4px_12px_rgba(99,102,241,0.3)] group-hover:scale-105 transition-transform duration-300 overflow-hidden">
+          <img v-if="authStore.user?.profile_photo" :src="authStore.user.profile_photo" class="w-full h-full object-cover" alt="Admin Photo" />
+          <span v-else>{{ (authStore.user?.name_latin || authStore.user?.name || 'A').charAt(0).toUpperCase() }}</span>
         </div>
         <div class="flex flex-col leading-tight flex-1 overflow-hidden">
           <span class="text-[0.85rem] font-bold text-[var(--text-primary)] whitespace-nowrap overflow-hidden text-ellipsis">{{ authStore.user?.name }}</span>
@@ -94,7 +102,7 @@ import { useConfirmStore } from '../stores/confirm';
 import { useRouter } from 'vue-router';
 import { 
   ShieldCheck, LayoutDashboard, BookPlus, ClipboardList, 
-  Users, Globe, Sun, Moon, LogOut 
+  Users, Globe, Sun, Moon, LogOut, Tags 
 } from 'lucide-vue-next';
 
 const authStore = useAuthStore();

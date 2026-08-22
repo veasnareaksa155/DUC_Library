@@ -178,12 +178,21 @@
                       <span class="max-xl:hidden">{{ loadingActionId === item.id && loadingActionType === 'reminder' ? 'Sending...' : 'Reminder' }}</span>
                     </button>
 
-                    <span 
-                      v-if="item.status === 'returned' || item.status === 'rejected'" 
-                      class="text-[0.75rem] font-bold text-[var(--text-muted)] uppercase tracking-wider px-3 py-1.5 bg-gray-500/5 rounded-md border border-[var(--border-color)] flex items-center gap-1.5"
-                    >
-                      <Check :size="14" /> Closed
-                    </span>
+                    <div v-if="item.status === 'returned' || item.status === 'rejected'" class="flex items-center justify-end gap-2">
+                      <span class="text-[0.75rem] font-bold text-[var(--text-muted)] uppercase tracking-wider px-3 py-1.5 bg-gray-500/5 rounded-md border border-[var(--border-color)] flex items-center gap-1.5">
+                        <Check :size="14" /> Closed
+                      </span>
+                      <button 
+                        @click="deleteRequest(item)" 
+                        class="btn btn-sm btn-danger !px-2.5 shadow-sm hover:shadow-md hover:scale-105 opacity-60 hover:opacity-100"
+                        :class="loadingActionId === item.id && loadingActionType === 'delete' ? 'cursor-not-allowed' : ''"
+                        :disabled="loadingActionId === item.id"
+                        title="Delete Request Record"
+                      >
+                        <Loader2 v-if="loadingActionId === item.id && loadingActionType === 'delete'" :size="16" class="animate-spin" />
+                        <Trash2 v-else :size="16" />
+                      </button>
+                    </div>
                   </div>
                 </td>
               </tr>
@@ -243,13 +252,15 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { useBorrowingsStore } from '../../stores/borrowings';
 import { useLocaleStore } from '../../stores/locale';
 import { useToastStore } from '../../stores/toast';
+import { useConfirmStore } from '../../stores/confirm';
 import { sendPhoneAndDrawerNotification } from '../../services/notificationService';
 import AdminSidebar from '../../components/AdminSidebar.vue';
-import { Check, X, RotateCcw, BellRing, ClipboardList, Loader2, ChevronLeft, ChevronRight } from 'lucide-vue-next';
+import { Check, X, RotateCcw, BellRing, ClipboardList, Loader2, ChevronLeft, ChevronRight, Trash2 } from 'lucide-vue-next';
 
 const borrowingsStore = useBorrowingsStore();
 const localeStore = useLocaleStore();
 const toastStore = useToastStore();
+const confirmStore = useConfirmStore();
 const activeFilter = ref('all');
 
 onMounted(() => {
@@ -333,6 +344,35 @@ async function sendDueReminder(item) {
     toastStore.showSuccess(`Sent due date reminder notification to ${item.user_name}! 📱`, `Reminder Sent`);
   } catch (err) {
     toastStore.show('Failed to send reminder notification.', { type: 'error', title: 'Error' });
+  } finally {
+    loadingActionId.value = null;
+    loadingActionType.value = null;
+  }
+}
+
+async function deleteRequest(item) {
+  if (loadingActionId.value) return;
+  
+  const bookTitle = item.book_title;
+  const userName = item.user_name;
+
+  const confirmed = await confirmStore.showConfirm({
+    title: 'Delete Record',
+    message: `Are you sure you want to delete the record for "${bookTitle}" requested by ${userName}? This action cannot be undone.`,
+    confirmText: 'Delete',
+    type: 'danger'
+  });
+
+  if (!confirmed) return;
+  
+  loadingActionId.value = item.id;
+  loadingActionType.value = 'delete';
+
+  try {
+    await borrowingsStore.deleteBorrowing(item.id);
+    toastStore.showSuccess(`Deleted record for "${bookTitle}"`, `Record Deleted`);
+  } catch (err) {
+    toastStore.show(err.message || 'Failed to delete request.', { type: 'error', title: 'Error' });
   } finally {
     loadingActionId.value = null;
     loadingActionType.value = null;

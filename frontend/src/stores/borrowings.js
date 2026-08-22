@@ -127,6 +127,26 @@ export const useBorrowingsStore = defineStore('borrowings', () => {
     }
   }
 
+  async function deleteBorrowing(id) {
+    loading.value = true;
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/admin/borrowings/${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${authStore.token}` }
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Failed to delete borrowing request');
+      await fetchAdminBorrowings();
+      await fetchAdminDashboardStats();
+      return data;
+    } catch (err) {
+      error.value = err.message;
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  }
+
   return {
     myBorrowings,
     adminBorrowings,
@@ -139,6 +159,7 @@ export const useBorrowingsStore = defineStore('borrowings', () => {
     fetchAdminDashboardStats,
     fetchAdminBorrowings,
     updateBorrowStatus,
-    updateBorrowingStatus: updateBorrowStatus
+    updateBorrowingStatus: updateBorrowStatus,
+    deleteBorrowing
   };
 });

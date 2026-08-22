@@ -199,152 +199,193 @@
       </div>
 
       <!-- Add / Edit Book Modal -->
-      <div v-if="isModalOpen" class="modal-backdrop z-[99999] backdrop-blur-[10px]" @click.self="isModalOpen = false">
-        <div class="modal-content glass-panel max-w-[850px] p-0 overflow-hidden flex flex-col max-h-[90vh] shadow-[0_20px_60px_rgba(0,0,0,0.4)] border border-[var(--border-color)]/60">
-          <header class="flex justify-between items-center px-8 py-5 border-b border-[var(--border-color)] bg-white/5 backdrop-blur-md shrink-0 relative">
-            <div class="absolute inset-0 bg-gradient-to-r from-indigo-500/5 to-transparent pointer-events-none"></div>
-            <h2 class="text-[1.35rem] font-extrabold relative z-10 text-[var(--text-primary)]">{{ isEditing ? 'Edit Book Inventory' : 'Add New Book to Library' }}</h2>
-            <button @click="isModalOpen = false" class="relative z-10 w-9 h-9 rounded-full bg-gray-500/10 flex items-center justify-center text-[var(--text-muted)] border border-[var(--border-color)]/50 hover:bg-gray-500/20 hover:text-[var(--text-primary)] transition-all duration-300"><X :size="18" stroke-width="2.5" /></button>
+      <!-- Add / Edit Book Modal -->
+      <div v-if="isModalOpen" class="fixed inset-0 z-[99999] flex items-center justify-center p-4 sm:p-6" @click.self="isModalOpen = false">
+        <!-- Adaptable Backdrop -->
+        <div class="absolute inset-0 bg-slate-900/30 dark:bg-slate-950/60 backdrop-blur-md transition-all duration-300"></div>
+        
+        <!-- Modal Content -->
+        <div class="relative w-full max-w-[850px] bg-[var(--bg-card)] rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.15)] dark:shadow-[0_20px_60px_rgba(0,0,0,0.4)] border border-[var(--border-color)] flex flex-col max-h-[90vh] overflow-hidden transform transition-all duration-300 scale-100 opacity-100">
+          
+          <!-- Header -->
+          <header class="flex justify-between items-center px-8 py-6 border-b border-[var(--border-color)] bg-[var(--bg-primary)] shrink-0">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-500">
+                <BookOpen :size="20" stroke-width="2.5" />
+              </div>
+              <h2 class="text-[1.3rem] font-bold text-[var(--text-primary)] tracking-tight">{{ isEditing ? 'Edit Book Inventory' : 'Add New Book' }}</h2>
+            </div>
+            <button @click="isModalOpen = false" class="w-10 h-10 rounded-full bg-gray-500/5 flex items-center justify-center text-[var(--text-muted)] border border-transparent hover:bg-gray-500/10 hover:text-[var(--text-primary)] transition-all duration-200"><X :size="20" stroke-width="2" /></button>
           </header>
 
           <form @submit.prevent="saveBook" class="flex flex-col flex-1 overflow-hidden">
-            <div class="p-8 overflow-y-auto flex-1 custom-scrollbar space-y-8 bg-[var(--bg-card)]/40 relative">
+            <div class="p-8 overflow-y-auto flex-1 custom-scrollbar space-y-10">
               
               <!-- Core Information -->
-              <div class="space-y-4">
-                <h3 class="text-[0.85rem] font-extrabold text-indigo-400 uppercase tracking-widest border-b border-indigo-500/10 pb-2.5 flex items-center gap-2">
+              <div class="space-y-5">
+                <h3 class="text-[0.75rem] font-bold text-indigo-500 uppercase tracking-widest flex items-center gap-2">
                   <Star :size="15" stroke-width="2.5" /> Core Information
                 </h3>
                 
-                <div class="grid grid-cols-2 gap-6">
-                  <div class="col-span-2">
-                    <label class="block text-[0.82rem] font-bold text-[var(--text-secondary)] mb-2 uppercase tracking-wide">Book Title *</label>
-                    <input v-model="form.title" type="text" class="w-full bg-gray-500/5 border border-[var(--border-color)] text-[var(--text-primary)] rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/50 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-medium" required placeholder="e.g. Clean Code" />
+                <div class="grid grid-cols-2 gap-x-6 gap-y-5">
+                  <div class="col-span-2 group">
+                    <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-2 uppercase tracking-wide group-focus-within:text-indigo-500 transition-colors">Book Title *</label>
+                    <input v-model="form.title" type="text" class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-xl px-4 py-3.5 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-medium" required placeholder="e.g. Clean Code" />
                   </div>
 
-                  <div>
-                    <label class="block text-[0.82rem] font-bold text-[var(--text-secondary)] mb-2 uppercase tracking-wide">Author *</label>
-                    <input v-model="form.author" type="text" class="w-full bg-gray-500/5 border border-[var(--border-color)] text-[var(--text-primary)] rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/50 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-medium" required placeholder="e.g. Robert C. Martin" />
+                  <div class="group">
+                    <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-2 uppercase tracking-wide group-focus-within:text-indigo-500 transition-colors">Author *</label>
+                    <input v-model="form.author" type="text" class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-xl px-4 py-3.5 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-medium" required placeholder="e.g. Robert C. Martin" />
                   </div>
 
-                  <div>
-                    <label class="block text-[0.82rem] font-bold text-[var(--text-secondary)] mb-2 uppercase tracking-wide">Category *</label>
-                    <select v-model="form.category_id" class="w-full bg-gray-500/5 border border-[var(--border-color)] text-[var(--text-primary)] rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/50 transition-all shadow-sm font-medium" required>
-                      <option v-for="cat in booksStore.categories" :key="cat.id" :value="cat.id" class="bg-[var(--bg-primary)]">
-                        {{ cat.name }}
-                      </option>
-                    </select>
+                  <div class="group">
+                    <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-2 uppercase tracking-wide group-focus-within:text-indigo-500 transition-colors">Category *</label>
+                    <div class="relative">
+                      <select v-model="form.category_id" class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-xl px-4 py-3.5 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-sm appearance-none font-medium" required>
+                        <option v-for="cat in booksStore.categories" :key="cat.id" :value="cat.id" class="bg-[var(--bg-primary)]">
+                          {{ cat.name }}
+                        </option>
+                      </select>
+                      <div class="absolute inset-y-0 right-4 flex items-center pointer-events-none text-[var(--text-muted)]">
+                        <ChevronRight :size="16" class="rotate-90" />
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
 
               <!-- Physical Details -->
-              <div class="space-y-4">
-                <h3 class="text-[0.85rem] font-extrabold text-emerald-400 uppercase tracking-widest border-b border-emerald-500/10 pb-2.5 flex items-center gap-2">
+              <div class="space-y-5">
+                <h3 class="text-[0.75rem] font-bold text-emerald-500 uppercase tracking-widest flex items-center gap-2">
                   <Bookmark :size="15" stroke-width="2.5" /> Publishing & Inventory
                 </h3>
                 
-                <div class="grid grid-cols-2 gap-6">
-                  <div>
-                    <label class="block text-[0.82rem] font-bold text-[var(--text-secondary)] mb-2 uppercase tracking-wide">ISBN Number</label>
-                    <input v-model="form.isbn" type="text" class="w-full bg-gray-500/5 border border-[var(--border-color)] text-[var(--text-primary)] rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-mono text-[0.9rem]" placeholder="978-..." />
+                <div class="grid grid-cols-2 gap-x-6 gap-y-5">
+                  <div class="group">
+                    <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-2 uppercase tracking-wide group-focus-within:text-emerald-500 transition-colors">ISBN Number</label>
+                    <input v-model="form.isbn" type="text" class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-xl px-4 py-3.5 focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-mono text-[0.9rem]" placeholder="978-..." />
                   </div>
 
-                  <div>
-                    <label class="block text-[0.82rem] font-bold text-[var(--text-secondary)] mb-2 uppercase tracking-wide">Total Copies</label>
-                    <input v-model.number="form.copies_total" type="number" class="w-full bg-gray-500/5 border border-[var(--border-color)] text-[var(--text-primary)] rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all shadow-sm font-mono text-[0.9rem]" min="1" required />
+                  <div class="group">
+                    <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-2 uppercase tracking-wide group-focus-within:text-emerald-500 transition-colors">Total Copies *</label>
+                    <input 
+                      v-model.number="form.copies_total" 
+                      type="number" 
+                      class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-xl px-4 py-3.5 focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all shadow-sm font-mono text-[0.9rem]" 
+                      min="0" 
+                      required 
+                    />
                   </div>
 
-                  <div>
-                    <label class="block text-[0.82rem] font-bold text-[var(--text-secondary)] mb-2 uppercase tracking-wide">Publisher</label>
-                    <input v-model="form.publisher" type="text" class="w-full bg-gray-500/5 border border-[var(--border-color)] text-[var(--text-primary)] rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-medium" placeholder="Publisher name" />
+                  <div class="group">
+                    <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-2 uppercase tracking-wide group-focus-within:text-emerald-500 transition-colors">Publisher</label>
+                    <input v-model="form.publisher" type="text" class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-xl px-4 py-3.5 focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-medium" placeholder="Publisher name" />
                   </div>
 
-                  <div>
-                    <label class="block text-[0.82rem] font-bold text-[var(--text-secondary)] mb-2 uppercase tracking-wide">Publish Year</label>
-                    <input v-model.number="form.publish_year" type="number" class="w-full bg-gray-500/5 border border-[var(--border-color)] text-[var(--text-primary)] rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-mono text-[0.9rem]" placeholder="2024" />
+                  <div class="group">
+                    <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-2 uppercase tracking-wide group-focus-within:text-emerald-500 transition-colors">Publish Year</label>
+                    <input v-model.number="form.publish_year" type="number" class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-xl px-4 py-3.5 focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-mono text-[0.9rem]" placeholder="2024" />
                   </div>
                 </div>
               </div>
 
               <!-- Digital Assets -->
-              <div class="space-y-4">
-                <h3 class="text-[0.85rem] font-extrabold text-pink-400 uppercase tracking-widest border-b border-pink-500/10 pb-2.5 flex items-center gap-2">
+              <div class="space-y-5">
+                <h3 class="text-[0.75rem] font-bold text-pink-500 uppercase tracking-widest flex items-center gap-2">
                   <Image :size="15" stroke-width="2.5" /> Media & Digital Assets
                 </h3>
 
-                <div class="grid grid-cols-2 gap-6">
-                  <div class="col-span-2">
-                    <label class="block text-[0.82rem] font-bold text-[var(--text-secondary)] mb-2 uppercase tracking-wide">Cover Image (URL or Upload)</label>
-                    <div class="flex gap-3 items-stretch mt-1.5">
+                <div class="grid grid-cols-2 gap-x-6 gap-y-5">
+                  <div class="col-span-2 group">
+                    <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-2 uppercase tracking-wide group-focus-within:text-pink-500 transition-colors">Cover Image (URL or Upload)</label>
+                    <div class="flex gap-3 items-stretch">
                       <div class="relative flex-1">
                         <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[var(--text-muted)]/60">
                           <Image :size="16" />
                         </div>
-                        <input v-model="form.cover_url" type="text" placeholder="https://..." class="w-full bg-gray-500/5 border border-[var(--border-color)] text-[var(--text-primary)] rounded-lg pl-11 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-500/30 focus:border-pink-500/50 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-mono text-[0.85rem]" />
+                        <input 
+                          :value="form.cover_url && form.cover_url.startsWith('data:image/') ? '[ Local Image File Attached ]' : form.cover_url" 
+                          @input="form.cover_url = $event.target.value"
+                          :readonly="form.cover_url && form.cover_url.startsWith('data:image/')"
+                          type="text" 
+                          placeholder="https://..." 
+                          class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-xl pl-11 pr-4 py-3.5 focus:outline-none focus:border-pink-500 focus:ring-4 focus:ring-pink-500/10 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-mono text-[0.85rem]" 
+                          :class="{'text-emerald-500 font-bold bg-emerald-500/5': form.cover_url && form.cover_url.startsWith('data:image/')}"
+                        />
                       </div>
-                      <button type="button" @click="triggerImageSelect" class="flex items-center gap-2 bg-pink-500/10 hover:bg-pink-500/20 text-pink-500 border border-pink-500/30 rounded-lg px-5 font-bold transition-all whitespace-nowrap shadow-sm hover:shadow-md">
-                        <Upload :size="16" stroke-width="2.5" /> Upload
+                      <button type="button" @click="triggerImageSelect" class="flex items-center justify-center gap-2 bg-pink-500/10 hover:bg-pink-500/20 text-pink-600 dark:text-pink-400 border border-pink-500/20 rounded-xl px-6 font-bold transition-all shadow-sm whitespace-nowrap">
+                        <Upload :size="16" stroke-width="2.5" /> <span class="hidden sm:inline">Upload</span>
                       </button>
                       <input type="file" ref="imageFileInputRef" accept="image/*" @change="onImageFileSelected" style="display: none" />
                     </div>
                   </div>
 
-                  <div class="col-span-2">
-                    <label class="block text-[0.82rem] font-bold text-[var(--text-secondary)] mb-2 uppercase tracking-wide">Book PDF (For Online Reading)</label>
-                    <div class="flex gap-3 items-stretch mt-1.5">
+                  <div class="col-span-2 group">
+                    <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-2 uppercase tracking-wide group-focus-within:text-pink-500 transition-colors">Book PDF (For Online Reading)</label>
+                    <div class="flex gap-3 items-stretch">
                       <div class="relative flex-1">
                         <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[var(--text-muted)]/60">
                           <FileText :size="16" />
                         </div>
-                        <input v-model="form.pdf_url" type="text" placeholder="https://..." class="w-full bg-gray-500/5 border border-[var(--border-color)] text-[var(--text-primary)] rounded-lg pl-11 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-500/30 focus:border-pink-500/50 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-mono text-[0.85rem]" />
+                        <input 
+                          :value="form.pdf_url && form.pdf_url.startsWith('data:application/pdf') ? '[ Local PDF File Attached ]' : form.pdf_url" 
+                          @input="form.pdf_url = $event.target.value"
+                          :readonly="form.pdf_url && form.pdf_url.startsWith('data:application/pdf')"
+                          type="text" 
+                          placeholder="https://..." 
+                          class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-xl pl-11 pr-4 py-3.5 focus:outline-none focus:border-pink-500 focus:ring-4 focus:ring-pink-500/10 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-mono text-[0.85rem]" 
+                          :class="{'text-emerald-500 font-bold bg-emerald-500/5': form.pdf_url && form.pdf_url.startsWith('data:application/pdf')}"
+                        />
                       </div>
-                      <button type="button" @click="triggerPdfSelect" class="flex items-center gap-2 bg-pink-500/10 hover:bg-pink-500/20 text-pink-500 border border-pink-500/30 rounded-lg px-5 font-bold transition-all whitespace-nowrap shadow-sm hover:shadow-md">
-                        <Upload :size="16" stroke-width="2.5" /> Upload
+                      <button type="button" @click="triggerPdfSelect" class="flex items-center justify-center gap-2 bg-pink-500/10 hover:bg-pink-500/20 text-pink-600 dark:text-pink-400 border border-pink-500/20 rounded-xl px-6 font-bold transition-all shadow-sm whitespace-nowrap">
+                        <Upload :size="16" stroke-width="2.5" /> <span class="hidden sm:inline">Upload</span>
                       </button>
                       <input type="file" ref="pdfFileInputRef" accept="application/pdf" @change="onPdfFileSelected" style="display: none" />
                     </div>
                     
-                    <div v-if="form.pdf_url" class="flex flex-col gap-2 mt-4 p-4 bg-emerald-500/5 border border-emerald-500/20 rounded-lg">
-                      <div class="inline-flex items-center gap-2 text-emerald-500 text-[0.85rem] font-bold">
+                    <div v-if="form.pdf_url" class="mt-4 p-4 bg-emerald-500/5 border border-emerald-500/10 rounded-xl flex flex-col gap-2 transition-all">
+                      <div class="inline-flex items-center gap-2 text-emerald-600 dark:text-emerald-400 text-[0.85rem] font-bold">
                         <CheckCircle :size="16" stroke-width="2.5" /> PDF Document Attached
                       </div>
-                      <div v-if="form.digital_content" class="inline-flex items-center gap-2 text-indigo-400 text-[0.78rem] font-bold mt-1">
-                        <Star :size="14" stroke-width="2.5" /> Text Auto-Extracted ({{ form.digital_content.length }} chars)
+                      <div v-if="form.digital_content" class="inline-flex items-center gap-2 text-indigo-600 dark:text-indigo-400 text-[0.75rem] font-bold bg-indigo-500/5 self-start px-3 py-1 rounded-lg">
+                        <Star :size="14" stroke-width="2.5" /> Auto-Extracted ({{ form.digital_content.length }} chars)
                       </div>
                     </div>
                   </div>
 
-                  <div class="col-span-2">
-                    <label class="block text-[0.82rem] font-bold text-[var(--text-secondary)] mb-2 uppercase tracking-wide">Book Description</label>
-                    <textarea v-model="form.description" rows="3" class="w-full bg-gray-500/5 border border-[var(--border-color)] text-[var(--text-primary)] rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-500/30 focus:border-pink-500/50 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-medium" placeholder="Brief summary of the book content..."></textarea>
+                  <div class="col-span-2 group">
+                    <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-2 uppercase tracking-wide group-focus-within:text-pink-500 transition-colors">Book Description</label>
+                    <textarea v-model="form.description" rows="3" class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-xl px-4 py-3.5 focus:outline-none focus:border-pink-500 focus:ring-4 focus:ring-pink-500/10 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-medium resize-none" placeholder="Brief summary of the book content..."></textarea>
                   </div>
 
-                  <div class="col-span-2">
-                    <label class="block text-[0.82rem] font-bold text-[var(--text-secondary)] mb-2 uppercase tracking-wide">Digital Text (For E-Reader)</label>
-                    <textarea v-model="form.digital_content" rows="4" class="w-full bg-gray-500/5 border border-[var(--border-color)] text-[var(--text-primary)] rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-500/30 focus:border-pink-500/50 transition-all shadow-sm font-mono text-[0.82rem] placeholder:text-[var(--text-muted)]/50" placeholder="Chapter 1 content or book excerpt..."></textarea>
+                  <div class="col-span-2 group">
+                    <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-2 uppercase tracking-wide group-focus-within:text-pink-500 transition-colors">Digital Text (For E-Reader)</label>
+                    <textarea v-model="form.digital_content" rows="4" class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-xl px-4 py-3.5 focus:outline-none focus:border-pink-500 focus:ring-4 focus:ring-pink-500/10 transition-all shadow-sm font-mono text-[0.82rem] placeholder:text-[var(--text-muted)]/50 resize-none custom-scrollbar" placeholder="Chapter 1 content or book excerpt..."></textarea>
                   </div>
 
                   <div class="col-span-2 mt-2">
-                    <label class="flex items-center gap-3 cursor-pointer p-4 bg-amber-500/10 border border-amber-500/20 rounded-lg hover:bg-amber-500/15 transition-colors group">
-                      <div class="relative w-5 h-5 flex items-center justify-center">
-                        <input type="checkbox" v-model="form.is_featured" class="peer appearance-none w-5 h-5 border-2 border-amber-500/50 rounded flex-shrink-0 checked:bg-amber-500 checked:border-0 transition-all cursor-pointer" />
-                        <Check :size="14" stroke-width="3" class="absolute text-[var(--bg-primary)] opacity-0 peer-checked:opacity-100 pointer-events-none" />
+                    <label class="flex items-center gap-4 cursor-pointer p-4 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-xl hover:border-amber-500/30 transition-all duration-300 group shadow-sm">
+                      <div class="relative w-6 h-6 flex items-center justify-center">
+                        <input type="checkbox" v-model="form.is_featured" class="peer appearance-none w-6 h-6 border-2 border-amber-500/30 rounded-lg flex-shrink-0 checked:bg-amber-500 checked:border-amber-500 transition-all cursor-pointer shadow-inner" />
+                        <Check :size="14" stroke-width="3" class="absolute text-white opacity-0 peer-checked:opacity-100 pointer-events-none transition-all duration-300 scale-50 peer-checked:scale-100" />
                       </div>
-                      <span class="font-bold text-amber-500 text-[0.95rem] group-hover:text-amber-400 transition-colors flex items-center gap-1.5"><Star :size="16" :fill="form.is_featured ? 'currentColor' : 'none'" /> Feature this book in Popular List</span>
+                      <span class="font-bold text-[var(--text-primary)] text-[0.95rem] group-hover:text-amber-500 transition-colors flex items-center gap-2">
+                        <Star :size="16" :fill="form.is_featured ? '#f59e0b' : 'none'" class="transition-all duration-300 text-amber-500" :class="{ 'scale-110 drop-shadow-md': form.is_featured }" /> 
+                        Feature this book in Popular List
+                      </span>
                     </label>
                   </div>
                 </div>
               </div>
               
-              <div v-if="formError" class="p-4 bg-red-500/10 border border-red-500/30 text-red-500 font-bold rounded-lg text-[0.9rem] flex items-center gap-2">
-                <AlertCircle :size="18" stroke-width="2.5" /> {{ formError }}
+              <div v-if="formError" class="p-4 bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 font-bold rounded-xl text-[0.9rem] flex items-center gap-3">
+                <AlertCircle :size="18" stroke-width="2.5" class="shrink-0 text-red-500" /> {{ formError }}
               </div>
             </div>
 
-            <footer class="flex justify-end gap-3 px-8 py-5 border-t border-[var(--border-color)] bg-white/5 backdrop-blur-md shrink-0">
-              <button type="button" @click="isModalOpen = false" class="btn btn-secondary !px-6 !py-2.5">Cancel</button>
-              <button type="submit" class="btn btn-primary !px-8 !py-2.5 flex items-center gap-2" :disabled="saving">
+            <footer class="flex justify-end gap-3 px-8 py-5 border-t border-[var(--border-color)] bg-[var(--bg-primary)] shrink-0">
+              <button type="button" @click="isModalOpen = false" class="px-6 py-2.5 rounded-xl font-bold text-[var(--text-secondary)] bg-transparent border border-transparent hover:bg-gray-500/5 transition-all duration-300">Cancel</button>
+              <button type="submit" class="px-8 py-2.5 rounded-xl font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-all duration-300 shadow-md shadow-indigo-500/20 flex items-center gap-2" :disabled="saving">
                 <Save :size="18" :class="{ 'animate-pulse': saving }" />
                 {{ saving ? 'Saving...' : 'Save Book' }}
               </button>
@@ -448,7 +489,7 @@ import { useLocaleStore } from '../../stores/locale';
 import { useToastStore } from '../../stores/toast';
 import AdminSidebar from '../../components/AdminSidebar.vue';
 import { Star, Plus, Search, Pencil, Trash2, X, Save, FileSpreadsheet, RefreshCw, CheckCircle, AlertCircle, 
-AlertTriangle, ChevronLeft, ChevronRight, FileText, Upload, Bookmark, Image, Loader2, Library, ChevronDown } from 'lucide-vue-next';
+AlertTriangle, ChevronLeft, ChevronRight, FileText, Upload, Bookmark, Image, Loader2, Library, ChevronDown, BookOpen } from 'lucide-vue-next';
 
 const booksStore = useBooksStore();
 const authStore = useAuthStore();
@@ -641,10 +682,12 @@ function openAddModal() {
   isModalOpen.value = true;
 }
 
-function openEditModal(book) {
+async function openEditModal(book) {
   isEditing.value = true;
   editingId.value = book.id;
   formError.value = '';
+  
+  // Show modal immediately with basic info while fetching full details
   Object.assign(form, {
     title: book.title,
     author: book.author,
@@ -652,19 +695,39 @@ function openEditModal(book) {
     category_id: book.category_id || 1,
     description: book.description || '',
     cover_url: book.cover_url || '',
-    pdf_url: book.pdf_url || '',
-    digital_content: book.digital_content || '',
+    pdf_url: 'Loading...',
+    digital_content: 'Loading...',
     copies_total: book.copies_total,
     publisher: book.publisher || '',
     publish_year: book.publish_year || new Date().getFullYear(),
     is_featured: Boolean(book.is_featured)
   });
   isModalOpen.value = true;
+
+  try {
+    const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/books/${book.id}`);
+    if (res.ok) {
+      const fullBook = await res.json();
+      form.pdf_url = fullBook.pdf_url || '';
+      form.digital_content = fullBook.digital_content || '';
+    }
+  } catch (err) {
+    console.error('Failed to load full book details:', err);
+    form.pdf_url = '';
+    form.digital_content = '';
+  }
 }
 
 async function saveBook() {
   saving.value = true;
   formError.value = '';
+  
+  if (form.copies_total < 0) {
+    formError.value = 'Total Copies cannot be negative.';
+    saving.value = false;
+    return;
+  }
+  
   try {
     if (isEditing.value) {
       await booksStore.updateBook(editingId.value, form);

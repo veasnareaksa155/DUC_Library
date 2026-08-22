@@ -2,7 +2,9 @@ import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 
 export const useWishlistStore = defineStore('wishlist', () => {
-  const wishlistIds = ref(JSON.parse(localStorage.getItem('duc_wishlist') || '[]'));
+  const initialData = JSON.parse(localStorage.getItem('duc_wishlist') || '[]');
+  const cleanedData = Array.isArray(initialData) ? initialData.filter(id => id != null).map(String) : [];
+  const wishlistIds = ref(cleanedData);
 
   function saveToStorage() {
     localStorage.setItem('duc_wishlist', JSON.stringify(wishlistIds.value));
@@ -10,20 +12,20 @@ export const useWishlistStore = defineStore('wishlist', () => {
 
   function isInWishlist(bookId) {
     if (!bookId) return false;
-    return wishlistIds.value.includes(Number(bookId)) || wishlistIds.value.includes(String(bookId));
+    return wishlistIds.value.includes(String(bookId));
   }
 
   function toggleWishlist(bookId) {
     if (!bookId) return false;
-    const idNum = Number(bookId);
-    const index = wishlistIds.value.indexOf(idNum);
+    const idStr = String(bookId);
+    const index = wishlistIds.value.indexOf(idStr);
 
     if (index > -1) {
       wishlistIds.value.splice(index, 1);
       saveToStorage();
       return false; // Removed
     } else {
-      wishlistIds.value.push(idNum);
+      wishlistIds.value.push(idStr);
       saveToStorage();
       return true; // Added
     }

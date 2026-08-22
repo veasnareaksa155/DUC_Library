@@ -14,19 +14,34 @@ const router = express.Router();
 async function autoExtractTextFromPdfIfNeeded(pdfUrl, digitalContent) {
   let content = digitalContent || '';
   const parseFn = typeof pdfParse === 'function' ? pdfParse : (pdfParse && pdfParse.default);
+  
   if (parseFn && pdfUrl && pdfUrl.startsWith('data:application/pdf;base64,')) {
     try {
       const base64Data = pdfUrl.replace(/^data:application\/pdf;base64,/, '');
+      
+      // Prevent parsing huge PDFs which blocks Node.js event loop or causes OOM
+      const sizeInMB = (base64Data.length * 0.75) / (1024 * 1024);
+      if (sizeInMB > 2) {
+        console.log(`[PDF Auto-Extractor] Skipping extraction for large PDF (${sizeInMB.toFixed(2)} MB).`);
+        return content;
+      }
+
       const buffer = Buffer.from(base64Data, 'base64');
       const parsed = await parseFn(buffer);
       if (parsed && parsed.text && parsed.text.trim()) {
-        const cleaned = parsed.text
+        let cleaned = parsed.text
           .replace(/\r\n/g, '\n')
           .replace(/\n{3,}/g, '\n\n')
           .trim();
+          
         if (cleaned.length > 10) {
+          // Google Sheets cell limit is 50,000 chars. We must truncate to avoid database crash.
+          if (cleaned.length > 49000) {
+            console.log(`[PDF Auto-Extractor] Truncating ${cleaned.length} chars to 49000 to respect DB limits.`);
+            cleaned = cleaned.substring(0, 49000) + '\n\n...[Content truncated due to size limits]';
+          }
           content = cleaned;
-          console.log(`[PDF Auto-Extractor] Successfully extracted ${cleaned.length} chars of text from ${parsed.numpages} PDF pages!`);
+          console.log(`[PDF Auto-Extractor] Successfully extracted ${cleaned.length} chars of text!`);
         }
       }
     } catch (err) {
@@ -199,7 +214,7 @@ router.post('/', authenticateToken, requireAdmin, async (req, res) => {
       return res.status(400).json({ message: 'Book title and author are required.' });
     }
 
-    const total = parseInt(copies_total) || 1;
+    const total = parseInt(copies_total) >= 0 ? parseInt(copies_total) : 1;
     const finalContent = await autoExtractTextFromPdfIfNeeded(pdf_url, digital_content);
 
     let finalPdfUrl = pdf_url || '';
@@ -268,6 +283,17 @@ router.put('/:id', authenticateToken, requireAdmin, async (req, res) => {
       targetCover = await uploadImageToCloudinary(targetCover, filename);
     }
 
+    let newTotal = copies_total !== undefined ? parseInt(copies_total) : existingBook.copies_total;
+    let newAvailable = copies_available !== undefined ? parseInt(copies_available) : existingBook.copies_available;
+
+    if (copies_total !== undefined && copies_available === undefined) {
+      const diff = newTotal - existingBook.copies_total;
+      newAvailable = existingBook.copies_available + diff;
+      if (newAvailable < 0) {
+        return res.status(400).json({ message: 'Cannot reduce total copies below the number of currently borrowed copies.' });
+      }
+    }
+
     const updateData = {
       title: title || existingBook.title,
       author: author || existingBook.author,
@@ -277,8 +303,8 @@ router.put('/:id', authenticateToken, requireAdmin, async (req, res) => {
       cover_url: targetCover,
       pdf_url: targetPdf,
       digital_content: finalContent,
-      copies_total: copies_total !== undefined ? parseInt(copies_total) : existingBook.copies_total,
-      copies_available: copies_available !== undefined ? parseInt(copies_available) : existingBook.copies_available,
+      copies_total: newTotal,
+      copies_available: newAvailable,
       publisher: publisher !== undefined ? publisher : existingBook.publisher,
       publish_year: publish_year !== undefined ? parseInt(publish_year) : existingBook.publish_year,
       is_featured: is_featured !== undefined ? (is_featured ? 1 : 0) : existingBook.is_featured

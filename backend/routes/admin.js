@@ -226,6 +226,29 @@ router.put('/borrowings/:id/status', async (req, res) => {
   }
 });
 
+// Delete borrowing record
+router.delete('/borrowings/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const borrowing = await ORM.getById('Borrowings', id);
+    
+    if (!borrowing) {
+      return res.status(404).json({ message: 'Borrowing request not found.' });
+    }
+
+    // Only allow deleting closed requests (returned or rejected)
+    if (borrowing.status !== 'returned' && borrowing.status !== 'rejected') {
+      return res.status(400).json({ message: 'Cannot delete an active borrowing request. Mark as returned or rejected first.' });
+    }
+
+    await ORM.remove('Borrowings', id);
+    res.json({ message: 'Borrowing request deleted successfully.' });
+  } catch (error) {
+    console.error('Error deleting borrowing:', error);
+    res.status(500).json({ message: 'Failed to delete borrowing request.' });
+  }
+});
+
 // List all registered users
 router.get('/users', async (req, res) => {
   try {

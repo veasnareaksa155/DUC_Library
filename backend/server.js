@@ -9,6 +9,7 @@ const categoryRoutes = require('./routes/categories');
 const borrowingRoutes = require('./routes/borrowings');
 const adminRoutes = require('./routes/admin');
 const notificationRoutes = require('./routes/notifications');
+const checkinRoutes = require('./routes/checkins');
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -35,6 +36,7 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/borrowings', borrowingRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/checkins', checkinRoutes);
 
 // Health Check
 app.get('/api/health', (req, res) => {

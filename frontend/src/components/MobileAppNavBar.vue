@@ -1,4 +1,15 @@
 <template>
+  <!-- Floating Check-In Button for Mobile -->
+  <button 
+    v-if="authStore.isAuthenticated && authStore.user?.role !== 'admin' && !hideOnReadPage"
+    @click="openCheckinModal"
+    class="hidden md:hidden max-md:flex fixed right-4 bottom-[85px] w-[50px] h-[50px] rounded-full items-center justify-center text-white shadow-[0_4px_16px_rgba(16,185,129,0.4)] z-[9998] transition-all duration-300 border-none outline-none cursor-pointer"
+    :class="checkinStore.hasCheckedInToday ? 'bg-emerald-500 shadow-[0_4px_16px_rgba(16,185,129,0.4)]' : 'bg-gradient-to-br from-indigo-500 to-violet-600 shadow-[0_4px_16px_rgba(99,102,241,0.4)] hover:scale-105 active:scale-95'"
+    :title="checkinStore.hasCheckedInToday ? 'Checked In' : 'Check In to Library'"
+  >
+    <MapPin :size="22" :class="{ 'animate-bounce': !checkinStore.hasCheckedInToday }" />
+  </button>
+
   <nav v-if="!hideOnReadPage" class="hidden md:hidden max-md:flex items-center justify-around fixed bottom-4 left-4 right-4 h-[60px] px-2 bg-[var(--bg-card)]/85 backdrop-blur-3xl rounded-[30px] border border-[var(--border-highlight)] shadow-[0_20px_40px_-10px_rgba(0,0,0,0.2)] dark:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.6)] z-[9999]">
     
     <button @click="goToHome" class="relative flex flex-1 h-full items-center justify-center text-[var(--text-secondary)] transition-colors duration-300 bg-transparent border-none cursor-pointer p-0 group [-webkit-tap-highlight-color:transparent]" :class="{ 'text-indigo-600 dark:text-indigo-400': isHomeActive }">
@@ -42,16 +53,22 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { Home, BookOpen, Bookmark, Heart, User } from 'lucide-vue-next';
+import { Home, BookOpen, Bookmark, Heart, User, MapPin } from 'lucide-vue-next';
 import { useAuthStore } from '../stores/auth';
 import { useLocaleStore } from '../stores/locale';
 import { useBooksStore } from '../stores/books';
+import { useCheckinStore } from '../stores/checkin';
 
 const authStore = useAuthStore();
 const localeStore = useLocaleStore();
 const booksStore = useBooksStore();
+const checkinStore = useCheckinStore();
 const route = useRoute();
 const router = useRouter();
+
+function openCheckinModal() {
+  checkinStore.openModal();
+}
 
 const hideOnReadPage = computed(() => route.path.startsWith('/read'));
 const isHomeActive = computed(() => route.path === '/');

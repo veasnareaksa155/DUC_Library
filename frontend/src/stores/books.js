@@ -126,6 +126,47 @@ export const useBooksStore = defineStore('books', () => {
     return data;
   }
 
+  async function addCategory(categoryData) {
+    const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/categories`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${authStore.token}`
+      },
+      body: JSON.stringify(categoryData)
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Failed to add category');
+    await fetchCategories();
+    return data;
+  }
+
+  async function updateCategory(id, categoryData) {
+    const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/categories/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${authStore.token}`
+      },
+      body: JSON.stringify(categoryData)
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Failed to update category');
+    await fetchCategories();
+    return data;
+  }
+
+  async function deleteCategory(id) {
+    const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/categories/${id}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${authStore.token}` }
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Failed to delete category');
+    await fetchCategories();
+    return data;
+  }
+
   return {
     masterBooks,
     books,
@@ -141,6 +182,9 @@ export const useBooksStore = defineStore('books', () => {
     fetchBookById,
     addBook,
     updateBook,
-    deleteBook
+    deleteBook,
+    addCategory,
+    updateCategory,
+    deleteCategory
   };
 });

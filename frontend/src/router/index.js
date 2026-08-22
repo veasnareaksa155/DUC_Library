@@ -17,6 +17,7 @@ import AdminBorrowingsView from '../views/admin/AdminBorrowingsView.vue';
 import AdminUsersView from '../views/admin/AdminUsersView.vue';
 import AdminProfileView from '../views/admin/AdminProfileView.vue';
 import AdminLoginView from '../views/admin/AdminLoginView.vue';
+import AdminCategoriesView from '../views/admin/AdminCategoriesView.vue';
 
 const routes = [
   {
@@ -82,6 +83,12 @@ const routes = [
     path: '/admin/books',
     name: 'admin-books',
     component: AdminBooksView,
+    meta: { requiresAuth: true, requiresAdmin: true }
+  },
+  {
+    path: '/admin/categories',
+    name: 'admin-categories',
+    component: AdminCategoriesView,
     meta: { requiresAuth: true, requiresAdmin: true }
   },
   {

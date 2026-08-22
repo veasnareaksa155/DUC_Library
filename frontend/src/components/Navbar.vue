@@ -38,6 +38,11 @@
           <span class="hidden lg:inline">{{ localeStore.t('wishlist') || 'Wishlist' }}</span>
         </router-link>
 
+        <button v-if="authStore.isAuthenticated && authStore.user?.role !== 'admin'" @click="openCheckinModal" class="group flex items-center gap-1.5 lg:gap-2 px-2 lg:px-4 py-2 rounded-xl text-[0.85rem] lg:text-[0.92rem] transition-all duration-300 bg-transparent border-none font-inherit cursor-pointer relative overflow-hidden whitespace-nowrap text-[var(--text-secondary)] hover:text-emerald-500 hover:bg-emerald-500/10 font-medium">
+          <MapPin :size="18" :stroke-width="1.75" class="group-hover:-translate-y-0.5 transition-transform duration-300 group-hover:text-emerald-500" :class="{ 'fill-emerald-500/20 text-emerald-600 dark:text-emerald-400': checkinStore.hasCheckedInToday }" />
+          <span class="hidden lg:inline">{{ checkinStore.hasCheckedInToday ? 'Checked In Today' : 'Check In' }}</span>
+        </button>
+
         <div v-if="authStore.user?.role === 'admin'" class="flex items-center gap-2">
           <span class="w-px h-5 bg-[var(--border-color)] mx-1.5"></span>
           <router-link to="/admin" class="group flex items-center gap-1.5 px-2.5 lg:px-3.5 py-2 rounded-lg text-[0.85rem] lg:text-[0.9rem] font-bold text-white transition-all duration-200 [background:var(--accent-gradient)] shadow-sm hover:shadow-[0_4px_12px_rgba(99,102,241,0.3)] hover:-translate-y-0.5 no-underline whitespace-nowrap">
@@ -120,6 +125,46 @@
     <!-- Notifications Drawer -->
     <NotificationsDrawer />
   </header>
+
+  <!-- Check-In Modal -->
+  <div v-if="checkinStore.isCheckinModalOpen" class="fixed inset-0 z-[99999] flex items-center justify-center p-4" @click.self="checkinStore.closeModal()">
+    <div class="absolute inset-0 bg-slate-900/30 dark:bg-slate-950/60 backdrop-blur-sm transition-all duration-300"></div>
+    
+    <div class="relative w-full max-w-[420px] bg-[var(--bg-card)] rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.2)] border border-[var(--border-color)] overflow-hidden transform transition-all text-center px-6 py-8">
+      <button @click="checkinStore.closeModal()" class="absolute top-4 right-4 text-[var(--text-muted)] hover:text-[var(--text-primary)] bg-transparent border-none cursor-pointer"><X :size="20" /></button>
+      
+      <div class="flex justify-center mb-5">
+        <div class="w-16 h-16 rounded-full flex items-center justify-center shadow-inner relative" 
+             :class="checkinStatus === 'success' || checkinStore.hasCheckedInToday ? 'bg-emerald-500/15 text-emerald-500' : (checkinStatus === 'error' ? 'bg-red-500/15 text-red-500' : 'bg-indigo-500/15 text-indigo-500')">
+          <Loader2 v-if="checkinStore.isCheckingIn" class="animate-spin text-indigo-500" :size="32" />
+          <MapPin v-else-if="!checkinStore.hasCheckedInToday && checkinStatus !== 'error' && checkinStatus !== 'success'" :size="32" class="animate-bounce" />
+          <CheckCircle v-else-if="checkinStatus === 'success' || checkinStore.hasCheckedInToday" :size="32" class="text-emerald-500" />
+          <AlertTriangle v-else-if="checkinStatus === 'error'" :size="32" class="text-red-500" />
+        </div>
+      </div>
+
+      <h2 class="text-[1.3rem] font-bold text-[var(--text-primary)] mb-2">
+        {{ checkinStore.hasCheckedInToday ? "You're Checked In!" : (checkinStore.isCheckingIn ? 'Verifying Location...' : 'Library Check-In') }}
+      </h2>
+      
+      <p v-if="checkinStatus === 'error'" class="text-[0.9rem] text-red-500 mb-5 leading-relaxed">{{ checkinErrorMsg }}</p>
+      <p v-else-if="checkinStore.hasCheckedInToday" class="text-[0.9rem] text-[var(--text-secondary)] mb-5 leading-relaxed">
+        You have successfully checked into the library today! Have a great study session.
+      </p>
+      <p v-else class="text-[0.9rem] text-[var(--text-secondary)] mb-5 leading-relaxed">
+        To check in, you must be physically located at the DUC Library. We will request your location to verify.
+      </p>
+
+      <button v-if="!checkinStore.hasCheckedInToday && checkinStatus !== 'error'" @click="performCheckin" class="w-full py-3 rounded-xl font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-all shadow-md flex items-center justify-center gap-2" :disabled="checkinStore.isCheckingIn">
+        <MapPin :size="18" /> {{ checkinStore.isCheckingIn ? 'Locating...' : 'Share Location & Check In' }}
+      </button>
+      <button v-else-if="checkinStatus === 'error'" @click="performCheckin" class="w-full py-3 rounded-xl font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-all shadow-md flex items-center justify-center gap-2" :disabled="checkinStore.isCheckingIn">
+        <RefreshCw :size="18" :class="{ 'animate-spin': checkinStore.isCheckingIn }" /> 
+        {{ checkinStore.isCheckingIn ? 'Trying...' : 'Try Again' }}
+      </button>
+      <button v-else @click="checkinStore.closeModal()" class="w-full py-3 mt-3 rounded-xl font-bold text-[var(--text-secondary)] bg-gray-500/10 hover:bg-gray-500/20 transition-all">Close</button>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -130,12 +175,13 @@ import { useBooksStore } from '../stores/books';
 import { useThemeStore } from '../stores/theme';
 import { useNotificationsStore } from '../stores/notifications';
 import { useConfirmStore } from '../stores/confirm';
+import { useCheckinStore } from '../stores/checkin';
 import { useRoute, useRouter } from 'vue-router';
 import NotificationsDrawer from './NotificationsDrawer.vue';
 import { 
   Home, BookOpen, Library, BookmarkCheck, Heart, LayoutDashboard, 
   BookPlus, ClipboardList, Users, LogOut, Sun, Moon, Globe, Download, Bell,
-  Compass, Bookmark
+  Compass, Bookmark, MapPin, X, Loader2, CheckCircle, AlertTriangle, RefreshCw
 } from 'lucide-vue-next';
 
 const authStore = useAuthStore();
@@ -143,8 +189,75 @@ const localeStore = useLocaleStore();
 const booksStore = useBooksStore();
 const themeStore = useThemeStore();
 const notifStore = useNotificationsStore();
+const checkinStore = useCheckinStore();
 const route = useRoute();
 const router = useRouter();
+
+// Check-In State
+const checkinStatus = ref('');
+const checkinErrorMsg = ref('');
+
+onMounted(() => {
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt.value = e;
+  });
+  
+  if (authStore.isAuthenticated && authStore.user?.role !== 'admin') {
+    checkinStore.checkMyStatusToday();
+  }
+});
+
+function openCheckinModal() {
+  if (checkinStore.hasCheckedInToday) {
+    checkinStatus.value = 'success';
+  } else {
+    checkinStatus.value = '';
+    checkinErrorMsg.value = '';
+  }
+  checkinStore.openModal();
+}
+
+function performCheckin() {
+  if (!navigator.geolocation) {
+    checkinStatus.value = 'error';
+    checkinErrorMsg.value = 'Geolocation is not supported by your browser.';
+    return;
+  }
+
+  checkinStatus.value = 'loading';
+  checkinStore.isCheckingIn = true;
+
+  navigator.geolocation.getCurrentPosition(
+    async (position) => {
+      const lat = position.coords.latitude;
+      const lng = position.coords.longitude;
+      
+      const success = await checkinStore.verifyCheckin(lat, lng);
+      
+      if (success) {
+        checkinStatus.value = 'success';
+      } else {
+        checkinStatus.value = 'error';
+        checkinErrorMsg.value = checkinStore.error;
+      }
+    },
+    (err) => {
+      checkinStore.isCheckingIn = false;
+      checkinStatus.value = 'error';
+      if (err.code === 1) {
+        checkinErrorMsg.value = 'Permission denied. Please allow location access in your browser settings.';
+      } else if (err.code === 2) {
+        checkinErrorMsg.value = 'Position unavailable. Make sure your device location services are turned on.';
+      } else if (err.code === 3) {
+        checkinErrorMsg.value = 'Location request timed out. Please try again or move to a better spot.';
+      } else {
+        checkinErrorMsg.value = 'Unable to retrieve your location. Please ensure location services are enabled.';
+      }
+    },
+    { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+  );
+}
 
 function goHome() {
   booksStore.selectedCategory = 'all';
@@ -169,13 +282,6 @@ function openWishlist() {
 
 const deferredPrompt = ref(null);
 const canInstallPwa = computed(() => !!deferredPrompt.value);
-
-onMounted(() => {
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt.value = e;
-  });
-});
 
 async function installPwaApp() {
   if (deferredPrompt.value) {
