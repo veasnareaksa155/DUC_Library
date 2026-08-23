@@ -8,10 +8,10 @@
           <span>Official Cambodian Library Activity Report Preview</span>
         </div>
         <div class="flex gap-3">
-          <button @click="printReport" class="btn btn-primary btn-sm">
+          <button @click="printReport" class="inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out active:scale-95 bg-indigo-600 text-white shadow-sm hover:bg-indigo-700 hover:-translate-y-px hover:shadow-md px-4 py-2 text-sm">
             <Printer :size="16" /> Print / Save as PDF
           </button>
-          <button @click="close" class="btn btn-secondary btn-sm">
+          <button @click="close" class="inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out active:scale-95 bg-gray-100 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-800 hover:border-indigo-400 dark:hover:border-indigo-500 hover:-translate-y-px px-4 py-2 text-sm">
             <X :size="18" /> Close
           </button>
         </div>

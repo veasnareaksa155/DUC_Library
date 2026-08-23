@@ -7,21 +7,21 @@
     <main class="flex-1 py-6 px-8 pb-16 w-[calc(100%-280px)] max-w-none">
       <header class="flex justify-between items-end mb-8">
         <div>
-          <h1 class="text-[2.2rem] font-extrabold">{{ localeStore.t('books') }} <span class="text-gradient">Management</span></h1>
+          <h1 class="text-[2.2rem] font-extrabold text-[var(--text-primary)]">{{ localeStore.t('books') }} Management</h1>
           <p class="text-[var(--text-secondary)]">Add new books, update stock counts, edit digital content, or remove books.</p>
         </div>
         <div class="flex items-center gap-2">
-          <button @click="openBookSyncModal" class="btn btn-secondary mr-2">
+          <button @click="openBookSyncModal" class="inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out active:scale-95 bg-gray-100 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-800 hover:border-indigo-400 dark:hover:border-indigo-500 hover:-translate-y-px px-5 py-2.5 text-sm mr-2">
             <FileSpreadsheet :size="18" /> Sync Books from Sheet
           </button>
-          <button @click="openAddModal" class="btn btn-primary">
+          <button @click="openAddModal" class="inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out active:scale-95 bg-indigo-600 text-white shadow-sm hover:bg-indigo-700 hover:-translate-y-px hover:shadow-md px-5 py-2.5 text-sm">
             <Plus :size="18" /> {{ localeStore.t('addNewBook') }}
           </button>
         </div>
       </header>
 
       <!-- Books Table -->
-      <div class="p-6 glass-panel">
+      <div class="p-6 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg shadow-sm">
         <div class="mb-6 flex flex-wrap gap-4 items-center">
           <div class="relative flex-1 min-w-[280px] max-w-[450px] flex items-center">
             <Search :size="18" class="absolute left-4 text-[var(--text-muted)] pointer-events-none" />
@@ -29,7 +29,7 @@
               v-model="booksStore.searchQuery" 
               @input="booksStore.fetchBooks()" 
               type="text" 
-              class="w-full pl-11 bg-gray-500/5 border border-[var(--border-color)] text-[var(--text-primary)] rounded-[var(--radius-md)] py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/50 transition-all font-medium shadow-sm hover:bg-gray-500/10 placeholder:text-[var(--text-muted)]/70"
+              class="w-full pl-10 bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-md py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-medium shadow-sm placeholder:text-[var(--text-muted)]"
               placeholder="Search by title, author, category, or ISBN..." 
             />
           </div>
@@ -38,7 +38,7 @@
             <Library :size="18" class="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)] pointer-events-none" />
             <select 
               v-model="booksStore.selectedCategory"
-              class="w-full appearance-none pl-11 pr-10 py-2.5 bg-gray-500/5 border border-[var(--border-color)] text-[var(--text-primary)] rounded-[var(--radius-md)] focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/50 transition-all font-semibold cursor-pointer shadow-sm hover:bg-gray-500/10"
+              class="w-full appearance-none pl-10 pr-10 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-medium cursor-pointer shadow-sm"
             >
               <option value="all" class="bg-[var(--bg-card)] font-medium">All Categories (Catalog)</option>
               <option v-for="cat in booksStore.categories" :key="cat.id" :value="cat.id" class="bg-[var(--bg-card)] font-medium">
@@ -102,7 +102,7 @@
               <tr v-for="book in paginatedBooks" :key="book.id" class="group hover:bg-indigo-500/[0.03] dark:hover:bg-indigo-500/[0.05] transition-colors duration-200">
                 <td class="px-6 py-4">
                   <div class="flex items-center gap-4">
-                    <img :src="book.cover_url || fallbackCover" class="w-[50px] h-[72px] object-cover rounded-md shadow-[0_4px_10px_rgba(0,0,0,0.15)] border border-[var(--border-color)]/50 group-hover:shadow-[0_4px_15px_rgba(99,102,241,0.25)] group-hover:-translate-y-0.5 transition-all duration-300" />
+                    <img :src="book.cover_url || fallbackCover" class="w-[50px] h-[72px] object-cover rounded-md border border-[var(--border-color)] transition-opacity duration-300" />
                     <div class="flex flex-col">
                       <span class="font-extrabold text-[0.98rem] text-[var(--text-primary)] group-hover:text-indigo-500 dark:group-hover:text-indigo-400 transition-colors line-clamp-1 max-w-[280px]" :title="book.title">{{ book.title }}</span>
                       <span class="text-[0.78rem] text-[var(--text-muted)] font-medium mt-0.5 truncate max-w-[280px]">{{ book.publisher || 'Unknown Publisher' }} ({{ book.publish_year || 'N/A' }})</span>
@@ -112,8 +112,8 @@
                 <td class="px-6 py-4 text-[0.92rem] font-semibold text-[var(--text-secondary)]">{{ book.author }}</td>
                 <td class="px-6 py-4">
                   <div class="flex items-center gap-2 flex-wrap max-w-[180px]">
-                    <span class="bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400 px-3 py-1 rounded-full text-[0.75rem] font-bold tracking-wide whitespace-nowrap">{{ book.category_name || 'General' }}</span>
-                    <span v-if="book.pdf_url" class="inline-flex items-center gap-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 px-2 py-1 rounded-full text-[0.72rem] font-bold whitespace-nowrap" title="Digital PDF Document Attached"><FileText :size="12" stroke-width="2.5" /> PDF</span>
+                    <span class="bg-[var(--bg-secondary)] border border-[var(--border-color)] text-[var(--text-secondary)] px-2.5 py-1 rounded-md text-[0.75rem] font-bold tracking-wide whitespace-nowrap">{{ book.category_name || 'General' }}</span>
+                    <span v-if="book.pdf_url" class="inline-flex items-center gap-1 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400 px-2 py-1 rounded-md text-[0.72rem] font-bold whitespace-nowrap" title="Digital PDF Document Attached"><FileText :size="12" stroke-width="2.5" /> PDF</span>
                   </div>
                 </td>
                 <td class="px-6 py-4">
@@ -130,22 +130,22 @@
                   <div class="flex justify-end gap-2">
                     <button 
                       @click="toggleFeatured(book)" 
-                      class="btn btn-sm !px-3 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5"
+                      class="p-2 rounded-md transition-colors"
                       :class="[
-                        book.is_featured ? 'bg-amber-500/15 text-amber-600 dark:text-amber-500 border border-amber-500/30 hover:bg-amber-500/25' : 'bg-gray-500/5 text-[var(--text-secondary)] border border-[var(--border-color)] hover:border-amber-500/50 hover:text-amber-500',
+                        book.is_featured ? 'bg-amber-500/10 text-amber-600 dark:text-amber-500 hover:bg-amber-500/20' : 'bg-transparent text-[var(--text-muted)] hover:bg-[var(--bg-card-hover)] hover:text-amber-500',
                         loadingFeatureId === book.id ? 'opacity-70 cursor-not-allowed' : ''
                       ]"
                       :title="book.is_featured ? 'Remove from Popular/Featured' : 'Add to Popular/Featured'"
                       :disabled="loadingFeatureId === book.id"
                     >
-                      <Loader2 v-if="loadingFeatureId === book.id" :size="15" class="animate-spin text-amber-500" />
-                      <Star v-else :size="15" :fill="book.is_featured ? 'currentColor' : 'none'" :stroke-width="book.is_featured ? 2 : 2.5" />
+                      <Loader2 v-if="loadingFeatureId === book.id" :size="16" class="animate-spin text-amber-500" />
+                      <Star v-else :size="16" :fill="book.is_featured ? 'currentColor' : 'none'" :stroke-width="2" />
                     </button>
-                    <button @click="openEditModal(book)" class="btn btn-sm bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 hover:bg-indigo-500 hover:text-white !px-3 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5" title="Edit Book">
-                      <Pencil :size="15" stroke-width="2.5" />
+                    <button @click="openEditModal(book)" class="p-2 rounded-md bg-transparent text-[var(--text-muted)] hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 transition-colors" title="Edit Book">
+                      <Pencil :size="16" stroke-width="2" />
                     </button>
-                    <button @click="confirmDelete(book)" class="btn btn-sm bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500 hover:text-white !px-3 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5" title="Delete Book">
-                      <Trash2 :size="15" stroke-width="2.5" />
+                    <button @click="confirmDelete(book)" class="p-2 rounded-md bg-transparent text-[var(--text-muted)] hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors" title="Delete Book">
+                      <Trash2 :size="16" stroke-width="2" />
                     </button>
                   </div>
                 </td>
@@ -202,51 +202,48 @@
       <!-- Add / Edit Book Modal -->
       <div v-if="isModalOpen" class="fixed inset-0 z-[99999] flex items-center justify-center p-4 sm:p-6" @click.self="isModalOpen = false">
         <!-- Adaptable Backdrop -->
-        <div class="absolute inset-0 bg-slate-900/30 dark:bg-slate-950/60 backdrop-blur-md transition-all duration-300"></div>
+        <div class="absolute inset-0 bg-slate-900/40 dark:bg-slate-950/60 backdrop-blur-sm transition-all duration-300"></div>
         
         <!-- Modal Content -->
-        <div class="relative w-full max-w-[850px] bg-[var(--bg-card)] rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.15)] dark:shadow-[0_20px_60px_rgba(0,0,0,0.4)] border border-[var(--border-color)] flex flex-col max-h-[90vh] overflow-hidden transform transition-all duration-300 scale-100 opacity-100">
+        <div class="relative w-full max-w-[850px] bg-[var(--bg-card)] rounded-lg shadow-xl border border-[var(--border-color)] flex flex-col max-h-[90vh] overflow-hidden transform transition-all duration-300">
           
           <!-- Header -->
-          <header class="flex justify-between items-center px-8 py-6 border-b border-[var(--border-color)] bg-[var(--bg-primary)] shrink-0">
+          <header class="flex justify-between items-center px-6 py-5 border-b border-[var(--border-color)] bg-[var(--bg-card)] shrink-0">
             <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-500">
-                <BookOpen :size="20" stroke-width="2.5" />
-              </div>
-              <h2 class="text-[1.3rem] font-bold text-[var(--text-primary)] tracking-tight">{{ isEditing ? 'Edit Book Inventory' : 'Add New Book' }}</h2>
+              <h2 class="text-lg font-bold text-[var(--text-primary)] tracking-tight">{{ isEditing ? 'Edit Book Inventory' : 'Add New Book' }}</h2>
             </div>
-            <button @click="isModalOpen = false" class="w-10 h-10 rounded-full bg-gray-500/5 flex items-center justify-center text-[var(--text-muted)] border border-transparent hover:bg-gray-500/10 hover:text-[var(--text-primary)] transition-all duration-200"><X :size="20" stroke-width="2" /></button>
+            <button @click="isModalOpen = false" class="text-[var(--text-muted)] hover:text-[var(--text-primary)] bg-transparent border-none cursor-pointer p-1 rounded-md hover:bg-[var(--bg-secondary)] transition-colors"><X :size="20" stroke-width="2" /></button>
           </header>
 
           <form @submit.prevent="saveBook" class="flex flex-col flex-1 overflow-hidden">
-            <div class="p-8 overflow-y-auto flex-1 custom-scrollbar space-y-10">
+            <div class="p-6 overflow-y-auto flex-1 custom-scrollbar space-y-8">
               
               <!-- Core Information -->
-              <div class="space-y-5">
-                <h3 class="text-[0.75rem] font-bold text-indigo-500 uppercase tracking-widest flex items-center gap-2">
-                  <Star :size="15" stroke-width="2.5" /> Core Information
+              <div class="space-y-4">
+                <h3 class="text-sm font-bold text-[var(--text-primary)] border-b border-[var(--border-color)] pb-2 flex items-center gap-2">
+                  <Star :size="16" stroke-width="2" class="text-[var(--text-secondary)]" /> Core Information
                 </h3>
                 
-                <div class="grid grid-cols-2 gap-x-6 gap-y-5">
+                <div class="grid grid-cols-2 gap-x-6 gap-y-4">
                   <div class="col-span-2 group">
-                    <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-2 uppercase tracking-wide group-focus-within:text-indigo-500 transition-colors">Book Title *</label>
-                    <input v-model="form.title" type="text" class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-xl px-4 py-3.5 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-medium" required placeholder="e.g. Clean Code" />
+                    <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-1.5 transition-colors">Book Title *</label>
+                    <input v-model="form.title" type="text" class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-md px-3.5 py-2.5 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-medium" required placeholder="e.g. Clean Code" />
                   </div>
 
                   <div class="group">
-                    <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-2 uppercase tracking-wide group-focus-within:text-indigo-500 transition-colors">Author *</label>
-                    <input v-model="form.author" type="text" class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-xl px-4 py-3.5 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-medium" required placeholder="e.g. Robert C. Martin" />
+                    <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-1.5 transition-colors">Author *</label>
+                    <input v-model="form.author" type="text" class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-md px-3.5 py-2.5 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-medium" required placeholder="e.g. Robert C. Martin" />
                   </div>
 
                   <div class="group">
-                    <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-2 uppercase tracking-wide group-focus-within:text-indigo-500 transition-colors">Category *</label>
+                    <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-1.5 transition-colors">Category *</label>
                     <div class="relative">
-                      <select v-model="form.category_id" class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-xl px-4 py-3.5 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-sm appearance-none font-medium" required>
+                      <select v-model="form.category_id" class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-md px-3.5 py-2.5 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all shadow-sm appearance-none font-medium" required>
                         <option v-for="cat in booksStore.categories" :key="cat.id" :value="cat.id" class="bg-[var(--bg-primary)]">
                           {{ cat.name }}
                         </option>
                       </select>
-                      <div class="absolute inset-y-0 right-4 flex items-center pointer-events-none text-[var(--text-muted)]">
+                      <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none text-[var(--text-muted)]">
                         <ChevronRight :size="16" class="rotate-90" />
                       </div>
                     </div>
@@ -255,52 +252,52 @@
               </div>
 
               <!-- Physical Details -->
-              <div class="space-y-5">
-                <h3 class="text-[0.75rem] font-bold text-emerald-500 uppercase tracking-widest flex items-center gap-2">
-                  <Bookmark :size="15" stroke-width="2.5" /> Publishing & Inventory
+              <div class="space-y-4">
+                <h3 class="text-sm font-bold text-[var(--text-primary)] border-b border-[var(--border-color)] pb-2 flex items-center gap-2">
+                  <Bookmark :size="16" stroke-width="2" class="text-[var(--text-secondary)]" /> Publishing & Inventory
                 </h3>
                 
-                <div class="grid grid-cols-2 gap-x-6 gap-y-5">
+                <div class="grid grid-cols-2 gap-x-6 gap-y-4">
                   <div class="group">
-                    <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-2 uppercase tracking-wide group-focus-within:text-emerald-500 transition-colors">ISBN Number</label>
-                    <input v-model="form.isbn" type="text" class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-xl px-4 py-3.5 focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-mono text-[0.9rem]" placeholder="978-..." />
+                    <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-1.5 transition-colors">ISBN Number</label>
+                    <input v-model="form.isbn" type="text" class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-md px-3.5 py-2.5 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-mono text-[0.9rem]" placeholder="978-..." />
                   </div>
 
                   <div class="group">
-                    <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-2 uppercase tracking-wide group-focus-within:text-emerald-500 transition-colors">Total Copies *</label>
+                    <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-1.5 transition-colors">Total Copies *</label>
                     <input 
                       v-model.number="form.copies_total" 
                       type="number" 
-                      class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-xl px-4 py-3.5 focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all shadow-sm font-mono text-[0.9rem]" 
+                      class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-md px-3.5 py-2.5 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all shadow-sm font-mono text-[0.9rem]" 
                       min="0" 
                       required 
                     />
                   </div>
 
                   <div class="group">
-                    <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-2 uppercase tracking-wide group-focus-within:text-emerald-500 transition-colors">Publisher</label>
-                    <input v-model="form.publisher" type="text" class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-xl px-4 py-3.5 focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-medium" placeholder="Publisher name" />
+                    <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-1.5 transition-colors">Publisher</label>
+                    <input v-model="form.publisher" type="text" class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-md px-3.5 py-2.5 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-medium" placeholder="Publisher name" />
                   </div>
 
                   <div class="group">
-                    <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-2 uppercase tracking-wide group-focus-within:text-emerald-500 transition-colors">Publish Year</label>
-                    <input v-model.number="form.publish_year" type="number" class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-xl px-4 py-3.5 focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-mono text-[0.9rem]" placeholder="2024" />
+                    <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-1.5 transition-colors">Publish Year</label>
+                    <input v-model.number="form.publish_year" type="number" class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-md px-3.5 py-2.5 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-mono text-[0.9rem]" placeholder="2024" />
                   </div>
                 </div>
               </div>
 
               <!-- Digital Assets -->
-              <div class="space-y-5">
-                <h3 class="text-[0.75rem] font-bold text-pink-500 uppercase tracking-widest flex items-center gap-2">
-                  <Image :size="15" stroke-width="2.5" /> Media & Digital Assets
+              <div class="space-y-4">
+                <h3 class="text-sm font-bold text-[var(--text-primary)] border-b border-[var(--border-color)] pb-2 flex items-center gap-2">
+                  <Image :size="16" stroke-width="2" class="text-[var(--text-secondary)]" /> Media & Digital Assets
                 </h3>
 
-                <div class="grid grid-cols-2 gap-x-6 gap-y-5">
+                <div class="grid grid-cols-2 gap-x-6 gap-y-4">
                   <div class="col-span-2 group">
-                    <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-2 uppercase tracking-wide group-focus-within:text-pink-500 transition-colors">Cover Image (URL or Upload)</label>
+                    <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-1.5 transition-colors">Cover Image (URL or Upload)</label>
                     <div class="flex gap-3 items-stretch">
                       <div class="relative flex-1">
-                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[var(--text-muted)]/60">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[var(--text-muted)]/60">
                           <Image :size="16" />
                         </div>
                         <input 
@@ -309,22 +306,22 @@
                           :readonly="form.cover_url && form.cover_url.startsWith('data:image/')"
                           type="text" 
                           placeholder="https://..." 
-                          class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-xl pl-11 pr-4 py-3.5 focus:outline-none focus:border-pink-500 focus:ring-4 focus:ring-pink-500/10 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-mono text-[0.85rem]" 
-                          :class="{'text-emerald-500 font-bold bg-emerald-500/5': form.cover_url && form.cover_url.startsWith('data:image/')}"
+                          class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-md pl-10 pr-3.5 py-2.5 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-mono text-[0.85rem]" 
+                          :class="{'text-indigo-600 dark:text-indigo-400 font-bold bg-indigo-50 dark:bg-indigo-500/10': form.cover_url && form.cover_url.startsWith('data:image/')}"
                         />
                       </div>
-                      <button type="button" @click="triggerImageSelect" class="flex items-center justify-center gap-2 bg-pink-500/10 hover:bg-pink-500/20 text-pink-600 dark:text-pink-400 border border-pink-500/20 rounded-xl px-6 font-bold transition-all shadow-sm whitespace-nowrap">
-                        <Upload :size="16" stroke-width="2.5" /> <span class="hidden sm:inline">Upload</span>
+                      <button type="button" @click="triggerImageSelect" class="flex items-center justify-center gap-2 bg-[var(--bg-secondary)] hover:bg-[var(--bg-card-hover)] text-[var(--text-primary)] border border-[var(--border-color)] rounded-md px-5 font-semibold transition-colors shadow-sm whitespace-nowrap cursor-pointer">
+                        <Upload :size="16" stroke-width="2" /> <span class="hidden sm:inline">Upload</span>
                       </button>
                       <input type="file" ref="imageFileInputRef" accept="image/*" @change="onImageFileSelected" style="display: none" />
                     </div>
                   </div>
 
                   <div class="col-span-2 group">
-                    <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-2 uppercase tracking-wide group-focus-within:text-pink-500 transition-colors">Book PDF (For Online Reading)</label>
+                    <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-1.5 transition-colors">Book PDF (For Online Reading)</label>
                     <div class="flex gap-3 items-stretch">
                       <div class="relative flex-1">
-                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[var(--text-muted)]/60">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[var(--text-muted)]/60">
                           <FileText :size="16" />
                         </div>
                         <input 
@@ -333,44 +330,43 @@
                           :readonly="form.pdf_url && form.pdf_url.startsWith('data:application/pdf')"
                           type="text" 
                           placeholder="https://..." 
-                          class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-xl pl-11 pr-4 py-3.5 focus:outline-none focus:border-pink-500 focus:ring-4 focus:ring-pink-500/10 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-mono text-[0.85rem]" 
-                          :class="{'text-emerald-500 font-bold bg-emerald-500/5': form.pdf_url && form.pdf_url.startsWith('data:application/pdf')}"
+                          class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-md pl-10 pr-3.5 py-2.5 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-mono text-[0.85rem]" 
+                          :class="{'text-indigo-600 dark:text-indigo-400 font-bold bg-indigo-50 dark:bg-indigo-500/10': form.pdf_url && form.pdf_url.startsWith('data:application/pdf')}"
                         />
                       </div>
-                      <button type="button" @click="triggerPdfSelect" class="flex items-center justify-center gap-2 bg-pink-500/10 hover:bg-pink-500/20 text-pink-600 dark:text-pink-400 border border-pink-500/20 rounded-xl px-6 font-bold transition-all shadow-sm whitespace-nowrap">
-                        <Upload :size="16" stroke-width="2.5" /> <span class="hidden sm:inline">Upload</span>
+                      <button type="button" @click="triggerPdfSelect" class="flex items-center justify-center gap-2 bg-[var(--bg-secondary)] hover:bg-[var(--bg-card-hover)] text-[var(--text-primary)] border border-[var(--border-color)] rounded-md px-5 font-semibold transition-colors shadow-sm whitespace-nowrap cursor-pointer">
+                        <Upload :size="16" stroke-width="2" /> <span class="hidden sm:inline">Upload</span>
                       </button>
                       <input type="file" ref="pdfFileInputRef" accept="application/pdf" @change="onPdfFileSelected" style="display: none" />
                     </div>
                     
-                    <div v-if="form.pdf_url" class="mt-4 p-4 bg-emerald-500/5 border border-emerald-500/10 rounded-xl flex flex-col gap-2 transition-all">
-                      <div class="inline-flex items-center gap-2 text-emerald-600 dark:text-emerald-400 text-[0.85rem] font-bold">
-                        <CheckCircle :size="16" stroke-width="2.5" /> PDF Document Attached
+                    <div v-if="form.pdf_url" class="mt-3 p-3 bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 rounded-md flex flex-col gap-2 transition-all">
+                      <div class="inline-flex items-center gap-2 text-indigo-700 dark:text-indigo-300 text-[0.85rem] font-bold">
+                        <CheckCircle :size="16" stroke-width="2" /> PDF Document Attached
                       </div>
-                      <div v-if="form.digital_content" class="inline-flex items-center gap-2 text-indigo-600 dark:text-indigo-400 text-[0.75rem] font-bold bg-indigo-500/5 self-start px-3 py-1 rounded-lg">
-                        <Star :size="14" stroke-width="2.5" /> Auto-Extracted ({{ form.digital_content.length }} chars)
+                      <div v-if="form.digital_content" class="inline-flex items-center gap-2 text-[var(--text-secondary)] text-[0.75rem] font-medium bg-[var(--bg-card)] border border-[var(--border-color)] self-start px-2 py-1 rounded">
+                        <Star :size="14" stroke-width="2" /> Auto-Extracted ({{ form.digital_content.length }} chars)
                       </div>
                     </div>
                   </div>
 
                   <div class="col-span-2 group">
-                    <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-2 uppercase tracking-wide group-focus-within:text-pink-500 transition-colors">Book Description</label>
-                    <textarea v-model="form.description" rows="3" class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-xl px-4 py-3.5 focus:outline-none focus:border-pink-500 focus:ring-4 focus:ring-pink-500/10 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-medium resize-none" placeholder="Brief summary of the book content..."></textarea>
+                    <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-1.5 transition-colors">Book Description</label>
+                    <textarea v-model="form.description" rows="3" class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-md px-3.5 py-2.5 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-medium resize-none" placeholder="Brief summary of the book content..."></textarea>
                   </div>
 
                   <div class="col-span-2 group">
-                    <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-2 uppercase tracking-wide group-focus-within:text-pink-500 transition-colors">Digital Text (For E-Reader)</label>
-                    <textarea v-model="form.digital_content" rows="4" class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-xl px-4 py-3.5 focus:outline-none focus:border-pink-500 focus:ring-4 focus:ring-pink-500/10 transition-all shadow-sm font-mono text-[0.82rem] placeholder:text-[var(--text-muted)]/50 resize-none custom-scrollbar" placeholder="Chapter 1 content or book excerpt..."></textarea>
+                    <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-1.5 transition-colors">Digital Text (For E-Reader)</label>
+                    <textarea v-model="form.digital_content" rows="4" class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-md px-3.5 py-2.5 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all shadow-sm font-mono text-[0.82rem] placeholder:text-[var(--text-muted)]/50 resize-none custom-scrollbar" placeholder="Chapter 1 content or book excerpt..."></textarea>
                   </div>
 
                   <div class="col-span-2 mt-2">
-                    <label class="flex items-center gap-4 cursor-pointer p-4 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-xl hover:border-amber-500/30 transition-all duration-300 group shadow-sm">
-                      <div class="relative w-6 h-6 flex items-center justify-center">
-                        <input type="checkbox" v-model="form.is_featured" class="peer appearance-none w-6 h-6 border-2 border-amber-500/30 rounded-lg flex-shrink-0 checked:bg-amber-500 checked:border-amber-500 transition-all cursor-pointer shadow-inner" />
-                        <Check :size="14" stroke-width="3" class="absolute text-white opacity-0 peer-checked:opacity-100 pointer-events-none transition-all duration-300 scale-50 peer-checked:scale-100" />
+                    <label class="flex items-center gap-3 cursor-pointer group w-fit">
+                      <div class="relative flex items-center justify-center">
+                        <input type="checkbox" v-model="form.is_featured" class="peer appearance-none w-4 h-4 border border-[var(--border-color)] rounded-sm flex-shrink-0 checked:bg-indigo-600 checked:border-indigo-600 transition-colors cursor-pointer bg-[var(--bg-primary)]" />
+                        <Check :size="12" stroke-width="3" class="absolute text-white opacity-0 peer-checked:opacity-100 pointer-events-none transition-opacity" />
                       </div>
-                      <span class="font-bold text-[var(--text-primary)] text-[0.95rem] group-hover:text-amber-500 transition-colors flex items-center gap-2">
-                        <Star :size="16" :fill="form.is_featured ? '#f59e0b' : 'none'" class="transition-all duration-300 text-amber-500" :class="{ 'scale-110 drop-shadow-md': form.is_featured }" /> 
+                      <span class="font-medium text-[var(--text-primary)] text-[0.85rem] transition-colors group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
                         Feature this book in Popular List
                       </span>
                     </label>
@@ -378,15 +374,15 @@
                 </div>
               </div>
               
-              <div v-if="formError" class="p-4 bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 font-bold rounded-xl text-[0.9rem] flex items-center gap-3">
-                <AlertCircle :size="18" stroke-width="2.5" class="shrink-0 text-red-500" /> {{ formError }}
+              <div v-if="formError" class="p-3 bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 font-medium rounded-md text-[0.85rem] flex items-center gap-2">
+                <AlertCircle :size="16" stroke-width="2" class="shrink-0 text-red-500" /> {{ formError }}
               </div>
             </div>
 
-            <footer class="flex justify-end gap-3 px-8 py-5 border-t border-[var(--border-color)] bg-[var(--bg-primary)] shrink-0">
-              <button type="button" @click="isModalOpen = false" class="px-6 py-2.5 rounded-xl font-bold text-[var(--text-secondary)] bg-transparent border border-transparent hover:bg-gray-500/5 transition-all duration-300">Cancel</button>
-              <button type="submit" class="px-8 py-2.5 rounded-xl font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-all duration-300 shadow-md shadow-indigo-500/20 flex items-center gap-2" :disabled="saving">
-                <Save :size="18" :class="{ 'animate-pulse': saving }" />
+            <footer class="flex justify-end gap-3 px-6 py-4 border-t border-[var(--border-color)] bg-[var(--bg-card)] shrink-0">
+              <button type="button" @click="isModalOpen = false" class="px-5 py-2 rounded-md font-medium text-[var(--text-primary)] bg-[var(--bg-secondary)] border border-[var(--border-color)] hover:bg-[var(--bg-card-hover)] transition-colors cursor-pointer">Cancel</button>
+              <button type="submit" class="px-5 py-2 rounded-md font-medium text-white bg-indigo-600 border border-transparent hover:bg-indigo-700 transition-colors flex items-center gap-2 cursor-pointer" :disabled="saving">
+                <Save :size="16" :class="{ 'animate-pulse': saving }" />
                 {{ saving ? 'Saving...' : 'Save Book' }}
               </button>
             </footer>
@@ -395,8 +391,8 @@
       </div>
 
       <!-- Sync Google Sheet Book Inventory Modal -->
-      <div v-if="isBookSyncModalOpen" class="modal-backdrop" @click.self="isBookSyncModalOpen = false">
-        <div class="modal-content glass-panel">
+      <div v-if="isBookSyncModalOpen" class="fixed inset-0 bg-gray-900/75 backdrop-blur-sm z-50 flex items-center justify-center p-6 animate-in fade-in duration-200" @click.self="isBookSyncModalOpen = false">
+        <div class="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-8 shadow-2xl animate-in zoom-in-95 duration-200 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm">
           <header class="flex justify-between items-center mb-6">
             <h2>Sync Books from Google Sheet</h2>
             <button @click="isBookSyncModalOpen = false" class="bg-transparent border-none text-[var(--text-muted)] cursor-pointer hover:text-slate-200"><X :size="20" /></button>
@@ -428,8 +424,8 @@
           </div>
 
           <footer class="flex justify-end gap-3 mt-6">
-            <button @click="isBookSyncModalOpen = false" class="btn btn-secondary">Cancel</button>
-            <button @click="handleBookSync" class="btn btn-primary" :disabled="bookSyncing">
+            <button @click="isBookSyncModalOpen = false" class="inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out active:scale-95 bg-gray-100 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-800 hover:border-indigo-400 dark:hover:border-indigo-500 hover:-translate-y-px px-5 py-2.5 text-sm">Cancel</button>
+            <button @click="handleBookSync" class="inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out active:scale-95 bg-indigo-600 text-white shadow-sm hover:bg-indigo-700 hover:-translate-y-px hover:shadow-md px-5 py-2.5 text-sm" :disabled="bookSyncing">
               <RefreshCw :size="16" :class="{ 'animate-spin': bookSyncing }" />
               {{ bookSyncing ? 'Importing Books...' : 'Sync Book Inventory Now' }}
             </button>
@@ -437,8 +433,8 @@
         </div>
       </div>
       <!-- Custom Delete Confirmation Modal -->
-      <div v-if="isDeleteModalOpen" class="modal-backdrop" @click.self="isDeleteModalOpen = false">
-        <div class="modal-content glass-panel max-w-[440px] px-6 py-8 text-center">
+      <div v-if="isDeleteModalOpen" class="fixed inset-0 bg-gray-900/75 backdrop-blur-sm z-50 flex items-center justify-center p-6 animate-in fade-in duration-200" @click.self="isDeleteModalOpen = false">
+        <div class="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-8 shadow-2xl animate-in zoom-in-95 duration-200 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm max-w-[440px] px-6 py-8 text-center">
           <div class="flex justify-center mb-4">
             <div class="w-16 h-16 rounded-full bg-red-500/12 border border-red-500/30 flex items-center justify-center shadow-[0_0_25px_rgba(239,68,68,0.2)]">
               <AlertTriangle :size="32" class="text-red-500" />
@@ -452,7 +448,7 @@
           <small class="text-[0.78rem] text-[var(--text-muted)] block mb-5">This action cannot be undone and will permanently remove the book from the catalog.</small>
 
           <footer class="flex justify-center gap-3 mt-4">
-            <button @click="isDeleteModalOpen = false" class="btn btn-secondary">Cancel</button>
+            <button @click="isDeleteModalOpen = false" class="inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out active:scale-95 bg-gray-100 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-800 hover:border-indigo-400 dark:hover:border-indigo-500 hover:-translate-y-px px-5 py-2.5 text-sm">Cancel</button>
             <button @click="executeDeleteBook" class="bg-gradient-to-br from-red-500 to-red-600 text-white border-none font-bold shadow-[0_4px_15px_rgba(239,68,68,0.35)] transition-all duration-250 ease-[var(--spring-ease)] hover:-translate-y-[2px] hover:shadow-[0_6px_20px_rgba(239,68,68,0.5)] px-4 py-2 rounded-md flex items-center gap-2" :disabled="deleting">
               <Trash2 :size="16" />
               {{ deleting ? 'Deleting...' : 'Yes, Delete Book' }}
@@ -462,8 +458,8 @@
       </div>
 
       <!-- Delete Success Popup Modal -->
-      <div v-if="isDeleteSuccessOpen" class="modal-backdrop backdrop-blur-[8px]" @click="isDeleteSuccessOpen = false">
-        <div class="modal-content glass-panel max-w-[420px] px-7 py-9 animate-[modalPopIn_0.35s_var(--spring-ease)] text-center">
+      <div v-if="isDeleteSuccessOpen" class="fixed inset-0 bg-gray-900/75 backdrop-blur-sm z-50 flex items-center justify-center p-6 animate-in fade-in duration-200 backdrop-blur-[8px]" @click="isDeleteSuccessOpen = false">
+        <div class="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-8 shadow-2xl animate-in zoom-in-95 duration-200 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm max-w-[420px] px-7 py-9 animate-[modalPopIn_0.35s_var(--spring-ease)] text-center">
           <div class="flex justify-center mb-4">
             <div class="w-[70px] h-[70px] rounded-full bg-emerald-500/15 border border-emerald-500/40 flex items-center justify-center shadow-[0_0_30px_rgba(16,185,129,0.3)]">
               <CheckCircle :size="36" class="text-emerald-500" />
@@ -474,7 +470,7 @@
           <p class="text-[0.9rem] text-[var(--text-secondary)] leading-relaxed">
             <strong class="text-[var(--accent-primary)]">"{{ deleteSuccessTitle }}"</strong> has been removed from the library catalog.
           </p>
-          <button @click="isDeleteSuccessOpen = false" class="btn btn-primary btn-sm mt-5">OK, Got It</button>
+          <button @click="isDeleteSuccessOpen = false" class="inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out active:scale-95 bg-indigo-600 text-white shadow-sm hover:bg-indigo-700 hover:-translate-y-px hover:shadow-md px-4 py-2 text-sm mt-5">OK, Got It</button>
         </div>
       </div>
     </main>

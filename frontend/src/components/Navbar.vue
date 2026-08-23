@@ -3,121 +3,115 @@
     <div class="max-w-[1280px] mx-auto px-4 lg:px-6 flex items-center justify-between w-full">
       
       <!-- Left Section: Logo + Navigation -->
-      <div class="flex items-center gap-4 lg:gap-10">
+      <div class="flex items-center gap-6 lg:gap-10">
         <router-link to="/" class="flex items-center gap-2 lg:gap-3 no-underline group shrink-0" @click="goHome">
-          <img src="/duc-logo.png" alt="DUC Logo" class="h-[44px] lg:h-[52px] w-auto object-contain drop-shadow-md transition-transform duration-200 group-hover:scale-105" />
-          <span class="text-[1.2rem] lg:text-[1.35rem] font-extrabold text-[var(--text-primary)] whitespace-nowrap">DUC<span class="bg-gradient-to-br from-indigo-500 to-violet-500 bg-clip-text text-transparent">Library</span></span>
+          <img src="/duc-logo.png" alt="DUC Logo" class="h-9 lg:h-10 w-auto object-contain transition-transform duration-300 group-hover:scale-105" />
+          <span class="text-[1.1rem] lg:text-[1.2rem] font-bold text-[var(--text-primary)] tracking-tight whitespace-nowrap">DUC Library</span>
         </router-link>
 
-        <nav class="flex items-center gap-0.5 lg:gap-1">
-        <button 
-          @click="goHome" 
-          class="group flex items-center gap-1.5 lg:gap-2 px-2 lg:px-4 py-2 rounded-xl text-[0.85rem] lg:text-[0.92rem] transition-all duration-300 bg-transparent border-none font-inherit cursor-pointer relative overflow-hidden whitespace-nowrap" 
-          :class="route.path === '/' && booksStore.selectedCategory !== 'wishlist' ? 'text-indigo-600 font-semibold bg-indigo-500/10 dark:text-indigo-400 dark:bg-indigo-500/15' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-slate-500/10 font-medium'"
-        >
-          <Home :size="18" :stroke-width="1.75" :class="route.path === '/' && booksStore.selectedCategory !== 'wishlist' ? 'fill-indigo-500/10' : 'group-hover:-translate-y-0.5 transition-transform duration-300'" />
-          <span class="hidden lg:inline">{{ localeStore.t('home') || 'Home' }}</span>
-        </button>
+        <nav class="flex items-center gap-1 lg:gap-2">
+          <button 
+            @click="goHome" 
+            class="group flex items-center gap-2 px-3 py-2 rounded-md text-[0.85rem] lg:text-[0.9rem] transition-colors duration-200 bg-transparent border-none font-inherit cursor-pointer whitespace-nowrap" 
+            :class="route.path === '/' && booksStore.selectedCategory !== 'wishlist' ? 'text-[var(--text-primary)] font-bold bg-[var(--bg-card-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] font-medium hover:bg-[var(--bg-card-hover)]'"
+          >
+            <Home :size="16" :stroke-width="2" />
+            <span class="hidden lg:inline">{{ localeStore.t('home') || 'Home' }}</span>
+          </button>
 
-        <button 
-          @click="goCatalog" 
-          class="group flex items-center gap-1.5 lg:gap-2 px-2 lg:px-4 py-2 rounded-xl text-[0.85rem] lg:text-[0.92rem] transition-all duration-300 bg-transparent border-none font-inherit cursor-pointer relative overflow-hidden whitespace-nowrap" 
-          :class="route.path === '/catalog' && booksStore.selectedCategory !== 'wishlist' ? 'text-indigo-600 font-semibold bg-indigo-500/10 dark:text-indigo-400 dark:bg-indigo-500/15' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-slate-500/10 font-medium'"
-        >
-          <Compass :size="18" :stroke-width="1.75" :class="route.path === '/catalog' && booksStore.selectedCategory !== 'wishlist' ? 'fill-indigo-500/10' : 'group-hover:-translate-y-0.5 transition-transform duration-300'" />
-          <span class="hidden lg:inline">{{ localeStore.t('catalog') }}</span>
-        </button>
+          <button 
+            @click="goCatalog" 
+            class="group flex items-center gap-2 px-3 py-2 rounded-md text-[0.85rem] lg:text-[0.9rem] transition-colors duration-200 bg-transparent border-none font-inherit cursor-pointer whitespace-nowrap" 
+            :class="route.path === '/catalog' && booksStore.selectedCategory !== 'wishlist' ? 'text-[var(--text-primary)] font-bold bg-[var(--bg-card-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] font-medium hover:bg-[var(--bg-card-hover)]'"
+          >
+            <Compass :size="16" :stroke-width="2" />
+            <span class="hidden lg:inline">{{ localeStore.t('catalog') }}</span>
+          </button>
 
-        <router-link v-if="authStore.isAuthenticated && authStore.user?.role !== 'admin'" to="/my-borrowings" class="group flex items-center gap-1.5 lg:gap-2 px-2 lg:px-4 py-2 rounded-xl text-[0.85rem] lg:text-[0.92rem] transition-all duration-300 bg-transparent border-none no-underline relative overflow-hidden whitespace-nowrap" :class="route.path === '/my-borrowings' ? 'text-indigo-600 font-semibold bg-indigo-500/10 dark:text-indigo-400 dark:bg-indigo-500/15' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-slate-500/10 font-medium'" @click="booksStore.selectedCategory = 'all'">
-          <Bookmark :size="18" :stroke-width="1.75" :class="route.path === '/my-borrowings' ? 'fill-indigo-500/10' : 'group-hover:-translate-y-0.5 transition-transform duration-300'" />
-          <span class="hidden lg:inline">{{ localeStore.t('myBorrowings') }}</span>
-        </router-link>
-
-        <router-link v-if="authStore.user?.role !== 'admin'" to="/wishlist" class="group flex items-center gap-1.5 lg:gap-2 px-2 lg:px-4 py-2 rounded-xl text-[0.85rem] lg:text-[0.92rem] transition-all duration-300 bg-transparent border-none no-underline relative overflow-hidden whitespace-nowrap" :class="route.path === '/wishlist' ? 'text-pink-600 font-semibold bg-pink-500/10 dark:text-pink-400 dark:bg-pink-500/15' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-slate-500/10 font-medium'">
-          <Heart :size="18" :stroke-width="1.75" :class="route.path === '/wishlist' ? 'fill-pink-500/20 text-pink-600 dark:text-pink-400' : 'group-hover:-translate-y-0.5 transition-transform duration-300 group-hover:text-pink-500'" />
-          <span class="hidden lg:inline">{{ localeStore.t('wishlist') || 'Wishlist' }}</span>
-        </router-link>
-
-        <button v-if="authStore.isAuthenticated && authStore.user?.role !== 'admin'" @click="openCheckinModal" class="group flex items-center gap-1.5 lg:gap-2 px-2 lg:px-4 py-2 rounded-xl text-[0.85rem] lg:text-[0.92rem] transition-all duration-300 bg-transparent border-none font-inherit cursor-pointer relative overflow-hidden whitespace-nowrap text-[var(--text-secondary)] hover:text-emerald-500 hover:bg-emerald-500/10 font-medium">
-          <MapPin :size="18" :stroke-width="1.75" class="group-hover:-translate-y-0.5 transition-transform duration-300 group-hover:text-emerald-500" :class="{ 'fill-emerald-500/20 text-emerald-600 dark:text-emerald-400': checkinStore.hasCheckedInToday }" />
-          <span class="hidden lg:inline">{{ checkinStore.hasCheckedInToday ? 'Checked In Today' : 'Check In' }}</span>
-        </button>
-
-        <div v-if="authStore.user?.role === 'admin'" class="flex items-center gap-2">
-          <span class="w-px h-5 bg-[var(--border-color)] mx-1.5"></span>
-          <router-link to="/admin" class="group flex items-center gap-1.5 px-2.5 lg:px-3.5 py-2 rounded-lg text-[0.85rem] lg:text-[0.9rem] font-bold text-white transition-all duration-200 [background:var(--accent-gradient)] shadow-sm hover:shadow-[0_4px_12px_rgba(99,102,241,0.3)] hover:-translate-y-0.5 no-underline whitespace-nowrap">
-            <LayoutDashboard :size="16" />
-            <span class="hidden lg:inline">Admin Portal</span>
+          <router-link v-if="authStore.isAuthenticated && authStore.user?.role !== 'admin'" to="/my-borrowings" class="group flex items-center gap-2 px-3 py-2 rounded-md text-[0.85rem] lg:text-[0.9rem] transition-colors duration-200 bg-transparent border-none no-underline whitespace-nowrap" :class="route.path === '/my-borrowings' ? 'text-[var(--text-primary)] font-bold bg-[var(--bg-card-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] font-medium hover:bg-[var(--bg-card-hover)]'" @click="booksStore.selectedCategory = 'all'">
+            <Bookmark :size="16" :stroke-width="2" />
+            <span class="hidden lg:inline">{{ localeStore.t('myBorrowings') }}</span>
           </router-link>
-        </div>
-      </nav>
+
+          <router-link v-if="authStore.user?.role !== 'admin'" to="/wishlist" class="group flex items-center gap-2 px-3 py-2 rounded-md text-[0.85rem] lg:text-[0.9rem] transition-colors duration-200 bg-transparent border-none no-underline whitespace-nowrap" :class="route.path === '/wishlist' ? 'text-[var(--text-primary)] font-bold bg-[var(--bg-card-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] font-medium hover:bg-[var(--bg-card-hover)]'">
+            <Library :size="16" :stroke-width="2" />
+            <span class="hidden lg:inline">{{ localeStore.t('wishlist') || 'My Collection' }}</span>
+          </router-link>
+
+          <div v-if="authStore.user?.role === 'admin'" class="flex items-center gap-2 ml-2">
+            <span class="w-px h-4 bg-gray-200 dark:bg-gray-700 mx-1"></span>
+            <router-link to="/admin" class="group flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[0.85rem] font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-colors no-underline whitespace-nowrap">
+              <LayoutDashboard :size="15" />
+              <span class="hidden lg:inline">Admin Portal</span>
+            </router-link>
+          </div>
+        </nav>
       </div>
 
       <!-- Right Section: Actions -->
-      <div class="flex items-center gap-1.5 lg:gap-2.5 shrink-0 ml-4">
-        <!-- Language Switcher Dropdown / Toggle -->
+      <div class="flex items-center gap-2 lg:gap-3 shrink-0 ml-4">
+        <!-- Language Switcher -->
         <button 
           @click="localeStore.toggleLanguage()" 
-          class="inline-flex items-center justify-center gap-1.5 px-3 h-9 rounded-full bg-slate-500/10 border border-[var(--border-color)] text-[var(--text-primary)] text-[0.82rem] font-bold transition-all duration-200 hover:bg-indigo-500/15 hover:border-[var(--border-highlight)] cursor-pointer"
+          class="inline-flex items-center justify-center gap-1.5 px-2.5 h-8 rounded-md bg-transparent text-[var(--text-secondary)] text-[0.8rem] font-semibold transition-colors hover:bg-[var(--bg-card-hover)] hover:text-[var(--text-primary)] cursor-pointer border-none"
           :title="localeStore.currentLang === 'en' ? 'Switch to Khmer (ភាសាខ្មែរ)' : 'Switch to English'"
         >
           <Globe :size="16" />
-          <span class="tracking-[0.03em]">{{ localeStore.currentLang === 'en' ? 'EN' : 'ខ្មែរ' }}</span>
+          <span>{{ localeStore.currentLang === 'en' ? 'EN' : 'ខ្មែរ' }}</span>
         </button>
 
-        <!-- Theme Toggle Button -->
+        <!-- Theme Toggle -->
         <button 
           @click="themeStore.toggleTheme()" 
-          class="w-9 h-9 rounded-full bg-slate-500/10 border border-[var(--border-color)] text-[var(--text-primary)] flex items-center justify-center cursor-pointer transition-all duration-200 hover:bg-indigo-500/15 hover:border-[var(--border-highlight)]" 
+          class="w-8 h-8 rounded-md bg-transparent text-[var(--text-secondary)] flex items-center justify-center cursor-pointer transition-colors hover:bg-[var(--bg-card-hover)] hover:text-[var(--text-primary)] border-none" 
           :title="themeStore.isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
         >
-          <Sun v-if="themeStore.isDark" :size="19" class="text-amber-500" />
-          <Moon v-else :size="19" class="text-indigo-500" />
+          <Sun v-if="themeStore.isDark" :size="16" />
+          <Moon v-else :size="16" />
         </button>
 
-        <!-- Notifications Bell Button -->
+        <!-- Notifications -->
         <button 
           v-if="authStore.isAuthenticated"
           @click="notifStore.toggleDrawer()" 
-          class="relative w-9 h-9 rounded-full bg-slate-500/10 border border-[var(--border-color)] text-[var(--text-primary)] flex items-center justify-center cursor-pointer transition-all duration-200 hover:bg-indigo-500/15 hover:border-[var(--border-highlight)] hover:text-indigo-500" 
+          class="relative w-8 h-8 rounded-md bg-transparent text-[var(--text-secondary)] flex items-center justify-center cursor-pointer transition-colors hover:bg-[var(--bg-card-hover)] hover:text-[var(--text-primary)] border-none" 
           title="Notifications"
         >
-          <Bell :size="19" />
-          <span v-if="notifStore.unreadCount > 0" class="absolute -top-0.5 -right-0.5 min-w-[17px] h-[17px] px-1 rounded-full bg-red-500 text-white text-[0.62rem] font-extrabold flex items-center justify-center shadow-[0_0_10px_rgba(239,68,68,0.6)]">
-            {{ notifStore.unreadCount }}
-          </span>
+          <Bell :size="16" />
+          <span v-if="notifStore.unreadCount > 0" class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500 border-2 border-[var(--bg-card)]"></span>
         </button>
 
-        <!-- PWA Mini App Install Button -->
+        <!-- PWA Install -->
         <button 
           v-if="canInstallPwa" 
           @click="installPwaApp" 
-          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 text-white text-[0.78rem] font-bold border-none cursor-pointer shadow-[0_2px_10px_rgba(16,185,129,0.3)] transition-all duration-200 hover:-translate-y-px hover:shadow-[0_4px_14px_rgba(16,185,129,0.45)]" 
-          title="Install DUC Library Mini App"
+          class="hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[0.75rem] font-bold border border-emerald-200 dark:border-emerald-500/20 cursor-pointer transition-colors hover:bg-emerald-100 dark:hover:bg-emerald-500/20" 
+          title="Install DUC Library App"
         >
-          <Download :size="15" />
-          <span>App</span>
+          <Download :size="14" />
+          <span>Install</span>
         </button>
 
+        <!-- User Profile Pill -->
         <template v-if="authStore.isAuthenticated">
-          <div @click="router.push(authStore.user?.role === 'admin' ? '/admin/profile' : '/profile')" title="Click to view My Full Profile" class="flex items-center gap-2 lg:gap-2.5 px-2 lg:px-3 py-1.5 bg-slate-500/10 border border-[var(--border-color)] rounded-full cursor-pointer transition-all duration-200 hover:bg-indigo-500/15 hover:border-[var(--border-highlight)]" :class="{ 'bg-indigo-500/15 border-[var(--border-highlight)]': route.path === '/profile' || route.path === '/admin/profile' }">
-            <div class="w-[28px] h-[28px] lg:w-[30px] lg:h-[30px] rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 text-white flex items-center justify-center font-bold text-[0.85rem] overflow-hidden shrink-0">
-              <img v-if="authStore.user?.profile_photo" :src="authStore.user.profile_photo" class="w-full h-full object-cover rounded-full" />
+          <div class="h-5 w-px bg-gray-200 dark:bg-gray-700 mx-1 hidden sm:block"></div>
+          
+          <div @click="router.push(authStore.user?.role === 'admin' ? '/admin/profile' : '/profile')" title="View Profile" class="flex items-center gap-2 p-1 pr-3 lg:pr-4 bg-transparent border border-gray-200 dark:border-gray-700 rounded-full cursor-pointer transition-colors hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800/50">
+            <div class="w-7 h-7 rounded-full bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300 flex items-center justify-center font-bold text-[0.75rem] overflow-hidden shrink-0">
+              <img v-if="authStore.user?.profile_photo" :src="authStore.user.profile_photo" class="w-full h-full object-cover" />
               <span v-else>{{ authStore.user?.name?.charAt(0).toUpperCase() }}</span>
             </div>
-            <div class="hidden xl:flex flex-col leading-tight">
-              <span class="text-[0.85rem] font-semibold truncate max-w-[120px]">{{ authStore.user?.name }}</span>
-              <span class="text-[0.7rem] text-[var(--text-muted)] uppercase" :class="{ 'text-violet-500 font-bold': authStore.user?.role === 'admin' }">{{ authStore.user?.role }}</span>
-            </div>
+            <span class="hidden sm:block text-[0.8rem] font-semibold text-gray-700 dark:text-gray-200 truncate max-w-[100px]">{{ authStore.user?.name }}</span>
           </div>
-          <button @click="handleLogout" class="btn btn-secondary btn-sm" title="Log Out">
+
+          <button @click="handleLogout" class="w-8 h-8 rounded-md bg-transparent text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 flex items-center justify-center transition-colors cursor-pointer border-none" title="Log Out">
             <LogOut :size="16" />
           </button>
         </template>
 
         <template v-else>
-          <router-link to="/login" class="btn btn-secondary btn-sm">{{ localeStore.t('login') }}</router-link>
-          <router-link to="/register" class="btn btn-primary btn-sm">{{ localeStore.t('register') }}</router-link>
+          <router-link to="/login" class="px-4 py-1.5 text-[0.85rem] font-semibold text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors no-underline">Log in</router-link>
+          <router-link to="/register" class="px-4 py-1.5 rounded-md bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-[0.85rem] font-semibold hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors no-underline">Sign up</router-link>
         </template>
       </div>
     </div>
@@ -128,26 +122,26 @@
 
   <!-- Check-In Modal -->
   <div v-if="checkinStore.isCheckinModalOpen" class="fixed inset-0 z-[99999] flex items-center justify-center p-4" @click.self="checkinStore.closeModal()">
-    <div class="absolute inset-0 bg-slate-900/30 dark:bg-slate-950/60 backdrop-blur-sm transition-all duration-300"></div>
+    <div class="absolute inset-0 bg-slate-900/40 dark:bg-slate-950/60 backdrop-blur-sm transition-all duration-300"></div>
     
-    <div class="relative w-full max-w-[420px] bg-[var(--bg-card)] rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.2)] border border-[var(--border-color)] overflow-hidden transform transition-all text-center px-6 py-8">
-      <button @click="checkinStore.closeModal()" class="absolute top-4 right-4 text-[var(--text-muted)] hover:text-[var(--text-primary)] bg-transparent border-none cursor-pointer"><X :size="20" /></button>
+    <div class="relative w-full max-w-[400px] bg-[var(--bg-card)] rounded-lg shadow-xl border border-[var(--border-color)] overflow-hidden text-center p-6">
+      <button @click="checkinStore.closeModal()" class="absolute top-3 right-3 text-[var(--text-muted)] hover:text-[var(--text-primary)] bg-transparent border-none cursor-pointer p-1 rounded-md hover:bg-[var(--bg-secondary)] transition-colors"><X :size="18" /></button>
       
-      <div class="flex justify-center mb-5">
-        <div class="w-16 h-16 rounded-full flex items-center justify-center shadow-inner relative" 
-             :class="checkinStatus === 'success' || checkinStore.hasCheckedInToday ? 'bg-emerald-500/15 text-emerald-500' : (checkinStatus === 'error' ? 'bg-red-500/15 text-red-500' : 'bg-indigo-500/15 text-indigo-500')">
-          <Loader2 v-if="checkinStore.isCheckingIn" class="animate-spin text-indigo-500" :size="32" />
-          <MapPin v-else-if="!checkinStore.hasCheckedInToday && checkinStatus !== 'error' && checkinStatus !== 'success'" :size="32" class="animate-bounce" />
-          <CheckCircle v-else-if="checkinStatus === 'success' || checkinStore.hasCheckedInToday" :size="32" class="text-emerald-500" />
-          <AlertTriangle v-else-if="checkinStatus === 'error'" :size="32" class="text-red-500" />
+      <div class="flex justify-center mb-4">
+        <div class="w-14 h-14 rounded-full flex items-center justify-center" 
+             :class="checkinStatus === 'success' || checkinStore.hasCheckedInToday ? 'bg-emerald-500/10 text-emerald-600' : (checkinStatus === 'error' ? 'bg-red-500/10 text-red-600' : 'bg-indigo-500/10 text-indigo-600')">
+          <Loader2 v-if="checkinStore.isCheckingIn" class="animate-spin text-indigo-600" :size="28" />
+          <MapPin v-else-if="!checkinStore.hasCheckedInToday && checkinStatus !== 'error' && checkinStatus !== 'success'" :size="28" class="animate-bounce" />
+          <CheckCircle v-else-if="checkinStatus === 'success' || checkinStore.hasCheckedInToday" :size="28" />
+          <AlertTriangle v-else-if="checkinStatus === 'error'" :size="28" />
         </div>
       </div>
 
-      <h2 class="text-[1.3rem] font-bold text-[var(--text-primary)] mb-2">
+      <h2 class="text-lg font-bold text-[var(--text-primary)] mb-2">
         {{ checkinStore.hasCheckedInToday ? "You're Checked In!" : (checkinStore.isCheckingIn ? 'Verifying Location...' : 'Library Check-In') }}
       </h2>
       
-      <p v-if="checkinStatus === 'error'" class="text-[0.9rem] text-red-500 mb-5 leading-relaxed">{{ checkinErrorMsg }}</p>
+      <p v-if="checkinStatus === 'error'" class="text-[0.9rem] text-red-600 mb-5 leading-relaxed">{{ checkinErrorMsg }}</p>
       <p v-else-if="checkinStore.hasCheckedInToday" class="text-[0.9rem] text-[var(--text-secondary)] mb-5 leading-relaxed">
         You have successfully checked into the library today! Have a great study session.
       </p>
@@ -155,14 +149,14 @@
         To check in, you must be physically located at the DUC Library. We will request your location to verify.
       </p>
 
-      <button v-if="!checkinStore.hasCheckedInToday && checkinStatus !== 'error'" @click="performCheckin" class="w-full py-3 rounded-xl font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-all shadow-md flex items-center justify-center gap-2" :disabled="checkinStore.isCheckingIn">
-        <MapPin :size="18" /> {{ checkinStore.isCheckingIn ? 'Locating...' : 'Share Location & Check In' }}
+      <button v-if="!checkinStore.hasCheckedInToday && checkinStatus !== 'error'" @click="performCheckin" class="w-full py-2.5 rounded-md font-medium text-white bg-indigo-600 hover:bg-indigo-700 transition-colors border-none cursor-pointer flex items-center justify-center gap-2" :disabled="checkinStore.isCheckingIn">
+        <MapPin :size="16" /> {{ checkinStore.isCheckingIn ? 'Locating...' : 'Share Location & Check In' }}
       </button>
-      <button v-else-if="checkinStatus === 'error'" @click="performCheckin" class="w-full py-3 rounded-xl font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-all shadow-md flex items-center justify-center gap-2" :disabled="checkinStore.isCheckingIn">
-        <RefreshCw :size="18" :class="{ 'animate-spin': checkinStore.isCheckingIn }" /> 
+      <button v-else-if="checkinStatus === 'error'" @click="performCheckin" class="w-full py-2.5 rounded-md font-medium text-white bg-indigo-600 hover:bg-indigo-700 transition-colors border-none cursor-pointer flex items-center justify-center gap-2" :disabled="checkinStore.isCheckingIn">
+        <RefreshCw :size="16" :class="{ 'animate-spin': checkinStore.isCheckingIn }" /> 
         {{ checkinStore.isCheckingIn ? 'Trying...' : 'Try Again' }}
       </button>
-      <button v-else @click="checkinStore.closeModal()" class="w-full py-3 mt-3 rounded-xl font-bold text-[var(--text-secondary)] bg-gray-500/10 hover:bg-gray-500/20 transition-all">Close</button>
+      <button v-else @click="checkinStore.closeModal()" class="w-full py-2.5 mt-3 rounded-md font-medium text-[var(--text-primary)] bg-[var(--bg-secondary)] hover:bg-[var(--bg-card-hover)] transition-colors border border-[var(--border-color)] cursor-pointer">Close</button>
     </div>
   </div>
 </template>

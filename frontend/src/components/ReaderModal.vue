@@ -1,6 +1,6 @@
 <template>
-  <div v-if="isOpen" class="modal-backdrop" @click.self="$emit('close')">
-    <div class="modal-content max-w-[850px] max-h-[92vh] flex flex-col p-0 overflow-hidden glass-panel">
+  <div v-if="isOpen" class="fixed inset-0 bg-gray-900/75 backdrop-blur-sm z-50 flex items-center justify-center p-6 animate-in fade-in duration-200" @click.self="$emit('close')">
+    <div class="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-8 shadow-2xl animate-in zoom-in-95 duration-200 max-w-[850px] max-h-[92vh] flex flex-col p-0 overflow-hidden bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm">
       <header class="flex justify-between items-start px-8 py-6 border-b border-[var(--border-color)] bg-[var(--bg-secondary)]">
         <div>
           <span class="inline-flex items-center gap-[0.35rem] text-[0.75rem] font-bold text-violet-500 uppercase tracking-wide mb-1"><BookOpen :size="14" /> {{ localeStore.t('readerTitle') }}</span>
@@ -47,8 +47,8 @@
       </div>
 
       <footer class="flex justify-between items-center px-8 py-5 border-t border-[var(--border-color)] bg-[#0f172a]/60">
-        <button @click="$emit('close')" class="btn btn-secondary btn-sm">{{ localeStore.t('closeReader') }}</button>
-        <button @click="$emit('borrow', activeBook)" class="btn btn-primary btn-sm">
+        <button @click="$emit('close')" class="inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out active:scale-95 bg-gray-100 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-800 hover:border-indigo-400 dark:hover:border-indigo-500 hover:-translate-y-px px-4 py-2 text-sm">{{ localeStore.t('closeReader') }}</button>
+        <button @click="$emit('borrow', activeBook)" class="inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out active:scale-95 bg-indigo-600 text-white shadow-sm hover:bg-indigo-700 hover:-translate-y-px hover:shadow-md px-4 py-2 text-sm">
           <BookmarkPlus :size="16" /> {{ localeStore.t('borrowPhysical') }}
         </button>
       </footer>

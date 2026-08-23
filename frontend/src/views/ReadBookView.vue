@@ -1,24 +1,27 @@
 <template>
-  <div class="flex flex-col min-h-screen w-screen overflow-hidden transition-colors duration-350 ease-in-out" :class="themeMode === 'theme-dark' ? 'bg-[#0b0f19] text-slate-50' : themeMode === 'theme-sepia' ? 'bg-[#f2e3c6] text-[#3b2a1a]' : 'bg-slate-200 text-slate-900'">
+  <div class="flex flex-col min-h-screen w-screen transition-colors duration-350 ease-in-out" :class="themeMode === 'theme-dark' ? 'bg-[#0b0f19] text-slate-50' : themeMode === 'theme-sepia' ? 'bg-[#f2e3c6] text-[#3b2a1a]' : 'bg-slate-200 text-slate-900'">
     <!-- Top Reading Header Navigation Bar -->
-    <header class="h-[60px] px-5 flex items-center justify-between bg-slate-900 border-b border-white/10 z-[100] shadow-[0_4px_20px_rgba(0,0,0,0.4)] text-slate-50 max-sm:h-[52px] max-sm:px-2.5 gap-4">
-      <div class="flex items-center gap-3.5 min-w-0 flex-1">
-        <button @click="goBack" class="flex-shrink-0 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-white/10 border border-white/15 text-slate-50 text-[0.82rem] font-semibold cursor-pointer transition-all duration-200 hover:bg-indigo-500/25 hover:border-indigo-500" title="Back to Book Catalog">
+    <header class="sticky top-0 w-full shrink-0 h-[60px] px-5 flex items-center justify-between bg-slate-900 border-b border-white/10 z-[100] shadow-[0_4px_20px_rgba(0,0,0,0.4)] text-slate-50 max-sm:h-[52px] max-sm:px-2.5 gap-4">
+      <div class="flex items-center gap-4 min-w-0 flex-1">
+        <button @click="goBack" class="flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-transparent text-slate-300 text-[0.85rem] font-medium cursor-pointer transition-colors duration-200 hover:bg-white/10 hover:text-white" title="Back to Book Catalog">
           <ArrowLeft :size="16" /> <span>{{ localeStore.t('back') || 'Back' }}</span>
         </button>
 
+        <div class="h-5 w-[1px] bg-white/15"></div>
+
         <div class="flex items-center gap-3 min-w-0">
-          <span class="px-2.5 py-1 rounded-full bg-indigo-500/20 border border-indigo-500/40 text-indigo-300 text-[0.72rem] font-bold hidden lg:flex max-w-[120px] xl:max-w-[180px] truncate flex-shrink-0" :title="book?.category_name">{{ book?.category_name || 'General' }}</span>
-          
           <div class="flex flex-col min-w-0 flex-1">
             <h1 class="text-[0.95rem] font-bold whitespace-nowrap overflow-hidden text-ellipsis max-w-[280px] m-0 max-sm:max-w-[120px] max-sm:text-[0.85rem]" :title="book?.title">{{ book?.title || 'Loading Book...' }}</h1>
-            <span class="text-[0.75rem] text-slate-400 truncate">by {{ book?.author || 'DUC Library' }}</span>
+            <div class="flex items-center gap-2 text-[0.75rem] text-slate-400 truncate">
+              <span>{{ book?.category_name || 'General' }}</span>
+              <span>&bull;</span>
+              <span>{{ book?.author || 'DUC Library' }}</span>
+            </div>
           </div>
 
-          <div class="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[0.72rem] font-semibold flex-shrink-0 whitespace-nowrap" title="People reading this book online right now">
-            <span class="w-[7px] h-[7px] flex-shrink-0 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981] animate-[pulse_1.8s_infinite]"></span>
-            <span class="hidden lg:inline-block">{{ activeReadersCount }} reading now</span>
-            <span class="lg:hidden">{{ activeReadersCount }}</span>
+          <div class="hidden md:flex items-center gap-2 text-slate-400 text-[0.75rem] flex-shrink-0 ml-2" title="People reading this book online right now">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+            <span>{{ activeReadersCount }} reading now</span>
           </div>
         </div>
       </div>
@@ -37,7 +40,7 @@
             <Coffee v-else-if="themeMode === 'theme-sepia'" :size="14" />
             <Sun v-else :size="14" />
             
-            <span class="btn-label hidden sm:inline-block">
+            <span class="hidden sm:inline-block">
               {{ themeMode === 'theme-dark' ? 'Dark' : themeMode === 'theme-sepia' ? 'Sepia' : 'Light' }}
             </span>
             <ChevronDown :size="14" class="text-slate-400 transition-transform duration-200" :class="isThemeDropdownOpen ? 'rotate-180' : ''" />
@@ -79,14 +82,14 @@
         </button>
 
         <!-- Borrow Book Action Button -->
-        <button v-if="book" @click="openBorrowModal" class="inline-flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 border-none text-white text-[0.8rem] font-bold cursor-pointer shadow-[0_4px_14px_rgba(99,102,241,0.35)]">
+        <button v-if="book" @click="openBorrowModal" class="inline-flex items-center gap-1.5 px-3 sm:px-4 py-1.5 rounded-md bg-indigo-600 hover:bg-indigo-700 border-none text-white text-[0.85rem] font-medium cursor-pointer transition-colors">
           <BookmarkPlus :size="16" /> <span class="hidden lg:inline-block">Borrow Physical Copy</span>
         </button>
       </div>
     </header>
 
     <!-- Main Fullscreen Reading Area -->
-    <main class="flex-1 relative overflow-hidden flex flex-col" ref="mainAreaRef">
+    <main class="flex-1 relative flex flex-col" ref="mainAreaRef">
       <!-- Loading State -->
       <div v-if="loading || pdfLoading" class="flex flex-col items-center justify-center gap-4 h-[calc(100vh-60px)] text-slate-400">
         <Loader2 :size="48" class="animate-spin text-indigo-500" />
@@ -157,74 +160,62 @@
       </div>
 
       <!-- Premium Physical Book Information Notice -->
-      <div v-else class="flex items-center justify-center p-8 h-full relative overflow-hidden" :class="themeMode === 'theme-dark' ? 'bg-[#050811]' : themeMode === 'theme-light' ? 'bg-slate-50' : 'bg-[#eadeb5]'">
+      <div v-else class="flex items-center justify-center p-8 h-full" :class="themeMode === 'theme-dark' ? 'bg-[#0b0f19]' : themeMode === 'theme-light' ? 'bg-slate-100' : 'bg-[#eadeb5]'">
         
-        <!-- Background Blur Effect using Book Cover -->
-        <div v-if="book?.cover_url" class="absolute inset-0 z-0 opacity-20 blur-[100px] scale-110 pointer-events-none transition-all duration-1000" :style="`background: url(${book.cover_url}) center/cover no-repeat;`"></div>
-
-        <div class="relative z-10 w-full max-w-[850px] flex max-md:flex-col items-center gap-12 p-10 rounded-[2.5rem] border transition-all duration-300"
-             :class="themeMode === 'theme-dark' ? 'bg-slate-900/60 border-white/10 shadow-[0_30px_60px_rgba(0,0,0,0.6)]' : themeMode === 'theme-light' ? 'bg-white/70 border-slate-200 shadow-[0_30px_60px_rgba(0,0,0,0.1)]' : 'bg-[#f5ebd2]/70 border-[#d1bd8e] shadow-[0_30px_60px_rgba(100,80,50,0.15)]'" style="backdrop-filter: blur(20px);">
+        <div class="w-full max-w-[850px] flex max-md:flex-col items-start gap-12 p-8 rounded-xl border" :class="themeMode === 'theme-dark' ? 'bg-slate-900 border-white/10' : themeMode === 'theme-light' ? 'bg-white border-slate-200' : 'bg-[#f5ebd2] border-[#d1bd8e]'">
           
-          <!-- Book Cover with 3D Float Effect -->
-          <div class="relative shrink-0 perspective-1000 max-md:mt-4">
-            <div class="w-[220px] h-[320px] rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] animate-book-float group relative border border-white/10">
-              <img v-if="book?.cover_url" :src="book.cover_url" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Book Cover" />
-              <div v-else class="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white">
-                <BookOpen :size="64" class="opacity-50" />
+          <!-- Book Cover -->
+          <div class="relative shrink-0 max-md:mt-4 max-md:mx-auto">
+            <div class="w-[220px] h-[320px] rounded-lg overflow-hidden border shadow-sm" :class="themeMode === 'theme-dark' ? 'border-white/10 bg-slate-800' : themeMode === 'theme-light' ? 'border-slate-200 bg-slate-100' : 'border-[#d1bd8e] bg-[#eadeb5]'">
+              <img v-if="book?.cover_url" :src="book.cover_url" class="w-full h-full object-cover" alt="Book Cover" />
+              <div v-else class="w-full h-full flex items-center justify-center" :class="themeMode === 'theme-dark' ? 'text-slate-500' : 'text-slate-400'">
+                <BookOpen :size="48" />
               </div>
-              <!-- Glare effect -->
-              <div class="absolute inset-0 bg-gradient-to-tr from-black/40 via-transparent to-white/20 pointer-events-none mix-blend-overlay"></div>
             </div>
-            <!-- Ground Shadow -->
-            <div class="absolute -bottom-8 left-1/2 -translate-x-1/2 w-[180px] h-[12px] bg-black/40 rounded-[100%] blur-md animate-shadow-pulse"></div>
           </div>
 
-          <div class="flex-1 text-center md:text-left flex flex-col items-center md:items-start w-full">
-            <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full mb-5" :class="themeMode === 'theme-dark' ? 'bg-white/10 text-slate-300 border border-white/10' : 'bg-slate-200 text-slate-700 border border-slate-300'">
+          <div class="flex-1 text-left flex flex-col items-start w-full">
+            <div class="inline-flex items-center gap-1.5 mb-4" :class="themeMode === 'theme-dark' ? 'text-slate-400' : themeMode === 'theme-light' ? 'text-slate-500' : 'text-[#8a7250]'">
               <Library :size="14" />
               <span class="text-[0.75rem] font-bold tracking-wider uppercase">Physical Collection</span>
             </div>
             
-            <h2 class="text-[2.5rem] font-extrabold mb-3 leading-tight max-sm:text-[2rem]" :class="themeMode === 'theme-dark' ? 'text-white' : 'text-slate-900'">
+            <h2 class="text-[2rem] font-bold mb-3 leading-tight" :class="themeMode === 'theme-dark' ? 'text-white' : 'text-slate-900'">
               {{ book?.title }}
             </h2>
             
-            <p class="text-[1.05rem] leading-relaxed mb-8 max-w-[450px]" :class="themeMode === 'theme-dark' ? 'text-slate-400' : 'text-slate-600'">
-              This is a premium physical book in our library. Reserve your copy online and pick it up from the front desk today!
+            <p class="text-[0.95rem] leading-relaxed mb-8 max-w-[450px]" :class="themeMode === 'theme-dark' ? 'text-slate-300' : themeMode === 'theme-light' ? 'text-slate-600' : 'text-[#5c4a30]'">
+              This physical book is available in our library catalog. Reserve your copy online and pick it up from the front desk.
             </p>
 
-            <div class="w-full h-[1px] mb-8" :class="themeMode === 'theme-dark' ? 'bg-gradient-to-r from-transparent via-white/15 to-transparent md:via-white/15 md:to-transparent' : 'bg-gradient-to-r from-transparent via-slate-300 to-transparent md:via-slate-300 md:to-transparent'"></div>
+            <div class="w-full h-[1px] mb-8" :class="themeMode === 'theme-dark' ? 'bg-white/10' : themeMode === 'theme-light' ? 'bg-slate-200' : 'bg-[#d1bd8e]'"></div>
 
-            <div class="flex flex-wrap items-center justify-center md:justify-start gap-4 w-full mb-8">
-              <div class="flex items-center gap-4 px-5 py-3.5 rounded-2xl border" :class="themeMode === 'theme-dark' ? 'bg-black/40 border-white/10' : 'bg-slate-100 border-slate-200'">
-                <div class="w-12 h-12 rounded-full flex items-center justify-center" :class="book?.copies_available > 0 ? 'bg-emerald-500/20 text-emerald-500' : 'bg-rose-500/20 text-rose-500'">
-                  <PackageCheck v-if="book?.copies_available > 0" :size="24" />
-                  <PackageX v-else :size="24" />
-                </div>
+            <div class="flex flex-wrap items-center justify-start gap-4 w-full mb-8">
+              <div class="flex items-center gap-4 px-5 py-3 rounded-lg border min-w-[200px]" :class="themeMode === 'theme-dark' ? 'bg-[#0b0f19] border-white/10' : themeMode === 'theme-light' ? 'bg-slate-50 border-slate-200' : 'bg-[#eadeb5] border-[#d1bd8e]'">
                 <div class="flex flex-col text-left">
-                  <span class="text-[0.75rem] font-bold uppercase tracking-wider" :class="themeMode === 'theme-dark' ? 'text-slate-500' : 'text-slate-500'">Status</span>
-                  <span class="text-[1.2rem] font-extrabold" :class="book?.copies_available > 0 ? 'text-emerald-500' : 'text-rose-500'">
-                    {{ book?.copies_available > 0 ? 'Available' : 'Out of Stock' }}
-                  </span>
+                  <span class="text-[0.7rem] font-bold uppercase tracking-wider mb-1" :class="themeMode === 'theme-dark' ? 'text-slate-400' : themeMode === 'theme-light' ? 'text-slate-500' : 'text-[#8a7250]'">Status</span>
+                  <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full" :class="book?.copies_available > 0 ? 'bg-emerald-500' : 'bg-rose-500'"></span>
+                    <span class="text-[1.05rem] font-bold" :class="book?.copies_available > 0 ? 'text-emerald-500' : 'text-rose-500'">
+                      {{ book?.copies_available > 0 ? 'Available' : 'Out of Stock' }}
+                    </span>
+                  </div>
                 </div>
               </div>
               
-              <div class="flex items-center gap-4 px-5 py-3.5 rounded-2xl border" :class="themeMode === 'theme-dark' ? 'bg-black/40 border-white/10' : 'bg-slate-100 border-slate-200'">
+              <div class="flex items-center gap-4 px-5 py-3 rounded-lg border min-w-[200px]" :class="themeMode === 'theme-dark' ? 'bg-[#0b0f19] border-white/10' : themeMode === 'theme-light' ? 'bg-slate-50 border-slate-200' : 'bg-[#eadeb5] border-[#d1bd8e]'">
                 <div class="flex flex-col text-left">
-                  <span class="text-[0.75rem] font-bold uppercase tracking-wider" :class="themeMode === 'theme-dark' ? 'text-slate-500' : 'text-slate-500'">Copies Left</span>
-                  <span class="text-[1.2rem] font-extrabold" :class="themeMode === 'theme-dark' ? 'text-slate-200' : 'text-slate-800'">
-                    {{ book?.copies_available || 0 }} <span class="text-slate-500 text-[1rem] font-semibold">/ {{ book?.copies_total || 0 }}</span>
+                  <span class="text-[0.7rem] font-bold uppercase tracking-wider mb-1" :class="themeMode === 'theme-dark' ? 'text-slate-400' : themeMode === 'theme-light' ? 'text-slate-500' : 'text-[#8a7250]'">Copies Left</span>
+                  <span class="text-[1.05rem] font-bold" :class="themeMode === 'theme-dark' ? 'text-white' : 'text-slate-900'">
+                    {{ book?.copies_available || 0 }} <span class="font-normal" :class="themeMode === 'theme-dark' ? 'text-slate-500' : themeMode === 'theme-light' ? 'text-slate-400' : 'text-[#8a7250]'">/ {{ book?.copies_total || 0 }}</span>
                   </span>
                 </div>
               </div>
             </div>
 
-            <div class="flex flex-wrap justify-center md:justify-start gap-4 w-full">
-              <button @click="goBack" class="flex-1 sm:flex-none flex justify-center items-center gap-2 px-6 py-4 rounded-xl font-bold transition-all duration-300 hover:-translate-y-1" :class="themeMode === 'theme-dark' ? 'bg-white/10 text-white hover:bg-white/20' : 'bg-slate-200 text-slate-800 hover:bg-slate-300'">
-                <ArrowLeft :size="18" /> Go Back
-              </button>
-              <button @click="openBorrowModal" :disabled="book?.copies_available <= 0" class="flex-[2] sm:flex-none flex justify-center items-center gap-2 px-8 py-4 rounded-xl text-white font-bold transition-all duration-300 hover:-translate-y-1 shadow-[0_10px_20px_rgba(99,102,241,0.3)] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:shadow-none" style="background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);">
-                <BookmarkPlus :size="18" /> Reserve Physical Copy
+            <div class="flex flex-wrap justify-start gap-3 w-full">
+              <button @click="openBorrowModal" :disabled="book?.copies_available <= 0" class="flex justify-center items-center gap-2 px-6 py-2.5 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed border-none cursor-pointer">
+                <BookmarkPlus :size="16" /> Reserve Physical Copy
               </button>
             </div>
           </div>
@@ -566,21 +557,5 @@ function toggleFullscreen() {
 </script>
 
 <style scoped>
-@keyframes book-float {
-  0%, 100% { transform: translateY(0) rotateX(5deg) rotateY(-5deg); }
-  50% { transform: translateY(-15px) rotateX(12deg) rotateY(-8deg); }
-}
-@keyframes shadow-pulse {
-  0%, 100% { transform: translateX(-50%) scale(1); opacity: 0.4; }
-  50% { transform: translateX(-50%) scale(0.85); opacity: 0.2; }
-}
-.animate-book-float {
-  animation: book-float 6s ease-in-out infinite;
-}
-.animate-shadow-pulse {
-  animation: shadow-pulse 6s ease-in-out infinite;
-}
-.perspective-1000 {
-  perspective: 1000px;
-}
+/* Removed bubbly animations */
 </style>

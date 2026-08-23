@@ -1,50 +1,53 @@
 <template>
-  <div v-if="isOpen" class="modal-backdrop" @click.self="$emit('close')">
-    <div class="modal-content glass-panel">
-      <header class="flex justify-between items-center mb-6">
-        <h2>{{ localeStore.t('borrowTitle') }}</h2>
-        <button @click="$emit('close')" class="bg-transparent border-none text-[var(--text-muted)] cursor-pointer hover:text-slate-200"><X :size="20" /></button>
+  <div v-if="isOpen" class="fixed inset-0 bg-gray-900/75 backdrop-blur-sm z-50 flex items-center justify-center p-6 animate-in fade-in duration-200" @click.self="$emit('close')">
+    <div class="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-8 shadow-2xl animate-in zoom-in-95 duration-200 !rounded-xl !p-0 overflow-hidden bg-[var(--bg-card)]">
+      <header class="flex justify-between items-center px-5 py-4 border-b border-[var(--border-color)]">
+        <h2 class="text-[1.1rem] font-bold text-[var(--text-primary)] tracking-tight">{{ localeStore.t('borrowTitle') }}</h2>
+        <button @click="$emit('close')" class="bg-transparent border-none text-[var(--text-muted)] cursor-pointer hover:text-[var(--text-primary)] transition-colors"><X :size="18" /></button>
       </header>
 
-      <div class="modal-body">
-        <div class="flex gap-4 p-4 bg-gray-500/5 rounded-[var(--radius-md)] border border-[var(--border-color)] mb-6">
-          <img :src="book?.cover_url || fallbackCover" :alt="book?.title" class="w-[60px] h-[85px] object-cover rounded-md" />
-          <div class="summary-details">
-            <h3 class="text-base font-bold mb-1">{{ book?.title }}</h3>
-            <p class="text-[0.85rem] text-[var(--text-secondary)] mb-1.5">By {{ book?.author }}</p>
-            <span class="text-[0.75rem] text-[var(--success)] font-semibold">{{ book?.copies_available }} {{ localeStore.t('available') }}</span>
+      <div class="px-5 py-5">
+        <div class="flex gap-4 p-3 bg-[var(--bg-input)] rounded-md border border-[var(--border-color)] mb-6">
+          <img :src="book?.cover_url || fallbackCover" :alt="book?.title" class="w-[50px] h-[75px] object-contain rounded bg-[var(--bg-card)] border border-[var(--border-color)]" />
+          <div class="flex flex-col justify-center">
+            <h3 class="text-[0.95rem] font-bold mb-0.5 text-[var(--text-primary)] leading-tight">{{ book?.title }}</h3>
+            <p class="text-[0.8rem] text-[var(--text-secondary)] mb-1.5">By {{ book?.author }}</p>
+            <span class="inline-flex items-center gap-1 text-[0.7rem] font-bold text-emerald-600 dark:text-emerald-400"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>{{ book?.copies_available }} {{ localeStore.t('available') }}</span>
           </div>
         </div>
 
-        <div class="duration-selector">
-          <label class="block text-[0.9rem] font-semibold mb-2 text-[var(--text-primary)]">{{ localeStore.t('selectDuration') }}</label>
-          <div class="grid grid-cols-4 gap-2 mb-6">
+        <div class="mb-6">
+          <label class="block text-[0.85rem] font-bold mb-2.5 text-[var(--text-primary)]">{{ localeStore.t('selectDuration') }}</label>
+          <div class="grid grid-cols-4 gap-2">
             <button 
               v-for="d in [7, 14, 21, 30]" 
               :key="d"
               @click="selectedDays = d"
-              class="p-2.5 border rounded-[var(--radius-md)] font-semibold text-[0.85rem] transition-all duration-200 cursor-pointer"
-              :class="selectedDays === d ? 'bg-[var(--accent-primary)] text-white border-[var(--accent-primary)] shadow-[0_0_10px_rgba(99,102,241,0.4)]' : 'bg-gray-500/10 border-[var(--border-color)] text-[var(--text-secondary)]'"
+              class="h-10 border rounded-md font-bold text-[0.8rem] transition-colors cursor-pointer"
+              :class="selectedDays === d ? 'bg-[var(--text-primary)] text-[var(--bg-primary)] border-[var(--text-primary)]' : 'bg-transparent border-[var(--border-color)] text-[var(--text-secondary)] hover:bg-[var(--bg-card-hover)] hover:text-[var(--text-primary)]'"
             >
               {{ d }} {{ localeStore.t('days') }}
             </button>
           </div>
         </div>
 
-        <div class="flex items-center gap-2.5 p-3.5 bg-indigo-500/10 border border-dashed border-indigo-500/30 rounded-[var(--radius-md)] text-[0.9rem] text-[var(--text-primary)] mb-6">
-          <Calendar :size="18" class="text-[var(--accent-primary)]" />
-          <span>{{ localeStore.t('expectedReturn') }} <strong>{{ calculatedDueDate }}</strong></span>
+        <div class="flex items-center justify-between p-3.5 bg-transparent border border-[var(--border-color)] rounded-md text-[0.85rem] text-[var(--text-primary)] mb-6">
+          <div class="flex items-center gap-2 text-[var(--text-muted)] font-semibold">
+            <Calendar :size="16" />
+            <span>{{ localeStore.t('expectedReturn') }}</span>
+          </div>
+          <strong class="font-bold text-[var(--text-primary)]">{{ calculatedDueDate }}</strong>
         </div>
 
-        <div v-if="error" class="p-3 bg-[var(--danger-bg)] text-red-500 rounded-[var(--radius-md)] text-[0.85rem] mb-4">
+        <div v-if="error" class="p-3 bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 rounded-md text-[0.85rem] mb-4 font-medium">
           {{ error }}
         </div>
       </div>
 
-      <footer class="flex justify-end gap-3">
-        <button @click="$emit('close')" class="btn btn-secondary">{{ localeStore.t('cancel') }}</button>
-        <button @click="handleConfirm" class="btn btn-primary" :disabled="loading">
-          <BookmarkPlus :size="18" />
+      <footer class="flex justify-end gap-3 px-5 py-4 border-t border-[var(--border-color)] bg-[var(--bg-card-hover)]">
+        <button @click="$emit('close')" class="h-9 px-4 rounded-md bg-transparent border border-[var(--border-color)] text-[var(--text-secondary)] text-[0.85rem] font-bold hover:bg-[var(--bg-card)] hover:text-[var(--text-primary)] transition-colors cursor-pointer">{{ localeStore.t('cancel') }}</button>
+        <button @click="handleConfirm" class="h-9 px-5 rounded-md bg-[var(--accent-primary)] hover:bg-[var(--accent-primary-hover)] text-white border-none text-[0.85rem] font-bold transition-colors cursor-pointer flex items-center gap-2 shadow-sm disabled:opacity-50" :disabled="loading">
+          <BookmarkPlus :size="16" />
           {{ loading ? localeStore.t('submitting') : localeStore.t('confirmRequest') }}
         </button>
       </footer>
@@ -56,6 +59,7 @@
 import { ref, computed } from 'vue';
 import { useBorrowingsStore } from '../stores/borrowings';
 import { useLocaleStore } from '../stores/locale';
+import { useToastStore } from '../stores/toast';
 import { X, Calendar, BookmarkPlus } from 'lucide-vue-next';
 
 const props = defineProps({
@@ -67,6 +71,7 @@ const emit = defineEmits(['close', 'success']);
 
 const borrowingsStore = useBorrowingsStore();
 const localeStore = useLocaleStore();
+const toastStore = useToastStore();
 const selectedDays = ref(14);
 const loading = ref(false);
 const error = ref('');
@@ -85,6 +90,7 @@ async function handleConfirm() {
   error.value = '';
   try {
     const res = await borrowingsStore.requestBorrow(props.book.id, selectedDays.value);
+    toastStore.showSuccess(res.message || 'Book borrowing request submitted successfully!', 'Request Sent');
     emit('success', res.message);
     emit('close');
   } catch (err) {

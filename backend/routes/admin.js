@@ -399,4 +399,30 @@ router.get('/reading-reports', async (req, res) => {
   }
 });
 
+// GET /checkins - Get all user checkins for admin
+router.get('/checkins', async (req, res) => {
+  try {
+    const checkins = await ORM.getAll('Checkins');
+    const userMap = await getUserMap();
+    
+    // Sort by checkin_time descending
+    checkins.sort((a, b) => new Date(b.checkin_time) - new Date(a.checkin_time));
+    
+    const enriched = checkins.map(c => {
+      const user = userMap[c.user_id] || {};
+      return {
+        ...c,
+        user_name: user.name || 'Unknown',
+        user_email: user.email || 'N/A',
+        user_photo: user.profile_photo || '',
+        user_major: user.major || ''
+      };
+    });
+    res.json(enriched);
+  } catch (error) {
+    console.error('Error fetching admin checkins:', error);
+    res.status(500).json({ message: 'Failed to fetch checkins' });
+  }
+});
+
 module.exports = router;

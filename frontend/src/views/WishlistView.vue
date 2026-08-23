@@ -2,7 +2,7 @@
   <div class="max-w-[1280px] mx-auto px-6 pb-16 pt-6 max-sm:px-2 max-sm:pb-20 max-sm:pt-3">
 
     <!-- Notification Toast -->
-    <div v-if="toastMessage" class="flex items-center gap-3 px-4 py-3 mb-6 bg-emerald-500/12 border border-emerald-500/30 text-emerald-400 rounded-md glass-panel">
+    <div v-if="toastMessage" class="flex items-center gap-3 px-4 py-3 mb-6 bg-emerald-500/12 border border-emerald-500/30 text-emerald-400 rounded-md bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm">
       <CheckCircle2 :size="20" class="text-success" />
       <span>{{ toastMessage }}</span>
       <button @click="toastMessage = ''" class="ml-auto bg-transparent border-none text-inherit cursor-pointer p-1"><X :size="16" /></button>
@@ -10,63 +10,55 @@
 
     <!-- Main Content Section -->
     <main>
+      <!-- Professional Header (Always Visible) -->
+      <div class="mb-10 flex flex-col md:flex-row items-start md:items-end justify-between gap-6 border-b border-[var(--border-color)] pb-6 max-sm:mb-6 max-sm:pb-4">
+        <div>
+          <div class="flex items-center gap-3 mb-1">
+            <div class="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+              <Bookmark :size="18" />
+            </div>
+            <h1 class="text-[1.75rem] max-sm:text-[1.5rem] font-bold text-[var(--text-primary)] tracking-tight">My Collection</h1>
+          </div>
+          <p class="text-[0.9rem] text-[var(--text-secondary)]">
+            <template v-if="booksStore.loading">Loading your collection...</template>
+            <template v-else>You have {{ wishlistBooks.length }} saved {{ wishlistBooks.length === 1 ? 'book' : 'books' }}</template>
+          </p>
+        </div>
+        
+        <button @click="clearAllWishlist" :disabled="booksStore.loading || wishlistBooks.length === 0" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-[0.85rem] font-medium text-[var(--text-secondary)] hover:text-red-600 hover:border-red-200 dark:hover:border-red-900/50 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors group disabled:opacity-50 disabled:cursor-not-allowed">
+          <Trash2 :size="15" class="transition-transform group-hover:scale-110" /> 
+          <span>Clear Collection</span>
+        </button>
+      </div>
+
       <!-- Loading State -->
-      <div v-if="booksStore.loading" class="text-center p-16 text-[var(--text-muted)]">
-        <Loader2 :size="36" class="animate-spin mx-auto mb-2" />
-        <p>Loading your saved wishlist...</p>
+      <div v-if="booksStore.loading" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 max-sm:gap-3">
+        <BookSkeleton v-for="n in 10" :key="n" />
       </div>
 
       <!-- Empty State -->
-      <div v-else-if="wishlistBooks.length === 0" class="max-w-[540px] mx-auto my-12 p-14 rounded-[var(--radius-lg)] glass-panel text-center">
-        <div class="w-[88px] h-[88px] mx-auto mb-6 rounded-full bg-red-500/12 border border-red-500/30 flex items-center justify-center shadow-[0_0_35px_rgba(239,68,68,0.25)]">
-          <Heart :size="48" color="#ef4444" />
+      <div v-else-if="wishlistBooks.length === 0" class="max-w-[540px] mx-auto my-16 p-12 rounded-2xl bg-white dark:bg-[#1e1e2d] border border-[var(--border-color)] shadow-sm text-center">
+        <div class="w-16 h-16 mx-auto mb-6 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+          <Bookmark :size="32" class="text-gray-400" />
         </div>
-        <h2 class="text-[1.5rem] font-extrabold text-[var(--text-primary)] mb-2">Your Wishlist is Empty</h2>
-        <p class="text-[0.92rem] text-[var(--text-secondary)] leading-[1.55] mb-6">
-          You haven't saved any books to your wishlist yet. Explore the library catalog and tap the heart icon on any book to save it here!
+        <h2 class="text-[1.25rem] font-bold text-[var(--text-primary)] mb-2">Your collection is empty</h2>
+        <p class="text-[0.9rem] text-[var(--text-secondary)] leading-relaxed mb-8">
+          You haven't saved any books yet. Explore the catalog and bookmark books to read later.
         </p>
-        <router-link to="/catalog" class="btn btn-primary btn-lg mt-3">
-          <BookOpen :size="18" /> Browse Catalog Now
+        <router-link to="/catalog" class="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-indigo-600 text-white font-medium hover:bg-indigo-700 transition-colors">
+          <BookOpen :size="16" /> Browse Catalog
         </router-link>
       </div>
 
-      <!-- Wishlist Books Grid -->
-      <div v-else>
-        <!-- Premium Header Banner -->
-        <div class="relative overflow-hidden mb-10 p-8 rounded-[var(--radius-xl,20px)] bg-gradient-to-r from-red-500/10 via-rose-500/5 to-transparent border border-red-500/10 backdrop-blur-md shadow-[0_8px_32px_rgba(239,68,68,0.05)] max-sm:p-5 max-sm:mb-6 max-sm:rounded-2xl">
-          <div class="absolute -top-24 -right-24 w-64 h-64 bg-red-500/20 rounded-full blur-[80px] pointer-events-none"></div>
-          <div class="absolute -bottom-24 -left-24 w-64 h-64 bg-rose-500/20 rounded-full blur-[80px] pointer-events-none"></div>
-          
-          <div class="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-            <div class="flex items-center gap-5 max-sm:gap-3">
-              <div class="w-16 h-16 max-sm:w-12 max-sm:h-12 rounded-[1.25rem] max-sm:rounded-xl bg-gradient-to-br from-red-400 to-rose-600 flex items-center justify-center text-white shadow-[0_8px_24px_rgba(239,68,68,0.4)] transform hover:scale-105 transition-transform duration-300">
-                <Heart :size="28" class="fill-white drop-shadow-md max-sm:scale-75" />
-              </div>
-              <div>
-                <h1 class="text-[2rem] max-sm:text-[1.5rem] font-extrabold text-[var(--text-primary)] leading-tight tracking-tight mb-1">My Collection</h1>
-                <p class="text-[0.95rem] max-sm:text-[0.85rem] font-medium text-[var(--text-muted)] flex items-center gap-2">
-                  <span class="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_#ef4444] animate-pulse"></span>
-                  {{ wishlistBooks.length }} {{ wishlistBooks.length === 1 ? 'saved book' : 'saved books' }}
-                </p>
-              </div>
-            </div>
-            <button @click="clearAllWishlist" class="inline-flex items-center gap-2.5 px-6 py-3 max-sm:px-4 max-sm:py-2.5 max-sm:w-full max-sm:justify-center rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 font-bold cursor-pointer transition-all duration-300 hover:bg-red-500 hover:text-white hover:shadow-[0_8px_25px_rgba(239,68,68,0.35)] hover:-translate-y-0.5 group">
-              <Trash2 :size="18" class="group-hover:animate-bounce" /> 
-              <span>Clear Collection</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Wishlist Books Grid (Using standard BookCard component) -->
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 max-sm:gap-3">
-          <BookCard 
-            v-for="book in wishlistBooks" 
-            :key="book.id" 
-            :book="book" 
-            @read="openReaderModal" 
-            @borrow="openBorrowModal"
-          />
-        </div>
+      <!-- Wishlist Books Grid (Using standard BookCard component) -->
+      <div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 max-sm:gap-3">
+        <BookCard 
+          v-for="book in wishlistBooks" 
+          :key="book.id" 
+          :book="book" 
+          @read="openReaderModal" 
+          @borrow="openBorrowModal"
+        />
       </div>
     </main>
 
@@ -95,6 +87,7 @@ import { useAuthStore } from '../stores/auth';
 import { useWishlistStore } from '../stores/wishlist';
 import { useRouter } from 'vue-router';
 import BookCard from '../components/BookCard.vue';
+import BookSkeleton from '../components/BookSkeleton.vue';
 import ReaderModal from '../components/ReaderModal.vue';
 import BorrowModal from '../components/BorrowModal.vue';
 import { 
@@ -103,6 +96,7 @@ import {
 } from 'lucide-vue-next';
 
 import { useToastStore } from '../stores/toast';
+import { useConfirmStore } from '../stores/confirm';
 
 const booksStore = useBooksStore();
 const authStore = useAuthStore();
@@ -129,10 +123,20 @@ function removeFromWishlist(book) {
   toastStore.showWishlist(book.title, false);
 }
 
-function clearAllWishlist() {
-  wishlistStore.wishlistIds = [];
-  wishlistStore.saveWishlist();
-  toastStore.showSuccess('Wishlist collection cleared! 💔', 'Cleared Wishlist');
+async function clearAllWishlist() {
+  const confirmStore = useConfirmStore();
+  const confirmed = await confirmStore.showConfirm({
+    title: 'Clear Collection',
+    message: 'Are you sure you want to remove all books from your collection? This action cannot be undone.',
+    confirmText: 'Clear All',
+    type: 'danger'
+  });
+
+  if (confirmed) {
+    wishlistStore.wishlistIds = [];
+    wishlistStore.saveWishlist();
+    toastStore.showSuccess('Your collection has been cleared.', 'Collection Cleared');
+  }
 }
 
 function openReaderModal(book) {

@@ -6,23 +6,23 @@
           class="fixed inset-0 z-[99999] bg-[#0b0f19]/65 backdrop-blur-[8px] flex justify-end max-sm:items-stretch" 
           @click.self="notifStore.closeDrawer"
         >
-          <div class="w-full max-w-[420px] max-sm:max-w-[340px] max-sm:w-[88vw] h-full bg-[var(--bg-secondary)] backdrop-blur-[24px] border-l border-[var(--border-color)] flex flex-col shadow-[-10px_0_40px_rgba(0,0,0,0.3)] max-sm:shadow-[-10px_0_40px_rgba(0,0,0,0.5)] notif-drawer-content glass-panel">
+          <div class="w-full max-w-[420px] max-sm:max-w-[340px] max-sm:w-[88vw] h-full bg-[var(--bg-primary)] border-l border-[var(--border-color)] flex flex-col shadow-2xl notif-drawer-content overflow-hidden">
             <!-- Drawer Mobile Drag Handle -->
             <div class="hidden">
               <span class="handle-bar"></span>
             </div>
   
             <!-- Drawer Header -->
-            <header class="px-6 pt-5 pb-4 flex items-start justify-between border-b border-[var(--border-color)] bg-[var(--bg-secondary)]">
+            <header class="px-5 pt-5 pb-4 flex items-start justify-between border-b border-[var(--border-color)] bg-[var(--bg-primary)]">
               <div class="drawer-title-group">
-                <div class="flex items-center gap-2">
-                  <Bell :size="20" class="text-[var(--accent-primary)]" />
-                  <h3 class="text-[1.15rem] font-extrabold text-[var(--text-primary)] m-0">Notifications</h3>
-                  <span v-if="notifStore.unreadCount > 0" class="text-[0.7rem] font-bold px-2 py-0.5 rounded-full bg-red-500/15 border border-red-500/40 text-red-500">
-                    {{ notifStore.unreadCount }} new
+                <div class="flex items-center gap-2 mb-1">
+                  <Bell :size="18" class="text-[var(--text-primary)]" />
+                  <h3 class="text-[1.05rem] font-bold text-[var(--text-primary)] m-0">Notifications</h3>
+                  <span v-if="notifStore.unreadCount > 0" class="text-[0.65rem] font-bold px-1.5 py-0.5 rounded bg-[var(--text-primary)] text-[var(--bg-primary)] tracking-wide">
+                    {{ notifStore.unreadCount }} New
                   </span>
                 </div>
-                <p class="text-[0.78rem] text-[var(--text-muted)] m-0 mt-1">DUC Library announcements & borrowing updates</p>
+                <p class="text-[0.8rem] text-[var(--text-secondary)] m-0 leading-tight">Announcements & borrowing updates</p>
               </div>
   
               <button @click="notifStore.closeDrawer" class="bg-transparent border-none text-[var(--text-muted)] p-1 rounded-full cursor-pointer flex items-center justify-center transition-all duration-200 hover:text-[var(--text-primary)] hover:bg-gray-500/15" title="Close">
@@ -55,50 +55,46 @@
             </div>
   
             <!-- Notifications List Body -->
-            <div class="flex-1 overflow-y-auto p-5 bg-[var(--bg-primary)]">
+            <div class="flex-1 overflow-y-auto p-4 bg-[var(--bg-primary)] custom-scrollbar">
               <!-- Notification Items & Empty State -->
-              <TransitionGroup name="notif-list" tag="div" class="flex flex-col gap-3 relative w-full min-h-[300px]">
+              <TransitionGroup name="notif-list" tag="div" class="flex flex-col gap-2 relative w-full min-h-[300px]">
                 
                 <!-- Empty State -->
-                <div v-if="notifStore.notifications.length === 0" key="empty-state" class="text-center py-14 px-6 text-[var(--text-muted)] w-full absolute inset-0 m-auto h-fit transition-all duration-300">
-                  <div class="w-[72px] h-[72px] mx-auto mb-5 rounded-full bg-[var(--bg-card)] border border-[var(--border-color)] flex items-center justify-center">
-                    <BellOff :size="40" class="text-[var(--text-muted)]" />
+                <div v-if="notifStore.notifications.length === 0" key="empty-state" class="text-center py-16 px-6 text-[var(--text-muted)] w-full absolute inset-0 m-auto h-fit transition-all duration-300">
+                  <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-[var(--bg-card)] border border-[var(--border-color)] flex items-center justify-center">
+                    <BellOff :size="24" class="text-[var(--text-muted)]" />
                   </div>
-                  <h4 class="text-[1.1rem] font-bold text-[var(--text-primary)] mb-1.5">No Notifications</h4>
-                  <p class="text-[0.82rem] leading-relaxed">You're all caught up! Borrowing updates and library announcements will appear here.</p>
+                  <h4 class="text-[0.95rem] font-bold text-[var(--text-primary)] mb-1">No Notifications</h4>
+                  <p class="text-[0.85rem] leading-relaxed">You're all caught up!</p>
                 </div>
 
                 <!-- Notification Items -->
                 <div 
                   v-for="item in notifStore.notifications" 
                   :key="item.id"
-                  class="px-4 py-3.5 rounded-[var(--radius-md)] bg-[var(--bg-card)] border border-[var(--border-color)] cursor-pointer transition-all duration-200 relative shadow-[0_2px_8px_rgba(0,0,0,0.05)] hover:border-[var(--border-highlight)]"
-                  :class="{ 'bg-indigo-500/10 border-indigo-500/35': !item.read }"
+                  class="px-4 py-3 rounded-md bg-[var(--bg-card)] border border-[var(--border-color)] cursor-pointer transition-colors hover:bg-[var(--bg-card-hover)] relative"
                   @click="notifStore.markAsRead(item.id)"
                 >
-                  <div class="flex items-start justify-between gap-2 mb-1.5">
+                  <div v-if="!item.read" class="absolute left-0 top-0 bottom-0 w-[3px] bg-indigo-500 rounded-l-md"></div>
+
+                  <div class="flex items-start justify-between gap-2 mb-1">
                     <div class="flex items-center gap-2 flex-1">
-                      <span class="w-2 h-2 rounded-full shrink-0" :class="{
-                        'bg-indigo-500 shadow-[0_0_8px_#6366f1]': !item.type || item.type === 'info',
-                        'bg-amber-500 shadow-[0_0_8px_#f59e0b]': item.type === 'featured',
-                        'bg-emerald-500 shadow-[0_0_8px_#10b981]': item.type === 'system'
-                      }"></span>
-                      <h4 class="text-[0.88rem] font-bold text-[var(--text-primary)] m-0 leading-[1.35]">{{ item.title }}</h4>
+                      <h4 class="text-[0.9rem] font-bold text-[var(--text-primary)] m-0 leading-tight" :class="!item.read ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'">{{ item.title }}</h4>
                     </div>
-                    <span class="text-[0.7rem] text-[var(--text-muted)] whitespace-nowrap shrink-0">{{ formatTime(item.timestamp) }}</span>
+                    <span class="text-[0.7rem] font-semibold text-[var(--text-muted)] whitespace-nowrap shrink-0">{{ formatTime(item.timestamp) }}</span>
                   </div>
   
-                  <p class="text-[0.8rem] text-[var(--text-secondary)] leading-[1.4] m-0 mb-2">{{ item.message }}</p>
+                  <p class="text-[0.8rem] text-[var(--text-secondary)] leading-snug m-0 mb-2">{{ item.message }}</p>
   
-                  <div class="flex items-center justify-between">
-                    <span v-if="!item.read" class="text-[0.68rem] font-bold text-indigo-400">● New</span>
+                  <div class="flex items-center justify-between mt-2">
+                    <span class="text-[0.7rem] font-bold uppercase tracking-wider text-indigo-500">{{ !item.read ? 'New' : '' }}</span>
                     <button 
                       @click.stop="handleRemove(item.id)" 
-                      class="bg-transparent border-none text-[var(--text-muted)] cursor-pointer p-1 rounded ml-auto transition-colors duration-200 hover:text-red-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                      class="bg-transparent border-none text-[var(--text-muted)] cursor-pointer p-1 -mr-1 rounded-md transition-colors hover:bg-[var(--bg-primary)] hover:text-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
                       title="Remove"
                       :disabled="deletingId === item.id"
                     >
-                      <Loader2 v-if="deletingId === item.id" :size="14" class="animate-spin text-red-400" />
+                      <Loader2 v-if="deletingId === item.id" :size="14" class="animate-spin text-red-500" />
                       <Trash2 v-else :size="14" />
                     </button>
                   </div>

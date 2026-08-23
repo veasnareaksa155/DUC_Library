@@ -6,27 +6,26 @@
     <!-- Main Content Area -->
     <main class="flex-1 py-8 px-10 pb-20 w-[calc(100%-280px)] max-w-none">
       <header class="mb-10 flex flex-col gap-2">
-        <div class="flex items-center gap-3 text-indigo-500 mb-1">
-          <ClipboardList :size="28" class="p-1.5 bg-indigo-500/10 rounded-lg shadow-sm" />
-          <h1 class="text-[2.2rem] font-extrabold tracking-tight">{{ localeStore.t('requests') }} <span class="text-transparent bg-clip-text [background-image:var(--accent-gradient)]">Management</span></h1>
+        <div class="flex items-center gap-3 mb-1">
+          <h1 class="text-[2.2rem] font-extrabold tracking-tight text-[var(--text-primary)]">{{ localeStore.t('requests') }} Management</h1>
         </div>
         <p class="text-[0.95rem] text-[var(--text-secondary)] max-w-2xl leading-relaxed">Approve student book requests, record returns, or reject pending applications with a streamlined process.</p>
       </header>
 
-      <div class="glass-panel border border-[var(--border-color)] rounded-[var(--radius-xl)] shadow-[0_8px_30px_rgba(0,0,0,0.04)] overflow-hidden flex flex-col transition-all duration-300">
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden flex flex-col transition-all duration-300">
         <!-- Header & Filters -->
         <div class="p-5 sm:p-6 border-b border-[var(--border-color)] bg-[var(--bg-card)] flex items-center justify-between gap-6 flex-wrap">
-          <div class="flex gap-1.5 p-1.5 bg-gray-500/5 rounded-xl border border-[var(--border-color)]/50 shadow-inner overflow-x-auto max-w-full">
+          <div class="flex gap-2 p-1 bg-[var(--bg-primary)] rounded-md border border-[var(--border-color)] overflow-x-auto max-w-full shadow-sm">
             <button 
               v-for="tab in ['all', 'pending', 'approved', 'returned', 'rejected']" 
               :key="tab"
               @click="activeFilter = tab"
-              class="relative px-5 py-2 rounded-lg text-[0.82rem] font-bold tracking-wide transition-all duration-300 capitalize overflow-hidden group whitespace-nowrap shrink-0"
-              :class="activeFilter === tab ? 'text-white shadow-md [background:var(--accent-gradient)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-gray-500/10'"
+              class="relative px-5 py-2 rounded-md text-[0.85rem] font-bold tracking-wide transition-all duration-300 capitalize overflow-hidden group whitespace-nowrap shrink-0 flex items-center gap-2"
+              :class="activeFilter === tab ? 'bg-white dark:bg-[var(--bg-card)] text-[var(--text-primary)] shadow-sm border border-[var(--border-color)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-gray-500/5 border border-transparent'"
             >
               {{ tab }}
               <!-- Notification Badge for Pending -->
-              <span v-if="tab === 'pending' && pendingCount > 0" class="ml-1.5 px-1.5 py-0.5 rounded-full text-[0.65rem] font-extrabold" :class="activeFilter === 'pending' ? 'bg-white/20 text-white shadow-sm' : 'bg-red-500/10 text-red-500'">{{ pendingCount }}</span>
+              <span v-if="tab === 'pending' && pendingCount > 0" class="px-1.5 py-0.5 rounded-md text-[0.65rem] font-bold" :class="activeFilter === 'pending' ? 'bg-amber-500/10 text-amber-600 dark:text-amber-500' : 'bg-red-500/10 text-red-500'">{{ pendingCount }}</span>
             </button>
           </div>
           
@@ -85,7 +84,7 @@
         <div v-else class="overflow-x-auto">
           <table class="w-full text-left border-collapse min-w-[900px]">
             <thead>
-              <tr class="bg-gray-500/5 text-[var(--text-muted)] text-[0.75rem] font-extrabold uppercase tracking-wider">
+              <tr class="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 text-[0.7rem] font-bold uppercase tracking-[0.1em] border-b border-[var(--border-color)]">
                 <th class="px-6 py-4 border-b border-[var(--border-color)] whitespace-nowrap">Member / Student</th>
                 <th class="px-6 py-4 border-b border-[var(--border-color)] w-[30%]">Requested Book</th>
                 <th class="px-6 py-4 border-b border-[var(--border-color)] whitespace-nowrap">Dates</th>
@@ -97,7 +96,7 @@
               <tr v-for="item in paginatedBorrowings" :key="item.id" class="group hover:bg-gray-500/5 transition-colors duration-200">
                 <td class="px-6 py-4">
                   <div class="flex items-center gap-3.5">
-                    <div class="w-10 h-10 rounded-full [background-image:var(--accent-gradient)] text-white flex items-center justify-center font-bold text-[1.1rem] shadow-sm shrink-0">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-sm dark:text-indigo-400 flex items-center justify-center font-bold text-[0.95rem] border border-indigo-100 dark:border-indigo-500/20 shrink-0">
                       {{ item.user_name?.charAt(0).toUpperCase() }}
                     </div>
                     <div class="flex flex-col">
@@ -125,14 +124,14 @@
                   </div>
                 </td>
                 <td class="px-6 py-4 text-center align-middle">
-                  <span class="badge shadow-sm" :class="`badge-${item.status}`">{{ localeStore.t(item.status) || item.status.toUpperCase() }}</span>
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[0.72rem] font-bold uppercase tracking-wider border shadow-[0_2px_10px_-4px_rgba(0,0,0,0.1)] transition-colors" :class="getStatusBadgeClass(item.status)">{{ localeStore.t(item.status) || item.status.toUpperCase() }}</span>
                 </td>
                 <td class="px-6 py-4 text-right align-middle">
                   <div class="flex justify-end gap-2.5">
                     <button 
                       v-if="item.status === 'pending'"
                       @click="updateStatus(item.id, 'approved', item)" 
-                      class="btn btn-success btn-sm !px-3 shadow-sm hover:shadow-md hover:scale-105"
+                      class="inline-flex items-center justify-center font-bold rounded-lg transition-all duration-300 ease-out active:scale-95 bg-emerald-100/50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500 hover:text-white hover:shadow-[0_4px_12px_rgba(16,185,129,0.3)] hover:-translate-y-0.5 px-3 py-2 text-[0.8rem]"
                       :class="loadingActionId === item.id && loadingActionType === 'approved' ? 'opacity-70 cursor-not-allowed' : ''"
                       :disabled="loadingActionId === item.id"
                       title="Approve Request"
@@ -144,7 +143,7 @@
                     <button 
                       v-if="item.status === 'pending'"
                       @click="updateStatus(item.id, 'rejected', item)" 
-                      class="btn btn-danger btn-sm !px-3 shadow-sm hover:shadow-md hover:scale-105"
+                      class="inline-flex items-center justify-center font-bold rounded-lg transition-all duration-300 ease-out active:scale-95 bg-red-100/50 dark:bg-red-500/10 text-red-600 dark:text-red-400 hover:bg-red-500 hover:text-white hover:shadow-[0_4px_12px_rgba(239,68,68,0.3)] hover:-translate-y-0.5 px-3 py-2 text-[0.8rem]"
                       :class="loadingActionId === item.id && loadingActionType === 'rejected' ? 'opacity-70 cursor-not-allowed' : ''"
                       :disabled="loadingActionId === item.id"
                       title="Reject Request"
@@ -156,7 +155,7 @@
                     <button 
                       v-if="item.status === 'approved'"
                       @click="updateStatus(item.id, 'returned', item)" 
-                      class="btn btn-primary btn-sm shadow-sm hover:shadow-md group-hover:shadow-[0_4px_12px_rgba(99,102,241,0.3)]"
+                      class="inline-flex items-center justify-center gap-1.5 font-bold rounded-lg transition-all duration-300 ease-out active:scale-95 bg-indigo-600 text-white shadow-md hover:bg-indigo-700 hover:shadow-[0_4px_12px_rgba(79,70,229,0.4)] hover:-translate-y-0.5 px-4 py-2 text-[0.85rem]"
                       :class="loadingActionId === item.id && loadingActionType === 'returned' ? 'opacity-70 cursor-not-allowed' : ''"
                       :disabled="loadingActionId === item.id"
                     >
@@ -168,29 +167,29 @@
                     <button 
                       v-if="item.status !== 'returned' && item.status !== 'rejected'"
                       @click="sendDueReminder(item)" 
-                      class="btn btn-secondary btn-sm shadow-sm hover:shadow-md border-[var(--border-highlight)] hover:border-indigo-500 text-indigo-500 hover:bg-indigo-500/10 transition-all duration-300"
+                      class="inline-flex items-center justify-center gap-1.5 font-bold rounded-lg transition-all duration-300 ease-out active:scale-95 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-500/30 hover:bg-indigo-600 hover:text-white hover:border-transparent hover:shadow-[0_4px_12px_rgba(79,70,229,0.3)] hover:-translate-y-0.5 px-3 py-2 text-[0.8rem]"
                       :class="loadingActionId === item.id && loadingActionType === 'reminder' ? 'opacity-70 cursor-not-allowed' : ''"
                       :disabled="loadingActionId === item.id"
                       title="Send Due Date & Return Notification to Phone"
                     >
                       <Loader2 v-if="loadingActionId === item.id && loadingActionType === 'reminder'" :size="15" class="animate-spin" />
-                      <BellRing v-else :size="15" class="group-hover:animate-swing" /> 
+                      <BellRing v-else :size="15" /> 
                       <span class="max-xl:hidden">{{ loadingActionId === item.id && loadingActionType === 'reminder' ? 'Sending...' : 'Reminder' }}</span>
                     </button>
 
                     <div v-if="item.status === 'returned' || item.status === 'rejected'" class="flex items-center justify-end gap-2">
-                      <span class="text-[0.75rem] font-bold text-[var(--text-muted)] uppercase tracking-wider px-3 py-1.5 bg-gray-500/5 rounded-md border border-[var(--border-color)] flex items-center gap-1.5">
+                      <span class="text-[0.75rem] font-bold text-[var(--text-muted)] uppercase tracking-wider px-3 py-1 bg-[var(--bg-primary)] rounded-md border border-[var(--border-color)] flex items-center gap-1.5 shadow-sm">
                         <Check :size="14" /> Closed
                       </span>
                       <button 
                         @click="deleteRequest(item)" 
-                        class="btn btn-sm btn-danger !px-2.5 shadow-sm hover:shadow-md hover:scale-105 opacity-60 hover:opacity-100"
+                        class="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-all duration-200 hover:-translate-y-0.5"
                         :class="loadingActionId === item.id && loadingActionType === 'delete' ? 'cursor-not-allowed' : ''"
                         :disabled="loadingActionId === item.id"
                         title="Delete Request Record"
                       >
                         <Loader2 v-if="loadingActionId === item.id && loadingActionType === 'delete'" :size="16" class="animate-spin" />
-                        <Trash2 v-else :size="16" />
+                        <Trash2 v-else :size="16" stroke-width="2" />
                       </button>
                     </div>
                   </div>
@@ -398,6 +397,16 @@ function isOverdue(dueDate, status) {
   if (isNaN(d.getTime()) || d.getFullYear() <= 1970) return false;
   
   return d < new Date();
+}
+
+function getStatusBadgeClass(status) {
+  const map = {
+    pending: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20',
+    approved: 'bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-500/10 dark:text-indigo-400 dark:border-indigo-500/20',
+    returned: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20',
+    rejected: 'bg-red-50 text-red-700 border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20'
+  };
+  return map[status] || 'bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-500/10 dark:text-gray-400 dark:border-gray-500/20';
 }
 </script>
 

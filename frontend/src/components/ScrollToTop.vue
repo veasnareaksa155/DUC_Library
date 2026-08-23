@@ -3,18 +3,32 @@
     <button 
       v-if="isVisible" 
       @click="scrollToTop" 
-      class="fixed bottom-6 right-6 max-md:bottom-[108px] max-md:right-[14px] w-[44px] h-[44px] max-md:w-[40px] max-md:h-[40px] rounded-full bg-[var(--bg-card,rgba(30,41,59,0.85))] backdrop-blur-[16px] border border-[var(--border-highlight,rgba(99,102,241,0.4))] text-[var(--text-primary,#ffffff)] flex items-center justify-center cursor-pointer z-[999] shadow-[0_10px_25px_rgba(0,0,0,0.25),0_0_15px_rgba(99,102,241,0.3)] transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] select-none hover:-translate-y-1 hover:scale-110 hover:bg-[var(--accent-gradient,linear-gradient(135deg,#6366f1_0%,#8b5cf6_100%))] hover:text-white hover:border-transparent hover:shadow-[0_14px_30px_rgba(99,102,241,0.5)] active:scale-95 glass-panel"
+      :class="[
+        'fixed w-[50px] h-[50px] md:w-[60px] md:h-[60px] rounded-full bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-secondary)] flex items-center justify-center cursor-pointer z-[999] shadow-md transition-all duration-300 hover:-translate-y-1 hover:text-[var(--text-primary)] hover:border-[var(--border-highlight)] hover:shadow-lg active:scale-95',
+        hasCheckinBtn 
+          ? 'bottom-[108px] right-8 max-md:bottom-[150px] max-md:right-4' 
+          : 'bottom-8 right-8 max-md:bottom-[85px] max-md:right-4'
+      ]"
       title="Back to Top"
       aria-label="Back to Top"
     >
-      <ChevronUp :size="20" />
+      <ChevronUp class="w-[20px] h-[20px] md:w-[24px] md:h-[24px]" />
     </button>
   </Transition>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { ChevronUp } from 'lucide-vue-next';
+import { useAuthStore } from '../stores/auth';
+import { useRoute } from 'vue-router';
+
+const authStore = useAuthStore();
+const route = useRoute();
+
+const hasCheckinBtn = computed(() => {
+  return authStore.isAuthenticated && authStore.user?.role !== 'admin' && !route.path.startsWith('/read');
+});
 
 const isVisible = ref(false);
 

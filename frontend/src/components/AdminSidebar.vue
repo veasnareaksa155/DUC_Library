@@ -1,5 +1,5 @@
 <template>
-  <aside class="w-[280px] h-fit max-h-[calc(100vh-2rem)] sticky top-4 self-start m-4 ml-4 flex flex-col p-6 rounded-[var(--radius-xl)] z-40 shrink-0 box-border max-[900px]:hidden glass-panel border border-[var(--border-color)] shadow-[0_8px_32px_rgba(0,0,0,0.05)] transition-all duration-300">
+  <aside class="w-[280px] h-fit max-h-[calc(100vh-2rem)] sticky top-4 self-start m-4 ml-4 flex flex-col p-6 rounded-[var(--radius-xl)] z-40 shrink-0 box-border max-[900px]:hidden bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.05)] transition-all duration-300">
     <!-- Brand Header -->
     <div class="pb-6 mb-6 border-b border-[var(--border-color)]">
       <router-link to="/admin" class="flex items-center gap-3.5 group">
@@ -49,6 +49,13 @@
         </div>
         <span class="tracking-wide flex-1">{{ localeStore.t('requests') }}</span>
         <span v-if="pendingCount > 0" class="bg-red-500/10 text-red-500 group-[.active]:bg-white/20 group-[.active]:text-white text-[0.7rem] font-extrabold px-2 py-0.5 rounded-full transition-colors">{{ pendingCount }}</span>
+      </router-link>
+
+      <router-link to="/admin/checkins" class="group flex items-center gap-3.5 px-3.5 py-3 rounded-2xl text-[var(--text-secondary)] text-[0.92rem] font-semibold transition-all duration-300 hover:text-[var(--text-primary)] hover:bg-indigo-500/10 [&.active]:text-white [&.active]:[background:var(--accent-gradient)] [&.active]:shadow-[0_8px_20px_rgba(99,102,241,0.35)]" active-class="active">
+        <div class="flex items-center justify-center w-8 h-8 rounded-[10px] transition-all duration-300 [&.active]:bg-white/20 group-[.active]:bg-white/20 group-hover:not(.active):text-indigo-500 group-hover:not(.active):bg-indigo-500/10">
+          <MapPin :size="18" class="transition-transform duration-300 group-hover:scale-110" />
+        </div>
+        <span class="tracking-wide">{{ localeStore.t('checkins', 'Check-Ins') }}</span>
       </router-link>
 
       <router-link to="/admin/users" class="group flex items-center gap-3.5 px-3.5 py-3 rounded-2xl text-[var(--text-secondary)] text-[0.92rem] font-semibold transition-all duration-300 hover:text-[var(--text-primary)] hover:bg-indigo-500/10 [&.active]:text-white [&.active]:[background:var(--accent-gradient)] [&.active]:shadow-[0_8px_20px_rgba(99,102,241,0.35)]" active-class="active">
@@ -102,7 +109,7 @@ import { useConfirmStore } from '../stores/confirm';
 import { useRouter } from 'vue-router';
 import { 
   ShieldCheck, LayoutDashboard, BookPlus, ClipboardList, 
-  Users, Globe, Sun, Moon, LogOut, Tags 
+  Users, Globe, Sun, Moon, LogOut, Tags, MapPin
 } from 'lucide-vue-next';
 
 const authStore = useAuthStore();

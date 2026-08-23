@@ -6,44 +6,38 @@
 
       <!-- Modal Content -->
       <Transition name="confirm-scale" appear>
-        <div class="relative w-full max-w-[420px] bg-[var(--bg-card)] rounded-[1.5rem] p-7 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] border border-[var(--border-color)] overflow-hidden">
+        <div class="relative w-full max-w-sm bg-[var(--bg-secondary)] rounded-xl p-6 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] border border-[var(--border-color)] overflow-hidden text-left">
           
-          <!-- Background Glow -->
-          <div class="absolute -top-[100px] -right-[100px] w-[200px] h-[200px] rounded-full blur-[80px] opacity-20 pointer-events-none"
-               :class="{
-                 'bg-red-500': confirmStore.type === 'danger',
-                 'bg-amber-500': confirmStore.type === 'warning',
-                 'bg-indigo-500': confirmStore.type === 'info'
-               }"></div>
+          <div class="flex items-start gap-4">
+            <!-- Icon -->
+            <div class="shrink-0 flex items-center justify-center w-10 h-10 rounded-full mt-0.5"
+                 :class="{
+                   'bg-red-500/10 text-red-500': confirmStore.type === 'danger',
+                   'bg-amber-500/10 text-amber-500': confirmStore.type === 'warning',
+                   'bg-indigo-500/10 text-indigo-500': confirmStore.type === 'info'
+                 }">
+              <LogOut v-if="confirmStore.title.toLowerCase().includes('log out')" :size="20" stroke-width="2.5" />
+              <AlertTriangle v-else-if="confirmStore.type === 'danger' || confirmStore.type === 'warning'" :size="20" stroke-width="2.5" />
+              <Info v-else :size="20" stroke-width="2.5" />
+            </div>
 
-          <!-- Icon Header -->
-          <div class="mb-5 relative z-10 flex items-center justify-center w-16 h-16 rounded-[1.2rem] shadow-sm border mx-auto"
-               :class="{
-                 'bg-red-500/15 border-red-500/30 text-red-500 shadow-[0_0_20px_rgba(239,68,68,0.2)]': confirmStore.type === 'danger',
-                 'bg-amber-500/15 border-amber-500/30 text-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.2)]': confirmStore.type === 'warning',
-                 'bg-indigo-500/15 border-indigo-500/30 text-indigo-500 shadow-[0_0_20px_rgba(99,102,241,0.2)]': confirmStore.type === 'info'
-               }">
-            <LogOut v-if="confirmStore.title.toLowerCase().includes('log out')" :size="32" stroke-width="2.5" />
-            <AlertTriangle v-else-if="confirmStore.type === 'danger' || confirmStore.type === 'warning'" :size="32" stroke-width="2.5" />
-            <Info v-else :size="32" stroke-width="2.5" />
-          </div>
-
-          <!-- Text content -->
-          <div class="text-center relative z-10 mb-8">
-            <h3 class="text-[1.3rem] font-extrabold text-[var(--text-primary)] mb-2.5 tracking-tight">{{ confirmStore.title }}</h3>
-            <p class="text-[0.95rem] text-[var(--text-secondary)] leading-relaxed m-0">{{ confirmStore.message }}</p>
+            <!-- Text content -->
+            <div class="flex-1 min-w-0">
+              <h3 class="text-[1.1rem] font-semibold text-[var(--text-primary)] mb-1 tracking-tight">{{ confirmStore.title }}</h3>
+              <p class="text-[0.9rem] text-[var(--text-secondary)] leading-relaxed m-0">{{ confirmStore.message }}</p>
+            </div>
           </div>
 
           <!-- Action Buttons -->
-          <div class="flex gap-3 relative z-10">
-            <button @click="confirmStore.cancel" class="flex-1 py-3 px-4 rounded-xl font-bold text-[0.95rem] bg-gray-500/5 hover:bg-gray-500/15 text-[var(--text-primary)] transition-colors duration-200 cursor-pointer border border-[var(--border-color)]">
+          <div class="mt-6 flex items-center justify-end gap-3">
+            <button @click="confirmStore.cancel" class="px-4 py-2 rounded-lg font-semibold text-[0.9rem] bg-transparent text-[var(--text-primary)] border border-[var(--border-color)] hover:bg-[var(--bg-card-hover)] transition-colors cursor-pointer">
               {{ confirmStore.cancelText }}
             </button>
-            <button @click="confirmStore.confirm" class="flex-1 py-3 px-4 rounded-xl font-bold text-[0.95rem] text-white shadow-[0_4px_12px_rgba(0,0,0,0.1)] transition-transform duration-200 hover:-translate-y-px active:scale-95 cursor-pointer border-none"
+            <button @click="confirmStore.confirm" class="px-4 py-2 rounded-lg font-semibold text-[0.9rem] text-white transition-colors cursor-pointer border-none"
                     :class="{
-                      'bg-gradient-to-r from-red-600 to-red-500 shadow-[0_4px_15px_rgba(239,68,68,0.3)]': confirmStore.type === 'danger',
-                      'bg-gradient-to-r from-amber-500 to-orange-500 shadow-[0_4px_15px_rgba(245,158,11,0.3)]': confirmStore.type === 'warning',
-                      'bg-gradient-to-r from-indigo-500 to-violet-500 shadow-[0_4px_15px_rgba(99,102,241,0.3)]': confirmStore.type === 'info'
+                      'bg-red-600 hover:bg-red-700': confirmStore.type === 'danger',
+                      'bg-amber-500 hover:bg-amber-600': confirmStore.type === 'warning',
+                      'bg-[var(--text-primary)] !text-[var(--bg-primary)] hover:opacity-80': confirmStore.type === 'info'
                     }">
               {{ confirmStore.confirmText }}
             </button>

@@ -1,50 +1,40 @@
 <template>
-  <!-- Floating Check-In Button for Mobile -->
+  <!-- Floating Check-In Button (Global for Mobile & Desktop) -->
   <button 
     v-if="authStore.isAuthenticated && authStore.user?.role !== 'admin' && !hideOnReadPage"
     @click="openCheckinModal"
-    class="hidden md:hidden max-md:flex fixed right-4 bottom-[85px] w-[50px] h-[50px] rounded-full items-center justify-center text-white shadow-[0_4px_16px_rgba(16,185,129,0.4)] z-[9998] transition-all duration-300 border-none outline-none cursor-pointer"
-    :class="checkinStore.hasCheckedInToday ? 'bg-emerald-500 shadow-[0_4px_16px_rgba(16,185,129,0.4)]' : 'bg-gradient-to-br from-indigo-500 to-violet-600 shadow-[0_4px_16px_rgba(99,102,241,0.4)] hover:scale-105 active:scale-95'"
+    class="flex fixed right-4 md:right-8 bottom-[85px] md:bottom-8 w-[50px] h-[50px] md:w-[60px] md:h-[60px] rounded-full items-center justify-center text-[var(--bg-primary)] z-[9998] transition-all duration-300 outline-none cursor-pointer border border-[var(--border-color)] shadow-md hover:shadow-lg hover:-translate-y-1 active:scale-95"
+    :class="checkinStore.hasCheckedInToday ? 'bg-emerald-500 text-white' : 'bg-[var(--text-primary)]'"
     :title="checkinStore.hasCheckedInToday ? 'Checked In' : 'Check In to Library'"
   >
-    <MapPin :size="22" :class="{ 'animate-bounce': !checkinStore.hasCheckedInToday }" />
+    <MapPin :size="24" :class="{ 'animate-bounce': !checkinStore.hasCheckedInToday }" />
   </button>
 
-  <nav v-if="!hideOnReadPage" class="hidden md:hidden max-md:flex items-center justify-around fixed bottom-4 left-4 right-4 h-[60px] px-2 bg-[var(--bg-card)]/85 backdrop-blur-3xl rounded-[30px] border border-[var(--border-highlight)] shadow-[0_20px_40px_-10px_rgba(0,0,0,0.2)] dark:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.6)] z-[9999]">
+  <nav v-if="!hideOnReadPage" class="hidden md:hidden max-md:flex items-center justify-around fixed bottom-0 left-0 right-0 h-[64px] bg-[var(--bg-card)] border-t border-[var(--border-color)] z-[9999] pb-[env(safe-area-inset-bottom)]">
     
-    <button @click="goToHome" class="relative flex flex-1 h-full items-center justify-center text-[var(--text-secondary)] transition-colors duration-300 bg-transparent border-none cursor-pointer p-0 group [-webkit-tap-highlight-color:transparent]" :class="{ 'text-indigo-600 dark:text-indigo-400': isHomeActive }">
-      <div class="w-full h-full flex flex-col items-center justify-center relative transition-transform duration-200 group-active:scale-90">
-        <Home :size="22" :stroke-width="isHomeActive ? 2.5 : 2" class="absolute transition-all duration-400 ease-[cubic-bezier(0.34,1.56,0.64,1)]" :class="isHomeActive ? 'top-[18%] drop-shadow-[0_4px_8px_rgba(79,70,229,0.3)]' : 'top-[50%] -translate-y-[50%]'" />
-        <span class="absolute bottom-[15%] text-[0.6rem] font-bold tracking-wide transition-all duration-400 ease-[cubic-bezier(0.34,1.56,0.64,1)]" :class="isHomeActive ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-4 scale-75'">{{ localeStore.t('home') || 'Home' }}</span>
-      </div>
+    <button @click="goToHome" class="flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors cursor-pointer border-none bg-transparent" :class="isHomeActive ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'">
+      <Home :size="22" :stroke-width="isHomeActive ? 2.5 : 2" />
+      <span class="text-[0.65rem] font-semibold">{{ localeStore.t('home') || 'Home' }}</span>
     </button>
 
-    <button @click="goToCatalog" class="relative flex flex-1 h-full items-center justify-center text-[var(--text-secondary)] transition-colors duration-300 bg-transparent border-none cursor-pointer p-0 group [-webkit-tap-highlight-color:transparent]" :class="{ 'text-indigo-600 dark:text-indigo-400': isCatalogActive }">
-      <div class="w-full h-full flex flex-col items-center justify-center relative transition-transform duration-200 group-active:scale-90">
-        <BookOpen :size="22" :stroke-width="isCatalogActive ? 2.5 : 2" class="absolute transition-all duration-400 ease-[cubic-bezier(0.34,1.56,0.64,1)]" :class="isCatalogActive ? 'top-[18%] drop-shadow-[0_4px_8px_rgba(79,70,229,0.3)]' : 'top-[50%] -translate-y-[50%]'" />
-        <span class="absolute bottom-[15%] text-[0.6rem] font-bold tracking-wide transition-all duration-400 ease-[cubic-bezier(0.34,1.56,0.64,1)]" :class="isCatalogActive ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-4 scale-75'">{{ localeStore.t('catalog') || 'Catalog' }}</span>
-      </div>
+    <button @click="goToCatalog" class="flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors cursor-pointer border-none bg-transparent" :class="isCatalogActive ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'">
+      <BookOpen :size="22" :stroke-width="isCatalogActive ? 2.5 : 2" />
+      <span class="text-[0.65rem] font-semibold">{{ localeStore.t('catalog') || 'Catalog' }}</span>
     </button>
 
-    <router-link v-if="authStore.isAuthenticated" to="/my-borrowings" class="relative flex flex-1 h-full items-center justify-center text-[var(--text-secondary)] transition-colors duration-300 bg-transparent border-none cursor-pointer p-0 group no-underline [-webkit-tap-highlight-color:transparent]" :class="{ 'text-indigo-600 dark:text-indigo-400': route.path === '/my-borrowings' }">
-      <div class="w-full h-full flex flex-col items-center justify-center relative transition-transform duration-200 group-active:scale-90">
-        <Bookmark :size="22" :stroke-width="route.path === '/my-borrowings' ? 2.5 : 2" class="absolute transition-all duration-400 ease-[cubic-bezier(0.34,1.56,0.64,1)]" :class="route.path === '/my-borrowings' ? 'top-[18%] drop-shadow-[0_4px_8px_rgba(79,70,229,0.3)]' : 'top-[50%] -translate-y-[50%]'" />
-        <span class="absolute bottom-[15%] text-[0.6rem] font-bold tracking-wide transition-all duration-400 ease-[cubic-bezier(0.34,1.56,0.64,1)]" :class="route.path === '/my-borrowings' ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-4 scale-75'">{{ localeStore.t('myBooks') || 'My Books' }}</span>
-      </div>
+    <router-link v-if="authStore.isAuthenticated" to="/my-borrowings" class="flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors no-underline" :class="route.path === '/my-borrowings' ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'">
+      <Bookmark :size="22" :stroke-width="route.path === '/my-borrowings' ? 2.5 : 2" />
+      <span class="text-[0.65rem] font-semibold">{{ localeStore.t('myBooks') || 'My Books' }}</span>
     </router-link>
 
-    <button @click="goToWishlist" class="relative flex flex-1 h-full items-center justify-center text-[var(--text-secondary)] transition-colors duration-300 bg-transparent border-none cursor-pointer p-0 group [-webkit-tap-highlight-color:transparent]" :class="{ 'text-pink-600 dark:text-pink-400': isWishlistActive }">
-      <div class="w-full h-full flex flex-col items-center justify-center relative transition-transform duration-200 group-active:scale-90">
-        <Heart :size="22" :stroke-width="isWishlistActive ? 2.5 : 2" :fill="isWishlistActive ? 'currentColor' : 'none'" class="absolute transition-all duration-400 ease-[cubic-bezier(0.34,1.56,0.64,1)]" :class="isWishlistActive ? 'top-[18%] drop-shadow-[0_4px_8px_rgba(236,72,153,0.3)]' : 'top-[50%] -translate-y-[50%]'" />
-        <span class="absolute bottom-[15%] text-[0.6rem] font-bold tracking-wide transition-all duration-400 ease-[cubic-bezier(0.34,1.56,0.64,1)]" :class="isWishlistActive ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-4 scale-75'">{{ localeStore.t('wishlist') || 'Wishlist' }}</span>
-      </div>
+    <button @click="goToWishlist" class="flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors cursor-pointer border-none bg-transparent" :class="isWishlistActive ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'">
+      <Library :size="22" :stroke-width="isWishlistActive ? 2.5 : 2" />
+      <span class="text-[0.65rem] font-semibold">{{ localeStore.t('wishlist') || 'Collection' }}</span>
     </button>
 
-    <button @click="handleProfileClick" class="relative flex flex-1 h-full items-center justify-center text-[var(--text-secondary)] transition-colors duration-300 bg-transparent border-none cursor-pointer p-0 group [-webkit-tap-highlight-color:transparent]" :class="{ 'text-indigo-600 dark:text-indigo-400': isProfileActive }">
-      <div class="w-full h-full flex flex-col items-center justify-center relative transition-transform duration-200 group-active:scale-90">
-        <User :size="22" :stroke-width="isProfileActive ? 2.5 : 2" class="absolute transition-all duration-400 ease-[cubic-bezier(0.34,1.56,0.64,1)]" :class="isProfileActive ? 'top-[18%] drop-shadow-[0_4px_8px_rgba(79,70,229,0.3)]' : 'top-[50%] -translate-y-[50%]'" />
-        <span class="absolute bottom-[15%] text-[0.6rem] font-bold tracking-wide transition-all duration-400 ease-[cubic-bezier(0.34,1.56,0.64,1)]" :class="isProfileActive ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-4 scale-75'">{{ authStore.isAuthenticated ? (localeStore.t('profile') || 'Profile') : localeStore.t('login') }}</span>
-      </div>
+    <button @click="handleProfileClick" class="flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors cursor-pointer border-none bg-transparent" :class="isProfileActive ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'">
+      <User :size="22" :stroke-width="isProfileActive ? 2.5 : 2" />
+      <span class="text-[0.65rem] font-semibold">{{ authStore.isAuthenticated ? (localeStore.t('profile') || 'Profile') : localeStore.t('login') }}</span>
     </button>
 
   </nav>
@@ -53,7 +43,7 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { Home, BookOpen, Bookmark, Heart, User, MapPin } from 'lucide-vue-next';
+import { Home, BookOpen, Bookmark, Heart, User, MapPin, Library } from 'lucide-vue-next';
 import { useAuthStore } from '../stores/auth';
 import { useLocaleStore } from '../stores/locale';
 import { useBooksStore } from '../stores/books';

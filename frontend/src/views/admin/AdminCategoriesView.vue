@@ -7,18 +7,18 @@
     <main class="flex-1 py-6 px-8 pb-16 w-[calc(100%-280px)] max-w-none">
       <header class="flex justify-between items-end mb-8">
         <div>
-          <h1 class="text-[2.2rem] font-extrabold">{{ localeStore.t('categories', 'Categories') }} <span class="text-gradient">Management</span></h1>
+          <h1 class="text-[2.2rem] font-extrabold">{{ localeStore.t('categories', 'Categories') }} <span class="bg-clip-text text-transparent bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500">Management</span></h1>
           <p class="text-[var(--text-secondary)]">Organize your library catalog by managing categories.</p>
         </div>
         <div class="flex items-center gap-2">
-          <button @click="openAddModal" class="btn btn-primary shadow-md shadow-indigo-500/20">
+          <button @click="openAddModal" class="inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out active:scale-95 bg-indigo-600 text-white shadow-sm hover:bg-indigo-700 hover:-translate-y-px hover:shadow-md px-5 py-2.5 text-sm shadow-md shadow-indigo-500/20">
             <Plus :size="18" /> Add Category
           </button>
         </div>
       </header>
 
       <!-- Categories Table -->
-      <div class="p-6 glass-panel">
+      <div class="p-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm">
         <div class="overflow-x-auto min-h-[400px]">
           <table class="w-full text-left border-collapse">
             <thead>
@@ -129,8 +129,8 @@
       </div>
 
       <!-- Delete Confirmation Modal -->
-      <div v-if="isDeleteModalOpen" class="modal-backdrop" @click.self="isDeleteModalOpen = false">
-        <div class="modal-content glass-panel max-w-[440px] px-6 py-8 text-center">
+      <div v-if="isDeleteModalOpen" class="fixed inset-0 bg-gray-900/75 backdrop-blur-sm z-50 flex items-center justify-center p-6 animate-in fade-in duration-200" @click.self="isDeleteModalOpen = false">
+        <div class="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-8 shadow-2xl animate-in zoom-in-95 duration-200 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm max-w-[440px] px-6 py-8 text-center">
           <div class="flex justify-center mb-4">
             <div class="w-16 h-16 rounded-full bg-red-500/12 border border-red-500/30 flex items-center justify-center shadow-[0_0_25px_rgba(239,68,68,0.2)]">
               <AlertTriangle :size="32" class="text-red-500" />
@@ -155,7 +155,7 @@
           </div>
 
           <footer class="flex justify-center gap-3 mt-4">
-            <button @click="isDeleteModalOpen = false" class="btn btn-secondary">{{ categoryToDelete?.book_count > 0 ? 'Close' : 'Cancel' }}</button>
+            <button @click="isDeleteModalOpen = false" class="inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out active:scale-95 bg-gray-100 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-800 hover:border-indigo-400 dark:hover:border-indigo-500 hover:-translate-y-px px-5 py-2.5 text-sm">{{ categoryToDelete?.book_count > 0 ? 'Close' : 'Cancel' }}</button>
             <button v-if="categoryToDelete?.book_count === 0" @click="executeDelete" class="bg-gradient-to-br from-red-500 to-red-600 text-white border-none font-bold shadow-[0_4px_15px_rgba(239,68,68,0.35)] transition-all duration-250 ease-[var(--spring-ease)] hover:-translate-y-[2px] hover:shadow-[0_6px_20px_rgba(239,68,68,0.5)] px-4 py-2 rounded-md flex items-center gap-2" :disabled="deleting">
               <Trash2 :size="16" />
               {{ deleting ? 'Deleting...' : 'Yes, Delete Category' }}

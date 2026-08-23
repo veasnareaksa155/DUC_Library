@@ -8,84 +8,112 @@
     </header>
 
     <!-- Tab Filters -->
-    <div v-if="borrowingsStore.myBorrowings.length > 0 && !borrowingsStore.loading" class="flex items-center gap-1.5 mb-6 bg-gray-500/5 p-1.5 rounded-xl w-fit max-sm:w-full max-sm:overflow-x-auto hide-scrollbar border border-[var(--border-color)]/50 shadow-sm">
-      <button @click="setTab('all')" class="px-5 py-2 rounded-lg text-[0.85rem] font-bold transition-all duration-300 border border-transparent whitespace-nowrap" :class="activeTab === 'all' ? 'text-white shadow-md [background:var(--accent-gradient)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-gray-500/10'">All Borrowings</button>
-      <button @click="setTab('active')" class="px-5 py-2 rounded-lg text-[0.85rem] font-bold transition-all duration-300 border border-transparent whitespace-nowrap" :class="activeTab === 'active' ? 'text-white shadow-md [background:var(--accent-gradient)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-gray-500/10'">Active</button>
-      <button @click="setTab('returned')" class="px-5 py-2 rounded-lg text-[0.85rem] font-bold transition-all duration-300 border border-transparent whitespace-nowrap" :class="activeTab === 'returned' ? 'text-white shadow-md [background:var(--accent-gradient)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-gray-500/10'">Returned</button>
+    <div v-if="borrowingsStore.myBorrowings.length > 0 && !borrowingsStore.loading" class="flex items-center gap-2 mb-8 overflow-x-auto hide-scrollbar w-full pb-1">
+      <button @click="setTab('all')" class="px-4 py-1.5 rounded-md text-[0.85rem] font-medium transition-colors border whitespace-nowrap cursor-pointer shrink-0" :class="activeTab === 'all' ? 'bg-[var(--text-primary)] text-[var(--bg-primary)] border-transparent' : 'bg-transparent border-[var(--border-color)] text-[var(--text-secondary)] hover:bg-[var(--bg-card-hover)]'">All Borrowings</button>
+      <button @click="setTab('active')" class="px-4 py-1.5 rounded-md text-[0.85rem] font-medium transition-colors border whitespace-nowrap cursor-pointer shrink-0" :class="activeTab === 'active' ? 'bg-[var(--text-primary)] text-[var(--bg-primary)] border-transparent' : 'bg-transparent border-[var(--border-color)] text-[var(--text-secondary)] hover:bg-[var(--bg-card-hover)]'">Active</button>
+      <button @click="setTab('returned')" class="px-4 py-1.5 rounded-md text-[0.85rem] font-medium transition-colors border whitespace-nowrap cursor-pointer shrink-0" :class="activeTab === 'returned' ? 'bg-[var(--text-primary)] text-[var(--bg-primary)] border-transparent' : 'bg-transparent border-[var(--border-color)] text-[var(--text-secondary)] hover:bg-[var(--bg-card-hover)]'">Returned</button>
+      <button @click="setTab('rejected')" class="px-4 py-1.5 rounded-md text-[0.85rem] font-medium transition-colors border whitespace-nowrap cursor-pointer shrink-0" :class="activeTab === 'rejected' ? 'bg-[var(--text-primary)] text-[var(--bg-primary)] border-transparent' : 'bg-transparent border-[var(--border-color)] text-[var(--text-secondary)] hover:bg-[var(--bg-card-hover)]'">Rejected</button>
     </div>
 
-    <div v-if="borrowingsStore.loading" class="text-center p-16 text-[var(--text-muted)]">
-      <Loader2 :size="36" class="animate-spin mx-auto mb-2" />
-      <p>Loading your borrowing records...</p>
+    <!-- Skeleton Loading State -->
+    <div v-if="borrowingsStore.loading" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div v-for="n in 4" :key="n" class="flex gap-5 p-5 bg-[var(--bg-card)] rounded-lg border border-[var(--border-color)] shadow-sm max-sm:p-4 max-sm:gap-4">
+        <!-- Skeleton Cover -->
+        <div class="w-[90px] h-[130px] max-sm:w-[75px] max-sm:h-[110px] bg-slate-200 dark:bg-slate-700 rounded-md animate-pulse shrink-0"></div>
+        
+        <div class="flex-1 flex flex-col min-w-0">
+          <div class="flex justify-between items-start mb-3">
+            <div class="w-16 h-4 bg-slate-200 dark:bg-slate-700 rounded animate-pulse"></div>
+            <div class="w-24 h-3 bg-slate-200 dark:bg-slate-700 rounded animate-pulse mt-1"></div>
+          </div>
+          <div class="w-3/4 h-5 bg-slate-200 dark:bg-slate-700 rounded animate-pulse mb-2"></div>
+          <div class="w-1/2 h-4 bg-slate-200 dark:bg-slate-700 rounded animate-pulse mb-5"></div>
+          
+          <!-- Skeleton Due Date -->
+          <div class="flex items-center gap-2 mb-4">
+            <div class="w-4 h-4 bg-slate-200 dark:bg-slate-700 rounded-full animate-pulse"></div>
+            <div class="w-28 h-3 bg-slate-200 dark:bg-slate-700 rounded animate-pulse"></div>
+          </div>
+          
+          <!-- Skeleton Buttons -->
+          <div class="flex gap-3 mt-auto pt-2">
+            <div class="flex-1 h-9 bg-slate-200 dark:bg-slate-700 rounded-md animate-pulse"></div>
+            <div class="flex-1 h-9 bg-slate-200 dark:bg-slate-700 rounded-md animate-pulse"></div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <div v-else-if="filteredBorrowings.length === 0" class="text-center p-16 text-[var(--text-muted)] glass-panel">
-      <BookmarkX :size="48" class="text-muted mx-auto mb-2" />
-      <h3 class="text-lg font-bold mb-1">{{ borrowingsStore.myBorrowings.length === 0 ? localeStore.t('noActiveBorrowings') : 'No Books Found' }}</h3>
-      <p>{{ borrowingsStore.myBorrowings.length === 0 ? localeStore.t('noActiveBorrowingsSub') : 'No books match the current filter.' }}</p>
+    <div v-else-if="filteredBorrowings.length === 0" class="text-center p-16 text-[var(--text-muted)] border border-[var(--border-color)] bg-[var(--bg-card)] rounded-lg shadow-sm">
+      <BookmarkX :size="48" class="text-[var(--text-muted)] mx-auto mb-3" />
+      <h3 class="text-lg font-bold mb-1 text-[var(--text-primary)]">{{ borrowingsStore.myBorrowings.length === 0 ? localeStore.t('noActiveBorrowings') : 'No Books Found' }}</h3>
+      <p class="text-[0.9rem]">{{ borrowingsStore.myBorrowings.length === 0 ? localeStore.t('noActiveBorrowingsSub') : 'No books match the current filter.' }}</p>
       
-      <button v-if="activeTab !== 'all' && borrowingsStore.myBorrowings.length > 0" @click="setTab('all')" class="btn btn-primary btn-sm mt-4">
+      <button v-if="activeTab !== 'all' && borrowingsStore.myBorrowings.length > 0" @click="setTab('all')" class="inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out active:scale-95 bg-indigo-600 text-white shadow-sm hover:bg-indigo-700 hover:-translate-y-px hover:shadow-md px-4 py-2 text-sm mt-4">
         View All Borrowings
       </button>
-      <router-link v-else to="/" class="btn btn-primary btn-sm mt-4">
+      <router-link v-else to="/" class="inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out active:scale-95 bg-indigo-600 text-white shadow-sm hover:bg-indigo-700 hover:-translate-y-px hover:shadow-md px-4 py-2 text-sm mt-4">
         <Library :size="16" /> {{ localeStore.t('browseCatalog') }}
       </router-link>
     </div>
 
-    <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-5 lg:gap-6">
-      <div v-for="item in paginatedBorrowings" :key="item.id" class="group relative flex gap-5 p-5 bg-[var(--bg-card)] rounded-[24px] border border-[var(--border-color)] shadow-[0_8px_24px_rgba(0,0,0,0.03)] hover:-translate-y-1 transition-all duration-300 overflow-hidden max-sm:p-4 max-sm:gap-4 glass-panel">
+    <div v-else class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div v-for="item in paginatedBorrowings" :key="item.id" class="group flex gap-5 p-5 bg-[var(--bg-card)] rounded-lg border border-[var(--border-color)] shadow-sm hover:border-indigo-500/50 hover:shadow-md transition-all duration-200 max-sm:p-4 max-sm:gap-4 relative overflow-hidden">
         
-        <!-- Decorative background glow -->
-        <div class="absolute -top-24 -right-24 w-48 h-48 bg-indigo-500/10 rounded-full blur-3xl group-hover:bg-indigo-500/20 transition-all duration-500"></div>
-
+        <!-- Book Cover -->
         <div class="relative shrink-0 self-start">
-          <img :src="item.book_cover || fallbackCover" :alt="item.book_title" class="w-[96px] h-[140px] max-sm:w-[84px] max-sm:h-[120px] object-cover rounded-xl shadow-md group-hover:shadow-xl transition-all duration-300 z-10 relative border border-[var(--border-color)]" />
-          <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl z-20"></div>
+          <img :src="item.book_cover || fallbackCover" :alt="item.book_title" class="w-[90px] h-[130px] max-sm:w-[75px] max-sm:h-[110px] object-contain rounded-md border border-[var(--border-color)] bg-[var(--bg-input)]" />
         </div>
         
-        <div class="flex-1 flex flex-col relative z-10">
+        <div class="flex-1 flex flex-col relative z-10 min-w-0">
           <div class="flex justify-between items-start mb-2 flex-wrap gap-2">
-            <span class="px-2.5 py-1 text-[0.68rem] font-bold tracking-wider uppercase rounded-md shadow-sm border" :class="[
-              item.status === 'returned' ? 'bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20' : 
-              item.status === 'approved' ? 'bg-indigo-50 text-indigo-600 border-indigo-100 dark:bg-indigo-500/10 dark:text-indigo-400 dark:border-indigo-500/20' : 
-              'bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20'
+            <!-- Status Badge -->
+            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 text-[0.7rem] font-bold uppercase tracking-wider rounded border" :class="[
+              item.status === 'returned' ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20 dark:text-emerald-400' : 
+              item.status === 'approved' ? 'bg-indigo-500/10 text-indigo-600 border-indigo-500/20 dark:text-indigo-400' : 
+              'bg-amber-500/10 text-amber-600 border-amber-500/20 dark:text-amber-400'
             ]">
+              <span class="w-1.5 h-1.5 rounded-full" :class="[
+                item.status === 'returned' ? 'bg-emerald-500' : 
+                item.status === 'approved' ? 'bg-indigo-500' : 
+                'bg-amber-500'
+              ]"></span>
               {{ localeStore.t(item.status) || item.status }}
             </span>
-            <span class="text-[0.7rem] font-semibold text-slate-400 mt-1">{{ localeStore.t('requested') || 'Req:' }} {{ formatDate(item.borrow_date) }}</span>
+            <span class="text-[0.7rem] font-semibold text-[var(--text-muted)] mt-1 tracking-tight">REQ: {{ formatDate(item.borrow_date) }}</span>
           </div>
 
-          <h3 class="text-[1.1rem] font-bold text-[var(--text-primary)] leading-normal mb-1 pb-1 line-clamp-2 max-sm:text-[1rem]">{{ item.book_title }}</h3>
-          <p class="text-[0.85rem] font-medium text-indigo-500 mb-3">by {{ item.book_author }}</p>
+          <h3 class="text-[1.05rem] font-bold text-[var(--text-primary)] py-1 leading-normal pb-1.5 truncate">{{ item.book_title }}</h3>
+          <p class="text-[0.85rem] font-medium text-[var(--text-secondary)] mb-4 truncate">by {{ item.book_author }}</p>
 
-          <div class="flex items-center gap-2.5 text-[0.85rem] text-[var(--text-secondary)] mb-4 bg-gray-500/5 p-2.5 rounded-xl border border-[var(--border-color)]/50">
-            <div class="w-8 h-8 rounded-lg bg-[var(--bg-primary)] flex items-center justify-center shadow-sm shrink-0 border border-[var(--border-color)]/50">
-              <Calendar :size="16" class="text-indigo-500" />
+          <!-- Minimal Due Date -->
+          <div class="flex items-center gap-2 mb-4">
+            <Calendar :size="15" class="text-[var(--text-muted)] shrink-0" />
+            <div class="flex items-baseline gap-2">
+              <span class="text-[0.75rem] font-bold uppercase tracking-wide text-[var(--text-muted)]">{{ localeStore.t('dueDate') || 'Due:' }}</span>
+              <span class="text-[0.85rem] font-semibold text-[var(--text-primary)]">{{ formatDate(item.due_date) }}</span>
             </div>
-            <div class="flex flex-col">
-              <span class="text-[0.65rem] uppercase font-bold tracking-wider text-[var(--text-muted)]">{{ localeStore.t('dueDate') || 'Due Date' }}</span>
-              <strong class="text-[var(--text-primary)]">{{ formatDate(item.due_date) }}</strong>
-            </div>
           </div>
 
-          <div v-if="item.admin_notes" class="flex items-center gap-1.5 text-[0.82rem] text-amber-500 bg-amber-500/10 px-3 py-2 rounded-xl mb-4 border border-amber-500/20 shadow-sm">
-            <Info :size="16" class="shrink-0" /> <span class="font-medium">Note:</span> {{ item.admin_notes }}
+          <div v-if="item.admin_notes" class="flex items-start gap-2 text-[0.8rem] text-amber-600 dark:text-amber-400 bg-amber-500/5 px-3 py-2 rounded-md mb-4 border border-amber-500/20">
+            <Info :size="14" class="shrink-0 mt-0.5" /> <span><strong class="font-bold">Note:</strong> {{ item.admin_notes }}</span>
           </div>
 
-          <div class="flex gap-2.5 mt-auto max-sm:mt-2">
+          <!-- Actions -->
+          <div class="flex gap-3 mt-auto pt-2">
             <button 
               @click="router.push(`/read/${item.book_id}`)" 
-              class="flex-1 flex items-center justify-center gap-2 py-2 px-3 bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-xl text-[0.85rem] font-bold shadow-sm hover:bg-gray-500/10 transition-all duration-200 active:scale-95">
-              <BookOpen :size="16" class="text-indigo-500" /> {{ localeStore.t('read') }}
+              class="flex-1 flex items-center justify-center gap-2 h-9 bg-transparent border border-[var(--border-color)] text-[var(--text-primary)] rounded-md text-[0.8rem] font-bold hover:bg-[var(--bg-card-hover)] hover:border-[var(--text-secondary)] transition-colors cursor-pointer">
+              <BookOpen :size="15" /> {{ localeStore.t('read') }}
             </button>
 
             <button 
               v-if="item.status === 'approved'"
               @click="handleReturn(item.id)" 
-              class="flex-1 flex items-center justify-center gap-2 py-2 px-3 bg-gradient-to-br from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white rounded-xl text-[0.85rem] font-bold shadow-[0_4px_12px_rgba(79,70,229,0.3)] transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:active:scale-100"
+              class="flex-1 flex items-center justify-center gap-2 h-9 bg-[var(--text-primary)] text-[var(--bg-primary)] border-none rounded-md text-[0.8rem] font-bold hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-50"
               :disabled="actionLoading === item.id"
             >
-              <RotateCcw :size="16" :class="{ 'animate-spin': actionLoading === item.id }" /> 
+              <RotateCcw :size="15" :class="{ 'animate-spin': actionLoading === item.id }" /> 
               {{ actionLoading === item.id ? localeStore.t('returning') : localeStore.t('returnBook') }}
             </button>
           </div>
@@ -93,21 +121,19 @@
       </div>
     </div>
     <!-- Pagination -->
+    <!-- Pagination -->
     <div v-if="totalPages > 1 && !borrowingsStore.loading" class="flex justify-center items-center gap-2 mt-12 mb-4">
-      <button @click="prevPage" :disabled="currentPage === 1" class="w-10 h-10 rounded-full flex items-center justify-center bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-primary)] shadow-sm transition-all hover:bg-gray-500/10 hover:text-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed">
+      <button @click="prevPage" :disabled="currentPage === 1" class="w-9 h-9 rounded-md flex items-center justify-center bg-transparent border border-[var(--border-color)] text-[var(--text-secondary)] hover:bg-[var(--bg-card-hover)] hover:text-[var(--text-primary)] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-colors">
         <ChevronLeft :size="18" />
       </button>
 
-      <div class="flex items-center gap-1.5 px-2 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-full h-10 shadow-sm max-sm:hidden">
-        <button v-for="page in totalPages" :key="page" @click="setPage(page)" class="w-8 h-8 rounded-full flex items-center justify-center text-[0.85rem] font-bold transition-all" :class="currentPage === page ? 'bg-indigo-600 text-white shadow-md' : 'text-[var(--text-secondary)] hover:bg-gray-500/10'">
+      <div class="flex items-center gap-1">
+        <button v-for="page in totalPages" :key="page" @click="setPage(page)" class="w-9 h-9 rounded-md flex items-center justify-center text-[0.85rem] font-bold transition-colors cursor-pointer border" :class="currentPage === page ? 'bg-[var(--text-primary)] text-[var(--bg-primary)] border-transparent' : 'bg-transparent border-transparent text-[var(--text-secondary)] hover:bg-[var(--bg-card-hover)] hover:border-[var(--border-color)]'">
           {{ page }}
         </button>
       </div>
-      <div class="hidden max-sm:flex items-center px-4 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-full h-10 shadow-sm text-sm font-bold text-[var(--text-primary)]">
-        Page {{ currentPage }} of {{ totalPages }}
-      </div>
 
-      <button @click="nextPage" :disabled="currentPage === totalPages" class="w-10 h-10 rounded-full flex items-center justify-center bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-primary)] shadow-sm transition-all hover:bg-gray-500/10 hover:text-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed">
+      <button @click="nextPage" :disabled="currentPage === totalPages" class="w-9 h-9 rounded-md flex items-center justify-center bg-transparent border border-[var(--border-color)] text-[var(--text-secondary)] hover:bg-[var(--bg-card-hover)] hover:text-[var(--text-primary)] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-colors">
         <ChevronRight :size="18" />
       </button>
     </div>
@@ -140,6 +166,9 @@ const filteredBorrowings = computed(() => {
   }
   if (activeTab.value === 'returned') {
     return list.filter(b => b.status === 'returned');
+  }
+  if (activeTab.value === 'rejected') {
+    return list.filter(b => b.status === 'rejected');
   }
   return list;
 });

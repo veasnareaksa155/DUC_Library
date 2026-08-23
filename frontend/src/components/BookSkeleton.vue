@@ -1,20 +1,23 @@
 <template>
-  <div class="flex flex-col h-full rounded-[var(--radius-xl,20px)] overflow-hidden bg-[var(--bg-card,rgba(30,41,59,0.7))] border border-[var(--border-color,rgba(255,255,255,0.08))] shadow-[0_8px_24px_rgba(0,0,0,0.12)] animate-pulse max-sm:rounded-[10px] max-sm:shadow-[0_3px_10px_rgba(0,0,0,0.08)]">
+  <div class="flex flex-col h-full rounded-lg overflow-hidden bg-[var(--bg-card)] border border-[var(--border-color)] shadow-sm animate-pulse">
     <!-- Image Skeleton -->
-    <div class="w-full h-[210px] bg-slate-800/60 max-sm:aspect-[3/4] max-sm:h-auto"></div>
+    <div class="w-full h-[220px] max-sm:h-[180px] bg-slate-200 dark:bg-slate-700 shrink-0"></div>
     
     <!-- Content Skeleton -->
-    <div class="p-4 pb-[1.1rem] flex flex-col flex-1 max-sm:px-1.5 max-sm:py-[0.35rem] max-sm:pb-[0.45rem]">
+    <div class="p-4 flex flex-col flex-1 max-sm:p-3">
+      <!-- Category Line -->
+      <div class="h-2.5 bg-slate-200 dark:bg-slate-700 rounded w-1/3 mb-2.5 max-sm:h-2"></div>
+      
       <!-- Title Lines -->
-      <div class="h-4 bg-slate-800/70 rounded w-3/4 mb-2 max-sm:h-2.5 max-sm:mb-1"></div>
-      <div class="h-4 bg-slate-800/70 rounded w-1/2 mb-auto max-sm:h-2.5"></div>
+      <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-full mb-1.5 max-sm:h-3"></div>
+      <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-2/3 mb-4 max-sm:h-3"></div>
       
       <!-- Buttons Row -->
-      <div class="flex items-center gap-2.5 mt-4 max-sm:gap-1 max-sm:mt-2">
+      <div class="flex items-center gap-2 mt-auto">
         <!-- Read Button Skeleton -->
-        <div class="flex-1 h-[36px] rounded-full bg-slate-800/60 max-sm:h-[26px]"></div>
-        <!-- Bookmark Button Skeleton -->
-        <div class="w-[36px] h-[36px] rounded-full bg-slate-800/60 max-sm:w-[26px] max-sm:h-[26px] shrink-0"></div>
+        <div class="flex-1 h-9 rounded-md bg-slate-200 dark:bg-slate-700"></div>
+        <!-- Borrow Button Skeleton -->
+        <div class="w-[85px] h-9 rounded-md bg-slate-200 dark:bg-slate-700 max-sm:w-9 shrink-0"></div>
       </div>
     </div>
   </div>

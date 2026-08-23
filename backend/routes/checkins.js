@@ -37,7 +37,8 @@ router.post('/verify', authenticateToken, async (req, res) => {
     const todayStr = new Date().toISOString().split('T')[0];
     const alreadyCheckedIn = checkins.some(c => 
       String(c.user_id) === String(userId) && 
-      c.checkin_time.startsWith(todayStr)
+      c.checkin_time.startsWith(todayStr) &&
+      c.status === 'success'
     );
 
     if (alreadyCheckedIn) {
@@ -95,7 +96,8 @@ router.get('/my-today', authenticateToken, async (req, res) => {
     const todayStr = new Date().toISOString().split('T')[0];
     const myTodayCheckins = checkins.filter(c => 
       String(c.user_id) === String(userId) && 
-      c.checkin_time.startsWith(todayStr)
+      c.checkin_time.startsWith(todayStr) &&
+      c.status === 'success'
     );
 
     res.json(myTodayCheckins);

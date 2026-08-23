@@ -7,16 +7,16 @@
     <main class="flex-1 py-6 px-8 pb-16 w-[calc(100%-280px)] max-w-none">
       <header class="flex justify-between items-end mb-8">
         <div>
-          <h1 class="text-[2.2rem] font-extrabold">{{ localeStore.t('users') }} <span class="text-gradient">Directory</span></h1>
+          <h1 class="text-[2.2rem] font-extrabold">{{ localeStore.t('users') }} <span class="bg-clip-text text-transparent bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500">Directory</span></h1>
           <p class="text-[var(--text-secondary)]">View all registered student accounts, sync live data from Google Sheet, or manage roles.</p>
         </div>
 
-        <button @click="openSyncModal" class="btn btn-primary">
+        <button @click="openSyncModal" class="inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out active:scale-95 bg-indigo-600 text-white shadow-sm hover:bg-indigo-700 hover:-translate-y-px hover:shadow-md px-5 py-2.5 text-sm">
           <FileSpreadsheet :size="18" /> Sync Google Sheet
         </button>
       </header>
 
-      <div class="p-6 glass-panel">
+      <div class="p-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm">
         <div class="flex justify-between items-center mb-5">
           <div class="relative flex items-center w-full max-w-[450px]">
             <Search :size="18" class="absolute left-3.5 text-[var(--text-muted)] pointer-events-none z-10" />
@@ -132,7 +132,7 @@
                 </td>
                 <td class="p-4 border-b border-[var(--border-color)] text-[0.9rem]">{{ formatDate(u.created_at) }}</td>
                 <td class="p-4 border-b border-[var(--border-color)] text-[0.9rem]">
-                  <button @click="openProfileModal(u)" class="btn btn-secondary btn-sm">
+                  <button @click="openProfileModal(u)" class="inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out active:scale-95 bg-gray-100 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-800 hover:border-indigo-400 dark:hover:border-indigo-500 hover:-translate-y-px px-4 py-2 text-sm">
                     <User :size="14" /> Profile
                   </button>
                 </td>
@@ -278,14 +278,14 @@
           </div>
 
           <footer class="flex justify-end items-center gap-3 mt-6 pt-5 border-t border-[var(--border-color)]">
-            <button @click="isProfileModalOpen = false" class="btn btn-primary">Close Profile</button>
+            <button @click="isProfileModalOpen = false" class="inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out active:scale-95 bg-indigo-600 text-white shadow-sm hover:bg-indigo-700 hover:-translate-y-px hover:shadow-md px-5 py-2.5 text-sm">Close Profile</button>
           </footer>
         </div>
       </div>
 
       <!-- Sync Google Sheet Modal -->
       <div v-if="isSyncModalOpen" class="fixed inset-0 bg-black/75 backdrop-blur-[8px] flex items-center justify-center z-[1000] p-6" @click.self="isSyncModalOpen = false">
-        <div class="modal-content glass-panel">
+        <div class="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-8 shadow-2xl animate-in zoom-in-95 duration-200 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm">
           <header class="flex justify-between items-center mb-5">
             <h2>Sync Users from Google Sheet</h2>
             <button @click="isSyncModalOpen = false" class="bg-transparent border-none text-[var(--text-muted)] cursor-pointer hover:text-slate-200"><X :size="20" /></button>
@@ -300,7 +300,7 @@
               <span class="block text-[0.8rem] font-bold text-[var(--text-primary)] mb-1.5">Service Account Email to Invite:</span>
               <div class="flex items-center gap-2 mb-1.5">
                 <code class="flex-1 bg-[var(--bg-primary)] px-3 py-1.5 rounded-[var(--radius-sm)] font-mono text-[0.85rem] text-[var(--accent-primary)] break-all border border-[var(--border-color)]">{{ serviceAccountEmail }}</code>
-                <button @click="copyEmail" class="btn btn-secondary btn-sm">Copy</button>
+                <button @click="copyEmail" class="inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out active:scale-95 bg-gray-100 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-800 hover:border-indigo-400 dark:hover:border-indigo-500 hover:-translate-y-px px-4 py-2 text-sm">Copy</button>
               </div>
               <small class="text-[0.78rem] text-[var(--text-muted)] block mt-1">Open Google Sheet -> Share -> Paste this email -> Viewer access -> Done</small>
             </div>
@@ -331,8 +331,8 @@
           </div>
 
           <footer class="flex justify-end items-center gap-3 mt-6 pt-5 border-t border-[var(--border-color)]">
-            <button @click="isSyncModalOpen = false" class="btn btn-secondary">Cancel</button>
-            <button @click="handleSync" class="btn btn-primary" :disabled="syncing">
+            <button @click="isSyncModalOpen = false" class="inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out active:scale-95 bg-gray-100 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-800 hover:border-indigo-400 dark:hover:border-indigo-500 hover:-translate-y-px px-5 py-2.5 text-sm">Cancel</button>
+            <button @click="handleSync" class="inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out active:scale-95 bg-indigo-600 text-white shadow-sm hover:bg-indigo-700 hover:-translate-y-px hover:shadow-md px-5 py-2.5 text-sm" :disabled="syncing">
               <RefreshCw :size="16" :class="{ 'animate-spin': syncing }" />
               {{ syncing ? 'Syncing...' : 'Sync Students Now' }}
             </button>

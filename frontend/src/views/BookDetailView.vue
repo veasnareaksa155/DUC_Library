@@ -1,6 +1,6 @@
 <template>
   <div class="max-w-[1100px] mx-auto px-6 pb-16 pt-10">
-    <button @click="router.back()" class="btn btn-secondary btn-sm mb-6">
+    <button @click="router.back()" class="inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out active:scale-95 bg-gray-100 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-800 hover:border-indigo-400 dark:hover:border-indigo-500 hover:-translate-y-px px-4 py-2 text-sm mb-6">
       <ArrowLeft :size="16" /> Back to Catalog
     </button>
 
@@ -9,7 +9,7 @@
       <p>Loading book details...</p>
     </div>
 
-    <div v-else-if="book" class="p-10 max-sm:p-6 glass-panel">
+    <div v-else-if="book" class="p-10 max-sm:p-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm">
       <div class="grid grid-cols-[280px_1fr] gap-10 max-md:grid-cols-1 max-sm:gap-6">
         <div>
           <img :src="book.cover_url || fallbackCover" :alt="book.title" class="w-full rounded-[var(--radius-lg)] shadow-[0_12px_30px_rgba(0,0,0,0.4)]" />
@@ -37,12 +37,12 @@
           </div>
 
           <div class="flex gap-4 max-sm:flex-col max-sm:gap-3">
-            <button @click="router.push(`/read/${book.id}`)" class="btn btn-secondary">
+            <button @click="router.push(`/read/${book.id}`)" class="inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out active:scale-95 bg-gray-100 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-800 hover:border-indigo-400 dark:hover:border-indigo-500 hover:-translate-y-px px-5 py-2.5 text-sm">
               <BookOpen :size="18" /> Read Digital Book
             </button>
             <button 
               @click="openBorrow" 
-              class="btn btn-primary"
+              class="inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out active:scale-95 bg-indigo-600 text-white shadow-sm hover:bg-indigo-700 hover:-translate-y-px hover:shadow-md px-5 py-2.5 text-sm"
               :disabled="book.copies_available <= 0"
             >
               <BookmarkPlus :size="18" /> Borrow Book

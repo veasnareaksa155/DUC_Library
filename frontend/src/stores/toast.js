@@ -23,17 +23,17 @@ export const useToastStore = defineStore('toast', () => {
   function showWishlist(bookTitle, isAdded) {
     show(
       isAdded 
-        ? `"${bookTitle}" has been saved to your wishlist!` 
-        : `"${bookTitle}" was removed from your wishlist.`,
+        ? `"${bookTitle}" has been saved to your collection.` 
+        : `"${bookTitle}" was removed from your collection.`,
       {
-        title: isAdded ? 'Saved to Wishlist ❤️' : 'Removed from Wishlist 💔',
+        title: isAdded ? 'Saved to Collection' : 'Removed from Collection',
         type: isAdded ? 'wishlist-add' : 'wishlist-remove',
         duration: 3000
       }
     );
   }
 
-  function showSuccess(msg, customTitle = 'Action Complete! ✅') {
+  function showSuccess(msg, customTitle = 'Action Complete') {
     show(msg, { title: customTitle, type: 'success', duration: 3000 });
   }
 

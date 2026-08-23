@@ -1,19 +1,19 @@
 <template>
   <div class="max-w-[1280px] mx-auto px-6 pb-16 pt-6 max-sm:px-2 max-sm:pb-20 max-sm:pt-3">
     <!-- Header -->
-    <header class="mb-7">
+    <header class="mb-8">
       <div>
-        <h1 class="text-2xl font-extrabold text-[var(--text-primary)] mb-1 max-sm:text-xl">{{ localeStore.t('catalog') }} <span class="text-gradient">Collection</span></h1>
-        <p class="text-[0.95rem] text-[var(--text-muted)]">Browse and filter the complete DUC University Library collection.</p>
+        <h1 class="text-3xl font-bold text-[var(--text-primary)] mb-2 tracking-tight">{{ localeStore.t('catalog') }} Collection</h1>
+        <p class="text-[0.95rem] text-[var(--text-secondary)]">Browse and filter the complete DUC University Library collection.</p>
       </div>
     </header>
 
     <!-- Search & Filter Controls Section -->
-    <section class="mb-8">
-      <!-- Spotlight Search Input -->
-      <div class="relative w-full max-w-[760px] mx-auto mb-6">
-        <div class="flex items-center gap-3 px-5 py-2.5 rounded-full bg-[var(--bg-card)] backdrop-blur-md border border-[var(--border-color)] shadow-[0_8px_30px_rgba(0,0,0,0.08)] transition-all duration-300" :class="{ 'border-indigo-500/60 shadow-[0_0_25px_rgba(99,102,241,0.25),0_12px_35px_rgba(0,0,0,0.15)] -translate-y-0.5': isSearchFocused || booksStore.searchQuery }">
-          <Search :size="19" class="text-indigo-400 shrink-0 cursor-pointer" :class="{ 'scale-110 text-indigo-500': isSearchFocused || booksStore.searchQuery }" @click="() => searchInputRef?.focus()" />
+    <section class="mb-10">
+      <!-- Minimal Search Input -->
+      <div class="relative w-full max-w-2xl mb-8">
+        <div class="flex items-center gap-3 px-4 py-2.5 rounded-lg bg-[var(--bg-input)] border border-[var(--border-color)] shadow-sm transition-all duration-200" :class="{ 'ring-2 ring-indigo-500/20 border-indigo-500': isSearchFocused || booksStore.searchQuery }">
+          <Search :size="18" class="text-[var(--text-secondary)] shrink-0 cursor-pointer" :class="{ 'text-indigo-500': isSearchFocused || booksStore.searchQuery }" @click="() => searchInputRef?.focus()" />
           <input 
             ref="searchInputRef"
             v-model="booksStore.searchQuery"
@@ -22,33 +22,31 @@
             @input="handleSearch"
             type="text" 
             :placeholder="localeStore.t('searchPlaceholder')"
-            class="flex-1 bg-transparent border-none outline-none text-[0.92rem] font-medium text-[var(--text-primary)] py-1"
+            class="flex-1 bg-transparent border-none outline-none text-[0.95rem] text-[var(--text-primary)] placeholder-[var(--text-muted)]"
           />
-          <span class="text-[0.7rem] font-bold text-[var(--text-muted)] bg-slate-500/12 border border-[var(--border-color)] px-2 py-1 rounded-lg">Ctrl + K</span>
-          <button v-if="booksStore.searchQuery" @click="clearSearch" class="bg-transparent border-none text-[var(--text-muted)] cursor-pointer p-1 hover:text-[var(--text-primary)] flex items-center" title="Clear Search">
+          <span class="text-[0.7rem] font-bold text-[var(--text-muted)] bg-[var(--bg-card-hover)] px-2 py-1 rounded border border-[var(--border-color)]">Ctrl K</span>
+          <button v-if="booksStore.searchQuery" @click="clearSearch" class="bg-transparent border-none text-[var(--text-secondary)] cursor-pointer p-1 hover:text-[var(--text-primary)] flex items-center" title="Clear Search">
             <X :size="16" />
           </button>
         </div>
-
-        <!-- Live Quick Search Dropdown has been removed. Filtering applies directly to the catalog grid. -->
       </div>
 
       <!-- Categories & Controls Row -->
       <div class="flex items-center justify-between gap-4 w-full">
         <div class="flex items-center gap-2 flex-1 min-w-0 max-sm:w-full">
-          <button @click="scrollCategories('left')" class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-primary)] cursor-pointer shrink-0 z-[2] shadow-[0_2px_8px_rgba(0,0,0,0.12)] transition-all duration-200 hover:bg-indigo-500 hover:text-white hover:border-transparent" title="Scroll Left">
+          <button @click="scrollCategories('left')" class="inline-flex items-center justify-center w-8 h-8 rounded-md bg-transparent border border-[var(--border-color)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card-hover)] cursor-pointer shrink-0 z-[2] transition-colors" title="Scroll Left">
             <ChevronLeft :size="16" />
           </button>
 
           <div 
-            class="flex items-center gap-2.5 overflow-x-auto overflow-y-hidden px-1 py-1.5 scroll-smooth flex-1 min-w-0 scrollbar-none" 
+            class="flex items-center gap-2 overflow-x-auto overflow-y-hidden py-1 scroll-smooth flex-1 min-w-0 scrollbar-none" 
             ref="categoryScrollRef"
             @wheel.prevent="handleCategoryWheel"
           >
             <button 
               @click="selectCategory('all')" 
-              class="px-4 py-1.5 rounded-full bg-white/5 border border-[var(--border-color)] text-[var(--text-secondary)] text-[0.82rem] font-medium whitespace-nowrap shrink-0 cursor-pointer transition-all duration-200 hover:bg-indigo-500/12 hover:text-[var(--text-primary)] hover:border-indigo-500/30 max-sm:max-w-[160px] max-sm:truncate max-sm:px-3 max-sm:text-xs"
-              :class="{ '[background:var(--accent-gradient)] text-white border-transparent shadow-[0_4px_12px_rgba(99,102,241,0.3)]': booksStore.selectedCategory === 'all' }"
+              class="px-4 py-1.5 rounded-md text-[0.85rem] font-medium whitespace-nowrap shrink-0 cursor-pointer transition-colors max-sm:max-w-[160px] max-sm:truncate max-sm:px-3 max-sm:text-xs"
+              :class="booksStore.selectedCategory === 'all' ? 'bg-[var(--text-primary)] text-[var(--bg-primary)] border-transparent' : 'bg-transparent border border-[var(--border-color)] text-[var(--text-secondary)] hover:bg-[var(--bg-card-hover)]'"
             >
               {{ localeStore.t('allCategories') }}
             </button>
@@ -56,48 +54,42 @@
               v-for="cat in booksStore.categories" 
               :key="cat.id"
               @click="selectCategory(cat.id)"
-              class="px-4 py-1.5 rounded-full bg-white/5 border border-[var(--border-color)] text-[var(--text-secondary)] text-[0.82rem] font-medium whitespace-nowrap shrink-0 cursor-pointer transition-all duration-200 hover:bg-indigo-500/12 hover:text-[var(--text-primary)] hover:border-indigo-500/30 max-sm:max-w-[160px] max-sm:truncate max-sm:px-3 max-sm:text-xs"
-              :class="{ '[background:var(--accent-gradient)] text-white border-transparent shadow-[0_4px_12px_rgba(99,102,241,0.3)]': booksStore.selectedCategory === cat.id }"
+              class="px-4 py-1.5 rounded-md text-[0.85rem] font-medium whitespace-nowrap shrink-0 cursor-pointer transition-colors max-sm:max-w-[160px] max-sm:truncate max-sm:px-3 max-sm:text-xs"
+              :class="booksStore.selectedCategory === cat.id ? 'bg-[var(--text-primary)] text-[var(--bg-primary)] border-transparent' : 'bg-transparent border border-[var(--border-color)] text-[var(--text-secondary)] hover:bg-[var(--bg-card-hover)]'"
             >
-              {{ cat.name }} ({{ cat.book_count || 0 }})
+              {{ cat.name }} <span class="opacity-60 ml-1">({{ cat.book_count || 0 }})</span>
             </button>
           </div>
 
-          <button @click="scrollCategories('right')" class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-primary)] cursor-pointer shrink-0 z-[2] shadow-[0_2px_8px_rgba(0,0,0,0.12)] transition-all duration-200 hover:bg-indigo-500 hover:text-white hover:border-transparent" title="Scroll Right">
+          <button @click="scrollCategories('right')" class="inline-flex items-center justify-center w-8 h-8 rounded-md bg-transparent border border-[var(--border-color)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card-hover)] cursor-pointer shrink-0 z-[2] transition-colors" title="Scroll Right">
             <ChevronRight :size="16" />
           </button>
         </div>
       </div>
     </section>
 
-    <!-- Success Toast Notification -->
-    <div v-if="toastMessage" class="flex items-center gap-3 px-4 py-3 mb-6 bg-emerald-500/12 border border-emerald-500/30 text-emerald-400 rounded-lg glass-panel">
-      <CheckCircle2 :size="20" class="text-success" />
-      <span>{{ toastMessage }}</span>
-      <button @click="toastMessage = ''" class="ml-auto bg-transparent border-none text-inherit cursor-pointer p-1"><X :size="16" /></button>
-    </div>
 
     <!-- Books Catalog Grid Section -->
     <section>
-      <div class="flex items-center justify-between mb-5">
+      <div class="flex items-center justify-between mb-6">
         <div class="flex items-center gap-3">
-          <h3 class="text-[1.35rem] font-extrabold text-[var(--text-primary)]">All Catalog Books</h3>
-          <span class="text-[0.76rem] font-bold text-indigo-400 bg-indigo-500/12 border border-indigo-500/30 px-2.5 py-1 rounded-full" v-if="!booksStore.loading">{{ displayedBooks.length }} books available</span>
+          <h3 class="text-xl font-bold text-[var(--text-primary)] tracking-tight">All Catalog Books</h3>
+          <span class="text-[0.75rem] font-semibold text-[var(--text-secondary)] bg-[var(--bg-card-hover)] px-2.5 py-1 rounded-md border border-[var(--border-color)]" v-if="!booksStore.loading">{{ displayedBooks.length }} books available</span>
         </div>
       </div>
 
-      <div v-if="booksStore.loading" class="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-6 max-sm:grid-cols-3 max-sm:gap-1.5">
+      <div v-if="booksStore.loading" class="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-6 max-sm:grid-cols-2 max-sm:gap-3">
         <BookSkeleton v-for="i in 12" :key="i" />
       </div>
 
-      <div v-else-if="displayedBooks.length === 0" class="flex flex-col items-center justify-center text-center p-14 text-[var(--text-muted)] glass-panel">
+      <div v-else-if="displayedBooks.length === 0" class="flex flex-col items-center justify-center text-center p-14 text-[var(--text-muted)] bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm">
         <BookX :size="48" class="text-muted mb-3" />
         <h3 class="text-lg font-bold mb-1">No books found</h3>
         <p>Try searching for a different keyword or select another category.</p>
-        <button @click="resetFilters" class="btn btn-secondary btn-sm mt-4">Reset Filters</button>
+        <button @click="resetFilters" class="inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out active:scale-95 bg-gray-100 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-800 hover:border-indigo-400 dark:hover:border-indigo-500 hover:-translate-y-px px-4 py-2 text-sm mt-4">Reset Filters</button>
       </div>
 
-      <div v-else class="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-6 max-sm:grid-cols-3 max-sm:gap-1.5">
+      <div v-else class="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-6 max-sm:grid-cols-2 max-sm:gap-3">
         <BookCard 
           v-for="book in paginatedBooks" 
           :key="book.id" 
@@ -110,25 +102,24 @@
 
       <!-- Smart Pagination Controls -->
       <div v-if="totalPages > 1 && !booksStore.loading" class="mt-14 flex flex-col items-center justify-center gap-4">
-        <div class="flex items-center gap-1.5 bg-[var(--bg-card)] p-2 rounded-2xl border border-[var(--border-color)] shadow-[0_8px_30px_rgba(0,0,0,0.08)]">
+        <div class="flex items-center gap-2">
           <button 
             @click="goToPage(currentPage - 1)" 
             :disabled="currentPage === 1"
-            class="flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-200"
-            :class="currentPage === 1 ? 'opacity-40 cursor-not-allowed text-[var(--text-muted)]' : 'hover:bg-indigo-500/12 text-[var(--text-primary)] hover:text-indigo-500 cursor-pointer'"
+            class="flex items-center justify-center w-9 h-9 rounded-md bg-transparent border border-[var(--border-color)] text-[var(--text-secondary)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer hover:bg-[var(--bg-card-hover)] hover:text-[var(--text-primary)]"
             title="Previous Page"
           >
-            <ChevronLeft :size="20" />
+            <ChevronLeft :size="18" />
           </button>
           
-          <div class="flex items-center gap-1 px-1 sm:px-2">
+          <div class="flex items-center gap-1">
             <template v-for="(page, index) in visiblePages" :key="index">
-              <span v-if="page === '...'" class="w-6 sm:w-8 text-center text-[var(--text-muted)] select-none">...</span>
+              <span v-if="page === '...'" class="w-6 text-center text-[var(--text-muted)] select-none font-bold">...</span>
               <button 
                 v-else
                 @click="goToPage(page)"
-                class="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-xl text-[0.9rem] sm:text-[0.95rem] font-bold transition-all duration-300 cursor-pointer"
-                :class="currentPage === page ? '[background:var(--accent-gradient)] text-white shadow-[0_4px_12px_rgba(99,102,241,0.4)]' : 'hover:bg-indigo-500/12 text-[var(--text-secondary)] hover:text-indigo-500'"
+                class="flex items-center justify-center w-9 h-9 rounded-md text-[0.85rem] font-bold transition-colors cursor-pointer border"
+                :class="currentPage === page ? 'bg-[var(--text-primary)] text-[var(--bg-primary)] border-transparent' : 'bg-transparent border-transparent text-[var(--text-secondary)] hover:bg-[var(--bg-card-hover)] hover:border-[var(--border-color)]'"
               >
                 {{ page }}
               </button>
@@ -138,15 +129,14 @@
           <button 
             @click="goToPage(currentPage + 1)" 
             :disabled="currentPage === totalPages"
-            class="flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-200"
-            :class="currentPage === totalPages ? 'opacity-40 cursor-not-allowed text-[var(--text-muted)]' : 'hover:bg-indigo-500/12 text-[var(--text-primary)] hover:text-indigo-500 cursor-pointer'"
+            class="flex items-center justify-center w-9 h-9 rounded-md bg-transparent border border-[var(--border-color)] text-[var(--text-secondary)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer hover:bg-[var(--bg-card-hover)] hover:text-[var(--text-primary)]"
             title="Next Page"
           >
-            <ChevronRight :size="20" />
+            <ChevronRight :size="18" />
           </button>
         </div>
-        <div class="text-[0.85rem] text-[var(--text-muted)] font-medium">
-          Showing <span class="text-[var(--text-primary)]">{{ (currentPage - 1) * itemsPerPage + 1 }}</span> to <span class="text-[var(--text-primary)]">{{ Math.min(currentPage * itemsPerPage, displayedBooks.length) }}</span> of <span class="text-[var(--text-primary)]">{{ displayedBooks.length }}</span> entries
+        <div class="text-[0.85rem] text-[var(--text-secondary)] font-medium">
+          Showing <strong class="text-[var(--text-primary)]">{{ (currentPage - 1) * itemsPerPage + 1 }}</strong> to <strong class="text-[var(--text-primary)]">{{ Math.min(currentPage * itemsPerPage, displayedBooks.length) }}</strong> of <strong class="text-[var(--text-primary)]">{{ displayedBooks.length }}</strong> entries
         </div>
       </div>
     </section>
@@ -355,12 +345,8 @@ function openBorrowFromReader(book) {
   openBorrowModal(book);
 }
 
-function handleBorrowSuccess(msg) {
-  toastMessage.value = msg || 'Book borrowing request submitted successfully!';
+function handleBorrowSuccess() {
   booksStore.fetchBooks();
-  setTimeout(() => {
-    toastMessage.value = '';
-  }, 5000);
 }
 </script>
 

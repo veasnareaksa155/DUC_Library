@@ -3,7 +3,7 @@
     <!-- Background Decor -->
     <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-br from-indigo-500/10 to-violet-500/10 rounded-full blur-[100px] pointer-events-none"></div>
 
-    <div class="w-full max-w-[420px] px-8 py-10 glass-panel border border-[var(--border-color)] shadow-[0_8px_32px_rgba(0,0,0,0.1)] relative z-10">
+    <div class="w-full max-w-[420px] px-8 py-10 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm border border-[var(--border-color)] shadow-[0_8px_32px_rgba(0,0,0,0.1)] relative z-10">
       <header class="text-center mb-8">
         <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-500 text-white flex items-center justify-center mx-auto mb-5 shadow-[0_4px_20px_rgba(99,102,241,0.4)]">
           <ShieldCheck :size="32" stroke-width="2.5" />

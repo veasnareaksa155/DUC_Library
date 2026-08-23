@@ -1,7 +1,7 @@
 <template>
   <div class="grid grid-cols-[1.6fr_1fr] max-lg:grid-cols-1 gap-5 mb-8">
     <!-- Bar Chart: Monthly Activity Trends -->
-    <div class="p-6 flex flex-col glass-panel">
+    <div class="p-6 flex flex-col bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm">
       <div class="flex justify-between items-start mb-5">
         <div>
           <h3 class="text-[1.1rem] font-bold">Monthly Borrowing & Return Trends</h3>
@@ -55,7 +55,7 @@
     </div>
 
     <!-- Doughnut Chart & Category Breakdown -->
-    <div class="p-6 flex flex-col glass-panel">
+    <div class="p-6 flex flex-col bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm">
       <div class="flex justify-between items-start mb-5">
         <div>
           <h3 class="text-[1.1rem] font-bold">Borrowing Status Distribution</h3>
@@ -138,7 +138,7 @@
     </div>
 
     <!-- Unified Single Live & Periodic Library Analytics Card -->
-    <div class="p-6 flex flex-col glass-panel col-span-full mt-4">
+    <div class="p-6 flex flex-col bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm col-span-full mt-4">
       <div class="flex justify-between items-start mb-5 flex-wrap gap-3">
         <div>
           <h3 class="flex items-center gap-2 text-[1.1rem] font-bold">
@@ -181,7 +181,7 @@
             All Time
           </button>
 
-          <button @click="printOfficialReport" class="btn btn-primary btn-sm ml-2 font-bold">
+          <button @click="printOfficialReport" class="inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out active:scale-95 bg-indigo-600 text-white shadow-sm hover:bg-indigo-700 hover:-translate-y-px hover:shadow-md px-4 py-2 text-sm ml-2 font-bold">
             🖨️ Export / Print Report
           </button>
         </div>
@@ -194,7 +194,7 @@
       <div v-else-if="reportData" class="mt-6">
         <!-- Report Metrics Summary Row -->
         <div class="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-5 mb-6">
-          <div class="flex items-center gap-4 p-5 glass-panel bg-white/5 border border-[var(--border-color)] hover:border-indigo-500/30 transition-all duration-300">
+          <div class="flex items-center gap-4 p-5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm bg-white/5 border border-[var(--border-color)] hover:border-indigo-500/30 transition-all duration-300">
             <div class="w-12 h-12 rounded-[14px] flex items-center justify-center text-white shrink-0 bg-gradient-to-br from-indigo-500 to-indigo-600 shadow-md">
               <Activity :size="24" stroke-width="2.5" />
             </div>
@@ -204,7 +204,7 @@
             </div>
           </div>
 
-          <div class="flex items-center gap-4 p-5 glass-panel bg-white/5 border border-[var(--border-color)] hover:border-blue-500/30 transition-all duration-300">
+          <div class="flex items-center gap-4 p-5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm bg-white/5 border border-[var(--border-color)] hover:border-blue-500/30 transition-all duration-300">
             <div class="w-12 h-12 rounded-[14px] flex items-center justify-center text-white shrink-0 bg-gradient-to-br from-blue-500 to-cyan-500 shadow-md">
               <BookCopy :size="24" stroke-width="2.5" />
             </div>
@@ -214,7 +214,7 @@
             </div>
           </div>
 
-          <div class="flex items-center gap-4 p-5 glass-panel bg-white/5 border border-[var(--border-color)] hover:border-emerald-500/30 transition-all duration-300">
+          <div class="flex items-center gap-4 p-5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm bg-white/5 border border-[var(--border-color)] hover:border-emerald-500/30 transition-all duration-300">
             <div class="w-12 h-12 rounded-[14px] flex items-center justify-center text-white shrink-0 bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-md">
               <ArrowDownToLine :size="24" stroke-width="2.5" />
             </div>
@@ -224,7 +224,7 @@
             </div>
           </div>
 
-          <div class="flex items-center gap-4 p-5 glass-panel bg-white/5 border border-[var(--border-color)] hover:border-purple-500/30 transition-all duration-300 relative overflow-hidden">
+          <div class="flex items-center gap-4 p-5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm bg-white/5 border border-[var(--border-color)] hover:border-purple-500/30 transition-all duration-300 relative overflow-hidden">
             <div class="absolute -right-6 -top-6 w-24 h-24 bg-purple-500/10 blur-[20px] rounded-full pointer-events-none"></div>
             <div class="w-12 h-12 rounded-[14px] flex items-center justify-center text-white shrink-0 bg-gradient-to-br from-purple-500 to-pink-500 shadow-md relative z-10">
               <Users :size="24" stroke-width="2.5" />
