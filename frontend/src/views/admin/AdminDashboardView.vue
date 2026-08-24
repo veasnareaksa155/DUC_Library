@@ -50,66 +50,84 @@
       </div>
 
       <template v-else-if="stats">
-        <!-- Metrics KPI Grid -->
-        <section class="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-5 mb-8">
-          <div class="p-5 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg shadow-sm flex flex-col justify-between transition-shadow hover:shadow-md">
-            <div class="flex items-center justify-between mb-3">
-              <span class="text-[0.8rem] font-bold text-[var(--text-secondary)] uppercase tracking-wide">{{ localeStore.t('totalBooks') }}</span>
-              <div class="w-8 h-8 rounded-md bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 border border-indigo-100 dark:border-indigo-500/20">
-                <BookOpen :size="16" stroke-width="2" />
+        <!-- Premium Metrics KPI Grid -->
+        <section class="grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-6 mb-10">
+          <!-- Total Books -->
+          <div class="p-6 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:-translate-y-1 hover:shadow-[0_15px_40px_rgba(0,0,0,0.08)] dark:hover:shadow-[0_15px_40px_rgba(0,0,0,0.4)] transition-all duration-300 relative overflow-hidden group">
+            <div class="absolute -right-10 -top-10 w-32 h-32 bg-indigo-500/10 dark:bg-indigo-500/20 rounded-full blur-3xl group-hover:bg-indigo-500/20 transition-colors duration-500"></div>
+            <div class="flex items-start justify-between mb-4 relative z-10">
+              <span class="text-[0.75rem] font-extrabold text-[var(--text-secondary)] uppercase tracking-[0.08em] mt-2">{{ localeStore.t('totalBooks') }}</span>
+              <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-50 to-indigo-100/50 dark:from-indigo-500/20 dark:to-indigo-500/5 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 border border-indigo-200/50 dark:border-indigo-500/30 shadow-inner group-hover:scale-105 transition-transform duration-300">
+                <BookOpen :size="22" stroke-width="2.5" />
               </div>
             </div>
-            <span class="text-[2rem] font-extrabold text-[var(--text-primary)] leading-none">{{ stats.total_books }}</span>
+            <span class="text-[2.5rem] font-black text-[var(--text-primary)] tracking-tight leading-none relative z-10">{{ stats.total_books }}</span>
           </div>
 
-          <div class="p-5 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg shadow-sm flex flex-col justify-between transition-shadow hover:shadow-md">
-            <div class="flex items-center justify-between mb-3">
-              <span class="text-[0.8rem] font-bold text-[var(--text-secondary)] uppercase tracking-wide">{{ localeStore.t('registeredMembers') }}</span>
-              <div class="w-8 h-8 rounded-md bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 border border-blue-100 dark:border-blue-500/20">
-                <Users :size="16" stroke-width="2" />
+          <!-- Registered Members -->
+          <div class="p-6 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:-translate-y-1 hover:shadow-[0_15px_40px_rgba(0,0,0,0.08)] dark:hover:shadow-[0_15px_40px_rgba(0,0,0,0.4)] transition-all duration-300 relative overflow-hidden group">
+            <div class="absolute -right-10 -top-10 w-32 h-32 bg-blue-500/10 dark:bg-blue-500/20 rounded-full blur-3xl group-hover:bg-blue-500/20 transition-colors duration-500"></div>
+            <div class="flex items-start justify-between mb-4 relative z-10">
+              <span class="text-[0.75rem] font-extrabold text-[var(--text-secondary)] uppercase tracking-[0.08em] mt-2">{{ localeStore.t('registeredMembers') }}</span>
+              <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-50 to-blue-100/50 dark:from-blue-500/20 dark:to-blue-500/5 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 border border-blue-200/50 dark:border-blue-500/30 shadow-inner group-hover:scale-105 transition-transform duration-300">
+                <Users :size="22" stroke-width="2.5" />
               </div>
             </div>
-            <span class="text-[2rem] font-extrabold text-[var(--text-primary)] leading-none">{{ stats.total_users }}</span>
+            <span class="text-[2.5rem] font-black text-[var(--text-primary)] tracking-tight leading-none relative z-10">{{ stats.total_users }}</span>
           </div>
 
-          <div class="p-5 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg shadow-sm flex flex-col justify-between transition-shadow hover:shadow-md">
-            <div class="flex items-center justify-between mb-3">
-              <span class="text-[0.8rem] font-bold text-[var(--text-secondary)] uppercase tracking-wide">{{ localeStore.t('currentlyBorrowed') }}</span>
-              <div class="w-8 h-8 rounded-md bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-100 dark:border-emerald-500/20">
-                <BookmarkCheck :size="16" stroke-width="2" />
+          <!-- Currently Borrowed -->
+          <div class="p-6 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:-translate-y-1 hover:shadow-[0_15px_40px_rgba(0,0,0,0.08)] dark:hover:shadow-[0_15px_40px_rgba(0,0,0,0.4)] transition-all duration-300 relative overflow-hidden group">
+            <div class="absolute -right-10 -top-10 w-32 h-32 bg-emerald-500/10 dark:bg-emerald-500/20 rounded-full blur-3xl group-hover:bg-emerald-500/20 transition-colors duration-500"></div>
+            <div class="flex items-start justify-between mb-4 relative z-10">
+              <span class="text-[0.75rem] font-extrabold text-[var(--text-secondary)] uppercase tracking-[0.08em] mt-2">{{ localeStore.t('currentlyBorrowed') }}</span>
+              <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-50 to-emerald-100/50 dark:from-emerald-500/20 dark:to-emerald-500/5 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-200/50 dark:border-emerald-500/30 shadow-inner group-hover:scale-105 transition-transform duration-300">
+                <BookmarkCheck :size="22" stroke-width="2.5" />
               </div>
             </div>
-            <span class="text-[2rem] font-extrabold text-[var(--text-primary)] leading-none">{{ stats.active_borrowings }}</span>
+            <span class="text-[2.5rem] font-black text-[var(--text-primary)] tracking-tight leading-none relative z-10">{{ stats.active_borrowings }}</span>
           </div>
 
-          <div class="p-5 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg shadow-sm flex flex-col justify-between transition-shadow hover:shadow-md">
-            <div class="flex items-center justify-between mb-3">
-              <span class="text-[0.8rem] font-bold text-[var(--text-secondary)] uppercase tracking-wide">{{ localeStore.t('pendingRequests') }}</span>
-              <div class="w-8 h-8 rounded-md bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 border border-amber-100 dark:border-amber-500/20">
-                <Clock :size="16" stroke-width="2" />
+          <!-- Pending Requests -->
+          <div class="p-6 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:-translate-y-1 hover:shadow-[0_15px_40px_rgba(0,0,0,0.08)] dark:hover:shadow-[0_15px_40px_rgba(0,0,0,0.4)] transition-all duration-300 relative overflow-hidden group">
+            <div class="absolute -right-10 -top-10 w-32 h-32 bg-amber-500/10 dark:bg-amber-500/20 rounded-full blur-3xl group-hover:bg-amber-500/20 transition-colors duration-500"></div>
+            <div class="flex items-start justify-between mb-4 relative z-10">
+              <span class="text-[0.75rem] font-extrabold text-[var(--text-secondary)] uppercase tracking-[0.08em] mt-2">{{ localeStore.t('pendingRequests') }}</span>
+              <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-50 to-amber-100/50 dark:from-amber-500/20 dark:to-amber-500/5 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 border border-amber-200/50 dark:border-amber-500/30 shadow-inner group-hover:scale-105 transition-transform duration-300">
+                <Clock :size="22" stroke-width="2.5" />
               </div>
             </div>
-            <span class="text-[2rem] font-extrabold text-[var(--text-primary)] leading-none">{{ stats.pending_requests }}</span>
+            <span class="text-[2.5rem] font-black text-[var(--text-primary)] tracking-tight leading-none relative z-10">{{ stats.pending_requests }}</span>
           </div>
 
-          <div class="p-5 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg shadow-sm flex flex-col justify-between transition-shadow hover:shadow-md">
-            <div class="flex items-center justify-between mb-3">
-              <span class="text-[0.8rem] font-bold text-[var(--text-secondary)] uppercase tracking-wide">{{ localeStore.t('overdueBooks') }}</span>
-              <div class="w-8 h-8 rounded-md bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0 border border-rose-100 dark:border-rose-500/20">
-                <AlertTriangle :size="16" stroke-width="2" />
+          <!-- Overdue Books -->
+          <div class="p-6 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:-translate-y-1 hover:shadow-[0_15px_40px_rgba(0,0,0,0.08)] dark:hover:shadow-[0_15px_40px_rgba(0,0,0,0.4)] transition-all duration-300 relative overflow-hidden group">
+            <div class="absolute -right-10 -top-10 w-32 h-32 bg-rose-500/10 dark:bg-rose-500/20 rounded-full blur-3xl group-hover:bg-rose-500/20 transition-colors duration-500"></div>
+            <div class="flex items-start justify-between mb-4 relative z-10">
+              <span class="text-[0.75rem] font-extrabold text-[var(--text-secondary)] uppercase tracking-[0.08em] mt-2">{{ localeStore.t('overdueBooks') }}</span>
+              <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-rose-50 to-rose-100/50 dark:from-rose-500/20 dark:to-rose-500/5 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0 border border-rose-200/50 dark:border-rose-500/30 shadow-inner group-hover:scale-105 transition-transform duration-300">
+                <AlertTriangle :size="22" stroke-width="2.5" />
               </div>
             </div>
-            <span class="text-[2rem] font-extrabold text-[var(--text-primary)] leading-none">{{ stats.overdue_count }}</span>
+            <span class="text-[2.5rem] font-black text-rose-500 dark:text-rose-400 tracking-tight leading-none relative z-10">{{ stats.overdue_count }}</span>
           </div>
 
-          <div class="p-5 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg shadow-sm flex flex-col justify-between transition-shadow hover:shadow-md">
-            <div class="flex items-center justify-between mb-3">
-              <span class="text-[0.8rem] font-bold text-[var(--text-secondary)] uppercase tracking-wide">Active Readers Online</span>
-              <div class="w-8 h-8 rounded-md bg-teal-50 dark:bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0 border border-teal-100 dark:border-teal-500/20">
-                <Eye :size="16" stroke-width="2" />
+          <!-- Active Readers Online -->
+          <div class="p-6 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:-translate-y-1 hover:shadow-[0_15px_40px_rgba(0,0,0,0.08)] dark:hover:shadow-[0_15px_40px_rgba(0,0,0,0.4)] transition-all duration-300 relative overflow-hidden group">
+            <div class="absolute -right-10 -top-10 w-32 h-32 bg-teal-500/10 dark:bg-teal-500/20 rounded-full blur-3xl group-hover:bg-teal-500/20 transition-colors duration-500"></div>
+            <div class="flex items-start justify-between mb-4 relative z-10">
+              <span class="text-[0.75rem] font-extrabold text-[var(--text-secondary)] uppercase tracking-[0.08em] mt-2">Active Readers</span>
+              <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-50 to-teal-100/50 dark:from-teal-500/20 dark:to-teal-500/5 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0 border border-teal-200/50 dark:border-teal-500/30 shadow-inner group-hover:scale-105 transition-transform duration-300">
+                <Eye :size="22" stroke-width="2.5" />
               </div>
             </div>
-            <span class="text-[2rem] font-extrabold text-[var(--text-primary)] leading-none highlight-live">{{ stats.active_readers_count || 0 }}</span>
+            <div class="flex items-center gap-3 relative z-10">
+              <span class="text-[2.5rem] font-black text-[var(--text-primary)] tracking-tight leading-none">{{ stats.active_readers_count || 0 }}</span>
+              <span class="flex h-3 w-3 relative">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-3 w-3 bg-teal-500"></span>
+              </span>
+            </div>
           </div>
         </section>
 
@@ -117,17 +135,17 @@
         <AdminCharts :stats="stats" />
 
         <!-- Recent Activity Feed -->
-        <section class="p-6 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg shadow-sm mt-8">
+        <section class="p-8 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.02)] mt-10">
           <div class="flex justify-between items-center mb-6 border-b border-[var(--border-color)] pb-4">
-            <h3 class="text-lg font-bold text-[var(--text-primary)] tracking-tight">
+            <h3 class="text-[1.3rem] font-extrabold text-[var(--text-primary)] tracking-tight">
               {{ localeStore.t('recentRequests') || 'Recent Activity Feed' }}
             </h3>
-            <router-link to="/admin/borrowings" class="text-[0.85rem] text-indigo-600 hover:text-indigo-700 font-semibold flex items-center gap-1 transition-all group bg-indigo-50 dark:bg-indigo-500/10 px-3 py-1.5 rounded-md">
-              {{ localeStore.t('viewAllRequests') || 'View All Requests' }} <ArrowRight :size="14" class="group-hover:translate-x-0.5 transition-transform" />
+            <router-link to="/admin/borrowings" class="text-[0.85rem] text-indigo-600 hover:text-indigo-700 font-bold flex items-center gap-1.5 transition-all group bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-500/10 dark:hover:bg-indigo-500/20 px-4 py-2 rounded-lg">
+              {{ localeStore.t('viewAllRequests') || 'View All Requests' }} <ArrowRight :size="16" class="group-hover:translate-x-1 transition-transform" />
             </router-link>
           </div>
 
-          <div class="overflow-x-auto rounded-md border border-[var(--border-color)]">
+          <div class="overflow-x-auto rounded-xl border border-[var(--border-color)]">
             <table class="w-full border-collapse text-left">
               <thead>
                 <tr>
@@ -140,28 +158,33 @@
                 </tr>
               </thead>
               <tbody class="divide-y divide-[var(--border-color)]">
-                <tr v-for="item in stats.recent_activity" :key="item.id" class="hover:bg-gray-500/5 transition-colors duration-200 group">
+                <tr v-for="item in stats.recent_activity" :key="item.id" class="hover:bg-indigo-50/40 dark:hover:bg-indigo-500/5 transition-all duration-200 group border-b border-[var(--border-color)] last:border-0">
                   <td class="px-5 py-4">
-                    <div class="flex items-center gap-3">
-                      <div class="w-9 h-9 rounded-full bg-indigo-500/10 text-indigo-500 flex items-center justify-center font-bold text-[0.9rem] shrink-0 border border-indigo-500/20">
-                        {{ (item.user_name || 'G').charAt(0).toUpperCase() }}
+                    <div class="flex items-center gap-4">
+                      <div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-100 to-indigo-200 dark:from-indigo-500/20 dark:to-indigo-500/10 text-indigo-700 dark:text-indigo-400 flex items-center justify-center font-black text-[1rem] shrink-0 border border-indigo-200/50 dark:border-indigo-500/20 shadow-inner group-hover:scale-105 transition-transform overflow-hidden relative">
+                        <img v-if="item.profile_photo" :src="item.profile_photo" class="w-full h-full object-cover" />
+                        <template v-else>{{ (item.user_name || 'G').charAt(0).toUpperCase() }}</template>
                       </div>
                       <div class="flex flex-col">
-                        <span class="font-extrabold text-[var(--text-primary)] text-[0.92rem]">{{ item.user_name }}</span>
+                        <span class="font-extrabold text-[var(--text-primary)] text-[0.95rem] tracking-tight">{{ item.user_name }}</span>
                         <span class="text-[0.75rem] text-[var(--text-muted)] font-medium">{{ item.user_email }}</span>
                       </div>
                     </div>
                   </td>
-                  <td class="px-5 py-4 text-[0.92rem] font-bold text-[var(--text-primary)] max-w-[250px] truncate" :title="item.book_title">
-                    {{ item.book_title }}
-                  </td>
-                  <td class="px-5 py-4 text-[0.88rem] text-[var(--text-secondary)] font-medium">{{ formatDate(item.borrow_date) }}</td>
-                  <td class="px-5 py-4 text-[0.88rem] text-[var(--text-secondary)] font-medium">{{ formatDate(item.due_date) }}</td>
                   <td class="px-5 py-4">
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-bold uppercase tracking-wider bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700" :class="`inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-bold uppercase tracking-wider bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700-${item.status}`">{{ localeStore.t(item.status) || item.status }}</span>
+                    <div class="text-[0.95rem] font-bold text-[var(--text-primary)] max-w-[280px] truncate" :title="item.book_title">
+                      {{ item.book_title }}
+                    </div>
+                  </td>
+                  <td class="px-5 py-4 text-[0.85rem] text-[var(--text-secondary)] font-semibold">{{ formatDate(item.borrow_date) }}</td>
+                  <td class="px-5 py-4 text-[0.85rem] text-[var(--text-secondary)] font-semibold">{{ formatDate(item.due_date) }}</td>
+                  <td class="px-5 py-4">
+                    <span :class="getStatusClass(item.status)" class="inline-flex items-center justify-center px-3 py-1.5 rounded-md text-[0.7rem] font-extrabold uppercase tracking-widest border">
+                      {{ localeStore.t(item.status) || item.status }}
+                    </span>
                   </td>
                   <td class="px-5 py-4 text-right">
-                    <router-link to="/admin/borrowings" class="inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out active:scale-95 bg-gray-100 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-800 hover:border-indigo-400 dark:hover:border-indigo-500 hover:-translate-y-px px-5 py-2.5 text-sm inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out active:scale-95 bg-gray-100 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-800 hover:border-indigo-400 dark:hover:border-indigo-500 hover:-translate-y-px px-4 py-2 text-sm border border-[var(--border-color)] text-[var(--text-secondary)] hover:bg-indigo-500/10 hover:text-indigo-500 hover:border-indigo-500/30 transition-all font-bold px-4">
+                    <router-link to="/admin/borrowings" class="inline-flex items-center justify-center font-bold rounded-lg transition-all duration-200 ease-out active:scale-95 px-4 py-2 text-[0.8rem] bg-white dark:bg-[var(--bg-card)] text-indigo-600 dark:text-indigo-400 border border-[var(--border-color)] hover:bg-indigo-50 dark:hover:bg-indigo-500/10 hover:border-indigo-200 dark:hover:border-indigo-500/30 hover:-translate-y-px shadow-sm">
                       {{ localeStore.t('manage') || 'Manage' }}
                     </router-link>
                   </td>
@@ -195,6 +218,18 @@ onMounted(() => {
 function formatDate(dateStr) {
   if (!dateStr) return 'N/A';
   return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function getStatusClass(status) {
+  const s = (status || '').toLowerCase();
+  switch (s) {
+    case 'returned': return 'bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20';
+    case 'rejected': return 'bg-rose-50 text-rose-600 border-rose-200 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20';
+    case 'approved': return 'bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20';
+    case 'pending': return 'bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20';
+    case 'overdue': return 'bg-red-50 text-red-600 border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20';
+    default: return 'bg-gray-50 text-gray-600 border-gray-200 dark:bg-gray-500/10 dark:text-gray-400 dark:border-gray-500/20';
+  }
 }
 </script>
 

@@ -37,7 +37,7 @@
               <li><router-link to="/" class="text-[var(--text-secondary)] no-underline transition-colors hover:text-indigo-500">Library Catalog</router-link></li>
               <li><router-link to="/my-borrowings" class="text-[var(--text-secondary)] no-underline transition-colors hover:text-indigo-500">My Borrowed Books</router-link></li>
               <li><router-link to="/login" class="text-[var(--text-secondary)] no-underline transition-colors hover:text-indigo-500">Student & Staff Portal</router-link></li>
-              <li><router-link to="/register" class="text-[var(--text-secondary)] no-underline transition-colors hover:text-indigo-500">Create Library Account</router-link></li>
+
             </ul>
           </div>
 

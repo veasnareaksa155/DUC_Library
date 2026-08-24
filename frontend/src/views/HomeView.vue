@@ -1,37 +1,72 @@
 <template>
   <div class="w-full max-w-7xl mx-auto py-5 px-6 pb-12 max-sm:px-3 max-sm:py-3 max-sm:pb-16">
     <!-- Featured Books Hero Slider Banner (Swiper) -->
-    <section v-if="booksStore.loading" class="relative mb-6 w-full h-[320px] rounded-[var(--radius-xl)] overflow-hidden shadow-[0_16px_40px_rgba(0,0,0,0.4)] bg-[var(--bg-card)] border border-[var(--border-color)] animate-pulse max-lg:h-[250px] max-sm:h-[210px] max-[440px]:h-[205px]">
-      <div class="absolute inset-0 bg-slate-800/50"></div>
+    <section v-if="booksStore.loading" class="relative mb-10 w-full h-[540px] sm:h-[400px] lg:h-[480px] rounded-3xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.4)] border border-[var(--border-color)] bg-[var(--bg-card)] animate-pulse flex items-center justify-center p-8 max-sm:p-4">
+      <div class="w-full h-full max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-8 sm:gap-10">
+        <!-- Text Skeleton -->
+        <div class="flex-1 w-full max-w-[600px] flex flex-col items-center sm:items-start text-center sm:text-left gap-4 sm:gap-5 order-2 sm:order-1">
+          <div class="h-6 w-24 bg-gray-200 dark:bg-gray-800 rounded-full"></div>
+          <div class="h-12 sm:h-16 w-full max-w-[450px] bg-gray-200 dark:bg-gray-800 rounded-2xl"></div>
+          <div class="h-10 sm:h-12 w-[80%] max-w-[350px] bg-gray-200 dark:bg-gray-800 rounded-xl"></div>
+          
+          <!-- Buttons skeleton -->
+          <div class="flex gap-4 mt-2 sm:mt-4 w-full sm:w-auto justify-center sm:justify-start">
+            <div class="h-11 sm:h-12 w-32 bg-gray-200 dark:bg-gray-800 rounded-full"></div>
+            <div class="h-11 sm:h-12 w-32 bg-gray-200 dark:bg-gray-800 rounded-full"></div>
+          </div>
+        </div>
+
+        <!-- Cover Skeleton -->
+        <div class="w-[140px] sm:w-[180px] lg:w-[260px] aspect-[3/4] bg-gray-200 dark:bg-gray-800 rounded-2xl sm:rounded-3xl shrink-0 order-1 sm:order-2"></div>
+      </div>
     </section>
-    <section v-else-if="featuredBooks.length > 0" class="relative mb-6 rounded-[var(--radius-xl)] overflow-hidden shadow-[0_16px_40px_rgba(0,0,0,0.4)]">
+    <section v-else-if="featuredBooks.length > 0" class="relative mb-10 rounded-3xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.2)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.6)] border border-[var(--border-color)]">
       <Swiper
         :modules="swiperModules"
         :slides-per-view="1"
         :loop="true"
-        :autoplay="{ delay: 4500, disableOnInteraction: false }"
+        :autoplay="{ delay: 5000, disableOnInteraction: false }"
         :pagination="{ clickable: true }"
         :navigation="true"
-        class="w-full h-[320px] bg-slate-900 max-lg:h-[250px] max-sm:h-[210px] max-[440px]:h-[205px] custom-swiper"
+        class="w-full h-[540px] sm:h-[400px] lg:h-[480px] bg-slate-900 custom-swiper"
       >
-        <SwiperSlide v-for="(slide, idx) in featuredBooks" :key="slide.id">
-          <div class="relative w-full h-full flex items-center overflow-hidden">
+        <SwiperSlide v-for="(slide, idx) in featuredBooks" :key="slide.id" class="h-full">
+          <div class="relative w-full h-full flex items-center justify-center overflow-hidden py-4 sm:py-0">
+            <!-- Background Image -->
             <div class="absolute inset-0">
-              <img :src="getLibraryBg(idx)" :alt="slide.title" class="w-full h-full object-cover brightness-60 contrast-110 scale-105" />
-              <div class="absolute inset-0 bg-gradient-to-r from-slate-900/[0.95] via-slate-900/75 to-slate-900/30"></div>
+              <img :src="getLibraryBg(idx)" :alt="slide.title" class="w-full h-full object-cover brightness-50 blur-md scale-110" />
+              <div class="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-black/90 via-black/70 to-black/20 sm:to-transparent"></div>
             </div>
             
-            <div class="relative z-[2] py-[3rem] px-[4.5rem] pt-[2.5rem] max-w-[900px] w-full text-slate-50 max-lg:px-[3.6rem] max-lg:py-[2.4rem] max-lg:pt-[1.6rem] max-lg:max-w-[680px] max-sm:px-12 max-sm:py-8 max-sm:pt-4 max-[440px]:px-[2.6rem] max-[440px]:py-[1.8rem] max-[440px]:pt-[0.85rem]">
-              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/[0.35] border border-indigo-200/50 text-indigo-100 text-[0.78rem] font-bold mb-2.5 max-sm:text-[0.68rem] max-sm:px-2 max-sm:py-1 max-sm:mb-1.5"><Sparkles :size="13" /> Featured Book #{{ idx + 1 }}</span>
-              <h2 class="text-white text-[1.7rem] font-extrabold leading-[1.55] py-0.5 mb-1 line-clamp-2 max-lg:text-[1.45rem] max-sm:text-[1.12rem] max-sm:leading-relaxed max-sm:mb-1 max-[440px]:text-[1.05rem]">{{ slide.title }}</h2>
+            <div class="relative z-10 flex flex-col sm:flex-row items-center justify-center sm:justify-between w-full h-full px-5 sm:px-8 lg:px-20 max-w-7xl mx-auto gap-5 sm:gap-8">
+              
+              <!-- Left Content (Text) -->
+              <div class="flex-1 max-w-[600px] flex flex-col items-center sm:items-start text-center sm:text-left gap-3 sm:gap-4 z-20 order-2 sm:order-1 w-full">
+                <span class="inline-flex w-fit items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-indigo-500/20 text-indigo-300 text-[10px] sm:text-xs font-bold uppercase tracking-wider backdrop-blur-md border border-indigo-500/30 shadow-sm">
+                  <Award :size="12" class="sm:w-3.5 sm:h-3.5" /> Featured
+                </span>
+                <h2 class="text-white text-[1.4rem] sm:text-4xl lg:text-5xl font-extrabold leading-[1.6] drop-shadow-lg line-clamp-2 sm:line-clamp-3 sm:py-2 max-sm:px-2 max-sm:mb-1">
+                  {{ slide.title }}
+                </h2>
+                <p class="text-gray-300 text-[0.8rem] sm:text-sm lg:text-base leading-[1.6] line-clamp-2 sm:line-clamp-3 max-w-[500px] max-sm:px-4">
+                  {{ slide.description || 'Dive into our featured book of the week. Explore this amazing read from the collection today.' }}
+                </p>
 
-              <div class="flex gap-3 max-sm:gap-2 mt-4">
-                <button @click="openReaderModal(slide)" class="inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out active:scale-95 bg-indigo-600 text-white shadow-sm hover:bg-indigo-700 hover:-translate-y-px hover:shadow-md px-4 py-2 text-sm px-5 py-2 text-[0.88rem] max-sm:px-3 max-sm:py-1.5 max-sm:text-[0.78rem]">
-                  <BookOpenCheck :size="16" /> Read Book
-                </button>
-                <button @click="openBorrowModal(slide)" class="inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out active:scale-95 bg-gray-100 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-800 hover:border-indigo-400 dark:hover:border-indigo-500 hover:-translate-y-px px-4 py-2 text-sm px-5 py-2 text-[0.88rem] bg-white/[0.18] border border-white/40 text-white backdrop-blur-md hover:bg-white/30 hover:text-white disabled:opacity-50 max-sm:px-3 max-sm:py-1.5 max-sm:text-[0.78rem]" :disabled="slide.copies_available <= 0">
-                  <BookmarkPlus :size="16" /> Borrow
-                </button>
+                <div class="flex flex-row items-center justify-center sm:justify-start gap-3 mt-2 sm:mt-4 w-full sm:w-auto max-sm:px-4">
+                  <button @click="openReaderModal(slide)" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-7 py-2.5 sm:py-3 bg-white text-black rounded-full font-bold text-[13px] sm:text-base hover:bg-gray-200 transition-transform hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.2)] border-none cursor-pointer">
+                    <BookOpenCheck :size="16" class="sm:w-4 sm:h-4" /> Read Now
+                  </button>
+                  <button @click="openBorrowModal(slide)" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-7 py-2.5 sm:py-3 bg-black/40 border border-gray-400 text-white rounded-full font-bold text-[13px] sm:text-base backdrop-blur-md hover:bg-black/60 hover:border-white transition-all hover:scale-105 active:scale-95 cursor-pointer disabled:opacity-50" :disabled="slide.copies_available <= 0">
+                    <BookmarkPlus :size="16" class="sm:w-4 sm:h-4" /> Borrow
+                  </button>
+                </div>
+              </div>
+
+              <!-- Right Content (Book Cover - Top on Mobile) -->
+              <div class="relative w-[130px] sm:w-[160px] md:w-[200px] lg:w-[260px] aspect-[3/4] shrink-0 transform rotate-0 sm:rotate-2 hover:rotate-0 hover:-translate-y-2 transition-all duration-500 group cursor-pointer order-1 sm:order-2" @click="openReaderModal(slide)">
+                <!-- Ambient Glow -->
+                <div class="absolute inset-0 bg-indigo-500/40 blur-2xl sm:blur-3xl rounded-xl sm:rounded-3xl -z-10 group-hover:bg-indigo-400/60 transition-colors duration-500"></div>
+                <img :src="slide.cover_url || fallbackCover" class="w-full h-full object-cover rounded-lg sm:rounded-2xl shadow-[0_20px_40px_rgba(0,0,0,0.5)] border border-white/10" />
               </div>
             </div>
           </div>
@@ -39,42 +74,7 @@
       </Swiper>
     </section>
 
-    <!-- Trending / Popular Books Horizontal Shelf ("កំពុងពេញនិយម") -->
-    <section v-if="booksStore.loading" class="mt-6 mb-7">
-      <div class="flex items-center gap-2.5 mb-3.5">
-        <div class="h-6 w-32 bg-slate-800/60 rounded animate-pulse"></div>
-      </div>
-      <div class="flex gap-4 overflow-x-auto pb-2 scrollbar-none">
-        <div v-for="i in 6" :key="'skeleton-shelf-' + i" class="group flex-shrink-0 w-[130px] cursor-pointer transition-transform duration-250 ease-out hover:-translate-y-1">
-          <div class="relative w-full aspect-[3/4] rounded-xl overflow-hidden shadow-md bg-slate-800/50 mb-2 animate-pulse"></div>
-          <div class="h-3 w-3/4 bg-slate-800/60 rounded mt-2 animate-pulse"></div>
-          <div class="h-3 w-1/2 bg-slate-800/60 rounded mt-1 animate-pulse"></div>
-        </div>
-      </div>
-    </section>
-    <section v-else-if="featuredBooks.length > 0" class="mt-6 mb-7">
-      <div class="flex items-center gap-2.5 mb-3.5">
-        <h3 class="text-[1.15rem] font-extrabold text-[var(--text-primary)]">កំពុងពេញនិយម</h3>
-        <span class="text-[0.7rem] font-bold text-purple-500 bg-purple-500/15 border border-purple-500/30 px-2.5 py-0.5 rounded-full uppercase">Popular</span>
-      </div>
 
-      <div class="flex gap-4 overflow-x-auto pb-2 scrollbar-none">
-        <div 
-          v-for="book in featuredBooks" 
-          :key="'shelf-' + book.id" 
-          class="group flex-shrink-0 w-[130px] cursor-pointer transition-transform duration-250 ease-out hover:-translate-y-1"
-          @click="openReaderModal(book)"
-        >
-          <div class="relative w-full aspect-[3/4] rounded-xl overflow-hidden shadow-md bg-slate-800 mb-2">
-            <img :src="book.cover_url || fallbackCover" :alt="book.title" class="w-full h-full object-cover transition-transform duration-350 ease-out group-hover:scale-105" />
-            <div class="absolute bottom-1.5 right-1.5 text-[0.65rem] font-bold bg-emerald-500/90 backdrop-blur-sm text-white px-2 py-0.5 rounded-full" :class="{ 'out-of-stock': book.copies_available <= 0 }">
-              {{ book.copies_available > 0 ? `${book.copies_available} left` : 'Out' }}
-            </div>
-          </div>
-          <h4 class="text-[0.82rem] font-bold text-[var(--text-primary)] leading-snug line-clamp-2 pt-1">{{ book.title }}</h4>
-        </div>
-      </div>
-    </section>
 
     <!-- Search & Filter Controls Section -->
     <section class="mb-10 mt-8">
@@ -144,19 +144,19 @@
           <span class="text-[0.75rem] font-semibold text-[var(--text-secondary)] bg-[var(--bg-card-hover)] px-2.5 py-1 rounded-md border border-[var(--border-color)]" v-if="!booksStore.loading">{{ displayedBooks.length }} books</span>
         </div>
       </div>
-      <div v-if="booksStore.loading" class="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-6 max-sm:grid-cols-2 max-sm:gap-3">
+      <div v-if="booksStore.loading" class="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-6 max-sm:grid-cols-2 max-sm:gap-4 xl:grid-cols-5">
         <BookSkeleton v-for="i in 12" :key="i" />
       </div>
 
-      <div v-else-if="displayedBooks.length === 0" class="flex flex-col items-center justify-center text-center p-14 text-[var(--text-muted)] bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm">
+      <div v-else-if="displayedBooks.length === 0" class="flex flex-col items-center justify-center text-center p-14 text-[var(--text-muted)]">
         <Heart v-if="booksStore.selectedCategory === 'wishlist'" :size="48" color="#ef4444" class="mb-3" />
-        <BookX v-else :size="48" class="text-muted mb-3" />
-        <h3 class="text-lg font-bold mb-1">{{ booksStore.selectedCategory === 'wishlist' ? 'Your Wishlist is Empty' : 'No books found' }}</h3>
-        <p>{{ booksStore.selectedCategory === 'wishlist' ? 'Click the heart icon on any book card to save it to your wishlist.' : 'Try searching for a different keyword or select another category.' }}</p>
-        <button @click="resetFilters" class="inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out active:scale-95 bg-gray-100 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-800 hover:border-indigo-400 dark:hover:border-indigo-500 hover:-translate-y-px px-4 py-2 text-sm mt-4">Reset Filters</button>
+        <BookX v-else :size="48" class="text-[var(--text-muted)] mb-3" />
+        <h3 class="text-lg font-bold text-[var(--text-primary)] mb-1">{{ booksStore.selectedCategory === 'wishlist' ? 'Your Wishlist is Empty' : 'No books found' }}</h3>
+        <p class="text-[var(--text-secondary)]">{{ booksStore.selectedCategory === 'wishlist' ? 'Click the heart icon on any book card to save it to your wishlist.' : 'Try searching for a different keyword or select another category.' }}</p>
+        <button @click="resetFilters" class="inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out active:scale-95 bg-[var(--bg-secondary)] text-[var(--text-primary)] border border-[var(--border-color)] hover:bg-[var(--bg-card-hover)] hover:border-indigo-500 hover:-translate-y-px px-4 py-2 text-sm mt-4">Reset Filters</button>
       </div>
 
-      <div v-else class="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-6 max-sm:grid-cols-2 max-sm:gap-3">
+      <div v-else class="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-6 max-sm:grid-cols-2 max-sm:gap-4 xl:grid-cols-5">
         <BookCard 
           v-for="book in paginatedBooks" 
           :key="book.id" 
@@ -243,7 +243,7 @@ import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 import { 
-  Sparkles, Search, X, CheckCircle2, Loader2, BookX, Heart, Bell, Globe,
+  Award, Search, X, CheckCircle2, Loader2, BookX, Heart, Bell, Globe,
   ChevronLeft, ChevronRight, BookOpenCheck, BookmarkPlus 
 } from 'lucide-vue-next';
 
@@ -365,6 +365,8 @@ function handleCategoryWheel(e) {
   }
 }
 
+
+
 // Spotlight Search State
 const isSearchFocused = ref(false);
 
@@ -450,3 +452,80 @@ function handleBorrowSuccess() {
   booksStore.fetchBooks();
 }
 </script>
+
+<style scoped>
+/* Swiper Premium Customization */
+.custom-swiper {
+  --swiper-theme-color: #ffffff;
+  /* Change this to transparent so the default font-icon is invisible */
+  --swiper-navigation-color: transparent; 
+  --swiper-navigation-size: 18px;
+}
+
+/* Custom Navigation Arrows */
+.custom-swiper :deep(.swiper-button-next),
+.custom-swiper :deep(.swiper-button-prev) {
+  width: 44px;
+  height: 44px;
+  background-color: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  transition: all 0.3s ease;
+  margin: 0 10px;
+  background-size: 18px !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+}
+
+.custom-swiper :deep(.swiper-button-next) {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 18l6-6-6-6'/%3E%3C/svg%3E");
+}
+
+.custom-swiper :deep(.swiper-button-prev) {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 18l-6-6 6-6'/%3E%3C/svg%3E");
+}
+
+.custom-swiper :deep(.swiper-button-next):hover,
+.custom-swiper :deep(.swiper-button-prev):hover {
+  background-color: rgba(255, 255, 255, 0.35);
+  transform: scale(1.1);
+}
+
+/* Hide Default Swiper Icons Completely */
+/* Use double colons (::after) and force empty content */
+.custom-swiper :deep(.swiper-button-next::after),
+.custom-swiper :deep(.swiper-button-prev::after) {
+  content: '' !important;
+  display: none !important;
+}
+
+/* Custom Pagination Dots */
+.custom-swiper :deep(.swiper-pagination-bullet) {
+  width: 8px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.4);
+  opacity: 1;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  margin: 0 6px !important;
+}
+
+.custom-swiper :deep(.swiper-pagination-bullet-active) {
+  width: 32px;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.custom-swiper :deep(.swiper-pagination-bullets) {
+  bottom: 20px !important;
+}
+
+/* Hide navigation arrows on mobile */
+@media (max-width: 768px) {
+  .custom-swiper :deep(.swiper-button-next),
+  .custom-swiper :deep(.swiper-button-prev) {
+    display: none !important;
+  }
+}
+</style>

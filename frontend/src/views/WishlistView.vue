@@ -25,21 +25,21 @@
           </p>
         </div>
         
-        <button @click="clearAllWishlist" :disabled="booksStore.loading || wishlistBooks.length === 0" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-[0.85rem] font-medium text-[var(--text-secondary)] hover:text-red-600 hover:border-red-200 dark:hover:border-red-900/50 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors group disabled:opacity-50 disabled:cursor-not-allowed">
+        <button @click="clearAllWishlist" :disabled="booksStore.loading || wishlistBooks.length === 0" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-[var(--border-color)] bg-[var(--bg-card)] text-[0.85rem] font-medium text-[var(--text-secondary)] hover:text-red-500 hover:border-red-500/50 hover:bg-red-500/10 transition-colors group disabled:opacity-50 disabled:cursor-not-allowed">
           <Trash2 :size="15" class="transition-transform group-hover:scale-110" /> 
           <span>Clear Collection</span>
         </button>
       </div>
 
       <!-- Loading State -->
-      <div v-if="booksStore.loading" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 max-sm:gap-3">
+      <div v-if="booksStore.loading" class="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-6 max-sm:grid-cols-2 max-sm:gap-4 xl:grid-cols-5">
         <BookSkeleton v-for="n in 10" :key="n" />
       </div>
 
       <!-- Empty State -->
-      <div v-else-if="wishlistBooks.length === 0" class="max-w-[540px] mx-auto my-16 p-12 rounded-2xl bg-white dark:bg-[#1e1e2d] border border-[var(--border-color)] shadow-sm text-center">
-        <div class="w-16 h-16 mx-auto mb-6 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-          <Bookmark :size="32" class="text-gray-400" />
+      <div v-else-if="wishlistBooks.length === 0" class="max-w-[540px] mx-auto my-16 p-12 text-center">
+        <div class="w-16 h-16 mx-auto mb-6 rounded-xl bg-[var(--bg-secondary)] flex items-center justify-center">
+          <Bookmark :size="32" class="text-[var(--text-muted)]" />
         </div>
         <h2 class="text-[1.25rem] font-bold text-[var(--text-primary)] mb-2">Your collection is empty</h2>
         <p class="text-[0.9rem] text-[var(--text-secondary)] leading-relaxed mb-8">
@@ -51,7 +51,7 @@
       </div>
 
       <!-- Wishlist Books Grid (Using standard BookCard component) -->
-      <div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 max-sm:gap-3">
+      <div v-else class="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-6 max-sm:grid-cols-2 max-sm:gap-4 xl:grid-cols-5">
         <BookCard 
           v-for="book in wishlistBooks" 
           :key="book.id" 

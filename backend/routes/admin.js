@@ -5,8 +5,48 @@ const ORM = require('../googleSheetsORM');
 const router = express.Router();
 router.use(authenticateToken, requireAdmin);
 
+const { fetchStudentsFromSheet } = require('../googleSheets');
+
+async function getMappedUsers() {
+  const LIVE_STUDENTS = await fetchStudentsFromSheet(process.env.SPREADSHEET_ID || '1YWZoN8THhaxO7H734gRxa7ahGsJoNHWcvyeR-QSa3LU') || [];
+  
+  let photoMap = {};
+  try {
+    const localPhotos = await ORM.getAll('ProfilePhotos');
+    localPhotos.forEach(p => { photoMap[p.student_id] = p.photo_url; });
+  } catch (e) {
+    console.error('Failed to load ProfilePhotos for admin mapping', e);
+  }
+
+  return LIVE_STUDENTS.map(s => ({
+    id: s.studentId,
+    name: s.latinName,
+    email: `${s.studentId.toLowerCase()}@duc.com`,
+    role: 'user',
+    student_id: s.studentId,
+    name_khmer: s.khmerName,
+    gender: s.gender || '',
+    dob: s.dateOfBirth || '',
+    pob: s.province || '',
+    high_school: s.highSchool || '',
+    telegram: s.telegram || '',
+    guardian_phone: s.guardianPhone || '',
+    major: s.major || '',
+    degree_level: s.degreeLevel || '',
+    class_code: s.classCode || '',
+    status: s.academicStatus || 'Active Student',
+    academic_year: s.academicYear || '',
+    generation: s.generation || '',
+    bac2_grade: s.grade || '',
+    phone: s.phone || '',
+    dorm_room: s.dormRoom || '',
+    profile_photo: photoMap[s.studentId] || s.profilePhoto || '',
+    created_at: new Date().toISOString()
+  }));
+}
+
 async function getUserMap() {
-  const users = await ORM.getAll('Users');
+  const users = await getMappedUsers();
   const map = {};
   users.forEach(u => {
     map[u.id] = u;
@@ -27,7 +67,7 @@ async function getBookMap() {
 router.get('/dashboard-stats', async (req, res) => {
   try {
     const books = await ORM.getAll('Books');
-    const users = await ORM.getAll('Users');
+    const users = await getMappedUsers();
     const borrowings = await ORM.getAll('Borrowings');
     const categories = await ORM.getAll('Categories');
 
@@ -85,7 +125,8 @@ router.get('/dashboard-stats', async (req, res) => {
         ...br,
         user_name: u.name,
         user_email: u.email,
-        book_title: b.title
+        book_title: b.title,
+        profile_photo: u.profile_photo
       };
     });
 
@@ -171,7 +212,8 @@ router.get('/borrowings', async (req, res) => {
         user_email: u.email,
         book_title: b.title,
         book_author: b.author,
-        cover_url: b.cover_url
+        cover_url: b.cover_url,
+        profile_photo: u.profile_photo
       };
     });
 
@@ -205,6 +247,26 @@ router.put('/borrowings/:id/status', async (req, res) => {
         return res.status(400).json({ message: 'Cannot approve: No available copies remaining.' });
       }
       await ORM.update('Books', book.id, { copies_available: copiesAvailable - 1 });
+      
+      // Notify student
+      await ORM.insert('Notifications', {
+        user_id: borrowing.user_id,
+        title: 'Book Request Approved! 🎉',
+        message: `Your request for "${book.title}" has been approved. Please pick it up from the library.`,
+        type: 'info',
+        is_read: 'false',
+        created_at: new Date().toISOString()
+      });
+    } else if (status === 'rejected' && borrowing.status === 'pending') {
+      // Notify student
+      await ORM.insert('Notifications', {
+        user_id: borrowing.user_id,
+        title: 'Book Request Declined',
+        message: `Your request for "${book.title}" was declined. ${admin_notes ? 'Reason: ' + admin_notes : ''}`,
+        type: 'alert',
+        is_read: 'false',
+        created_at: new Date().toISOString()
+      });
     } else if (status === 'returned' && (borrowing.status === 'approved' || borrowing.status === 'pending')) {
       if (borrowing.status === 'approved') {
         await ORM.update('Books', book.id, { copies_available: copiesAvailable + 1 });
@@ -252,7 +314,7 @@ router.delete('/borrowings/:id', async (req, res) => {
 // List all registered users
 router.get('/users', async (req, res) => {
   try {
-    const users = await ORM.getAll('Users');
+    const users = await getMappedUsers();
     const borrowings = await ORM.getAll('Borrowings');
 
     const userStats = {};

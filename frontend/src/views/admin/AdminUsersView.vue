@@ -11,12 +11,12 @@
           <p class="text-[var(--text-secondary)]">View all registered student accounts, sync live data from Google Sheet, or manage roles.</p>
         </div>
 
-        <button @click="openSyncModal" class="inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out active:scale-95 bg-indigo-600 text-white shadow-sm hover:bg-indigo-700 hover:-translate-y-px hover:shadow-md px-5 py-2.5 text-sm">
-          <FileSpreadsheet :size="18" /> Sync Google Sheet
+        <button @click="openDatabaseModal" class="inline-flex items-center justify-center gap-2 font-bold rounded-xl transition-all duration-300 ease-out active:scale-95 bg-[var(--text-primary)] text-[var(--bg-primary)] shadow-[0_4px_12px_rgba(0,0,0,0.1)] hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] hover:-translate-y-0.5 px-5 py-3 text-[0.95rem]">
+          <FileSpreadsheet :size="18" /> Live Database
         </button>
       </header>
 
-      <div class="p-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm">
+      <div class="p-6 bg-[var(--bg-card)] border-[var(--border-color)] border rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
         <div class="flex justify-between items-center mb-5">
           <div class="relative flex items-center w-full max-w-[450px]">
             <Search :size="18" class="absolute left-3.5 text-[var(--text-muted)] pointer-events-none z-10" />
@@ -179,7 +179,7 @@
 
           <div v-if="selectedStudent">
             <!-- Header Hero Banner -->
-            <div class="flex items-center gap-5 p-5 bg-white/5 border border-[var(--border-color)] rounded-[var(--radius-lg)] mb-6">
+            <div class="flex items-center gap-5 p-5 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-[var(--radius-lg)] mb-6 shadow-sm">
               <div class="w-[72px] h-[72px] rounded-full bg-[var(--accent-gradient)] text-white font-extrabold text-[2rem] flex items-center justify-center shadow-[0_4px_20px_rgba(99,102,241,0.35)]">
                 <img v-if="selectedStudent.profile_photo" :src="selectedStudent.profile_photo" class="w-full h-full rounded-full object-cover" alt="Student Avatar" />
                 <span v-else>{{ (selectedStudent.name_latin || selectedStudent.name || 'S').charAt(0).toUpperCase() }}</span>
@@ -198,7 +198,7 @@
             <!-- Profile Details Grid -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <!-- Academic Information -->
-              <div class="bg-white/5 border border-[var(--border-color)] rounded-[var(--radius-md)] p-5">
+              <div class="bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-[var(--radius-md)] p-5 shadow-sm">
                 <h4 class="text-[1rem] font-bold text-[var(--accent-primary)] flex items-center gap-2 mb-4 pb-2 border-b border-[var(--border-color)]"><GraduationCap :size="18" /> Academic Info</h4>
                 <div class="flex flex-col gap-2.5">
                   <div class="flex justify-between items-center text-[0.85rem]">
@@ -238,7 +238,7 @@
               </div>
 
               <!-- Personal & Contact Info -->
-              <div class="bg-white/5 border border-[var(--border-color)] rounded-[var(--radius-md)] p-5">
+              <div class="bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-[var(--radius-md)] p-5 shadow-sm">
                 <h4 class="text-[1rem] font-bold text-[var(--accent-primary)] flex items-center gap-2 mb-4 pb-2 border-b border-[var(--border-color)]"><UserCheck :size="18" /> Personal & Contact Info</h4>
                 <div class="flex flex-col gap-2.5">
                   <div class="flex justify-between items-center text-[0.85rem]">
@@ -283,59 +283,47 @@
         </div>
       </div>
 
-      <!-- Sync Google Sheet Modal -->
-      <div v-if="isSyncModalOpen" class="fixed inset-0 bg-black/75 backdrop-blur-[8px] flex items-center justify-center z-[1000] p-6" @click.self="isSyncModalOpen = false">
-        <div class="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-8 shadow-2xl animate-in zoom-in-95 duration-200 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm">
-          <header class="flex justify-between items-center mb-5">
-            <h2>Sync Users from Google Sheet</h2>
-            <button @click="isSyncModalOpen = false" class="bg-transparent border-none text-[var(--text-muted)] cursor-pointer hover:text-slate-200"><X :size="20" /></button>
+      <!-- Live Database Modal -->
+      <div v-if="isDatabaseModalOpen" class="fixed inset-0 z-[1000] flex items-center justify-center p-4 sm:p-6" @click.self="isDatabaseModalOpen = false">
+        <div class="absolute inset-0 bg-slate-900/40 dark:bg-slate-950/70 backdrop-blur-md transition-all duration-500 animate-in fade-in"></div>
+        <div class="relative w-full max-w-[500px] bg-[var(--bg-card)] rounded-[2rem] shadow-[0_20px_60px_rgba(0,0,0,0.15)] dark:shadow-[0_20px_60px_rgba(0,0,0,0.4)] border border-[var(--border-color)] overflow-hidden p-8 animate-[fadeInUp_0.4s_cubic-bezier(0.16,1,0.3,1)_both] transform-gpu">
+          <header class="flex justify-between items-start mb-6">
+            <div>
+              <h2 class="text-[1.5rem] font-black tracking-tight text-[var(--text-primary)] mb-1">Live Database</h2>
+              <p class="text-[0.9rem] text-[var(--text-secondary)]">Manage your users directly in Google Sheets.</p>
+            </div>
+            <button @click="isDatabaseModalOpen = false" class="w-8 h-8 flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] bg-[var(--bg-secondary)] hover:bg-[var(--border-color)] border border-[var(--border-color)] rounded-full transition-all duration-300 hover:rotate-90 cursor-pointer shadow-sm"><X :size="16" stroke-width="2.5" /></button>
           </header>
 
-          <div class="modal-body">
-            <p class="text-[0.9rem] text-[var(--text-secondary)] mb-5 leading-relaxed">
-              To keep your Google Sheet <strong>Private</strong>, share your Google Sheet with the Service Account Email address below:
-            </p>
-
-            <div v-if="serviceAccountEmail" class="bg-indigo-500/10 border border-indigo-500/30 p-4 rounded-[var(--radius-md)] mb-4">
-              <span class="block text-[0.8rem] font-bold text-[var(--text-primary)] mb-1.5">Service Account Email to Invite:</span>
-              <div class="flex items-center gap-2 mb-1.5">
-                <code class="flex-1 bg-[var(--bg-primary)] px-3 py-1.5 rounded-[var(--radius-sm)] font-mono text-[0.85rem] text-[var(--accent-primary)] break-all border border-[var(--border-color)]">{{ serviceAccountEmail }}</code>
-                <button @click="copyEmail" class="inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out active:scale-95 bg-gray-100 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-800 hover:border-indigo-400 dark:hover:border-indigo-500 hover:-translate-y-px px-4 py-2 text-sm">Copy</button>
-              </div>
-              <small class="text-[0.78rem] text-[var(--text-muted)] block mt-1">Open Google Sheet -> Share -> Paste this email -> Viewer access -> Done</small>
-            </div>
-
-            <div v-else class="bg-amber-500/10 border border-amber-500/30 p-4 rounded-[var(--radius-md)] mb-4">
-              <span class="block text-[0.8rem] font-bold text-[var(--text-primary)] mb-1.5">⚠️ Credentials File Required:</span>
-              <small class="text-[0.78rem] text-[var(--text-muted)] block mt-1">Download JSON Key from Google Console -> save as <code>backend/google-credentials.json</code> -> restart server.</small>
-            </div>
-
-            <div class="mt-4">
-              <label class="block text-[0.85rem] font-semibold mb-1.5">Google Spreadsheet ID</label>
-              <input 
-                v-model="spreadsheetId" 
-                type="text" 
-                class="w-full"
-                placeholder="e.g. 1YWZoN8THhaxO7H734gRxa7ahGsJoNHWcvyeR-QSa3LU" 
-              />
-              <small class="text-[0.78rem] text-[var(--text-muted)] block mt-1">Found in your Google Sheet URL between <code>/d/</code> and <code>/edit</code></small>
-            </div>
-
-            <div v-if="syncMessage" class="flex items-center gap-2 px-4 py-3 bg-emerald-500/15 text-emerald-500 rounded-[var(--radius-md)] mt-4 text-[0.88rem]">
-              <CheckCircle :size="16" /> {{ syncMessage }}
-            </div>
-
-            <div v-if="syncError" class="flex items-center gap-2 px-4 py-3 bg-red-500/15 text-red-500 rounded-[var(--radius-md)] mt-4 text-[0.88rem]">
-              <AlertCircle :size="16" /> {{ syncError }}
+          <div class="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-5 mb-6 flex gap-4">
+            <div class="mt-0.5 text-emerald-500"><CheckCircle :size="24" stroke-width="2.5" /></div>
+            <div>
+              <h3 class="text-[1.05rem] font-bold text-emerald-600 dark:text-emerald-400 mb-1">Native Integration</h3>
+              <p class="text-[0.9rem] text-[var(--text-secondary)] leading-relaxed">
+                Syncing is no longer required! This application connects directly to Google Sheets. Any changes made to the sheet are instantly reflected here.
+              </p>
             </div>
           </div>
 
-          <footer class="flex justify-end items-center gap-3 mt-6 pt-5 border-t border-[var(--border-color)]">
-            <button @click="isSyncModalOpen = false" class="inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out active:scale-95 bg-gray-100 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-800 hover:border-indigo-400 dark:hover:border-indigo-500 hover:-translate-y-px px-5 py-2.5 text-sm">Cancel</button>
-            <button @click="handleSync" class="inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out active:scale-95 bg-indigo-600 text-white shadow-sm hover:bg-indigo-700 hover:-translate-y-px hover:shadow-md px-5 py-2.5 text-sm" :disabled="syncing">
-              <RefreshCw :size="16" :class="{ 'animate-spin': syncing }" />
-              {{ syncing ? 'Syncing...' : 'Sync Students Now' }}
-            </button>
+          <div class="mb-6 space-y-4">
+            <div v-if="serviceAccountEmail" class="bg-[var(--bg-secondary)] border border-[var(--border-color)] p-4 rounded-2xl">
+              <span class="block text-[0.8rem] font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Service Account</span>
+              <div class="flex items-center gap-2">
+                <code class="flex-1 bg-[var(--bg-primary)] px-3 py-2 rounded-xl font-mono text-[0.85rem] text-[var(--text-primary)] border border-[var(--border-color)] truncate">{{ serviceAccountEmail }}</code>
+                <button @click="copyEmail" class="font-bold rounded-xl bg-[var(--text-primary)] text-[var(--bg-primary)] px-4 py-2 text-sm hover:scale-105 active:scale-95 transition-all shadow-sm">Copy</button>
+              </div>
+            </div>
+            
+            <div class="bg-[var(--bg-secondary)] border border-[var(--border-color)] p-4 rounded-2xl">
+              <span class="block text-[0.8rem] font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Connected Spreadsheet ID</span>
+              <code class="block w-full bg-[var(--bg-primary)] px-3 py-2 rounded-xl font-mono text-[0.85rem] text-[var(--text-primary)] border border-[var(--border-color)] truncate">{{ spreadsheetId }}</code>
+            </div>
+          </div>
+
+          <footer class="flex justify-end items-center gap-3 pt-5 border-t border-[var(--border-color)]">
+            <a :href="`https://docs.google.com/spreadsheets/d/${spreadsheetId}/edit`" target="_blank" class="w-full inline-flex items-center justify-center gap-2 font-extrabold rounded-2xl transition-all duration-300 ease-out active:scale-95 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-[0_8px_20px_rgba(16,185,129,0.3)] hover:shadow-[0_12px_25px_rgba(16,185,129,0.4)] px-5 py-3.5 text-[1rem] no-underline">
+              <FileSpreadsheet :size="20" stroke-width="2.5" /> Open Google Sheet
+            </a>
           </footer>
         </div>
       </div>
@@ -358,12 +346,9 @@ const searchQuery = ref('');
 const currentPage = ref(1);
 const itemsPerPage = ref(15);
 
-const isSyncModalOpen = ref(false);
+const isDatabaseModalOpen = ref(false);
 const spreadsheetId = ref('1YWZoN8THhaxO7H734gRxa7ahGsJoNHWcvyeR-QSa3LU');
 const serviceAccountEmail = ref('');
-const syncing = ref(false);
-const syncMessage = ref('');
-const syncError = ref('');
 
 const isProfileModalOpen = ref(false);
 const selectedStudent = ref(null);
@@ -450,37 +435,8 @@ async function fetchUsers() {
   }
 }
 
-function openSyncModal() {
-  syncMessage.value = '';
-  syncError.value = '';
-  isSyncModalOpen.value = true;
-}
-
-async function handleSync() {
-  syncing.value = true;
-  syncMessage.value = '';
-  syncError.value = '';
-
-  try {
-    const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/auth/sync-sheet`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${authStore.token}`
-      },
-      body: JSON.stringify({ spreadsheet_id: spreadsheetId.value })
-    });
-
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'Sync failed');
-
-    syncMessage.value = data.message;
-    await fetchUsers();
-  } catch (err) {
-    syncError.value = err.message || 'Failed to sync Google Sheet data.';
-  } finally {
-    syncing.value = false;
-  }
+function openDatabaseModal() {
+  isDatabaseModalOpen.value = true;
 }
 
 function formatDate(dateStr) {

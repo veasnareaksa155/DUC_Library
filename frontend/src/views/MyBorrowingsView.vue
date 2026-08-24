@@ -44,8 +44,8 @@
       </div>
     </div>
 
-    <div v-else-if="filteredBorrowings.length === 0" class="text-center p-16 text-[var(--text-muted)] border border-[var(--border-color)] bg-[var(--bg-card)] rounded-lg shadow-sm">
-      <BookmarkX :size="48" class="text-[var(--text-muted)] mx-auto mb-3" />
+    <div v-else-if="filteredBorrowings.length === 0" class="text-center py-24 text-[var(--text-muted)] bg-transparent">
+      <BookmarkX :size="64" stroke-width="1.5" class="text-indigo-400 opacity-40 mx-auto mb-4 drop-shadow-sm" />
       <h3 class="text-lg font-bold mb-1 text-[var(--text-primary)]">{{ borrowingsStore.myBorrowings.length === 0 ? localeStore.t('noActiveBorrowings') : 'No Books Found' }}</h3>
       <p class="text-[0.9rem]">{{ borrowingsStore.myBorrowings.length === 0 ? localeStore.t('noActiveBorrowingsSub') : 'No books match the current filter.' }}</p>
       

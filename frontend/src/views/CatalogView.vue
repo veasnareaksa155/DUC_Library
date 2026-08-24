@@ -11,7 +11,7 @@
     <!-- Search & Filter Controls Section -->
     <section class="mb-10">
       <!-- Minimal Search Input -->
-      <div class="relative w-full max-w-2xl mb-8">
+      <div class="relative w-full max-w-2xl mx-auto mb-8">
         <div class="flex items-center gap-3 px-4 py-2.5 rounded-lg bg-[var(--bg-input)] border border-[var(--border-color)] shadow-sm transition-all duration-200" :class="{ 'ring-2 ring-indigo-500/20 border-indigo-500': isSearchFocused || booksStore.searchQuery }">
           <Search :size="18" class="text-[var(--text-secondary)] shrink-0 cursor-pointer" :class="{ 'text-indigo-500': isSearchFocused || booksStore.searchQuery }" @click="() => searchInputRef?.focus()" />
           <input 
@@ -39,7 +39,7 @@
           </button>
 
           <div 
-            class="flex items-center gap-2 overflow-x-auto overflow-y-hidden py-1 scroll-smooth flex-1 min-w-0 scrollbar-none" 
+            class="flex items-center gap-2 overflow-x-auto overflow-y-hidden py-1 scroll-smooth scrollbar-none" 
             ref="categoryScrollRef"
             @wheel.prevent="handleCategoryWheel"
           >
@@ -78,18 +78,18 @@
         </div>
       </div>
 
-      <div v-if="booksStore.loading" class="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-6 max-sm:grid-cols-2 max-sm:gap-3">
+      <div v-if="booksStore.loading" class="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-6 max-sm:grid-cols-2 max-sm:gap-4 xl:grid-cols-5">
         <BookSkeleton v-for="i in 12" :key="i" />
       </div>
 
-      <div v-else-if="displayedBooks.length === 0" class="flex flex-col items-center justify-center text-center p-14 text-[var(--text-muted)] bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm">
-        <BookX :size="48" class="text-muted mb-3" />
-        <h3 class="text-lg font-bold mb-1">No books found</h3>
-        <p>Try searching for a different keyword or select another category.</p>
-        <button @click="resetFilters" class="inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out active:scale-95 bg-gray-100 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-800 hover:border-indigo-400 dark:hover:border-indigo-500 hover:-translate-y-px px-4 py-2 text-sm mt-4">Reset Filters</button>
+      <div v-else-if="displayedBooks.length === 0" class="flex flex-col items-center justify-center text-center p-14 text-[var(--text-muted)]">
+        <BookX :size="48" class="text-[var(--text-muted)] mb-3" />
+        <h3 class="text-lg font-bold text-[var(--text-primary)] mb-1">No books found</h3>
+        <p class="text-[var(--text-secondary)]">Try searching for a different keyword or select another category.</p>
+        <button @click="resetFilters" class="inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out active:scale-95 bg-[var(--bg-secondary)] text-[var(--text-primary)] border border-[var(--border-color)] hover:bg-[var(--bg-card-hover)] hover:border-indigo-500 hover:-translate-y-px px-4 py-2 text-sm mt-4">Reset Filters</button>
       </div>
 
-      <div v-else class="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-6 max-sm:grid-cols-2 max-sm:gap-3">
+      <div v-else class="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-6 max-sm:grid-cols-2 max-sm:gap-4 xl:grid-cols-5">
         <BookCard 
           v-for="book in paginatedBooks" 
           :key="book.id" 

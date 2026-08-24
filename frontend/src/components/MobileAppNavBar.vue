@@ -1,14 +1,21 @@
 <template>
   <!-- Floating Check-In Button (Global for Mobile & Desktop) -->
-  <button 
-    v-if="authStore.isAuthenticated && authStore.user?.role !== 'admin' && !hideOnReadPage"
-    @click="openCheckinModal"
-    class="flex fixed right-4 md:right-8 bottom-[85px] md:bottom-8 w-[50px] h-[50px] md:w-[60px] md:h-[60px] rounded-full items-center justify-center text-[var(--bg-primary)] z-[9998] transition-all duration-300 outline-none cursor-pointer border border-[var(--border-color)] shadow-md hover:shadow-lg hover:-translate-y-1 active:scale-95"
-    :class="checkinStore.hasCheckedInToday ? 'bg-emerald-500 text-white' : 'bg-[var(--text-primary)]'"
-    :title="checkinStore.hasCheckedInToday ? 'Checked In' : 'Check In to Library'"
-  >
-    <MapPin :size="24" :class="{ 'animate-bounce': !checkinStore.hasCheckedInToday }" />
-  </button>
+  <div v-if="authStore.isAuthenticated && authStore.user?.role !== 'admin' && !hideOnReadPage" class="fixed right-4 md:right-8 bottom-[85px] md:bottom-8 z-[9998] group">
+    <!-- Glowing background pulse (only when not checked in) -->
+    <div v-if="!checkinStore.hasCheckedInToday" class="absolute inset-0 bg-indigo-500/40 rounded-full blur-xl animate-pulse group-hover:bg-indigo-500/60 transition-all duration-500"></div>
+    
+    <button 
+      @click="openCheckinModal"
+      class="relative flex w-[55px] h-[55px] md:w-[65px] md:h-[65px] rounded-[1.2rem] md:rounded-full items-center justify-center text-white z-[9999] transition-all duration-500 outline-none cursor-pointer border-2 shadow-[0_8px_25px_rgba(0,0,0,0.2)] hover:shadow-[0_12px_35px_rgba(99,102,241,0.4)] hover:-translate-y-1.5 active:scale-95 group-hover:rotate-3 overflow-hidden"
+      :class="checkinStore.hasCheckedInToday ? 'bg-gradient-to-br from-emerald-400 to-emerald-600 border-emerald-400/50 shadow-[0_8px_25px_rgba(16,185,129,0.3)]' : 'bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 border-white/30 dark:border-white/10'"
+      :title="checkinStore.hasCheckedInToday ? 'Checked In' : 'Check In to Library'"
+    >
+      <!-- Glossy highlight overlay -->
+      <div class="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full pointer-events-none"></div>
+      
+      <MapPin :size="26" stroke-width="2.5" class="relative z-10 transition-transform duration-500" :class="{ 'animate-bounce': !checkinStore.hasCheckedInToday, 'scale-110': checkinStore.hasCheckedInToday }" />
+    </button>
+  </div>
 
   <nav v-if="!hideOnReadPage" class="hidden md:hidden max-md:flex items-center justify-around fixed bottom-0 left-0 right-0 h-[64px] bg-[var(--bg-card)] border-t border-[var(--border-color)] z-[9999] pb-[env(safe-area-inset-bottom)]">
     
@@ -18,7 +25,7 @@
     </button>
 
     <button @click="goToCatalog" class="flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors cursor-pointer border-none bg-transparent" :class="isCatalogActive ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'">
-      <BookOpen :size="22" :stroke-width="isCatalogActive ? 2.5 : 2" />
+      <Tags :size="18" :stroke-width="route.path === '/catalog' ? 2.5 : 2" class="transition-transform duration-300 group-hover:scale-110" />
       <span class="text-[0.65rem] font-semibold">{{ localeStore.t('catalog') || 'Catalog' }}</span>
     </button>
 
@@ -43,7 +50,7 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { Home, BookOpen, Bookmark, Heart, User, MapPin, Library } from 'lucide-vue-next';
+import { Home, BookOpen, Bookmark, Heart, User, MapPin, Library, Tags } from 'lucide-vue-next';
 import { useAuthStore } from '../stores/auth';
 import { useLocaleStore } from '../stores/locale';
 import { useBooksStore } from '../stores/books';

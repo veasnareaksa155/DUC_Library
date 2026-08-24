@@ -1,53 +1,78 @@
 <template>
-  <div class="min-h-[calc(100vh-80px)] flex items-center justify-center px-6 py-12 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-500/10 via-[var(--bg-primary)] to-[var(--bg-primary)] relative overflow-hidden">
-    <!-- Decorative background blobs -->
-    <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-500/20 blur-[120px] pointer-events-none"></div>
-    <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-purple-500/20 blur-[120px] pointer-events-none"></div>
-
-    <div class="w-full max-w-[460px] relative z-10 animate-[fadeInUp_0.5s_cubic-bezier(0.16,1,0.3,1)_both]">
-      <div class="px-10 py-12 max-sm:px-6 max-sm:py-10 rounded-[2rem] bg-[var(--bg-card)] backdrop-blur-2xl border border-[var(--border-color)] shadow-[var(--shadow-panel)] transition-all duration-300">
-        <header class="text-center mb-8">
-          <div class="w-16 h-16 rounded-[1.25rem] bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 text-white flex items-center justify-center mx-auto mb-5 shadow-[0_8px_20px_rgba(99,102,241,0.4)] transform hover:scale-105 transition-transform duration-300">
-            <BookOpen :size="32" stroke-width="2.5" />
+  <div class="min-h-[calc(100vh-80px)] w-full flex bg-[var(--bg-primary)] overflow-hidden">
+    <!-- Left Side: Login Form -->
+    <div class="w-full lg:w-1/2 flex items-center justify-center p-8 relative z-10">
+      <div class="w-full max-w-[420px] animate-[fadeInUp_0.6s_cubic-bezier(0.16,1,0.3,1)_both]">
+        
+        <header class="mb-10">
+          <div class="w-14 h-14 rounded-[1rem] bg-[var(--bg-card)] border border-[var(--border-color)] shadow-sm flex items-center justify-center mb-6 transition-transform hover:scale-110 duration-300">
+            <BookOpen :size="28" class="text-indigo-500" stroke-width="2.5" />
           </div>
-          <h2 class="text-[1.85rem] font-extrabold text-[var(--text-primary)] tracking-tight mb-2">{{ localeStore.t('welcomeBack') }}</h2>
-          <p class="text-[0.95rem] font-medium text-[var(--text-muted)]">{{ localeStore.t('signInAccount') }}</p>
+          <h2 class="text-[2.25rem] font-black text-[var(--text-primary)] tracking-tight mb-2">{{ localeStore.t('welcomeBack') }}</h2>
+          <p class="text-[1.05rem] font-medium text-[var(--text-muted)]">{{ localeStore.t('signInAccount') }}</p>
         </header>
 
-        <form @submit.prevent="handleLogin" class="flex flex-col gap-5">
-          <div>
-            <label class="block text-[0.8rem] font-bold uppercase tracking-wider mb-2 text-[var(--text-secondary)]">Student ID / Username / Email</label>
-            <div class="relative group">
+        <form @submit.prevent="handleLogin" class="flex flex-col gap-6">
+          <div class="group">
+            <label class="block text-[0.72rem] font-black uppercase tracking-widest mb-2.5 text-[var(--text-secondary)] ml-1">Student ID / Username / Email</label>
+            <div class="relative">
               <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[var(--text-muted)] group-focus-within:text-indigo-500 transition-colors duration-300">
-                <Mail :size="18" stroke-width="2.5" />
+                <Mail :size="20" stroke-width="2.5" />
               </div>
-              <input v-model="email" type="text" placeholder="e.g. DUC2024...." required class="w-full bg-[var(--bg-input)] border border-[var(--border-color)] text-[var(--text-primary)] text-[0.95rem] rounded-xl pl-11 pr-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition-all shadow-sm placeholder:text-[var(--text-muted)]/70 font-medium" />
+              <input v-model="email" type="text" placeholder="e.g. DUC2024...." required class="w-full bg-[var(--bg-card)] border-2 border-[var(--border-color)] text-[var(--text-primary)] text-[1.05rem] rounded-[16px] pl-12 pr-4 py-4 focus:outline-none focus:border-indigo-500 hover:border-indigo-500/50 transition-all shadow-[0_2px_10px_rgba(0,0,0,0.02)] placeholder:text-[var(--text-muted)]/50 font-bold" />
             </div>
           </div>
 
-          <div>
-            <label class="block text-[0.8rem] font-bold uppercase tracking-wider mb-2 text-[var(--text-secondary)]">Password</label>
-            <div class="relative group">
+          <div class="group">
+            <div class="flex justify-between items-center mb-2.5 ml-1">
+              <label class="block text-[0.72rem] font-black uppercase tracking-widest text-[var(--text-secondary)]">Password</label>
+            </div>
+            <div class="relative">
               <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[var(--text-muted)] group-focus-within:text-indigo-500 transition-colors duration-300">
-                <Lock :size="18" stroke-width="2.5" />
+                <Lock :size="20" stroke-width="2.5" />
               </div>
-              <input v-model="password" type="password" placeholder="••••••••" required class="w-full bg-[var(--bg-input)] border border-[var(--border-color)] text-[var(--text-primary)] text-[0.95rem] rounded-xl pl-11 pr-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition-all shadow-sm placeholder:text-[var(--text-muted)]/70 font-medium" />
+              <input v-model="password" :type="showPassword ? 'text' : 'password'" placeholder="••••••••" required class="w-full bg-[var(--bg-card)] border-2 border-[var(--border-color)] text-[var(--text-primary)] text-[1.05rem] rounded-[16px] pl-12 pr-12 py-4 focus:outline-none focus:border-indigo-500 hover:border-indigo-500/50 transition-all shadow-[0_2px_10px_rgba(0,0,0,0.02)] placeholder:text-[var(--text-muted)]/50 font-bold" />
+              <button type="button" @click="showPassword = !showPassword" class="absolute inset-y-0 right-0 pr-4 flex items-center text-[var(--text-muted)] hover:text-indigo-500 transition-colors duration-300">
+                <Eye v-if="!showPassword" :size="20" stroke-width="2.5" />
+                <EyeOff v-else :size="20" stroke-width="2.5" />
+              </button>
             </div>
           </div>
 
-          <div v-if="authStore.error" class="flex items-center gap-2.5 bg-red-500/10 border border-red-500/20 text-red-500 font-bold p-3.5 rounded-xl text-[0.88rem] mt-1">
-            <AlertCircle :size="18" stroke-width="2.5" /> {{ authStore.error }}
+          <div v-if="authStore.error" class="flex items-center gap-3 bg-red-500/10 border border-red-500/20 text-red-500 font-bold p-4 rounded-[14px] text-[0.9rem] animate-in slide-in-from-top-2">
+            <AlertCircle :size="20" stroke-width="2.5" class="shrink-0" /> {{ authStore.error }}
           </div>
 
-          <button type="submit" class="w-full mt-2 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-bold text-[1.05rem] py-3.5 rounded-xl shadow-[0_8px_20px_rgba(99,102,241,0.3)] hover:shadow-[0_12px_25px_rgba(99,102,241,0.45)] hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2" :disabled="authStore.loading">
-            <LogIn :size="20" stroke-width="2.5" class="transition-transform duration-300" :class="{ 'translate-x-1': !authStore.loading }" />
+          <button type="submit" class="w-full mt-4 bg-[var(--text-primary)] hover:bg-indigo-600 hover:scale-[1.01] active:scale-[0.98] text-[var(--bg-primary)] hover:text-white font-black text-[1.05rem] py-4.5 rounded-[16px] shadow-[0_4px_14px_rgba(0,0,0,0.1)] hover:shadow-[0_8px_25px_rgba(99,102,241,0.4)] transition-all duration-300 flex items-center justify-center gap-2.5 group" :disabled="authStore.loading">
+            <LogIn v-if="!authStore.loading" :size="22" stroke-width="2.5" class="transition-transform duration-300 group-hover:translate-x-1" />
+            <div v-else class="w-5 h-5 border-2 border-[var(--bg-primary)] border-t-transparent rounded-full animate-spin"></div>
             {{ authStore.loading ? localeStore.t('signingIn') : localeStore.t('signIn') }}
           </button>
         </form>
+      </div>
+    </div>
 
-        <footer class="text-center mt-8 text-[0.92rem] font-medium text-[var(--text-secondary)] pt-6 border-t border-[var(--border-color)]">
-          <p class="m-0">{{ localeStore.t('noAccount') }} <router-link to="/register" class="text-indigo-500 dark:text-indigo-400 font-extrabold hover:text-indigo-600 dark:hover:text-indigo-300 hover:underline transition-colors">{{ localeStore.t('registerNow') }}</router-link></p>
-        </footer>
+    <!-- Right Side: Graphic/Branding Banner -->
+    <div class="hidden lg:flex lg:w-1/2 relative bg-[var(--bg-card)] border-l border-[var(--border-color)] overflow-hidden items-center justify-center p-8">
+      <!-- Mesh Gradient Background -->
+      <div class="absolute inset-0 w-full h-full bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-indigo-500/10 via-purple-500/5 to-transparent"></div>
+      <div class="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-[var(--bg-card)] to-transparent z-10 pointer-events-none"></div>
+      
+      <!-- Abstract floating shapes -->
+      <div class="absolute top-[15%] left-[25%] w-[400px] h-[400px] bg-indigo-500/20 rounded-full blur-[100px] animate-pulse"></div>
+      <div class="absolute bottom-[20%] right-[15%] w-[350px] h-[350px] bg-purple-500/20 rounded-full blur-[120px] animate-pulse" style="animation-delay: 2s"></div>
+
+      <!-- Glassmorphic Hero Card -->
+      <div class="relative z-20 w-full max-w-[480px] p-12 rounded-[2.5rem] bg-white/5 dark:bg-[#1e1e2d]/40 backdrop-blur-2xl border border-white/20 dark:border-white/5 shadow-[0_8px_40px_rgba(0,0,0,0.08)] flex flex-col items-center text-center transform hover:scale-[1.02] transition-transform duration-700 ease-out">
+        <div class="w-28 h-28 rounded-3xl bg-white p-4 shadow-2xl mb-8 transform -rotate-3 hover:rotate-0 transition-transform duration-500">
+          <img src="/duc-logo.png" alt="DUC Logo" class="w-full h-full object-contain" />
+        </div>
+        <h3 class="text-[2.5rem] font-black text-[var(--text-primary)] tracking-tight leading-tight mb-4">
+          DUC<span class="text-transparent bg-clip-text [background-image:var(--accent-gradient)]">Library</span>
+        </h3>
+        <p class="text-[1.1rem] font-bold text-[var(--text-secondary)] max-w-sm mx-auto leading-relaxed">
+          Access thousands of academic resources, technical books, and literature anywhere, anytime.
+        </p>
       </div>
     </div>
   </div>
@@ -58,7 +83,7 @@ import { ref } from 'vue';
 import { useAuthStore } from '../stores/auth';
 import { useLocaleStore } from '../stores/locale';
 import { useRouter, useRoute } from 'vue-router';
-import { BookOpen, Mail, Lock, LogIn, User, AlertCircle } from 'lucide-vue-next';
+import { BookOpen, Mail, Lock, LogIn, User, AlertCircle, Eye, EyeOff } from 'lucide-vue-next';
 
 const authStore = useAuthStore();
 const localeStore = useLocaleStore();
@@ -67,6 +92,7 @@ const route = useRoute();
 
 const email = ref('');
 const password = ref('');
+const showPassword = ref(false);
 
 
 

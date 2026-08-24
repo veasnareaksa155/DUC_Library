@@ -392,7 +392,7 @@
 
       <!-- Sync Google Sheet Book Inventory Modal -->
       <div v-if="isBookSyncModalOpen" class="fixed inset-0 bg-gray-900/75 backdrop-blur-sm z-50 flex items-center justify-center p-6 animate-in fade-in duration-200" @click.self="isBookSyncModalOpen = false">
-        <div class="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-8 shadow-2xl animate-in zoom-in-95 duration-200 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm">
+        <div class="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-8 shadow-2xl animate-in zoom-in-95 duration-200">
           <header class="flex justify-between items-center mb-6">
             <h2>Sync Books from Google Sheet</h2>
             <button @click="isBookSyncModalOpen = false" class="bg-transparent border-none text-[var(--text-muted)] cursor-pointer hover:text-slate-200"><X :size="20" /></button>
@@ -434,7 +434,7 @@
       </div>
       <!-- Custom Delete Confirmation Modal -->
       <div v-if="isDeleteModalOpen" class="fixed inset-0 bg-gray-900/75 backdrop-blur-sm z-50 flex items-center justify-center p-6 animate-in fade-in duration-200" @click.self="isDeleteModalOpen = false">
-        <div class="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-8 shadow-2xl animate-in zoom-in-95 duration-200 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm max-w-[440px] px-6 py-8 text-center">
+        <div class="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl shadow-2xl max-w-[440px] px-6 py-8 text-center animate-in zoom-in-95 duration-200">
           <div class="flex justify-center mb-4">
             <div class="w-16 h-16 rounded-full bg-red-500/12 border border-red-500/30 flex items-center justify-center shadow-[0_0_25px_rgba(239,68,68,0.2)]">
               <AlertTriangle :size="32" class="text-red-500" />
@@ -459,7 +459,7 @@
 
       <!-- Delete Success Popup Modal -->
       <div v-if="isDeleteSuccessOpen" class="fixed inset-0 bg-gray-900/75 backdrop-blur-sm z-50 flex items-center justify-center p-6 animate-in fade-in duration-200 backdrop-blur-[8px]" @click="isDeleteSuccessOpen = false">
-        <div class="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-8 shadow-2xl animate-in zoom-in-95 duration-200 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm max-w-[420px] px-7 py-9 animate-[modalPopIn_0.35s_var(--spring-ease)] text-center">
+        <div class="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl shadow-2xl max-w-[420px] px-7 py-9 animate-[modalPopIn_0.35s_var(--spring-ease)] text-center animate-in zoom-in-95 duration-200">
           <div class="flex justify-center mb-4">
             <div class="w-[70px] h-[70px] rounded-full bg-emerald-500/15 border border-emerald-500/40 flex items-center justify-center shadow-[0_0_30px_rgba(16,185,129,0.3)]">
               <CheckCircle :size="36" class="text-emerald-500" />

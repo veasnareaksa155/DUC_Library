@@ -1,6 +1,6 @@
 <template>
   <div v-if="isOpen" class="fixed inset-0 bg-gray-900/75 backdrop-blur-sm z-50 flex items-center justify-center p-6 animate-in fade-in duration-200" @click.self="$emit('close')">
-    <div class="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-8 shadow-2xl animate-in zoom-in-95 duration-200 !rounded-xl !p-0 overflow-hidden bg-[var(--bg-card)]">
+    <div class="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-xl shadow-2xl animate-in zoom-in-95 duration-200 overflow-hidden">
       <header class="flex justify-between items-center px-5 py-4 border-b border-[var(--border-color)]">
         <h2 class="text-[1.1rem] font-bold text-[var(--text-primary)] tracking-tight">{{ localeStore.t('borrowTitle') }}</h2>
         <button @click="$emit('close')" class="bg-transparent border-none text-[var(--text-muted)] cursor-pointer hover:text-[var(--text-primary)] transition-colors"><X :size="18" /></button>

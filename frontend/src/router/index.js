@@ -7,7 +7,7 @@ import WishlistView from '../views/WishlistView.vue';
 import BookDetailView from '../views/BookDetailView.vue';
 import ReadBookView from '../views/ReadBookView.vue';
 import LoginView from '../views/LoginView.vue';
-import RegisterView from '../views/RegisterView.vue';
+
 import MyBorrowingsView from '../views/MyBorrowingsView.vue';
 import ProfileView from '../views/ProfileView.vue';
 
@@ -51,11 +51,7 @@ const routes = [
     name: 'login',
     component: LoginView
   },
-  {
-    path: '/register',
-    name: 'register',
-    component: RegisterView
-  },
+
   {
     path: '/my-borrowings',
     name: 'my-borrowings',

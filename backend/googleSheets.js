@@ -40,6 +40,25 @@ function parseCSVLine(line) {
   return result;
 }
 
+// Convert standard Google Drive viewing links to direct image rendering links
+function formatDriveImageUrl(url, fallbackName = '') {
+  if (!url || typeof url !== 'string' || !url.trim()) {
+    return fallbackName ? `https://ui-avatars.com/api/?name=${encodeURIComponent(fallbackName)}&background=random` : '';
+  }
+  const strUrl = url.trim();
+  if (strUrl.includes('drive.google.com')) {
+    const fileIdMatch = strUrl.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    if (fileIdMatch && fileIdMatch[1]) {
+      return `https://drive.google.com/uc?export=view&id=${fileIdMatch[1]}`;
+    }
+    const openIdMatch = strUrl.match(/id=([a-zA-Z0-9_-]+)/);
+    if (openIdMatch && openIdMatch[1]) {
+      return `https://drive.google.com/uc?export=view&id=${openIdMatch[1]}`;
+    }
+  }
+  return strUrl;
+}
+
 /**
  * Fetch CSV directly from link-shared Google Sheet (no credentials required)
  */
@@ -67,14 +86,16 @@ async function fetchPublicSheetCsv(spreadsheetId) {
         // Skip header row if it literally says "អត្តលេខ" or "Student ID"
         if (studentId.includes('អត្តលេខ') || studentId.toLowerCase().includes('student')) continue;
 
+        const latinName = (col[4] || col[3] || studentId).trim();
+
         students.push({
           studentId,
           dormRoom: (col[2] || '').trim(),
           khmerName: (col[3] || '').trim(),
-          latinName: (col[4] || col[3] || studentId).trim(),
+          latinName: latinName,
           gender: (col[5] || '').trim(),
           dateOfBirth: (col[6] || '').trim(),
-          profilePhoto: (col[7] || '').trim(),
+          profilePhoto: formatDriveImageUrl(col[7], latinName),
           highSchool: (col[8] || '').trim(),
           province: (col[9] || '').trim(),
           examYear: (col[10] || '').trim(),
@@ -148,14 +169,15 @@ async function fetchViaServiceAccount(spreadsheetId, range = 'A:Z') {
 
     return rows.map((row) => {
       const studentId = row[1] ? row[1].trim() : '';
+      const latinName = (row[4] || row[3] || studentId).trim();
       return {
         studentId,
         dormRoom: (row[2] || '').trim(),
         khmerName: (row[3] || '').trim(),
-        latinName: (row[4] || row[3] || studentId).trim(),
+        latinName: latinName,
         gender: (row[5] || '').trim(),
         dateOfBirth: (row[6] || '').trim(),
-        profilePhoto: (row[7] || '').trim(),
+        profilePhoto: formatDriveImageUrl(row[7], latinName),
         highSchool: (row[8] || '').trim(),
         province: (row[9] || '').trim(),
         examYear: (row[10] || '').trim(),

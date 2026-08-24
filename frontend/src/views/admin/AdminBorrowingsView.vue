@@ -198,10 +198,10 @@
               
               <!-- Empty State -->
               <tr v-if="paginatedBorrowings.length === 0">
-                <td colspan="5" class="px-6 py-20 text-center bg-gray-500/5">
-                  <div class="flex flex-col items-center justify-center text-[var(--text-muted)] gap-4">
-                    <div class="w-20 h-20 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-color)] flex items-center justify-center shadow-sm">
-                      <ClipboardList :size="36" class="opacity-50 text-indigo-400" />
+                <td colspan="5" class="px-6 py-24 text-center border-none bg-transparent">
+                  <div class="flex flex-col items-center justify-center text-[var(--text-muted)] gap-5">
+                    <div class="flex items-center justify-center">
+                      <ClipboardList :size="56" stroke-width="1.5" class="opacity-40 text-indigo-400 drop-shadow-sm" />
                     </div>
                     <div class="flex flex-col gap-1">
                       <p class="font-extrabold text-[1.1rem] text-[var(--text-primary)]">No {{ activeFilter !== 'all' ? activeFilter : '' }} requests found</p>

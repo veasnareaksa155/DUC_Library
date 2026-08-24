@@ -4,6 +4,13 @@ const jwt = require('jsonwebtoken');
 const { JWT_SECRET, authenticateToken } = require('../middleware/auth');
 const { getServiceAccountEmail } = require('../googleSheets');
 const ORM = require('../googleSheetsORM');
+const cloudinary = require('cloudinary').v2;
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
 const router = express.Router();
 
@@ -56,115 +63,70 @@ router.post('/login', async (req, res) => {
     }
 
     const identifier = email.trim().toLowerCase();
-    
-    // Find user by email, student_id, or name
-    const users = await ORM.getAll('Users');
-    
-    let userDoc = users.find(u => 
-      (u.email && u.email.toLowerCase() === identifier) ||
-      (u.email && u.email.toLowerCase() === `${identifier}@duc.com`) ||
-      (u.student_id && u.student_id.toLowerCase() === identifier) ||
-      (u.name && u.name.toLowerCase() === identifier)
+
+    // 1. Fetch live students from Google Sheet
+    const { fetchStudentsFromSheet } = require('../googleSheets');
+    const LIVE_STUDENTS = await fetchStudentsFromSheet(process.env.SPREADSHEET_ID || '1YWZoN8THhaxO7H734gRxa7ahGsJoNHWcvyeR-QSa3LU') || [];
+
+    // 3. Find student in the live list
+    const matchSample = LIVE_STUDENTS.find(s => 
+      (s.studentId && s.studentId.toLowerCase() === identifier) ||
+      (s.latinName && s.latinName.toLowerCase() === identifier) ||
+      (s.khmerName && s.khmerName === identifier) ||
+      (s.studentId && `${s.studentId.toLowerCase()}@duc.com` === identifier)
     );
 
-    const { fetchStudentsFromSheet } = require('../googleSheets');
-    const LIVE_STUDENTS = await fetchStudentsFromSheet(process.env.GOOGLE_SHEET_ID || '1YWZoN8THhaxO7H734gRxa7ahGsJoNHWcvyeR-QSa3LU') || [];
-
-    // Auto-create sample student if not found
-    if (!userDoc) {
-      const matchSample = LIVE_STUDENTS.find(s => 
-        s.studentId.toLowerCase() === identifier.toLowerCase() ||
-        s.latinName.toLowerCase() === identifier.toLowerCase() ||
-        s.khmerName === identifier
-      );
-
-      if (matchSample) {
-        const userEmail = `${matchSample.studentId.toLowerCase()}@duc.com`;
-        const hashedPassword = await bcrypt.hash(matchSample.studentId, 10);
-        
-        const newUser = {
-          name: matchSample.latinName,
-          email: userEmail,
-          password: hashedPassword,
-          role: 'user',
-          student_id: matchSample.studentId,
-          name_khmer: matchSample.khmerName,
-          gender: matchSample.gender || '',
-          dob: matchSample.dateOfBirth || '',
-          pob: matchSample.province || '',
-          high_school: matchSample.highSchool || '',
-          telegram: matchSample.telegram || '',
-          guardian_phone: matchSample.guardianPhone || '',
-          major: matchSample.major || '',
-          degree_level: matchSample.degreeLevel || '',
-          class_code: matchSample.classCode || '',
-          status: matchSample.academicStatus || 'Active Student',
-          academic_year: matchSample.academicYear || '',
-          generation: matchSample.generation || '',
-          bac2_grade: matchSample.grade || '',
-          phone: matchSample.phone || '',
-          created_at: new Date().toISOString()
-        };
-
-        const inserted = await ORM.insert('Users', newUser);
-        userDoc = inserted;
-      }
-    } else {
-      // Backfill missing fields from Live Master Student List for existing Firebase-migrated users
-      if (!userDoc.dob || !userDoc.pob || !userDoc.bac2_grade) {
-        const matchSample = LIVE_STUDENTS.find(s => s.studentId && userDoc.student_id && s.studentId.toLowerCase() === userDoc.student_id.toLowerCase());
-        if (matchSample) {
-          userDoc.gender = matchSample.gender || userDoc.gender || '';
-          userDoc.dob = matchSample.dateOfBirth || userDoc.dob || '';
-          userDoc.pob = matchSample.province || userDoc.pob || '';
-          userDoc.high_school = matchSample.highSchool || userDoc.high_school || '';
-          userDoc.telegram = matchSample.telegram || userDoc.telegram || '';
-          userDoc.guardian_phone = matchSample.guardianPhone || userDoc.guardian_phone || '';
-          userDoc.major = matchSample.major || userDoc.major || '';
-          userDoc.degree_level = matchSample.degreeLevel || userDoc.degree_level || '';
-          userDoc.class_code = matchSample.classCode || userDoc.class_code || '';
-          userDoc.status = matchSample.academicStatus || userDoc.status || 'Active Student';
-          userDoc.academic_year = matchSample.academicYear || userDoc.academic_year || '';
-          userDoc.generation = matchSample.generation || userDoc.generation || '';
-          userDoc.bac2_grade = matchSample.grade || userDoc.bac2_grade || '';
-          userDoc.phone = matchSample.phone || userDoc.phone || '';
-          
-          await ORM.update('Users', userDoc.id, userDoc);
-        }
-      }
+    if (!matchSample) {
+      return res.status(401).json({ message: 'Invalid username or Student ID. Not found in Student List.' });
     }
 
-    if (!userDoc) {
-      return res.status(401).json({ message: 'Invalid username, Student ID, or password.' });
-    }
-
-    let validPassword = false;
-    if (userDoc.password) {
-      validPassword = await bcrypt.compare(password, userDoc.password);
-    }
-    
-    if (!validPassword && userDoc.email && userDoc.email.includes('@duc.com')) {
-      const studentIdFromEmail = userDoc.email.split('@')[0].toUpperCase();
-      if (password === studentIdFromEmail || password === userDoc.name) {
-        validPassword = true;
-      }
-    }
-
-    if (!validPassword) {
+    // 4. Verify password (default to Student ID)
+    if (password.toLowerCase() !== matchSample.studentId.toLowerCase() && password !== matchSample.latinName) {
       return res.status(401).json({ message: 'Invalid password. (Note: Student ID is your default password).' });
     }
+
+    // 4.5 Check local ProfilePhotos table for overrides
+    const localPhotos = await ORM.find('ProfilePhotos', p => p.student_id === matchSample.studentId);
+    let finalPhoto = matchSample.profilePhoto || '';
+    if (localPhotos.length > 0 && localPhotos[0].photo_url) {
+      finalPhoto = localPhotos[0].photo_url;
+    }
+
+    // 5. Construct virtual user document
+    const userDoc = {
+      id: matchSample.studentId, // Internal ID is Student ID
+      name: matchSample.latinName,
+      email: `${matchSample.studentId.toLowerCase()}@duc.com`,
+      role: 'user',
+      student_id: matchSample.studentId,
+      name_khmer: matchSample.khmerName,
+      gender: matchSample.gender || '',
+      dob: matchSample.dateOfBirth || '',
+      pob: matchSample.province || '',
+      high_school: matchSample.highSchool || '',
+      telegram: matchSample.telegram || '',
+      guardian_phone: matchSample.guardianPhone || '',
+      major: matchSample.major || '',
+      degree_level: matchSample.degreeLevel || '',
+      class_code: matchSample.classCode || '',
+      status: matchSample.academicStatus || 'Active Student',
+      academic_year: matchSample.academicYear || '',
+      generation: matchSample.generation || '',
+      bac2_grade: matchSample.grade || '',
+      phone: matchSample.phone || '',
+      profile_photo: finalPhoto,
+      created_at: new Date().toISOString()
+    };
 
     const tokenPayload = {
       id: userDoc.id,
       email: userDoc.email,
-      role: userDoc.role || 'user',
+      role: userDoc.role,
       name: userDoc.name,
       student_id: userDoc.student_id
     };
+    
     const token = jwt.sign(tokenPayload, JWT_SECRET, { expiresIn: '7d' });
-
-    // Hide password before returning
-    delete userDoc.password;
 
     res.json({
       message: 'Login successful',
@@ -174,6 +136,45 @@ router.post('/login', async (req, res) => {
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ message: 'Internal server error during login.' });
+  }
+});
+
+// Admin Login Route
+router.post('/admin-login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Username and password are required.' });
+    }
+
+    const identifier = email.trim().toLowerCase();
+    
+    // Check Admins sheet
+    const admins = await ORM.getAll('Admins');
+    const adminMatch = admins.find(a => 
+      ((a.username || '').toLowerCase() === identifier || (a.email || '').toLowerCase() === identifier) && 
+      a.password === password
+    );
+    
+    if (!adminMatch) {
+      return res.status(401).json({ message: 'Invalid admin credentials.' });
+    }
+    
+    const adminDoc = {
+      id: adminMatch.id,
+      email: adminMatch.email,
+      role: 'admin',
+      name: adminMatch.name,
+      profile_photo: adminMatch.profile_photo || ''
+    };
+    
+    const token = jwt.sign(adminDoc, JWT_SECRET, { expiresIn: '7d' });
+    return res.json({ message: 'Admin login successful', token, user: adminDoc });
+    
+  } catch (error) {
+    console.error('Admin Login error:', error);
+    res.status(500).json({ message: 'Internal server error during admin login.' });
   }
 });
 
@@ -247,14 +248,39 @@ router.put('/profile-photo', authenticateToken, async (req, res) => {
       return res.status(400).json({ message: 'Profile photo is required.' });
     }
 
-    await ORM.update('Users', req.user.id, { profile_photo });
-    const updatedUser = await ORM.getById('Users', req.user.id);
-    delete updatedUser.password;
+    // 1. Upload base64 image to Cloudinary
+    const uploadRes = await cloudinary.uploader.upload(profile_photo, {
+      folder: 'duc_library/profiles',
+      public_id: req.user.id || 'admin',
+      overwrite: true
+    });
+    const photoUrl = uploadRes.secure_url;
+
+    // 2. Save/Update Cloudinary URL
+    let updatedUser = { id: req.user.id, profile_photo: photoUrl };
+    
+    if (req.user.role === 'admin') {
+      await ORM.update('Admins', req.user.id, { profile_photo: photoUrl });
+      updatedUser = await ORM.getById('Admins', req.user.id);
+      delete updatedUser.password;
+    } else {
+      // For students, save to ProfilePhotos sheet
+      const existingPhotos = await ORM.find('ProfilePhotos', p => p.student_id === req.user.id);
+      if (existingPhotos.length > 0) {
+        await ORM.update('ProfilePhotos', existingPhotos[0].id, { photo_url: photoUrl, updated_at: new Date().toISOString() });
+      } else {
+        await ORM.insert('ProfilePhotos', {
+          student_id: req.user.id,
+          photo_url: photoUrl,
+          updated_at: new Date().toISOString()
+        });
+      }
+    }
 
     res.json({ message: 'Profile photo updated successfully!', user: updatedUser });
   } catch (error) {
     console.error('Error updating profile photo:', error);
-    res.status(500).json({ message: 'Failed to update profile photo.' });
+    res.status(500).json({ message: 'Failed to update profile photo.', error: error.message });
   }
 });
 

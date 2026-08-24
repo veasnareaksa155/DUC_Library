@@ -35,12 +35,13 @@ async function getSheetsClient() {
 
 // Maps sheet names to their exact column layouts
 const SCHEMAS = {
-  'Users': ['id', 'name', 'email', 'password', 'role', 'student_id', 'dorm_room', 'phone', 'gender', 'dob', 'pob', 'high_school', 'telegram', 'guardian_phone', 'major', 'degree_level', 'class_code', 'status', 'academic_year', 'generation', 'bac2_grade', 'profile_photo', 'created_at'],
   'Books': ['id', 'title', 'author', 'isbn', 'category_id', 'description', 'cover_url', 'pdf_url', 'digital_content', 'copies_total', 'copies_available', 'publisher', 'publish_year', 'is_featured', 'read_count', 'created_at'],
   'Categories': ['id', 'name', 'icon', 'created_at'],
   'Borrowings': ['id', 'book_id', 'user_id', 'borrow_date', 'due_date', 'return_date', 'status', 'admin_notes'],
   'Notifications': ['id', 'user_id', 'title', 'message', 'type', 'is_read', 'created_at'],
-  'Checkins': ['id', 'user_id', 'checkin_time', 'lat', 'lng', 'status']
+  'Checkins': ['id', 'user_id', 'checkin_time', 'lat', 'lng', 'status'],
+  'ProfilePhotos': ['id', 'student_id', 'photo_url', 'updated_at'],
+  'Admins': ['id', 'username', 'password', 'name', 'email', 'profile_photo', 'role']
 };
 
 /**
@@ -65,15 +66,30 @@ async function initializeSheets() {
           }
         });
         console.log(`[GoogleSheetsORM] Created sheet: ${sheetName}`);
-      }
       
-      // Always update headers to ensure they match the code schema
-      await sheets.spreadsheets.values.update({
-        spreadsheetId: SPREADSHEET_ID,
-        range: `${sheetName}!A1`,
-        valueInputOption: 'USER_ENTERED',
-        resource: { values: [headers] }
-      });
+        // Add headers
+        await sheets.spreadsheets.values.update({
+          spreadsheetId: SPREADSHEET_ID,
+          range: `${sheetName}!A1`,
+          valueInputOption: 'RAW',
+          resource: { values: [headers] }
+        });
+        console.log(`Created new sheet: ${sheetName}`);
+        
+        // Insert default admin if creating the Admins sheet
+        if (sheetName === 'Admins') {
+          await insert('Admins', {
+            id: 'admin-001',
+            username: 'admin',
+            password: 'admin123',
+            name: 'System Admin',
+            email: 'admin@duc.com',
+            role: 'admin',
+            profile_photo: ''
+          });
+          console.log(`Inserted default admin account into Admins sheet.`);
+        }
+      }
     }
   } catch (err) {
     console.error('[GoogleSheetsORM] Failed to initialize sheets:', err.message);

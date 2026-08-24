@@ -91,7 +91,28 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function loginAdmin(email, password) {
-    return login(email, password, 'admin');
+    loading.value = true;
+    error.value = '';
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/auth/admin-login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || 'Admin login failed');
+      }
+
+      setAuthData(data.token, data.user, 'admin');
+      return data;
+    } catch (err) {
+      error.value = err.message;
+      throw err;
+    } finally {
+      loading.value = false;
+    }
   }
 
   async function register(name, email, password) {

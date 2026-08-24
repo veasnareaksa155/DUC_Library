@@ -13,7 +13,7 @@
         <p class="text-[0.95rem] text-[var(--text-secondary)] max-w-2xl leading-relaxed">View and monitor library check-ins from students and members.</p>
       </header>
 
-      <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm border border-[var(--border-color)] rounded-[var(--radius-xl)] shadow-[0_8px_30px_rgba(0,0,0,0.04)] overflow-hidden flex flex-col transition-all duration-300">
+      <div class="bg-[var(--bg-card)] border-[var(--border-color)] shadow-[0_2px_10px_rgba(0,0,0,0.02)] border rounded-2xl overflow-hidden flex flex-col transition-all duration-300 mt-10">
         <!-- Header & Filters -->
         <div class="p-5 sm:p-6 border-b border-[var(--border-color)] bg-[var(--bg-card)] flex items-center justify-between gap-6 flex-wrap">
           <div class="flex flex-wrap items-center gap-4">
@@ -36,7 +36,7 @@
 
               <!-- Year Custom Dropdown -->
               <div class="relative z-50">
-                <div @click="yearDropdownOpen = !yearDropdownOpen" class="flex items-center justify-between bg-white dark:bg-gray-800/40 border border-gray-200 dark:border-[var(--border-color)] text-[var(--text-primary)] text-[0.88rem] font-bold rounded-[12px] px-3.5 py-2.5 cursor-pointer hover:border-indigo-300 dark:hover:border-indigo-500/50 transition-all shadow-[0_2px_10px_rgba(0,0,0,0.02)] min-w-[120px]" :class="{'ring-4 ring-indigo-500/10 border-indigo-500': yearDropdownOpen}">
+                <div @click="yearDropdownOpen = !yearDropdownOpen" class="flex items-center justify-between bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] text-[0.88rem] font-bold rounded-[12px] px-3.5 py-2.5 cursor-pointer hover:border-indigo-300 transition-all shadow-[0_2px_10px_rgba(0,0,0,0.02)] min-w-[120px]" :class="{'ring-4 ring-indigo-500/10 border-indigo-500': yearDropdownOpen}">
                   <div class="flex items-center gap-2.5">
                     <CalendarDays :size="16" class="text-indigo-500" />
                     <span>{{ selectedYear || 'Select Year' }}</span>
@@ -46,7 +46,7 @@
                 
                 <!-- Dropdown Menu -->
                 <transition enter-active-class="transition duration-200 ease-out" enter-from-class="transform scale-95 opacity-0" enter-to-class="transform scale-100 opacity-100" leave-active-class="transition duration-75 ease-in" leave-from-class="transform scale-100 opacity-100" leave-to-class="transform scale-95 opacity-0">
-                  <div v-if="yearDropdownOpen" class="absolute top-[calc(100%+8px)] left-0 w-full min-w-[140px] bg-white dark:bg-[#1e1e2d] border border-gray-200 dark:border-[var(--border-color)] rounded-[12px] shadow-[0_10px_40px_rgba(0,0,0,0.08)] py-1.5 overflow-hidden origin-top">
+                  <div v-if="yearDropdownOpen" class="absolute top-[calc(100%+8px)] left-0 w-full min-w-[140px] bg-[var(--bg-card)] border border-[var(--border-color)] rounded-[12px] shadow-[0_10px_40px_rgba(0,0,0,0.08)] py-1.5 overflow-hidden origin-top">
                     <div @click="selectYear(''); yearDropdownOpen = false" class="px-4 py-2.5 text-[0.85rem] font-medium text-[var(--text-muted)] hover:bg-gray-500/10 cursor-pointer transition-colors">Clear Year</div>
                     <div v-for="year in availableYears" :key="year" @click="selectYear(year); yearDropdownOpen = false" class="px-4 py-2.5 text-[0.88rem] font-bold text-[var(--text-primary)] hover:bg-indigo-500/10 hover:text-indigo-500 cursor-pointer transition-colors" :class="{'bg-indigo-500/10 text-indigo-500': selectedYear === year}">
                       {{ year }}
@@ -57,14 +57,14 @@
 
               <!-- Month Custom Dropdown -->
               <div class="relative z-50">
-                <div @click="selectedYear ? monthDropdownOpen = !monthDropdownOpen : null" class="flex items-center justify-between bg-white dark:bg-gray-800/40 border border-gray-200 dark:border-[var(--border-color)] text-[var(--text-primary)] text-[0.88rem] font-bold rounded-[12px] px-4 py-2.5 transition-all shadow-[0_2px_10px_rgba(0,0,0,0.02)] min-w-[140px]" :class="[!selectedYear ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer hover:border-indigo-300 dark:hover:border-indigo-500/50', monthDropdownOpen ? 'ring-4 ring-indigo-500/10 border-indigo-500' : '']">
+                <div @click="selectedYear ? monthDropdownOpen = !monthDropdownOpen : null" class="flex items-center justify-between bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] text-[0.88rem] font-bold rounded-[12px] px-4 py-2.5 transition-all shadow-[0_2px_10px_rgba(0,0,0,0.02)] min-w-[140px]" :class="[!selectedYear ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer hover:border-indigo-300', monthDropdownOpen ? 'ring-4 ring-indigo-500/10 border-indigo-500' : '']">
                   <span>{{ getMonthLabel(selectedMonth) || 'All Months' }}</span>
                   <ChevronDown :size="16" class="text-[var(--text-muted)] transition-transform duration-300 ml-2" :class="{'rotate-180': monthDropdownOpen}" />
                 </div>
                 
                 <!-- Dropdown Menu -->
                 <transition enter-active-class="transition duration-200 ease-out" enter-from-class="transform scale-95 opacity-0" enter-to-class="transform scale-100 opacity-100" leave-active-class="transition duration-75 ease-in" leave-from-class="transform scale-100 opacity-100" leave-to-class="transform scale-95 opacity-0">
-                  <div v-if="monthDropdownOpen" class="absolute top-[calc(100%+8px)] left-0 w-full min-w-[140px] bg-white dark:bg-[#1e1e2d] border border-gray-200 dark:border-[var(--border-color)] rounded-[12px] shadow-[0_10px_40px_rgba(0,0,0,0.08)] py-1.5 overflow-hidden origin-top">
+                  <div v-if="monthDropdownOpen" class="absolute top-[calc(100%+8px)] left-0 w-full min-w-[140px] bg-[var(--bg-card)] border border-[var(--border-color)] rounded-[12px] shadow-[0_10px_40px_rgba(0,0,0,0.08)] py-1.5 overflow-hidden origin-top">
                     <div @click="selectMonth(''); monthDropdownOpen = false" class="px-4 py-2.5 text-[0.85rem] font-medium text-[var(--text-muted)] hover:bg-gray-500/10 cursor-pointer transition-colors">All Months</div>
                     <div v-for="month in availableMonths" :key="month.value" @click="selectMonth(month.value); monthDropdownOpen = false" class="px-4 py-2.5 text-[0.88rem] font-bold text-[var(--text-primary)] hover:bg-indigo-500/10 hover:text-indigo-500 cursor-pointer transition-colors" :class="{'bg-indigo-500/10 text-indigo-500': selectedMonth === month.value}">
                       {{ month.label }}
