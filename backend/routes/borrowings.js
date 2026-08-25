@@ -24,19 +24,18 @@ router.post('/request', authenticateToken, async (req, res) => {
       return res.status(400).json({ message: 'This book is currently out of stock.' });
     }
 
-    // Check if user already has an active request or borrowing for this book
+    // Check if user already has ANY active request or borrowing
     const borrowings = await ORM.getAll('Borrowings');
     const existingBorrow = borrowings.find(b => 
       String(b.user_id) === String(user_id) && 
-      String(b.book_id) === String(book_id) && 
       (b.status === 'pending' || b.status === 'approved')
     );
 
     if (existingBorrow) {
       return res.status(400).json({
         message: existingBorrow.status === 'pending'
-          ? 'You already have a pending borrow request for this book.'
-          : 'You currently have an active borrowing for this book.'
+          ? 'You already have a pending borrow request for a book. Please wait for it to be processed or return it first.'
+          : 'You already have a book currently borrowed. Please return your active book before borrowing another.'
       });
     }
 

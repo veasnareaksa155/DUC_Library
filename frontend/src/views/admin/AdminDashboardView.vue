@@ -122,7 +122,7 @@
               </div>
             </div>
             <div class="flex items-center gap-3 relative z-10">
-              <span class="text-[2.5rem] font-black text-[var(--text-primary)] tracking-tight leading-none">{{ stats.active_readers_count || 0 }}</span>
+              <span class="text-[2.5rem] font-black text-[var(--text-primary)] tracking-tight leading-none">{{ liveReadersCount }}</span>
               <span class="flex h-3 w-3 relative">
                 <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
                 <span class="relative inline-flex rounded-full h-3 w-3 bg-teal-500"></span>
@@ -199,20 +199,44 @@
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useBorrowingsStore } from '../../stores/borrowings';
+import { useAuthStore } from '../../stores/auth';
 import { useLocaleStore } from '../../stores/locale';
 import AdminSidebar from '../../components/AdminSidebar.vue';
 import AdminCharts from '../../components/AdminCharts.vue';
 import { ShieldCheck, Plus, BookOpen, Users, BookmarkCheck, Clock, AlertTriangle, Loader2, Eye, Activity, ArrowRight } from 'lucide-vue-next';
 
 const borrowingsStore = useBorrowingsStore();
+const authStore = useAuthStore();
 const localeStore = useLocaleStore();
 
 const stats = computed(() => borrowingsStore.dashboardStats);
+const liveReadersCount = ref(0);
+let liveTimer = null;
+
+async function fetchLiveReaders() {
+  try {
+    const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/admin/digital-reads/live`, {
+      headers: { Authorization: `Bearer ${authStore.token}` }
+    });
+    if (res.ok) {
+      const data = await res.json();
+      liveReadersCount.value = data.length;
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
 
 onMounted(() => {
   borrowingsStore.fetchAdminDashboardStats();
+  fetchLiveReaders();
+  liveTimer = setInterval(fetchLiveReaders, 25000);
+});
+
+onUnmounted(() => {
+  if (liveTimer) clearInterval(liveTimer);
 });
 
 function formatDate(dateStr) {

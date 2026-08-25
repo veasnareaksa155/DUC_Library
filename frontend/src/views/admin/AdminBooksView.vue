@@ -374,9 +374,7 @@
                 </div>
               </div>
               
-              <div v-if="formError" class="p-3 bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 font-medium rounded-md text-[0.85rem] flex items-center gap-2">
-                <AlertCircle :size="16" stroke-width="2" class="shrink-0 text-red-500" /> {{ formError }}
-              </div>
+              <!-- Error handling is now done entirely via toast alerts -->
             </div>
 
             <footer class="flex justify-end gap-3 px-6 py-4 border-t border-[var(--border-color)] bg-[var(--bg-card)] shrink-0">
@@ -513,7 +511,7 @@ function onImageFileSelected(e) {
   if (!file) return;
 
   if (file.size > 5 * 1024 * 1024) {
-    formError.value = 'Image file size must be less than 5MB.';
+    toastStore.show('Image file size must be less than 5MB.', { type: 'error', title: 'File Too Large' });
     return;
   }
 
@@ -529,7 +527,7 @@ function onPdfFileSelected(e) {
   if (!file) return;
 
   if (file.size > 30 * 1024 * 1024) {
-    formError.value = 'PDF file size must be less than 30MB.';
+    toastStore.show('PDF file size must be less than 30MB.', { type: 'error', title: 'File Too Large' });
     return;
   }
 
@@ -720,6 +718,7 @@ async function saveBook() {
   
   if (form.copies_total < 0) {
     formError.value = 'Total Copies cannot be negative.';
+    toastStore.show('Total Copies cannot be negative.', { type: 'error', title: 'Validation Error' });
     saving.value = false;
     return;
   }
@@ -727,12 +726,15 @@ async function saveBook() {
   try {
     if (isEditing.value) {
       await booksStore.updateBook(editingId.value, form);
+      toastStore.showSuccess(`Book "${form.title}" updated successfully!`, 'Book Updated');
     } else {
       await booksStore.addBook(form);
+      toastStore.showSuccess(`Book "${form.title}" added successfully!`, 'Book Added');
     }
     isModalOpen.value = false;
   } catch (err) {
     formError.value = err.message || 'Failed to save book.';
+    toastStore.show(formError.value, { type: 'error', title: 'Error Saving Book' });
   } finally {
     saving.value = false;
   }

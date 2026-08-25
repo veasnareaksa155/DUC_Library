@@ -41,7 +41,8 @@ const SCHEMAS = {
   'Notifications': ['id', 'user_id', 'title', 'message', 'type', 'is_read', 'created_at'],
   'Checkins': ['id', 'user_id', 'checkin_time', 'lat', 'lng', 'status'],
   'ProfilePhotos': ['id', 'student_id', 'photo_url', 'updated_at'],
-  'Admins': ['id', 'username', 'password', 'name', 'email', 'profile_photo', 'role']
+  'Admins': ['id', 'username', 'password', 'name', 'email', 'profile_photo', 'role'],
+  'DigitalReads': ['id', 'session_id', 'user_id', 'user_name', 'book_id', 'start_time', 'end_time', 'duration_seconds']
 };
 
 /**

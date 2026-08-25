@@ -19,6 +19,7 @@ import AdminProfileView from '../views/admin/AdminProfileView.vue';
 import AdminLoginView from '../views/admin/AdminLoginView.vue';
 import AdminCategoriesView from '../views/admin/AdminCategoriesView.vue';
 import AdminCheckinsView from '../views/admin/AdminCheckinsView.vue';
+import AdminDigitalReadsView from '../views/admin/AdminDigitalReadsView.vue';
 
 const routes = [
   {
@@ -98,6 +99,12 @@ const routes = [
     path: '/admin/checkins',
     name: 'admin-checkins',
     component: AdminCheckinsView,
+    meta: { requiresAuth: true, requiresAdmin: true }
+  },
+  {
+    path: '/admin/digital-reads',
+    name: 'admin-digital-reads',
+    component: AdminDigitalReadsView,
     meta: { requiresAuth: true, requiresAdmin: true }
   },
   {

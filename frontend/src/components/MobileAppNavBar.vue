@@ -17,31 +17,41 @@
     </button>
   </div>
 
-  <nav v-if="!hideOnReadPage" class="hidden md:hidden max-md:flex items-center justify-around fixed bottom-0 left-0 right-0 h-[64px] bg-[var(--bg-card)] border-t border-[var(--border-color)] z-[9999] pb-[env(safe-area-inset-bottom)]">
+  <nav v-if="!hideOnReadPage" class="hidden md:hidden max-md:flex items-center justify-around fixed bottom-0 left-0 right-0 h-[64px] bg-[var(--bg-card)] backdrop-blur-lg border-t border-[var(--border-color)] z-[9999] pb-[env(safe-area-inset-bottom)]">
     
-    <button @click="goToHome" class="flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors cursor-pointer border-none bg-transparent" :class="isHomeActive ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'">
-      <Home :size="22" :stroke-width="isHomeActive ? 2.5 : 2" />
-      <span class="text-[0.65rem] font-semibold">{{ localeStore.t('home') || 'Home' }}</span>
+    <button @click="goToHome" class="group flex flex-col items-center justify-center flex-1 h-full gap-0.5 transition-colors cursor-pointer border-none bg-transparent" :class="isHomeActive ? 'text-[var(--nav-active-text)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'">
+      <div class="px-4 py-1 rounded-full transition-all duration-300" :class="isHomeActive ? 'bg-[var(--nav-active-bg)]' : 'bg-transparent'">
+        <Home :size="22" :stroke-width="isHomeActive ? 2.5 : 2" />
+      </div>
+      <span class="text-[0.65rem] font-semibold tracking-tight">{{ localeStore.t('home') || 'Home' }}</span>
     </button>
 
-    <button @click="goToCatalog" class="flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors cursor-pointer border-none bg-transparent" :class="isCatalogActive ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'">
-      <Tags :size="18" :stroke-width="route.path === '/catalog' ? 2.5 : 2" class="transition-transform duration-300 group-hover:scale-110" />
-      <span class="text-[0.65rem] font-semibold">{{ localeStore.t('catalog') || 'Catalog' }}</span>
+    <button @click="goToCatalog" class="group flex flex-col items-center justify-center flex-1 h-full gap-0.5 transition-colors cursor-pointer border-none bg-transparent" :class="isCatalogActive ? 'text-[var(--nav-active-text)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'">
+      <div class="px-4 py-1 rounded-full transition-all duration-300" :class="isCatalogActive ? 'bg-[var(--nav-active-bg)]' : 'bg-transparent'">
+        <Tags :size="22" :stroke-width="isCatalogActive ? 2.5 : 2" class="transition-transform duration-300 group-hover:scale-110" />
+      </div>
+      <span class="text-[0.65rem] font-semibold tracking-tight">{{ localeStore.t('catalog') || 'Catalog' }}</span>
     </button>
 
-    <router-link v-if="authStore.isAuthenticated" to="/my-borrowings" class="flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors no-underline" :class="route.path === '/my-borrowings' ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'">
-      <Bookmark :size="22" :stroke-width="route.path === '/my-borrowings' ? 2.5 : 2" />
-      <span class="text-[0.65rem] font-semibold">{{ localeStore.t('myBooks') || 'My Books' }}</span>
+    <router-link v-if="authStore.isAuthenticated" to="/my-borrowings" class="group flex flex-col items-center justify-center flex-1 h-full gap-0.5 transition-colors no-underline" :class="route.path === '/my-borrowings' ? 'text-[var(--nav-active-text)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'">
+      <div class="px-4 py-1 rounded-full transition-all duration-300" :class="route.path === '/my-borrowings' ? 'bg-[var(--nav-active-bg)]' : 'bg-transparent'">
+        <Bookmark :size="22" :stroke-width="route.path === '/my-borrowings' ? 2.5 : 2" />
+      </div>
+      <span class="text-[0.65rem] font-semibold tracking-tight">{{ localeStore.t('myBooks') || 'My Books' }}</span>
     </router-link>
 
-    <button @click="goToWishlist" class="flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors cursor-pointer border-none bg-transparent" :class="isWishlistActive ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'">
-      <Library :size="22" :stroke-width="isWishlistActive ? 2.5 : 2" />
-      <span class="text-[0.65rem] font-semibold">{{ localeStore.t('wishlist') || 'Collection' }}</span>
+    <button @click="goToWishlist" class="group flex flex-col items-center justify-center flex-1 h-full gap-0.5 transition-colors cursor-pointer border-none bg-transparent" :class="isWishlistActive ? 'text-[var(--nav-active-text)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'">
+      <div class="px-4 py-1 rounded-full transition-all duration-300" :class="isWishlistActive ? 'bg-[var(--nav-active-bg)]' : 'bg-transparent'">
+        <Library :size="22" :stroke-width="isWishlistActive ? 2.5 : 2" />
+      </div>
+      <span class="text-[0.65rem] font-semibold tracking-tight">{{ localeStore.t('wishlist') || 'Collection' }}</span>
     </button>
 
-    <button @click="handleProfileClick" class="flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors cursor-pointer border-none bg-transparent" :class="isProfileActive ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'">
-      <User :size="22" :stroke-width="isProfileActive ? 2.5 : 2" />
-      <span class="text-[0.65rem] font-semibold">{{ authStore.isAuthenticated ? (localeStore.t('profile') || 'Profile') : localeStore.t('login') }}</span>
+    <button @click="handleProfileClick" class="group flex flex-col items-center justify-center flex-1 h-full gap-0.5 transition-colors cursor-pointer border-none bg-transparent" :class="isProfileActive ? 'text-[var(--nav-active-text)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'">
+      <div class="px-4 py-1 rounded-full transition-all duration-300" :class="isProfileActive ? 'bg-[var(--nav-active-bg)]' : 'bg-transparent'">
+        <User :size="22" :stroke-width="isProfileActive ? 2.5 : 2" />
+      </div>
+      <span class="text-[0.65rem] font-semibold tracking-tight">{{ authStore.isAuthenticated ? (localeStore.t('profile') || 'Profile') : localeStore.t('login') }}</span>
     </button>
 
   </nav>

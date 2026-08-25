@@ -1,5 +1,5 @@
 <template>
-  <aside class="w-[280px] h-fit max-h-[calc(100vh-2rem)] sticky top-4 self-start m-4 ml-4 flex flex-col p-6 z-40 shrink-0 box-border max-[900px]:hidden bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl shadow-[0_2px_20px_rgba(0,0,0,0.03)] transition-all duration-300">
+  <aside class="w-[280px] h-fit max-h-[calc(100vh-2rem)] sticky top-4 self-start m-4 ml-4 flex flex-col p-6 z-40 shrink-0 box-border max-[900px]:hidden print:hidden bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl shadow-[0_2px_20px_rgba(0,0,0,0.03)] transition-all duration-300">
     <!-- Brand Header -->
     <div class="pb-6 mb-6 border-b border-[var(--border-color)]">
       <router-link to="/admin" class="flex items-center gap-3.5 group">
@@ -58,6 +58,13 @@
         <span class="tracking-wide capitalize">{{ localeStore.t('checkins', 'Check-Ins') }}</span>
       </router-link>
 
+      <router-link to="/admin/digital-reads" class="group flex items-center gap-3.5 px-3 py-2.5 rounded-[14px] text-[var(--text-secondary)] text-[0.92rem] font-bold transition-all duration-300 hover:text-[var(--text-primary)] hover:bg-indigo-500/5 [&.active]:text-[var(--text-primary)] [&.active]:bg-[var(--bg-primary)] [&.active]:shadow-[0_2px_10px_rgba(0,0,0,0.02)] [&.active]:border [&.active]:border-[var(--border-color)] border border-transparent" active-class="active">
+        <div class="flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-300 [&.active]:[background:var(--accent-gradient)] [&.active]:text-white [&.active]:shadow-[0_4px_12px_rgba(99,102,241,0.35)] group-hover:not(.active):text-indigo-500 group-hover:not(.active):bg-indigo-500/10 text-[var(--text-muted)]">
+          <BookOpen :size="18" class="transition-transform duration-300 group-hover:scale-110" />
+        </div>
+        <span class="tracking-wide capitalize">Digital Reads</span>
+      </router-link>
+
       <router-link to="/admin/users" class="group flex items-center gap-3.5 px-3 py-2.5 rounded-[14px] text-[var(--text-secondary)] text-[0.92rem] font-bold transition-all duration-300 hover:text-[var(--text-primary)] hover:bg-indigo-500/5 [&.active]:text-[var(--text-primary)] [&.active]:bg-[var(--bg-primary)] [&.active]:shadow-[0_2px_10px_rgba(0,0,0,0.02)] [&.active]:border [&.active]:border-[var(--border-color)] border border-transparent" active-class="active">
         <div class="flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-300 [&.active]:[background:var(--accent-gradient)] [&.active]:text-white [&.active]:shadow-[0_4px_12px_rgba(99,102,241,0.35)] group-hover:not(.active):text-indigo-500 group-hover:not(.active):bg-indigo-500/10 text-[var(--text-muted)]">
           <Users :size="18" class="transition-transform duration-300 group-hover:scale-110" />
@@ -108,8 +115,7 @@ import { useBorrowingsStore } from '../stores/borrowings';
 import { useConfirmStore } from '../stores/confirm';
 import { useRouter } from 'vue-router';
 import { 
-  ShieldCheck, LayoutDashboard, BookPlus, ClipboardList, 
-  Users, Globe, Sun, Moon, LogOut, Tags, MapPin
+  LayoutDashboard, BookPlus, ClipboardList, Tags, Users, LogOut, MapPin, Globe, Moon, Sun, BookOpen 
 } from 'lucide-vue-next';
 
 const authStore = useAuthStore();

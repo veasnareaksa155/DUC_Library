@@ -12,8 +12,8 @@
         <nav class="flex items-center gap-1 lg:gap-2">
           <button 
             @click="goHome" 
-            class="group flex items-center gap-2 px-3 py-2 rounded-md text-[0.85rem] lg:text-[0.9rem] transition-colors duration-200 bg-transparent border-none font-inherit cursor-pointer whitespace-nowrap" 
-            :class="route.path === '/' && booksStore.selectedCategory !== 'wishlist' ? 'text-[var(--text-primary)] font-bold bg-[var(--bg-card-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] font-medium hover:bg-[var(--bg-card-hover)]'"
+            class="group flex items-center gap-2 px-3.5 py-2 rounded-xl text-[0.85rem] lg:text-[0.9rem] transition-all duration-300 border-none font-inherit cursor-pointer whitespace-nowrap" 
+            :class="route.path === '/' && booksStore.selectedCategory !== 'wishlist' ? 'text-[var(--nav-active-text)] font-bold bg-[var(--nav-active-bg)]' : 'bg-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] font-medium hover:bg-[var(--bg-card-hover)]'"
           >
             <Home :size="16" :stroke-width="2" />
             <span class="hidden lg:inline">{{ localeStore.t('home') || 'Home' }}</span>
@@ -21,20 +21,20 @@
 
           <button 
             @click="goCatalog" 
-            class="group flex items-center gap-2 px-3 py-2 rounded-md text-[0.85rem] lg:text-[0.9rem] transition-colors duration-200 bg-transparent border-none font-inherit cursor-pointer whitespace-nowrap" 
-            :class="route.path === '/catalog' && booksStore.selectedCategory !== 'wishlist' ? 'text-[var(--text-primary)] font-bold bg-[var(--bg-card-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] font-medium hover:bg-[var(--bg-card-hover)]'"
+            class="group flex items-center gap-2 px-3.5 py-2 rounded-xl text-[0.85rem] lg:text-[0.9rem] transition-all duration-300 border-none font-inherit cursor-pointer whitespace-nowrap" 
+            :class="route.path === '/catalog' && booksStore.selectedCategory !== 'wishlist' ? 'text-[var(--nav-active-text)] font-bold bg-[var(--nav-active-bg)]' : 'bg-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] font-medium hover:bg-[var(--bg-card-hover)]'"
           >
             <Tags :size="18" :stroke-width="route.path === '/catalog' ? 2.5 : 2" class="transition-transform duration-300 group-hover:scale-110" />
             <span class="hidden lg:inline">{{ localeStore.t('catalog') }}</span>
           </button>
 
-          <router-link v-if="authStore.isAuthenticated && authStore.user?.role !== 'admin'" to="/my-borrowings" class="group flex items-center gap-2 px-3 py-2 rounded-md text-[0.85rem] lg:text-[0.9rem] transition-colors duration-200 bg-transparent border-none no-underline whitespace-nowrap" :class="route.path === '/my-borrowings' ? 'text-[var(--text-primary)] font-bold bg-[var(--bg-card-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] font-medium hover:bg-[var(--bg-card-hover)]'" @click="booksStore.selectedCategory = 'all'">
-            <Bookmark :size="16" :stroke-width="2" />
+          <router-link v-if="authStore.isAuthenticated && authStore.user?.role !== 'admin'" to="/my-borrowings" class="group flex items-center gap-2 px-3.5 py-2 rounded-xl text-[0.85rem] lg:text-[0.9rem] transition-all duration-300 border-none no-underline whitespace-nowrap" :class="route.path === '/my-borrowings' ? 'text-[var(--nav-active-text)] font-bold bg-[var(--nav-active-bg)]' : 'bg-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] font-medium hover:bg-[var(--bg-card-hover)]'" @click="booksStore.selectedCategory = 'all'">
+            <Bookmark :size="16" :stroke-width="route.path === '/my-borrowings' ? 2.5 : 2" />
             <span class="hidden lg:inline">{{ localeStore.t('myBorrowings') }}</span>
           </router-link>
 
-          <router-link v-if="authStore.user?.role !== 'admin'" to="/wishlist" class="group flex items-center gap-2 px-3 py-2 rounded-md text-[0.85rem] lg:text-[0.9rem] transition-colors duration-200 bg-transparent border-none no-underline whitespace-nowrap" :class="route.path === '/wishlist' ? 'text-[var(--text-primary)] font-bold bg-[var(--bg-card-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] font-medium hover:bg-[var(--bg-card-hover)]'">
-            <Library :size="16" :stroke-width="2" />
+          <router-link v-if="authStore.user?.role !== 'admin'" to="/wishlist" class="group flex items-center gap-2 px-3.5 py-2 rounded-xl text-[0.85rem] lg:text-[0.9rem] transition-all duration-300 border-none no-underline whitespace-nowrap" :class="route.path === '/wishlist' ? 'text-[var(--nav-active-text)] font-bold bg-[var(--nav-active-bg)]' : 'bg-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] font-medium hover:bg-[var(--bg-card-hover)]'">
+            <Library :size="16" :stroke-width="route.path === '/wishlist' ? 2.5 : 2" />
             <span class="hidden lg:inline">{{ localeStore.t('wishlist') || 'My Collection' }}</span>
           </router-link>
 

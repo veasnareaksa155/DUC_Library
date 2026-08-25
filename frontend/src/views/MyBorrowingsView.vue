@@ -107,15 +107,7 @@
               <BookOpen :size="15" /> {{ localeStore.t('read') }}
             </button>
 
-            <button 
-              v-if="item.status === 'approved'"
-              @click="handleReturn(item.id)" 
-              class="flex-1 flex items-center justify-center gap-2 h-9 bg-[var(--text-primary)] text-[var(--bg-primary)] border-none rounded-md text-[0.8rem] font-bold hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-50"
-              :disabled="actionLoading === item.id"
-            >
-              <RotateCcw :size="15" :class="{ 'animate-spin': actionLoading === item.id }" /> 
-              {{ actionLoading === item.id ? localeStore.t('returning') : localeStore.t('returnBook') }}
-            </button>
+
           </div>
         </div>
       </div>

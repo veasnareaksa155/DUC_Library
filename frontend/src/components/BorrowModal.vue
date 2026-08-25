@@ -39,9 +39,6 @@
           <strong class="font-bold text-[var(--text-primary)]">{{ calculatedDueDate }}</strong>
         </div>
 
-        <div v-if="error" class="p-3 bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 rounded-md text-[0.85rem] mb-4 font-medium">
-          {{ error }}
-        </div>
       </div>
 
       <footer class="flex justify-end gap-3 px-5 py-4 border-t border-[var(--border-color)] bg-[var(--bg-card-hover)]">
@@ -74,7 +71,6 @@ const localeStore = useLocaleStore();
 const toastStore = useToastStore();
 const selectedDays = ref(14);
 const loading = ref(false);
-const error = ref('');
 
 const fallbackCover = 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&w=600&q=80';
 
@@ -87,14 +83,14 @@ const calculatedDueDate = computed(() => {
 async function handleConfirm() {
   if (!props.book) return;
   loading.value = true;
-  error.value = '';
   try {
     const res = await borrowingsStore.requestBorrow(props.book.id, selectedDays.value);
     toastStore.showSuccess(res.message || 'Book borrowing request submitted successfully!', 'Request Sent');
     emit('success', res.message);
     emit('close');
   } catch (err) {
-    error.value = err.message || 'Failed to request borrow.';
+    toastStore.showError(err.message || 'Failed to request borrow.', 'Action Denied');
+    emit('close');
   } finally {
     loading.value = false;
   }

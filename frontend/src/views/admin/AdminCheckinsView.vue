@@ -1,11 +1,11 @@
 <template>
-  <div class="flex items-start min-h-screen w-full">
+  <div class="flex items-start min-h-screen w-full print:block">
     <!-- Left Admin Sidebar -->
     <AdminSidebar />
 
     <!-- Main Content Area -->
-    <main class="flex-1 py-8 px-10 pb-20 w-[calc(100%-280px)] max-w-none">
-      <header class="mb-10 flex flex-col gap-2">
+    <main class="flex-1 py-8 px-10 pb-20 w-[calc(100%-280px)] max-w-none print:w-full print:p-0 print:m-0 print:block">
+      <header class="mb-10 flex flex-col gap-2 print:hidden">
         <div class="flex items-center gap-3 text-indigo-500 mb-1">
           <MapPin :size="28" class="p-1.5 bg-indigo-500/10 rounded-lg shadow-sm" />
           <h1 class="text-[2.2rem] font-extrabold tracking-tight">Check-Ins <span class="text-transparent bg-clip-text [background-image:var(--accent-gradient)]">Management</span></h1>
@@ -13,9 +13,32 @@
         <p class="text-[0.95rem] text-[var(--text-secondary)] max-w-2xl leading-relaxed">View and monitor library check-ins from students and members.</p>
       </header>
 
-      <div class="bg-[var(--bg-card)] border-[var(--border-color)] shadow-[0_2px_10px_rgba(0,0,0,0.02)] border rounded-2xl overflow-hidden flex flex-col transition-all duration-300 mt-10">
+      <!-- Print Header (Hidden on screen, shown on print) -->
+      <div class="hidden print:flex flex-row items-start w-full mb-10 pb-4 relative">
+        <!-- Left Side: DUC -->
+        <div class="flex flex-col items-center min-w-[280px]">
+          <img src="/duc-logo.png" alt="DUC Logo" class="h-[95px] w-auto mb-3" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));" />
+          <span class="text-[1.1rem] text-black" style="font-family: 'Khmer OS Muol Light', 'Moul', serif;">សាកលវិទ្យាល័យឌីជីថលកម្ពុជា</span>
+          <span class="text-[1.05rem] text-black mt-1.5" style="font-family: 'Khmer OS Muol Light', 'Moul', serif;">បណ្ណាល័យសិក្សា</span>
+        </div>
+        
+        <!-- Center: Nation -->
+        <div class="absolute left-1/2 -translate-x-1/2 flex flex-col items-center pt-1">
+          <span class="text-[1.4rem] text-black tracking-wide" style="font-family: 'Khmer OS Muol Light', 'Moul', serif;">ព្រះរាជាណាចក្រកម្ពុជា</span>
+          <span class="text-[1.2rem] text-black tracking-widest mt-2" style="font-family: 'Khmer OS Muol Light', 'Moul', serif; z-index: 2;">ជាតិ សាសនា ព្រះមហាក្សត្រ</span>
+          <img src="/khmer-ornament.png" alt="Tact" class="h-[60px] opacity-90" style="margin-top: -15px; transform: rotate(-1deg); z-index: 1;" />
+        </div>
+      </div>
+
+      <!-- Report Title (Print Only) -->
+      <div class="hidden print:flex flex-col items-center justify-center w-full mb-6 mt-4">
+        <h2 class="text-[1.3rem] text-black tracking-wide" style="font-family: 'Khmer OS Muol Light', 'Moul', serif;">របាយការណ៍សិស្សចូលក្នុងបណ្ណាល័យ</h2>
+        <p class="text-[1rem] text-black mt-2 font-bold">ការបរិច្ឆេទ៖ {{ reportDateText }}</p>
+      </div>
+
+      <div class="bg-[var(--bg-card)] border-[var(--border-color)] shadow-[0_2px_10px_rgba(0,0,0,0.02)] border rounded-2xl overflow-hidden flex flex-col transition-all duration-300 mt-10 print:mt-0 print:border-none print:shadow-none print:rounded-none print:block print:overflow-visible">
         <!-- Header & Filters -->
-        <div class="p-5 sm:p-6 border-b border-[var(--border-color)] bg-[var(--bg-card)] flex items-center justify-between gap-6 flex-wrap">
+        <div class="p-5 sm:p-6 border-b border-[var(--border-color)] bg-[var(--bg-card)] flex items-center justify-between gap-6 flex-wrap print:hidden">
           <div class="flex flex-wrap items-center gap-4">
             <div class="flex gap-1.5 p-1.5 bg-gray-500/5 rounded-xl border border-[var(--border-color)]/50 shadow-inner overflow-x-auto max-w-full">
               <button 
@@ -75,14 +98,21 @@
             </div>
           </div>
           
-          <div class="text-[0.85rem] font-semibold text-[var(--text-muted)] bg-gray-500/5 px-4 py-2 rounded-lg border border-[var(--border-color)]/50">
-            Showing <span class="text-[var(--text-primary)]">{{ filteredCheckins.length }}</span> check-ins
+          <div class="flex items-center gap-4">
+            <div class="text-[0.85rem] font-semibold text-[var(--text-muted)] bg-gray-500/5 px-4 py-2 rounded-lg border border-[var(--border-color)]/50">
+              Showing <span class="text-[var(--text-primary)]">{{ filteredCheckins.length }}</span> check-ins
+            </div>
+            
+            <button @click="printReport" class="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-bold text-[0.85rem] transition-colors shadow-sm cursor-pointer">
+              <Printer :size="16" />
+              <span>Print PDF</span>
+            </button>
           </div>
         </div>
 
         <!-- Premium Glassmorphic Skeleton Loader -->
-        <div v-if="loading && checkins.length === 0" class="animate-pulse w-full overflow-x-auto">
-          <table class="w-full text-left border-collapse min-w-[900px] opacity-70">
+        <div v-if="loading && checkins.length === 0" class="animate-pulse w-full overflow-x-auto print:overflow-visible">
+          <table class="w-full text-left border-collapse min-w-[900px] print:min-w-0 opacity-70">
             <thead>
               <tr>
                 <th v-for="i in 4" :key="'th-'+i" class="px-6 py-4 bg-gray-500/5 border-b border-[var(--border-color)]">
@@ -115,18 +145,21 @@
           </table>
         </div>
 
-        <div v-else class="overflow-x-auto">
-          <table class="w-full text-left border-collapse min-w-[900px]">
+        <div v-else class="overflow-x-auto print:overflow-visible">
+          <table class="w-full text-left border-collapse min-w-[900px] print:min-w-0">
             <thead>
               <tr class="bg-gray-500/5 text-[var(--text-muted)] text-[0.75rem] font-extrabold uppercase tracking-wider">
                 <th class="px-6 py-4 border-b border-[var(--border-color)] whitespace-nowrap">Member / Student</th>
-                <th class="px-6 py-4 border-b border-[var(--border-color)] whitespace-nowrap">Date & Time</th>
-                <th class="px-6 py-4 border-b border-[var(--border-color)] whitespace-nowrap">Location (Lat, Lng)</th>
-                <th class="px-6 py-4 border-b border-[var(--border-color)] text-center whitespace-nowrap">Status</th>
+                <th class="px-6 py-4 border-b border-[var(--border-color)] whitespace-nowrap">Major</th>
+                <th class="px-6 py-4 border-b border-[var(--border-color)] whitespace-nowrap">Class</th>
+                <th class="px-6 py-4 border-b border-[var(--border-color)] whitespace-nowrap print:hidden">Date & Time</th>
+                <th class="px-6 py-4 border-b border-[var(--border-color)] text-center whitespace-nowrap">Total Check-Ins</th>
+                <th class="px-6 py-4 border-b border-[var(--border-color)] whitespace-nowrap print:hidden">Location (Lat, Lng)</th>
+                <th class="px-6 py-4 border-b border-[var(--border-color)] text-center whitespace-nowrap print:hidden">Status</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-[var(--border-color)]">
-              <tr v-for="item in paginatedCheckins" :key="item.id || item.checkin_time" class="group hover:bg-gray-500/5 transition-colors duration-200">
+              <tr v-for="item in (isPrinting ? filteredCheckins : paginatedCheckins)" :key="item.id || item.checkin_time" class="group hover:bg-gray-500/5 transition-colors duration-200 print:break-inside-avoid">
                 <td class="px-6 py-4">
                   <div class="flex items-center gap-3.5">
                     <div class="w-10 h-10 rounded-full bg-[var(--border-color)] overflow-hidden flex items-center justify-center font-bold text-[1.1rem] shadow-sm shrink-0">
@@ -138,25 +171,37 @@
                     <div class="flex flex-col">
                       <span class="font-extrabold text-[0.95rem] text-[var(--text-primary)] group-hover:text-indigo-400 transition-colors">{{ item.user_name }}</span>
                       <div class="flex items-center gap-2 mt-0.5">
-                        <span class="text-[0.75rem] text-[var(--text-muted)] font-medium">{{ item.user_email }}</span>
-                        <span v-if="item.user_major" class="text-[0.65rem] font-bold tracking-wider text-indigo-500 bg-indigo-500/10 px-1.5 py-0.5 rounded uppercase">{{ item.user_major }}</span>
+                        <span class="text-[0.75rem] text-[var(--text-muted)] font-medium print:hidden">{{ item.user_email }}</span>
                       </div>
                     </div>
                   </div>
                 </td>
-                <td class="px-6 py-4">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span v-if="item.user_major" class="text-[0.7rem] font-bold tracking-wider text-indigo-500 bg-indigo-500/10 px-2 py-1 rounded uppercase">{{ item.user_major }}</span>
+                  <span v-else class="text-[0.75rem] text-[var(--text-muted)] italic">N/A</span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span v-if="item.user_class" class="text-[0.75rem] font-bold text-[var(--text-primary)] px-2 py-1 bg-gray-500/10 rounded uppercase">{{ item.user_class }}</span>
+                  <span v-else class="text-[0.75rem] text-[var(--text-muted)] italic">-</span>
+                </td>
+                <td class="px-6 py-4 print:hidden">
                   <div class="flex flex-col gap-1.5 text-[0.85rem]">
                     <span class="font-semibold text-[var(--text-primary)]">{{ formatDate(item.checkin_time) }}</span>
                     <span class="text-[var(--text-muted)] font-medium">{{ formatTime(item.checkin_time) }}</span>
                   </div>
                 </td>
-                <td class="px-6 py-4">
+                <td class="px-6 py-4 text-center">
+                  <span class="inline-flex items-center justify-center min-w-[28px] h-7 px-2 rounded-full font-bold text-[0.8rem] bg-indigo-500/10 text-indigo-500 border border-indigo-500/20">
+                    {{ item.total_checkins }}
+                  </span>
+                </td>
+                <td class="px-6 py-4 print:hidden">
                   <div class="flex items-center gap-2">
                     <MapPin :size="14" class="text-indigo-500" />
                     <span class="font-medium text-[0.85rem] text-[var(--text-secondary)]">{{ formatLocation(item.lat, item.lng) }}</span>
                   </div>
                 </td>
-                <td class="px-6 py-4 text-center align-middle">
+                <td class="px-6 py-4 text-center align-middle print:hidden">
                   <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-bold uppercase tracking-wider bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 shadow-sm" :class="item.status === 'success' ? 'inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-bold uppercase tracking-wider bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700-returned' : (item.status.includes('fail') ? 'inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-bold uppercase tracking-wider bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700-rejected' : 'inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-bold uppercase tracking-wider bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700-pending')">
                     {{ item.status === 'success' ? 'Successful' : item.status }}
                   </span>
@@ -183,7 +228,7 @@
         </div>
 
         <!-- Pagination Nav Bar -->
-        <div v-if="totalPages > 1" class="flex justify-between items-center p-6 border-t border-[var(--border-color)]">
+        <div v-if="totalPages > 1" class="flex justify-between items-center p-6 border-t border-[var(--border-color)] print:hidden">
           <div class="text-[0.85rem] text-[var(--text-muted)] font-medium">
             Showing {{ (currentPage - 1) * itemsPerPage + 1 }} to {{ Math.min(currentPage * itemsPerPage, filteredCheckins.length) }} of {{ filteredCheckins.length }} check-ins
           </div>
@@ -222,12 +267,21 @@
   </div>
 </template>
 
+<style scoped>
+@media print {
+  body { background: white !important; color: black !important; }
+  .bg-\[var\(--bg-card\)\] { background: transparent !important; box-shadow: none !important; border: none !important; }
+  table { width: 100% !important; border-collapse: collapse !important; }
+  th, td { border-bottom: 1px solid #ddd !important; padding: 12px 8px !important; }
+}
+</style>
+
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, watch, nextTick } from 'vue';
 import { useAuthStore } from '../../stores/auth';
 import { useToastStore } from '../../stores/toast';
 import AdminSidebar from '../../components/AdminSidebar.vue';
-import { MapPin, ChevronLeft, ChevronRight, CalendarDays, ChevronDown } from 'lucide-vue-next';
+import { MapPin, ChevronLeft, ChevronRight, CalendarDays, ChevronDown, Printer } from 'lucide-vue-next';
 
 const authStore = useAuthStore();
 const toastStore = useToastStore();
@@ -250,11 +304,40 @@ const selectMonth = (month) => {
   selectedMonth.value = month;
 };
 
+const isPrinting = ref(false);
+
+const printReport = async () => {
+  isPrinting.value = true;
+  await nextTick();
+  setTimeout(() => {
+    window.print();
+    isPrinting.value = false;
+  }, 150);
+};
+
 const getMonthLabel = (val) => {
   if (val === '') return '';
   const match = availableMonths.value.find(m => m.value === val);
   return match ? match.label : '';
 };
+
+const khmerMonths = ['មករា', 'កុម្ភៈ', 'មីនា', 'មេសា', 'ឧសភា', 'មិថុនា', 'កក្កដា', 'សីហា', 'កញ្ញា', 'តុលា', 'វិច្ឆិកា', 'ធ្នូ'];
+const toKhmerNumeral = (num) => String(num).split('').map(d => ['០','១','២','៣','៤','៥','៦','៧','៨','៩'][d] || d).join('');
+
+const reportDateText = computed(() => {
+  if (activeFilter.value === 'all') {
+    return 'ទាំងអស់';
+  } else if (activeFilter.value === 'today') {
+    return 'ថ្ងៃនេះ';
+  } else if (activeFilter.value === 'custom') {
+    if (selectedYear.value && selectedMonth.value !== '') {
+      return `ខែ${khmerMonths[selectedMonth.value]} ឆ្នាំ${toKhmerNumeral(selectedYear.value)}`;
+    } else if (selectedYear.value) {
+      return `ឆ្នាំ${toKhmerNumeral(selectedYear.value)}`;
+    }
+  }
+  return '';
+});
 
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
@@ -324,17 +407,13 @@ watch(activeFilter, (newVal) => {
 });
 
 const filteredCheckins = computed(() => {
-  if (activeFilter.value === 'all') return checkins.value;
-  
-  const todayDate = new Date();
+  let list = checkins.value;
   
   if (activeFilter.value === 'today') {
-    const todayStr = todayDate.toISOString().split('T')[0];
-    return checkins.value.filter(c => c.checkin_time && c.checkin_time.startsWith(todayStr));
-  }
-  
-  if (activeFilter.value === 'custom') {
-    return checkins.value.filter(c => {
+    const todayStr = new Date().toISOString().split('T')[0];
+    list = list.filter(c => c.checkin_time && c.checkin_time.startsWith(todayStr));
+  } else if (activeFilter.value === 'custom') {
+    list = list.filter(c => {
       if (!c.checkin_time) return false;
       const d = new Date(c.checkin_time);
       if (isNaN(d.getTime())) return false;
@@ -346,7 +425,22 @@ const filteredCheckins = computed(() => {
     });
   }
   
-  return checkins.value;
+  // Remove duplicates to show only the most recent check-in per student, and count totals
+  const uniqueUsers = new Map();
+  for (const c of list) {
+    const key = c.user_email || c.user_name || c.id;
+    const existing = uniqueUsers.get(key);
+    if (!existing) {
+      uniqueUsers.set(key, { ...c, total_checkins: 1 });
+    } else {
+      const updated = new Date(c.checkin_time) > new Date(existing.checkin_time)
+        ? { ...c, total_checkins: existing.total_checkins + 1 }
+        : { ...existing, total_checkins: existing.total_checkins + 1 };
+      uniqueUsers.set(key, updated);
+    }
+  }
+  
+  return Array.from(uniqueUsers.values()).sort((a, b) => new Date(b.checkin_time) - new Date(a.checkin_time));
 });
 
 const totalPages = computed(() => Math.ceil(filteredCheckins.value.length / itemsPerPage.value) || 1);

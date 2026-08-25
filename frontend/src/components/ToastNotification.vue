@@ -13,6 +13,7 @@
           <Heart v-if="toastStore.type === 'wishlist-add'" :size="18" class="text-indigo-500 fill-indigo-500" />
           <HeartOff v-else-if="toastStore.type === 'wishlist-remove'" :size="18" class="text-[var(--text-muted)]" />
           <CheckCircle2 v-else-if="toastStore.type === 'success'" :size="18" class="text-emerald-500" stroke-width="2.5" />
+          <AlertCircle v-else-if="toastStore.type === 'error'" :size="18" class="text-red-500" stroke-width="2.5" />
           <Info v-else :size="18" class="text-blue-500" stroke-width="2.5" />
         </div>
 
@@ -34,7 +35,7 @@
 
 <script setup>
 import { useToastStore } from '../stores/toast';
-import { Heart, HeartOff, CheckCircle2, Info, X } from 'lucide-vue-next';
+import { Heart, HeartOff, CheckCircle2, Info, X, AlertCircle } from 'lucide-vue-next';
 
 const toastStore = useToastStore();
 </script>

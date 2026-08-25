@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col min-h-screen w-screen transition-colors duration-350 ease-in-out" :class="themeMode === 'theme-dark' ? 'bg-[#0b0f19] text-slate-50' : themeMode === 'theme-sepia' ? 'bg-[#f2e3c6] text-[#3b2a1a]' : 'bg-slate-200 text-slate-900'">
+  <div class="flex flex-col h-[100dvh] w-screen overflow-hidden transition-colors duration-350 ease-in-out" :class="themeMode === 'theme-dark' ? 'bg-[#0b0f19] text-slate-50' : themeMode === 'theme-sepia' ? 'bg-[#f2e3c6] text-[#3b2a1a]' : 'bg-slate-200 text-slate-900'">
     <!-- Top Reading Header Navigation Bar -->
     <header class="sticky top-0 w-full shrink-0 h-[60px] px-5 flex items-center justify-between bg-slate-900 border-b border-white/10 z-[100] shadow-[0_4px_20px_rgba(0,0,0,0.4)] text-slate-50 max-sm:h-[52px] max-sm:px-2.5 gap-4">
       <div class="flex items-center gap-4 min-w-0 flex-1">
@@ -27,53 +27,6 @@
       </div>
 
       <div class="flex items-center gap-2 sm:gap-3.5 flex-shrink-0">
-        <!-- Theme Mode Switcher Dropdown -->
-        <div class="relative flex items-center gap-2" title="Reading Background Theme">
-          <span class="text-[0.75rem] text-slate-400 hidden xl:inline-block">Theme:</span>
-          
-          <button 
-            @click="isThemeDropdownOpen = !isThemeDropdownOpen"
-            @blur="setTimeout(() => isThemeDropdownOpen = false, 200)"
-            class="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-2 rounded-full bg-white/10 border border-white/15 text-slate-50 text-[0.82rem] font-semibold cursor-pointer transition-all duration-200 hover:bg-white/20"
-          >
-            <Moon v-if="themeMode === 'theme-dark'" :size="14" />
-            <Coffee v-else-if="themeMode === 'theme-sepia'" :size="14" />
-            <Sun v-else :size="14" />
-            
-            <span class="hidden sm:inline-block">
-              {{ themeMode === 'theme-dark' ? 'Dark' : themeMode === 'theme-sepia' ? 'Sepia' : 'Light' }}
-            </span>
-            <ChevronDown :size="14" class="text-slate-400 transition-transform duration-200" :class="isThemeDropdownOpen ? 'rotate-180' : ''" />
-          </button>
-
-          <!-- Dropdown Menu -->
-          <div 
-            v-show="isThemeDropdownOpen" 
-            class="absolute top-full right-0 mt-2 w-36 bg-slate-800 border border-white/15 rounded-xl shadow-xl overflow-hidden z-[100] flex flex-col py-1 animate-in fade-in slide-in-from-top-2"
-          >
-            <button 
-              @click="themeMode = 'theme-dark'; isThemeDropdownOpen = false" 
-              class="flex items-center gap-2 px-4 py-2.5 text-[0.8rem] font-semibold cursor-pointer transition-colors duration-200 text-left border-none"
-              :class="themeMode === 'theme-dark' ? 'bg-indigo-500/20 text-indigo-300' : 'bg-transparent text-slate-300 hover:bg-white/5'"
-            >
-              <Moon :size="14" /> Dark
-            </button>
-            <button 
-              @click="themeMode = 'theme-sepia'; isThemeDropdownOpen = false" 
-              class="flex items-center gap-2 px-4 py-2.5 text-[0.8rem] font-semibold cursor-pointer transition-colors duration-200 text-left border-none"
-              :class="themeMode === 'theme-sepia' ? 'bg-amber-500/20 text-amber-300' : 'bg-transparent text-slate-300 hover:bg-white/5'"
-            >
-              <Coffee :size="14" /> Sepia
-            </button>
-            <button 
-              @click="themeMode = 'theme-light'; isThemeDropdownOpen = false" 
-              class="flex items-center gap-2 px-4 py-2.5 text-[0.8rem] font-semibold cursor-pointer transition-colors duration-200 text-left border-none"
-              :class="themeMode === 'theme-light' ? 'bg-sky-500/20 text-sky-300' : 'bg-transparent text-slate-300 hover:bg-white/5'"
-            >
-              <Sun :size="14" /> Light
-            </button>
-          </div>
-        </div>
 
         <!-- Fullscreen Toggle Button -->
         <button @click="toggleFullscreen" class="w-[34px] h-[34px] rounded-full bg-white/10 border border-white/15 text-slate-50 flex items-center justify-center cursor-pointer" title="Toggle Fullscreen">
@@ -89,7 +42,7 @@
     </header>
 
     <!-- Main Fullscreen Reading Area -->
-    <main class="flex-1 relative flex flex-col" ref="mainAreaRef">
+    <main class="flex-1 relative flex flex-col min-h-0" ref="mainAreaRef">
       <!-- Loading State -->
       <div v-if="loading || pdfLoading" class="flex flex-col items-center justify-center gap-4 h-[calc(100vh-60px)] text-slate-400">
         <Loader2 :size="48" class="animate-spin text-indigo-500" />
@@ -99,7 +52,7 @@
       <!-- Continuous Multi-Page PDF Canvas Reader View -->
       <div 
         v-else-if="book?.pdf_url && viewMode === 'ebook'" 
-        class="w-full h-[calc(100vh-60px)] overflow-y-auto overflow-x-hidden relative flex flex-col items-center px-4 pb-24 pt-6 max-sm:px-1 max-sm:pb-22 max-sm:pt-3"
+        class="flex-1 min-h-0 w-full overflow-y-auto overflow-x-hidden relative flex flex-col items-center px-4 pb-24 pt-6 max-sm:px-1 max-sm:pb-22 max-sm:pt-3"
         ref="pdfScrollContainerRef"
         @scroll="onPdfScroll"
       >
@@ -119,50 +72,54 @@
           </div>
         </div>
 
-        <!-- Floating Reader Dock -->
-        <div class="fixed bottom-5 left-1/2 -translate-x-1/2 z-[99] flex items-center gap-3 px-4 py-2 rounded-full bg-slate-900/90 backdrop-blur-md border border-white/15 shadow-[0_12px_36px_rgba(0,0,0,0.5)] text-slate-50 max-sm:bottom-2.5 max-sm:px-2.5 max-sm:py-1.5 max-sm:gap-1.5">
-          <button @click="scrollToPage(currentPageNum - 1)" :disabled="currentPageNum <= 1" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 border border-white/15 text-slate-50 text-[0.78rem] font-semibold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed" title="Previous Page">
-            <ChevronLeft :size="18" /> <span class="max-sm:hidden">Prev</span>
-          </button>
-
-          <div class="flex items-center gap-1.5 text-[0.8rem] text-slate-400">
-            <span>Page</span>
+        <!-- Google Drive Exact Style Floating Reader Dock -->
+        <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[99] flex items-center h-[46px] px-6 rounded-full bg-[#181a1b] shadow-xl text-[#f1f3f4] font-sans transition-all gap-5 border border-white/5">
+          
+          <!-- Page Navigation -->
+          <div class="flex items-center">
+            <span class="text-[15px] mr-3">Page</span>
             <input 
               type="text" 
               inputmode="numeric"
               pattern="[0-9]*"
               v-model.number="currentPageNum" 
               @change="scrollToPage(currentPageNum)" 
-              class="w-14 px-1 text-center bg-white/10 border border-white/15 rounded-md text-slate-50 text-[0.85rem] font-bold py-1 outline-none focus:ring-1 focus:ring-indigo-500 transition-all duration-200"
+              class="w-12 h-7 px-1 text-center bg-[#090a0b] rounded-[4px] text-[#f1f3f4] text-[15px] outline-none transition-colors border-none"
             />
-            <span>of {{ totalPdfPages }}</span>
+            <span class="text-[15px] ml-3 whitespace-nowrap">/ &nbsp; {{ totalPdfPages }}</span>
           </div>
 
-          <div class="flex items-center gap-1.5 px-2 border-l border-r border-white/10">
-            <button @click="zoomOut" class="bg-transparent border-none text-slate-400 cursor-pointer hover:text-slate-200" title="Zoom Out"><ZoomOut :size="16" /></button>
-            <span @click="resetZoom" class="text-[0.75rem] font-bold text-sky-400 cursor-pointer" title="Reset Zoom">{{ Math.round(pdfScale * 100) }}%</span>
-            <button @click="zoomIn" class="bg-transparent border-none text-slate-400 cursor-pointer hover:text-slate-200" title="Zoom In"><ZoomIn :size="16" /></button>
-          </div>
+          <!-- Divider -->
+          <div class="w-[1px] h-7 bg-white/10"></div>
 
-          <button @click="scrollToPage(currentPageNum + 1)" :disabled="currentPageNum >= totalPdfPages" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-slate-50 text-[0.78rem] font-semibold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-br from-indigo-500 to-purple-500 border-none" title="Next Page">
-            <span class="max-sm:hidden">Next</span> <ChevronRight :size="18" />
-          </button>
+          <!-- Zoom Controls -->
+          <div class="flex items-center gap-6">
+            <button @click="zoomOut" class="flex items-center justify-center bg-transparent border-none text-[#f1f3f4] opacity-80 hover:opacity-100 cursor-pointer transition-opacity p-0" title="Zoom Out">
+              <Minus :size="22" stroke-width="2" />
+            </button>
+            <button @click="resetZoom" class="flex items-center justify-center bg-transparent border-none text-[#f1f3f4] opacity-80 hover:opacity-100 cursor-pointer transition-opacity p-0" title="Reset Zoom">
+              <ZoomIn :size="22" stroke-width="2" />
+            </button>
+            <button @click="zoomIn" class="flex items-center justify-center bg-transparent border-none text-[#f1f3f4] opacity-80 hover:opacity-100 cursor-pointer transition-opacity p-0" title="Zoom In">
+              <Plus :size="22" stroke-width="2" />
+            </button>
+          </div>
         </div>
       </div>
 
       <!-- Original Raw PDF Iframe View Fallback -->
-      <div v-else-if="book?.pdf_url && viewMode === 'raw'" class="w-full h-[calc(100vh-60px)]">
+      <div v-else-if="book?.pdf_url && viewMode === 'raw'" class="flex-1 w-full relative">
         <iframe 
           :src="pdfUrlFormatted" 
-          class="w-full h-full border-none" 
+          class="absolute inset-0 w-full h-full border-none" 
           title="Digital PDF Reader"
         ></iframe>
       </div>
 
       <!-- Premium Physical Book Information Notice -->
-      <div v-else class="flex items-center justify-center p-8 h-full" :class="themeMode === 'theme-dark' ? 'bg-[#0b0f19]' : themeMode === 'theme-light' ? 'bg-slate-100' : 'bg-[#eadeb5]'">
+      <div v-else class="flex flex-col h-full w-full overflow-y-auto p-4 md:p-8 custom-scrollbar" :class="themeMode === 'theme-dark' ? 'bg-[#0b0f19]' : themeMode === 'theme-light' ? 'bg-slate-100' : 'bg-[#eadeb5]'">
         
-        <div class="w-full max-w-[850px] flex max-md:flex-col items-start gap-12 p-8 rounded-xl border" :class="themeMode === 'theme-dark' ? 'bg-slate-900 border-white/10' : themeMode === 'theme-light' ? 'bg-white border-slate-200' : 'bg-[#f5ebd2] border-[#d1bd8e]'">
+        <div class="w-full max-w-[850px] mx-auto my-auto flex max-md:flex-col items-start gap-12 p-8 max-sm:p-5 max-sm:gap-6 rounded-xl border shrink-0" :class="themeMode === 'theme-dark' ? 'bg-slate-900 border-white/10' : themeMode === 'theme-light' ? 'bg-white border-slate-200' : 'bg-[#f5ebd2] border-[#d1bd8e]'">
           
           <!-- Book Cover -->
           <div class="relative shrink-0 max-md:mt-4 max-md:mx-auto">
@@ -243,7 +200,8 @@ import BorrowModal from '../components/BorrowModal.vue';
 import { 
   ArrowLeft, ChevronLeft, ChevronRight, Moon, Coffee, Sun, 
   Maximize2, Minimize2, BookmarkPlus, Loader2, BookOpen, 
-  PackageCheck, PackageX, Library, ZoomIn, ZoomOut, ChevronDown 
+  PackageCheck, PackageX, Library, ZoomIn, ZoomOut, ChevronDown,
+  ChevronUp, Minus, Plus 
 } from 'lucide-vue-next';
 
 const route = useRoute();
@@ -272,17 +230,21 @@ const canvasRefsMap = new Map();
 const renderedPagesSet = ref(new Set());
 const pdfScrollContainerRef = ref(null);
 
-let sessionId = sessionStorage.getItem('reader_session_id');
-if (!sessionId) {
-  sessionId = 'session-' + Math.random().toString(36).substring(2, 11) + '-' + Date.now();
-  sessionStorage.setItem('reader_session_id', sessionId);
-}
+// Generate a unique session ID for this specific reading session
+const sessionId = 'session-' + Math.random().toString(36).substring(2, 11) + '-' + Date.now();
 const activeReadersCount = ref(1);
 let heartbeatTimer = null;
 
 const pdfUrlFormatted = computed(() => {
   if (!book.value?.pdf_url) return '';
-  const url = book.value.pdf_url;
+  let url = book.value.pdf_url;
+  
+  // Convert Google Drive view links to preview links for iframe embedding
+  if (url.includes('drive.google.com/file/d/')) {
+    url = url.replace(/\/view.*$/, '/preview');
+    return url;
+  }
+  
   if (url.includes('#')) return url;
   return `${url}#toolbar=1&navpanes=0&view=FitH`;
 });
@@ -420,6 +382,13 @@ async function resetZoom() {
 
 async function initPdfReader(url) {
   if (!url) return;
+  
+  // Google Drive links cannot be read by PDF.js due to CORS and HTML responses
+  if (url.includes('drive.google.com')) {
+    viewMode.value = 'raw';
+    return;
+  }
+
   pdfLoading.value = true;
   pdfError.value = null;
   
@@ -476,16 +445,12 @@ async function sendReadingLeave() {
   try {
     const url = `${import.meta.env.VITE_API_URL || ''}/api/books/${book.value.id}/read-leave`;
     const data = JSON.stringify({ session_id: sessionId });
-    if (navigator.sendBeacon) {
-      navigator.sendBeacon(url, new Blob([data], { type: 'application/json' }));
-    } else {
-      await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: data,
-        keepalive: true
-      });
-    }
+    await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: data,
+      keepalive: true
+    });
   } catch (err) {
     console.error('Reading leave error:', err);
   }

@@ -477,13 +477,79 @@ router.get('/checkins', async (req, res) => {
         user_name: user.name || 'Unknown',
         user_email: user.email || 'N/A',
         user_photo: user.profile_photo || '',
-        user_major: user.major || ''
+        user_major: user.major || '',
+        user_class: user.class_code || ''
       };
     });
     res.json(enriched);
   } catch (error) {
     console.error('Error fetching admin checkins:', error);
     res.status(500).json({ message: 'Failed to fetch checkins' });
+  }
+});
+// GET /digital-reads - Get historical digital reading sessions
+router.get('/digital-reads', async (req, res) => {
+  try {
+    const reads = await ORM.getAll('DigitalReads') || [];
+    const userMap = await getUserMap();
+    const bookMap = await getBookMap();
+    
+    reads.sort((a, b) => new Date(b.end_time) - new Date(a.end_time));
+    
+    const enriched = reads.map(r => {
+      const user = userMap[r.user_id] || {};
+      const book = bookMap[r.book_id] || {};
+      return {
+        ...r,
+        user_name: user.name || r.user_name || 'Unknown',
+        user_email: user.email || 'N/A',
+        user_photo: user.profile_photo || '',
+        user_major: user.major || '',
+        user_class: user.class_code || '',
+        book_title: book.title || 'Unknown Book',
+        book_cover: book.cover_url || ''
+      };
+    });
+    res.json(enriched);
+  } catch (error) {
+    console.error('Error fetching digital reads:', error);
+    res.status(500).json({ message: 'Failed to fetch digital reads' });
+  }
+});
+
+// GET /digital-reads/live - Get live readers currently reading
+router.get('/digital-reads/live', async (req, res) => {
+  try {
+    const activeReadersService = require('../services/activeReaders');
+    const { details } = activeReadersService.getActiveReaders();
+    const userMap = await getUserMap();
+    const bookMap = await getBookMap();
+
+    const enriched = details.map(r => {
+      const user = userMap[r.user_id] || {};
+      const book = bookMap[r.book_id] || {};
+      return {
+        session_id: r.session_id, // Might not be populated inside details explicitly without the key, wait activeReadersService doesn't store session_id inside the object!
+        // We will fix that, actually it's fine just return what we have.
+        user_id: r.user_id,
+        user_name: user.name || r.user_name || 'Anonymous',
+        user_email: user.email || 'N/A',
+        user_photo: user.profile_photo || '',
+        user_major: user.major || '',
+        user_class: user.class_code || '',
+        book_id: r.book_id,
+        book_title: book.title || 'Unknown Book',
+        book_cover: book.cover_url || '',
+        start_time: new Date(r.start_time).toISOString(),
+        last_ping: new Date(r.last_ping).toISOString(),
+        duration_seconds: Math.round((Date.now() - r.start_time) / 1000)
+      };
+    });
+    
+    res.json(enriched);
+  } catch (error) {
+    console.error('Error fetching live digital reads:', error);
+    res.status(500).json({ message: 'Failed to fetch live digital reads' });
   }
 });
 

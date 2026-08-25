@@ -232,6 +232,7 @@ import { useBooksStore } from '../stores/books';
 import { useAuthStore } from '../stores/auth';
 import { useLocaleStore } from '../stores/locale';
 import { useWishlistStore } from '../stores/wishlist';
+import { useToastStore } from '../stores/toast';
 import { useRouter } from 'vue-router';
 import BookCard from '../components/BookCard.vue';
 import BookSkeleton from '../components/BookSkeleton.vue';
@@ -252,6 +253,7 @@ const booksStore = useBooksStore();
 const authStore = useAuthStore();
 const localeStore = useLocaleStore();
 const wishlistStore = useWishlistStore();
+const toastStore = useToastStore();
 const router = useRouter();
 
 const displayedBooks = computed(() => {
@@ -262,7 +264,7 @@ const displayedBooks = computed(() => {
 });
 
 const currentPage = ref(1);
-const itemsPerPage = 12;
+const itemsPerPage = 15;
 
 const totalPages = computed(() => {
   return Math.max(1, Math.ceil(displayedBooks.value.length / itemsPerPage));
@@ -431,12 +433,16 @@ function resetFilters() {
 }
 
 function openReaderModal(book) {
+  if (!authStore.isAuthenticated) {
+    toastStore.show('Login is required to read books!', { type: 'error', title: 'Authentication Required' });
+    return;
+  }
   router.push(`/read/${book.id}`);
 }
 
 function openBorrowModal(book) {
   if (!authStore.isAuthenticated) {
-    router.push({ name: 'login', query: { redirect: '/' } });
+    toastStore.show('Login is required to borrow books!', { type: 'error', title: 'Authentication Required' });
     return;
   }
   selectedBook.value = book;

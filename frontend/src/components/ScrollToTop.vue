@@ -4,7 +4,7 @@
       v-if="isVisible" 
       @click="scrollToTop" 
       :class="[
-        'fixed w-[50px] h-[50px] md:w-[60px] md:h-[60px] rounded-full bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-secondary)] flex items-center justify-center cursor-pointer z-[999] shadow-md transition-all duration-300 hover:-translate-y-1 hover:text-[var(--text-primary)] hover:border-[var(--border-highlight)] hover:shadow-lg active:scale-95',
+        'fixed w-[50px] h-[50px] md:w-[60px] md:h-[60px] rounded-full bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-secondary)] flex items-center justify-center cursor-pointer z-[999] shadow-md transition-all duration-300 hover:-translate-y-1 hover:text-[var(--text-primary)] hover:border-[var(--border-highlight)] hover:shadow-lg active:scale-95 print:hidden',
         hasCheckinBtn 
           ? 'bottom-[108px] right-8 max-md:bottom-[150px] max-md:right-4' 
           : 'bottom-8 right-8 max-md:bottom-[85px] max-md:right-4'

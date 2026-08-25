@@ -198,7 +198,7 @@ const displayedBooks = computed(() => {
 
 // Pagination State
 const currentPage = ref(1);
-const itemsPerPage = ref(12);
+const itemsPerPage = ref(15);
 
 // Computed for pagination
 const totalPages = computed(() => Math.ceil(displayedBooks.value.length / itemsPerPage.value));

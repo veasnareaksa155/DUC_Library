@@ -37,6 +37,10 @@ export const useToastStore = defineStore('toast', () => {
     show(msg, { title: customTitle, type: 'success', duration: 3000 });
   }
 
+  function showError(msg, customTitle = 'Error') {
+    show(msg, { title: customTitle, type: 'error', duration: 4000 });
+  }
+
   function hide() {
     isVisible.value = false;
     if (timer) clearTimeout(timer);
@@ -50,6 +54,7 @@ export const useToastStore = defineStore('toast', () => {
     show,
     showWishlist,
     showSuccess,
+    showError,
     hide
   };
 });

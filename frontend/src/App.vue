@@ -2,7 +2,7 @@
   <div id="app-root" class="flex flex-col min-h-screen">
     <Navbar v-if="!hideGlobalNav" />
     <MobileHeader v-if="!hideGlobalNav" />
-    <main class="flex-1 max-md:pb-[72px]">
+    <main class="flex-1" :class="{ 'max-md:pb-[72px]': !hideGlobalNav }">
       <router-view v-slot="{ Component }">
         <transition name="page-fade" mode="out-in">
           <component :is="Component" />

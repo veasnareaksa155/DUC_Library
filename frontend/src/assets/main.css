@@ -13,6 +13,9 @@
   --border-color: rgba(255, 255, 255, 0.08);
   --border-highlight: rgba(99, 102, 241, 0.4);
 
+  --nav-active-bg: rgba(99, 102, 241, 0.15);
+  --nav-active-text: #a5b4fc;
+
   --accent-primary: #6366f1;
   --accent-primary-hover: #4f46e5;
   --accent-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
@@ -54,6 +57,9 @@
   
   --border-color: rgba(203, 213, 225, 0.8);
   --border-highlight: rgba(99, 102, 241, 0.5);
+
+  --nav-active-bg: #eef2ff;
+  --nav-active-text: #4f46e5;
 
   --text-primary: #0f172a;
   --text-secondary: #475569;
