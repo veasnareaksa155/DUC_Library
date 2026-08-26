@@ -237,7 +237,8 @@ router.get('/borrowings', async (req, res) => {
         book_title: b.title,
         book_author: b.author,
         cover_url: b.cover_url,
-        profile_photo: u.profile_photo
+        profile_photo: u.profile_photo,
+        user_major: u.major || ''
       };
     });
 
@@ -373,25 +374,38 @@ router.get('/users', async (req, res) => {
 // Analytics Reports
 router.get('/reading-reports', async (req, res) => {
   try {
-    const { period } = req.query;
-    let cutoffDate = new Date();
-    let periodName = "Today (1 Day)";
-
-    if (period === '1week') {
-      cutoffDate.setDate(cutoffDate.getDate() - 7);
-      periodName = "This Week (7 Days)";
-    } else if (period === '1month') {
-      cutoffDate.setDate(cutoffDate.getDate() - 30);
-      periodName = "This Month (30 Days)";
-    } else if (period === 'all') {
-      cutoffDate = new Date(0); // 1970
-      periodName = "All Time";
-    } else {
-      cutoffDate.setDate(cutoffDate.getDate() - 1); // 1 day
-    }
+    const { period, year, month } = req.query;
+    let periodName = "Today";
 
     const allBorrowings = await ORM.getAll('Borrowings');
-    const filteredBorrowings = allBorrowings.filter(b => b.borrow_date && new Date(b.borrow_date) >= cutoffDate);
+    let filteredBorrowings = [];
+
+    if (period === 'today') {
+      const todayStr = new Date().toISOString().split('T')[0];
+      filteredBorrowings = allBorrowings.filter(b => b.borrow_date && b.borrow_date.startsWith(todayStr));
+      periodName = "Today";
+    } else if (period === 'custom') {
+      periodName = year ? `Year ${year}` : "Custom Period";
+      if (year && month !== undefined && month !== 'all' && month !== '') {
+        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+        periodName = `${monthNames[parseInt(month)]} ${year}`;
+      }
+      filteredBorrowings = allBorrowings.filter(b => {
+        if (!b.borrow_date) return false;
+        const d = new Date(b.borrow_date);
+        if (isNaN(d.getTime())) return false;
+        const yearMatch = year && year !== 'all' ? d.getFullYear() == year : true;
+        const monthMatch = (month !== undefined && month !== 'all' && month !== '') ? d.getMonth() == month : true;
+        return yearMatch && monthMatch;
+      });
+    } else if (period === 'all') {
+      filteredBorrowings = allBorrowings;
+      periodName = "All Time";
+    } else {
+      // Fallback
+      filteredBorrowings = allBorrowings;
+      periodName = "All Time";
+    }
     
     const usersMap = await getUserMap();
     const booksMap = await getBookMap();
@@ -511,7 +525,8 @@ router.get('/checkins', async (req, res) => {
         user_email: user.email || 'N/A',
         user_photo: user.profile_photo || '',
         user_major: user.major || '',
-        user_class: user.class_code || ''
+        user_class: user.class_code || '',
+        user_gender: user.gender || ''
       };
     });
     res.json(enriched);
@@ -548,6 +563,7 @@ router.get('/digital-reads', async (req, res) => {
         user_photo: user.profile_photo || '',
         user_major: user.major || '',
         user_class: user.class_code || '',
+        user_gender: user.gender || '',
         book_title: book.title || 'Unknown Book',
         book_cover: book.cover_url || ''
       };
@@ -579,6 +595,7 @@ router.get('/digital-reads/live', async (req, res) => {
         user_photo: user.profile_photo || '',
         user_major: user.major || '',
         user_class: user.class_code || '',
+        user_gender: user.gender || '',
         book_id: r.book_id,
         book_title: book.title || 'Unknown Book',
         book_cover: book.cover_url || '',

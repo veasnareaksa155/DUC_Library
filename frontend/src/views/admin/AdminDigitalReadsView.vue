@@ -29,6 +29,8 @@
         <p class="text-[1rem] text-black mt-2 font-bold">ការបរិច្ឆេទ៖ {{ printHeaderSubtitle }}</p>
       </div>
 
+
+
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 print:hidden relative z-10">
         <div class="bg-[var(--bg-card)]/80 backdrop-blur-xl border border-[var(--border-color)] rounded-3xl p-6 shadow-[0_8px_30px_rgba(0,0,0,0.04)] flex items-center gap-5 transition-transform hover:-translate-y-1 duration-300">
           <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500/10 to-indigo-500/5 flex items-center justify-center border border-indigo-500/20 text-indigo-500">
@@ -183,28 +185,37 @@
         </div>
 
         <div v-else class="overflow-x-auto print:overflow-visible pb-4">
-          <table class="w-full text-left border-collapse min-w-[900px] print:min-w-0">
-            <thead>
-              <tr class="text-[var(--text-muted)] text-[0.75rem] font-black uppercase tracking-[0.1em] border-b border-[var(--border-color)]">
+          <table class="w-full text-left min-w-[900px] print-clean-table">
+            <thead class="bg-[var(--bg-primary)] border-b border-[var(--border-color)] print:bg-slate-100">
+              <tr class="text-[var(--text-muted)] text-[0.75rem] font-black uppercase tracking-[0.1em] border-b border-[var(--border-color)] print:text-black print:text-[13px] print:font-bold" style="font-family: 'Outfit', 'Kantumruy Pro', sans-serif; font-weight: 700;">
                 <th class="px-8 py-5 whitespace-nowrap" style="font-family: 'Khmer OS Muol Light', 'Moul', serif; letter-spacing: normal;">អត្តសញ្ញាណសិស្ស</th>
                 <th class="px-6 py-5 whitespace-nowrap" style="font-family: 'Khmer OS Muol Light', 'Moul', serif; letter-spacing: normal;">ព័ត៌មានការសិក្សា</th>
                 <th class="px-6 py-5 whitespace-nowrap w-1/3" style="font-family: 'Khmer OS Muol Light', 'Moul', serif; letter-spacing: normal;">សៀវភៅដែលបានអាន</th>
                 <th class="px-6 py-5 whitespace-nowrap" style="font-family: 'Khmer OS Muol Light', 'Moul', serif; letter-spacing: normal;">កាលបរិច្ឆេទ</th>
-                <th class="px-8 py-5 whitespace-nowrap text-right" style="font-family: 'Khmer OS Muol Light', 'Moul', serif; letter-spacing: normal;">រយៈពេល</th>
+                <th class="px-8 py-5 whitespace-nowrap text-right cursor-pointer hover:bg-gray-500/5 transition-colors select-none group" @click="toggleSortDuration">
+                  <div class="flex items-center justify-end gap-2" style="font-family: 'Khmer OS Muol Light', 'Moul', serif; letter-spacing: normal;">
+                    <span class="flex flex-col opacity-40 group-hover:opacity-100 transition-opacity print:hidden">
+                      <ChevronUp v-if="sortDurationDir === 'asc'" :size="14" class="text-indigo-500 font-bold" />
+                      <ChevronDown v-else-if="sortDurationDir === 'desc'" :size="14" class="text-indigo-500 font-bold" />
+                      <ArrowDownUp v-else :size="14" class="text-[var(--text-muted)]" />
+                    </span>
+                    <span>រយៈពេល</span>
+                  </div>
+                </th>
               </tr>
             </thead>
             <tbody class="divide-y divide-[var(--border-color)]/50">
               <tr v-for="item in (isPrinting ? filteredReads : paginatedReads)" :key="item.id" class="group hover:bg-[var(--bg-primary)]/50 transition-colors duration-300 print:break-inside-avoid">
-                <td class="px-8 py-4">
+                <td class="px-8 py-4 print:py-2">
                   <div class="flex items-center gap-4">
-                    <div class="w-11 h-11 rounded-full bg-[var(--bg-primary)] border border-[var(--border-color)] overflow-hidden flex items-center justify-center font-bold text-[1.1rem] shadow-sm shrink-0">
+                    <div class="w-11 h-11 rounded-full bg-[var(--bg-primary)] border border-[var(--border-color)] overflow-hidden flex items-center justify-center font-bold text-[1.1rem] shadow-sm shrink-0 print:hidden">
                       <img v-if="item.user_photo" :src="item.user_photo" class="w-full h-full object-cover" />
                       <div v-else class="w-full h-full [background-image:var(--accent-gradient)] text-white flex items-center justify-center">
                         {{ item.user_name?.charAt(0).toUpperCase() }}
                       </div>
                     </div>
                     <div class="flex flex-col">
-                      <span class="font-black text-[1rem] text-[var(--text-primary)] group-hover:text-indigo-500 transition-colors">{{ item.user_name }}</span>
+                      <span class="font-black text-[1rem] text-[var(--text-primary)] group-hover:text-indigo-500 transition-colors print:text-[13px] print:font-bold print:text-black">{{ item.user_name }}</span>
                     </div>
                   </div>
                 </td>
@@ -251,6 +262,32 @@
           </table>
         </div>
 
+        <!-- Print Summary Box (Bottom) -->
+        <div class="hidden print:flex w-full justify-end mt-6 mb-4 px-4">
+          <div class="flex flex-col min-w-[500px] border border-slate-300 rounded-lg overflow-hidden" style="font-family: 'Outfit', 'Kantumruy Pro', sans-serif; page-break-inside: avoid;">
+            <div class="flex justify-between items-center w-full px-5 py-3 border-b border-slate-200 bg-white">
+              <div class="flex flex-col">
+                <span class="text-slate-600 font-bold text-[12px]">រយៈពេលដែលអានយូរជាងគេ (Longest Reading Time)</span>
+                <span v-if="printLongestReader" class="text-slate-500 text-[11px] mt-0.5">{{ printLongestReader.user_name }} ({{ printLongestReader.user_gender === 'M' ? 'ប្រុស' : printLongestReader.user_gender === 'F' ? 'ស្រី' : 'N/A' }}) - {{ printLongestReader.user_class }}</span>
+                <span v-if="printLongestReader" class="text-slate-500 text-[10px]">{{ printLongestReader.book_title }}</span>
+              </div>
+              <span class="text-[14px] font-extrabold text-slate-800">{{ printLongestReader ? formatDuration(printLongestReader.duration_seconds) : '-' }}</span>
+            </div>
+            <div class="flex justify-between items-center w-full px-5 py-3 border-b border-slate-200 bg-white">
+              <div class="flex flex-col">
+                <span class="text-slate-600 font-bold text-[12px]">រយៈពេលដែលអានខ្លីជាងគេ (Shortest Reading Time)</span>
+                <span v-if="printShortestReader" class="text-slate-500 text-[11px] mt-0.5">{{ printShortestReader.user_name }} ({{ printShortestReader.user_gender === 'M' ? 'ប្រុស' : printShortestReader.user_gender === 'F' ? 'ស្រី' : 'N/A' }}) - {{ printShortestReader.user_class }}</span>
+                <span v-if="printShortestReader" class="text-slate-500 text-[10px]">{{ printShortestReader.book_title }}</span>
+              </div>
+              <span class="text-[14px] font-extrabold text-slate-800">{{ printShortestReader ? formatDuration(printShortestReader.duration_seconds) : '-' }}</span>
+            </div>
+            <div class="flex justify-between items-center w-full px-5 py-3.5 bg-slate-800 text-white" style="-webkit-print-color-adjust: exact; print-color-adjust: exact;">
+              <span class="font-extrabold uppercase tracking-wide text-[13px]">ចំនួនសិស្សអានសរុប (Total Sessions)</span>
+              <span class="text-[16px] font-black">{{ printTotalSessions }}</span>
+            </div>
+          </div>
+        </div>
+
         <div class="flex flex-col sm:flex-row justify-between items-center gap-4 p-6 border-t border-[var(--border-color)] print:hidden">
           <div class="flex items-center gap-6">
             <div class="text-[0.85rem] text-[var(--text-muted)] font-bold tracking-wide uppercase">
@@ -282,8 +319,53 @@
   @page { size: landscape; margin: 12mm; }
   body { background: white !important; color: black !important; }
   .bg-\[var\(--bg-card\)\] { background: transparent !important; box-shadow: none !important; border: none !important; }
-  table { width: 100% !important; border-collapse: collapse !important; }
-  th, td { border-bottom: 1px solid #ddd !important; padding: 12px 8px !important; }
+  
+  /* Reset some default table print styles */
+  table { 
+    width: 100% !important; 
+    border-collapse: collapse !important;
+    border-spacing: 0 !important;
+  }
+  
+  .print-clean-table {
+    min-width: 0 !important;
+    width: 100% !important;
+    border-collapse: collapse !important;
+    margin-top: 15px;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 6px !important;
+    overflow: hidden;
+  }
+  
+  .print-clean-table th,
+  .print-clean-table td {
+    border: 1px solid #cbd5e1 !important;
+    padding: 10px 14px !important;
+    color: #0f172a !important;
+    vertical-align: middle !important;
+    font-family: 'Kantumruy Pro', 'Siemreap', sans-serif !important;
+  }
+  
+  .print-clean-table th {
+    background-color: #0f172a !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    font-size: 12px !important;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  
+  .print-clean-table tr {
+    page-break-inside: avoid !important;
+  }
+  
+  .print-clean-table tr:nth-child(even) {
+    background-color: #f8fafc !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
 }
 </style>
 
@@ -291,7 +373,7 @@
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
 import { useAuthStore } from '../../stores/auth';
 import { useToastStore } from '../../stores/toast';
-import { BookOpen, ChevronLeft, ChevronRight, Printer, Activity, Users, Clock, History, Search, Timer, Loader2, MonitorOff, ChevronDown, CalendarDays } from 'lucide-vue-next';
+import { BookOpen, ChevronLeft, ChevronRight, Printer, Activity, Users, Clock, History, Search, Timer, Loader2, MonitorOff, ChevronDown, CalendarDays, ChevronUp, ArrowDownUp } from 'lucide-vue-next';
 
 const authStore = useAuthStore();
 const toastStore = useToastStore();
@@ -304,8 +386,19 @@ const searchQuery = ref('');
 const filterTimeframe = ref('All'); // 'All' | 'Today'
 const selectedYear = ref('all');
 const selectedMonth = ref('all');
+const sortDurationDir = ref(null); // null, 'desc', 'asc'
 let liveTimer = null;
 let clockTimer = null;
+
+const toggleSortDuration = () => {
+  if (sortDurationDir.value === null) {
+    sortDurationDir.value = 'desc'; // Highest duration first
+  } else if (sortDurationDir.value === 'desc') {
+    sortDurationDir.value = 'asc';
+  } else {
+    sortDurationDir.value = null; // Reset to default (date)
+  }
+};
 
 const isPrinting = ref(false);
 
@@ -418,28 +511,44 @@ const availableMonthsForYear = computed(() => {
   return Array.from(months).map(m => JSON.parse(m)).sort((a, b) => a.value.localeCompare(b.value));
 });
 
-const printHeaderSubtitle = computed(() => {
-  let subtitle = '';
+const printDateText = computed(() => {
+  const monthMapKhmer = {
+    '01': 'មករា', '02': 'កុម្ភៈ', '03': 'មីនា', '04': 'មេសា',
+    '05': 'ឧសភា', '06': 'មិថុនា', '07': 'កក្កដា', '08': 'សីហា',
+    '09': 'កញ្ញា', '10': 'តុលា', '11': 'វិច្ឆិកា', '12': 'ធ្នូ'
+  };
+
+  const today = new Date();
   
   if (filterTimeframe.value === 'Today') {
-    subtitle = 'ថ្ងៃនេះ (Today)';
+    const d = today.getDate().toString().padStart(2, '0');
+    const m = (today.getMonth() + 1).toString().padStart(2, '0');
+    const y = today.getFullYear();
+    return `ថ្ងៃទី${d} ខែ${monthMapKhmer[m]} ឆ្នាំ${y}`;
   } else if (selectedYear.value !== 'all') {
     if (selectedMonth.value !== 'all') {
-      const monthObj = availableMonthsForYear.value.find(m => m.value === selectedMonth.value);
-      subtitle = `${monthObj ? monthObj.label : ''} ${selectedYear.value}`;
-    } else {
-      subtitle = `ឆ្នាំ ${selectedYear.value}`;
+      const mStr = String(parseInt(selectedMonth.value, 10) + 1).padStart(2, '0');
+      return `ខែ${monthMapKhmer[mStr]} ឆ្នាំ${selectedYear.value}`;
     }
-  } else {
-    subtitle = 'ទាំងអស់ (All Time)';
+    return `ប្រចាំឆ្នាំ ${selectedYear.value}`;
   }
-
-  if (searchQuery.value) {
-    subtitle += ` | ស្វែងរក: "${searchQuery.value}"`;
-  }
-
-  return subtitle;
+  return 'ទិន្នន័យទាំងអស់កន្លងមក';
 });
+
+
+
+const printTotalSessions = computed(() => filteredReads.value.length);
+
+const printLongestReader = computed(() => {
+  if (filteredReads.value.length === 0) return null;
+  return filteredReads.value.reduce((prev, current) => ((prev.duration_seconds || 0) > (current.duration_seconds || 0)) ? prev : current);
+});
+
+const printShortestReader = computed(() => {
+  if (filteredReads.value.length === 0) return null;
+  return filteredReads.value.reduce((prev, current) => ((prev.duration_seconds || 0) < (current.duration_seconds || 0)) ? prev : current);
+});
+
 
 const filteredReads = computed(() => {
   let result = historicalReads.value;
@@ -468,6 +577,15 @@ const filteredReads = computed(() => {
       (item.book_title && item.book_title.toLowerCase().includes(q)) ||
       (item.user_major && item.user_major.toLowerCase().includes(q))
     );
+  }
+  
+  if (sortDurationDir.value === 'desc') {
+    result.sort((a, b) => (b.duration_seconds || 0) - (a.duration_seconds || 0));
+  } else if (sortDurationDir.value === 'asc') {
+    result.sort((a, b) => (a.duration_seconds || 0) - (b.duration_seconds || 0));
+  } else {
+    // Default sort by date
+    result.sort((a, b) => new Date(b.end_time || b.start_time) - new Date(a.end_time || a.start_time));
   }
   
   return result;

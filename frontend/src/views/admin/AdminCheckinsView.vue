@@ -8,27 +8,31 @@
         <p class="text-[0.95rem] text-[var(--text-secondary)] max-w-2xl leading-relaxed">View and monitor library check-ins from students and members.</p>
       </header>
 
-      <!-- Print Header (Hidden on screen, shown on print) -->
-      <div class="hidden print:flex flex-row items-start w-full mb-10 pb-4 relative">
-        <!-- Left Side: DUC -->
-        <div class="flex flex-col items-center min-w-[280px]">
-          <img src="/duc-logo.png" alt="DUC Logo" class="h-[95px] w-auto mb-3" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));" />
-          <span class="text-[1.1rem] text-black" style="font-family: 'Khmer OS Muol Light', 'Moul', serif;">សាកលវិទ្យាល័យឌីជីថលកម្ពុជា</span>
-          <span class="text-[1.05rem] text-black mt-1.5" style="font-family: 'Khmer OS Muol Light', 'Moul', serif;">បណ្ណាល័យសិក្សា</span>
-        </div>
-        
-        <!-- Center: Nation -->
-        <div class="absolute left-1/2 -translate-x-1/2 flex flex-col items-center pt-1">
-          <span class="text-[1.4rem] text-black tracking-wide" style="font-family: 'Khmer OS Muol Light', 'Moul', serif;">ព្រះរាជាណាចក្រកម្ពុជា</span>
-          <span class="text-[1.2rem] text-black tracking-widest mt-2" style="font-family: 'Khmer OS Muol Light', 'Moul', serif; z-index: 2;">ជាតិ សាសនា ព្រះមហាក្សត្រ</span>
-          <img src="/khmer-ornament.png" alt="Tact" class="h-[60px] opacity-90" style="margin-top: -15px; transform: rotate(-1deg); z-index: 1;" />
-        </div>
-      </div>
+      <!-- Print Header (Hidden on screen, visible on print) -->
+      <div class="hidden print:flex w-full mb-8 flex-col text-black">
+        <div class="flex justify-between items-start w-full">
+          <!-- Left: Logo & Uni Name -->
+          <div class="flex flex-col items-center w-[250px] text-center">
+            <img src="/duc-logo.png" alt="DUC Logo" class="w-[80px] h-[80px] object-contain mb-2" />
+            <span class="text-[14px]" style="font-family: 'Khmer OS Muol Light', 'Moul', serif;">សាកលវិទ្យាល័យឌីជីថលកម្ពុជា</span>
+            <span class="text-[14px]" style="font-family: 'Khmer OS Muol Light', 'Moul', serif;">បណ្ណាល័យសិក្សា</span>
+          </div>
 
-      <!-- Report Title (Print Only) -->
-      <div class="hidden print:flex flex-col items-center justify-center w-full mb-6 mt-4">
-        <h2 class="text-[1.3rem] text-black tracking-wide" style="font-family: 'Khmer OS Muol Light', 'Moul', serif;">របាយការណ៍សិស្សចូលក្នុងបណ្ណាល័យ</h2>
-        <p class="text-[1rem] text-black mt-2 font-bold">ការបរិច្ឆេទ៖ {{ reportDateText }}</p>
+          <!-- Center: Kingdom & Nation Religion King -->
+          <div class="flex flex-col items-center flex-1 mt-2">
+            <span class="text-[20px]" style="font-family: 'Khmer OS Muol Light', 'Moul', serif;">ព្រះរាជាណាចក្រកម្ពុជា</span>
+            <span class="text-[18px] mt-1" style="z-index: 2; font-family: 'Khmer OS Muol Light', 'Moul', serif;">ជាតិ សាសនា ព្រះមហាក្សត្រ</span>
+            <img src="/khmer-ornament.png" alt="line" style="transform: rotate(-1deg); z-index: 1; margin-top: -20px;" class="h-[60px] mt-4 opacity-80" />
+            
+            <div class="mt-12 flex flex-col items-center">
+              <span class="text-[22px]" style="font-family: 'Khmer OS Muol Light', 'Moul', serif;">របាយការណ៍សិស្សចូលក្នុងបណ្ណាល័យ</span>
+              <span class="text-[15px] mt-3 font-bold" style="font-family: 'Khmer OS Battambang', sans-serif;">កាលបរិច្ឆេទ ៖ {{ reportDateText }}</span>
+            </div>
+          </div>
+          
+          <!-- Right: Spacer for balance -->
+          <div class="w-[250px]"></div>
+        </div>
       </div>
 
       <div class="bg-[var(--bg-card)] border-[var(--border-color)] shadow-[0_2px_10px_rgba(0,0,0,0.02)] border rounded-2xl overflow-hidden flex flex-col transition-all duration-300 mt-10 print:mt-0 print:border-none print:shadow-none print:rounded-none print:block print:overflow-visible">
@@ -110,7 +114,7 @@
           <table class="w-full text-left border-collapse min-w-[900px] print:min-w-0 opacity-70">
             <thead>
               <tr>
-                <th v-for="i in 4" :key="'th-'+i" class="px-6 py-4 bg-gray-500/5 border-b border-[var(--border-color)]">
+                <th v-for="i in 8" :key="'th-'+i" class="px-6 py-4 bg-gray-500/5 border-b border-[var(--border-color)]">
                   <div class="h-4 bg-[var(--border-color)] rounded w-24"></div>
                 </th>
               </tr>
@@ -127,13 +131,25 @@
                   </div>
                 </td>
                 <td class="px-6 py-4 border-b border-[var(--border-color)]">
+                  <div class="h-4 bg-[var(--border-color)] rounded w-16"></div>
+                </td>
+                <td class="px-6 py-4 border-b border-[var(--border-color)]">
                   <div class="h-4 bg-[var(--border-color)] rounded w-28"></div>
                 </td>
                 <td class="px-6 py-4 border-b border-[var(--border-color)]">
                   <div class="h-4 bg-[var(--border-color)] rounded w-32"></div>
                 </td>
+                <td class="px-6 py-4 border-b border-[var(--border-color)]">
+                  <div class="h-4 bg-[var(--border-color)] rounded w-24"></div>
+                </td>
                 <td class="px-6 py-4 border-b border-[var(--border-color)] text-center">
-                  <div class="h-6 bg-[var(--border-color)] rounded-full w-20 mx-auto"></div>
+                  <div class="h-6 bg-[var(--border-color)] rounded-full w-12 mx-auto"></div>
+                </td>
+                <td class="px-6 py-4 border-b border-[var(--border-color)]">
+                  <div class="h-4 bg-[var(--border-color)] rounded w-24"></div>
+                </td>
+                <td class="px-6 py-4 border-b border-[var(--border-color)] text-center">
+                  <div class="h-6 bg-[var(--border-color)] rounded-lg w-20 mx-auto"></div>
                 </td>
               </tr>
             </tbody>
@@ -141,20 +157,30 @@
         </div>
 
         <div v-else class="overflow-x-auto print:overflow-visible">
-          <table class="w-full text-left border-collapse min-w-[900px] print:min-w-0">
+          <table class="w-full text-left border-collapse min-w-[900px] print:min-w-0 print-clean-table">
             <thead>
-              <tr class="bg-gray-500/5 text-[var(--text-muted)] text-[0.75rem] font-extrabold uppercase tracking-wider">
-                <th class="px-6 py-4 border-b border-[var(--border-color)] whitespace-nowrap">Member / Student</th>
-                <th class="px-6 py-4 border-b border-[var(--border-color)] whitespace-nowrap">Major</th>
-                <th class="px-6 py-4 border-b border-[var(--border-color)] whitespace-nowrap">Class</th>
-                <th class="px-6 py-4 border-b border-[var(--border-color)] whitespace-nowrap print:hidden">Date & Time</th>
-                <th class="px-6 py-4 border-b border-[var(--border-color)] text-center whitespace-nowrap">Total Check-Ins</th>
-                <th class="px-6 py-4 border-b border-[var(--border-color)] whitespace-nowrap print:hidden">Location (Lat, Lng)</th>
-                <th class="px-6 py-4 border-b border-[var(--border-color)] text-center whitespace-nowrap print:hidden">Status</th>
+              <tr class="bg-gray-500/5 text-[var(--text-muted)] text-[0.75rem] font-bold tracking-wider" style="font-family: 'Khmer OS Battambang', sans-serif;">
+                <th class="px-6 py-4 border-b border-[var(--border-color)] whitespace-nowrap">ឈ្មោះសិស្ស / សមាជិក</th>
+                <th class="px-6 py-4 border-b border-[var(--border-color)] text-center whitespace-nowrap">ភេទ</th>
+                <th class="px-6 py-4 border-b border-[var(--border-color)] whitespace-nowrap">ជំនាញ</th>
+                <th class="px-6 py-4 border-b border-[var(--border-color)] whitespace-nowrap">ថ្នាក់</th>
+                <th class="px-6 py-4 border-b border-[var(--border-color)] whitespace-nowrap print:hidden">កាលបរិច្ឆេទ និង ម៉ោង</th>
+                <th @click="toggleSort" class="px-6 py-4 border-b border-[var(--border-color)] text-center whitespace-nowrap cursor-pointer hover:bg-gray-500/10 transition-colors select-none group">
+                  <div class="flex items-center justify-center gap-2">
+                    <span>ចំនួនចូលសរុប</span>
+                    <span class="flex flex-col opacity-40 group-hover:opacity-100 transition-opacity print:hidden">
+                      <ChevronUp v-if="sortCheckinsBy === 'total_asc'" :size="14" class="text-indigo-500 font-bold" />
+                      <ChevronDown v-else-if="sortCheckinsBy === 'total_desc'" :size="14" class="text-indigo-500 font-bold" />
+                      <ArrowDownUp v-else :size="14" class="text-[var(--text-muted)]" />
+                    </span>
+                  </div>
+                </th>
+                <th class="px-6 py-4 border-b border-[var(--border-color)] whitespace-nowrap print:hidden">ទីតាំង</th>
+                <th class="px-6 py-4 border-b border-[var(--border-color)] text-center whitespace-nowrap print:hidden">ស្ថានភាព</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-[var(--border-color)]">
-              <tr v-for="item in (isPrinting ? filteredCheckins : paginatedCheckins)" :key="item.id || item.checkin_time" class="group hover:bg-gray-500/5 transition-colors duration-200 print:break-inside-avoid">
+              <tr v-for="item in (isPrinting ? filteredCheckins : paginatedCheckins)" :key="item.unique_key" class="group hover:bg-gray-500/5 transition-colors duration-200 print:break-inside-avoid">
                 <td class="px-6 py-4">
                   <div class="flex items-center gap-3.5">
                     <div class="w-10 h-10 rounded-full bg-[var(--border-color)] overflow-hidden flex items-center justify-center font-bold text-[1.1rem] shadow-sm shrink-0">
@@ -170,6 +196,11 @@
                       </div>
                     </div>
                   </div>
+                </td>
+                <td class="px-6 py-4 text-center whitespace-nowrap" style="font-family: 'Khmer OS Battambang', sans-serif;">
+                  <span v-if="item.user_gender === 'M' || item.user_gender === 'Male' || item.user_gender === 'ប្រុស'" class="text-[0.8rem] font-bold text-blue-600 bg-blue-50 dark:bg-blue-900/30 dark:text-blue-400 px-2.5 py-1 rounded">ប្រុស</span>
+                  <span v-else-if="item.user_gender === 'F' || item.user_gender === 'Female' || item.user_gender === 'ស្រី'" class="text-[0.8rem] font-bold text-pink-600 bg-pink-50 dark:bg-pink-900/30 dark:text-pink-400 px-2.5 py-1 rounded">ស្រី</span>
+                  <span v-else class="text-[0.75rem] text-[var(--text-muted)] italic">N/A</span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                   <span v-if="item.user_major" class="text-[0.7rem] font-bold tracking-wider text-indigo-500 bg-indigo-500/10 px-2 py-1 rounded uppercase">{{ item.user_major }}</span>
@@ -205,7 +236,7 @@
               
               <!-- Empty State -->
               <tr v-if="paginatedCheckins.length === 0 && !loading">
-                <td colspan="4" class="px-6 py-16 text-center">
+                <td colspan="8" class="px-6 py-16 text-center">
                   <div class="flex flex-col items-center justify-center opacity-80">
                     <div class="w-20 h-20 rounded-full bg-gray-500/10 flex items-center justify-center mb-4 border border-[var(--border-color)] text-[var(--text-muted)]">
                       <MapPin :size="32" />
@@ -220,6 +251,20 @@
               </tr>
             </tbody>
           </table>
+        </div>
+
+        <!-- Print Summary Box -->
+        <div class="hidden print:flex w-full justify-end mt-10 mb-4">
+          <div class="flex flex-col min-w-[380px] border border-slate-300 rounded-lg overflow-hidden" style="font-family: 'Outfit', 'Kantumruy Pro', sans-serif; page-break-inside: avoid;">
+            <div class="flex justify-between items-center w-full px-5 py-3 border-b border-slate-200 bg-white">
+              <span class="text-slate-600 font-bold text-[12px]">សរុបសិស្សដែលបានចូល (Total Users)</span>
+              <span class="text-[14px] font-extrabold text-slate-800">{{ filteredCheckins.length }}</span>
+            </div>
+            <div class="flex justify-between items-center w-full px-5 py-3.5 bg-slate-800 text-white" style="-webkit-print-color-adjust: exact; print-color-adjust: exact;">
+              <span class="font-extrabold uppercase tracking-wide text-[13px]">សរុបការចូលទាំងអស់ (Total Check-Ins)</span>
+              <span class="text-[16px] font-black">{{ printTotalCheckins }}</span>
+            </div>
+          </div>
         </div>
 
         <!-- Pagination Nav Bar -->
@@ -263,10 +308,68 @@
 
 <style scoped>
 @media print {
-  body { background: white !important; color: black !important; }
+  @page {
+    size: A4 portrait;
+    margin: 15mm 15mm;
+    @bottom-right {
+      content: "ទំព័រ " counter(page) " / " counter(pages);
+      font-family: 'Khmer OS Battambang', sans-serif;
+      font-size: 11px;
+      color: #64748b;
+    }
+  }
+
+  body { 
+    background: white !important; 
+    color: black !important;
+    font-family: 'Kantumruy Pro', 'Outfit', sans-serif !important; 
+  }
+  
   .bg-\[var\(--bg-card\)\] { background: transparent !important; box-shadow: none !important; border: none !important; }
-  table { width: 100% !important; border-collapse: collapse !important; }
-  th, td { border-bottom: 1px solid #ddd !important; padding: 12px 8px !important; }
+  
+  table {
+    border-spacing: 0 !important;
+  }
+  
+  .print-clean-table {
+    min-width: 0 !important;
+    width: 100% !important;
+    border-collapse: collapse !important;
+    margin-top: 15px;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 6px !important;
+    overflow: hidden;
+  }
+  
+  .print-clean-table th,
+  .print-clean-table td {
+    border: 1px solid #cbd5e1 !important;
+    padding: 10px 14px !important;
+    color: #0f172a !important;
+    vertical-align: middle !important;
+    font-family: 'Kantumruy Pro', sans-serif !important;
+  }
+  
+  .print-clean-table th {
+    background-color: #0f172a !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    font-size: 12px !important;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  
+  .print-clean-table tr {
+    page-break-inside: avoid !important;
+  }
+  
+  .print-clean-table tr:nth-child(even) {
+    background-color: #f8fafc !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
 }
 </style>
 
@@ -274,7 +377,7 @@
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue';
 import { useAuthStore } from '../../stores/auth';
 import { useToastStore } from '../../stores/toast';
-import { MapPin, ChevronLeft, ChevronRight, CalendarDays, ChevronDown, Printer } from 'lucide-vue-next';
+import { MapPin, ChevronLeft, ChevronRight, CalendarDays, ChevronDown, ChevronUp, Printer, ArrowDownUp } from 'lucide-vue-next';
 
 const authStore = useAuthStore();
 const toastStore = useToastStore();
@@ -288,6 +391,13 @@ const selectedMonth = ref('');
 
 const yearDropdownOpen = ref(false);
 const monthDropdownOpen = ref(false);
+const sortCheckinsBy = ref('time_desc');
+
+function toggleSort() {
+  if (sortCheckinsBy.value === 'time_desc') sortCheckinsBy.value = 'total_desc';
+  else if (sortCheckinsBy.value === 'total_desc') sortCheckinsBy.value = 'total_asc';
+  else sortCheckinsBy.value = 'time_desc';
+}
 
 const selectYear = (year) => {
   selectedYear.value = year;
@@ -321,7 +431,8 @@ const reportDateText = computed(() => {
   if (activeFilter.value === 'all') {
     return 'ទាំងអស់';
   } else if (activeFilter.value === 'today') {
-    return 'ថ្ងៃនេះ';
+    const d = new Date();
+    return `ថ្ងៃទី ${toKhmerNumeral(d.getDate())} ខែ${khmerMonths[d.getMonth()]} ឆ្នាំ${toKhmerNumeral(d.getFullYear())}`;
   } else if (activeFilter.value === 'custom') {
     if (selectedYear.value && selectedMonth.value !== '') {
       return `ខែ${khmerMonths[selectedMonth.value]} ឆ្នាំ${toKhmerNumeral(selectedYear.value)}`;
@@ -442,22 +553,43 @@ const filteredCheckins = computed(() => {
     });
   }
   
-  // Remove duplicates to show only the most recent check-in per student, and count totals
-  const uniqueUsers = new Map();
+  // Group by unique user reliably
+  const grouped = {};
   for (const c of list) {
-    const key = c.user_email || c.user_name || c.id;
-    const existing = uniqueUsers.get(key);
-    if (!existing) {
-      uniqueUsers.set(key, { ...c, total_checkins: 1 });
+    const key = (c.user_email && c.user_email !== 'N/A') ? c.user_email 
+              : (c.user_name && c.user_name !== 'Unknown') ? c.user_name 
+              : c._id ? c._id 
+              : c.id ? c.id 
+              : 'Unknown_User_Group';
+              
+    if (!grouped[key]) {
+      grouped[key] = { ...c, total_checkins: 1, unique_key: key };
     } else {
-      const updated = new Date(c.checkin_time) > new Date(existing.checkin_time)
-        ? { ...c, total_checkins: existing.total_checkins + 1 }
-        : { ...existing, total_checkins: existing.total_checkins + 1 };
-      uniqueUsers.set(key, updated);
+      if (new Date(c.checkin_time).getTime() > new Date(grouped[key].checkin_time).getTime()) {
+        const currentTotal = grouped[key].total_checkins;
+        grouped[key] = { ...c, total_checkins: currentTotal + 1, unique_key: key };
+      } else {
+        grouped[key].total_checkins += 1;
+      }
     }
   }
   
-  return Array.from(uniqueUsers.values()).sort((a, b) => new Date(b.checkin_time) - new Date(a.checkin_time));
+  // Create a fresh array for sorting to absolutely guarantee Vue reactivity
+  const results = [...Object.values(grouped)];
+  
+  if (sortCheckinsBy.value === 'total_desc') {
+    results.sort((a, b) => (b.total_checkins || 0) - (a.total_checkins || 0) || new Date(b.checkin_time).getTime() - new Date(a.checkin_time).getTime());
+  } else if (sortCheckinsBy.value === 'total_asc') {
+    results.sort((a, b) => (a.total_checkins || 0) - (b.total_checkins || 0) || new Date(b.checkin_time).getTime() - new Date(a.checkin_time).getTime());
+  } else {
+    results.sort((a, b) => new Date(b.checkin_time).getTime() - new Date(a.checkin_time).getTime());
+  }
+  
+  return results;
+});
+
+const printTotalCheckins = computed(() => {
+  return filteredCheckins.value.reduce((total, c) => total + (c.total_checkins || 1), 0);
 });
 
 const totalPages = computed(() => Math.ceil(filteredCheckins.value.length / itemsPerPage.value) || 1);

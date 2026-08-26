@@ -142,48 +142,43 @@
       <div class="flex justify-between items-start mb-5 flex-wrap gap-3">
         <div>
           <h3 class="flex items-center gap-2 text-[1.1rem] font-bold">
-            <span class="w-[10px] h-[10px] rounded-full bg-emerald-500 inline-block animate-[pulse-ring_1.8s_infinite]"></span> Live & Periodic Library Analytics
+            <Activity :size="18" class="text-indigo-500" /> Library Analytics
           </h3>
-          <p class="text-[0.8rem] text-[var(--text-muted)]">Real-time student readers online & official activity reports for {{ currentPeriodName }}</p>
+          <p class="text-[0.8rem] text-[var(--text-muted)]">Official activity reports for {{ currentPeriodName }}</p>
         </div>
 
         <div class="flex items-center gap-[0.4rem] flex-wrap">
-          <div class="bg-emerald-500/15 text-emerald-500 border border-emerald-500/30 px-[0.85rem] py-[0.35rem] rounded-full text-[0.85rem] font-bold mr-2">
-            🟢 <strong>{{ stats?.active_readers_count || 0 }}</strong> Online Now
+          <!-- All / Today / Custom Toggle -->
+          <div class="flex items-center bg-slate-50 dark:bg-slate-800/50 rounded-xl p-1 border border-slate-200/50 dark:border-slate-700/50 shadow-sm mr-2">
+            <button @click="dateMode = 'all'" :class="dateMode === 'all' ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-md shadow-indigo-500/20' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'" class="px-4 py-1.5 rounded-lg text-[0.8rem] font-bold transition-all duration-300 ease-out min-w-[60px]">All Time</button>
+            <button @click="dateMode = 'today'" :class="dateMode === 'today' ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-md shadow-indigo-500/20' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'" class="px-4 py-1.5 rounded-lg text-[0.8rem] font-bold transition-all duration-300 ease-out min-w-[60px]">Today</button>
+            <button @click="dateMode = 'custom'" :class="dateMode === 'custom' ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-md shadow-indigo-500/20' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'" class="px-4 py-1.5 rounded-lg text-[0.8rem] font-bold transition-all duration-300 ease-out min-w-[60px]">Custom</button>
           </div>
 
-          <button 
-            @click="fetchReport('1day')" 
-            class="px-[0.75rem] py-[0.35rem] rounded-full bg-[rgba(125,125,125,0.1)] border border-[var(--border-color)] text-[var(--text-secondary)] text-[0.8rem] font-semibold cursor-pointer transition-all duration-200 hover:bg-indigo-500/15 hover:text-indigo-600 dark:hover:text-indigo-400" 
-            :class="{ '!bg-gradient-to-r !from-indigo-500 !to-indigo-600 !text-white !border-transparent shadow-sm': currentPeriod === '1day' }"
-          >
-            Today (1 Day)
-          </button>
-          <button 
-            @click="fetchReport('1week')" 
-            class="px-[0.75rem] py-[0.35rem] rounded-full bg-[rgba(125,125,125,0.1)] border border-[var(--border-color)] text-[var(--text-secondary)] text-[0.8rem] font-semibold cursor-pointer transition-all duration-200 hover:bg-indigo-500/15 hover:text-indigo-600 dark:hover:text-indigo-400" 
-            :class="{ '!bg-gradient-to-r !from-indigo-500 !to-indigo-600 !text-white !border-transparent shadow-sm': currentPeriod === '1week' }"
-          >
-            This Week (7 Days)
-          </button>
-          <button 
-            @click="fetchReport('1month')" 
-            class="px-[0.75rem] py-[0.35rem] rounded-full bg-[rgba(125,125,125,0.1)] border border-[var(--border-color)] text-[var(--text-secondary)] text-[0.8rem] font-semibold cursor-pointer transition-all duration-200 hover:bg-indigo-500/15 hover:text-indigo-600 dark:hover:text-indigo-400" 
-            :class="{ '!bg-gradient-to-r !from-indigo-500 !to-indigo-600 !text-white !border-transparent shadow-sm': currentPeriod === '1month' }"
-          >
-            This Month (30 Days)
-          </button>
-          <button 
-            @click="fetchReport('all')" 
-            class="px-[0.75rem] py-[0.35rem] rounded-full bg-[rgba(125,125,125,0.1)] border border-[var(--border-color)] text-[var(--text-secondary)] text-[0.8rem] font-semibold cursor-pointer transition-all duration-200 hover:bg-indigo-500/15 hover:text-indigo-600 dark:hover:text-indigo-400" 
-            :class="{ '!bg-gradient-to-r !from-indigo-500 !to-indigo-600 !text-white !border-transparent shadow-sm': currentPeriod === 'all' }"
-          >
-            All Time
-          </button>
+          <!-- Year Dropdown -->
+          <div class="relative bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-[var(--border-color)]/50 shadow-sm transition-all duration-300 flex items-center h-[34px]" :class="dateMode !== 'custom' ? 'opacity-40 pointer-events-none' : 'hover:border-indigo-300 dark:hover:border-indigo-500/50'">
+            <div class="pl-3 pr-1 text-indigo-500 flex items-center justify-center">
+              <Calendar :size="14" stroke-width="2.5" />
+            </div>
+            <select v-model="selectedYear" class="appearance-none bg-transparent py-1 pr-7 pl-1 text-[0.8rem] font-bold text-[var(--text-primary)] cursor-pointer outline-none h-full" :disabled="dateMode !== 'custom'">
+              <option value="all">Select Year</option>
+              <option v-for="year in availableYears" :key="year" :value="year">{{ year }}</option>
+            </select>
+            <div class="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-[var(--text-muted)]">
+              <ChevronDown :size="14" />
+            </div>
+          </div>
 
-          <button @click="printOfficialReport" class="inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out active:scale-95 bg-indigo-600 text-white shadow-sm hover:bg-indigo-700 hover:-translate-y-px hover:shadow-md px-4 py-2 text-sm ml-2 font-bold">
-            🖨️ Export / Print Report
-          </button>
+          <!-- Month Dropdown -->
+          <div class="relative bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-[var(--border-color)]/50 shadow-sm transition-all duration-300 flex items-center h-[34px]" :class="(dateMode !== 'custom' || selectedYear === 'all') ? 'opacity-40 pointer-events-none' : 'hover:border-indigo-300 dark:hover:border-indigo-500/50'">
+            <select v-model="selectedMonth" class="appearance-none bg-transparent py-1 pl-3 pr-7 text-[0.8rem] font-bold text-[var(--text-primary)] cursor-pointer outline-none h-full min-w-[100px]" :disabled="dateMode !== 'custom' || selectedYear === 'all'">
+              <option value="all">All Months</option>
+              <option v-for="month in availableMonths" :key="month.value" :value="month.value">{{ month.label }}</option>
+            </select>
+            <div class="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-[var(--text-muted)]">
+              <ChevronDown :size="14" />
+            </div>
+          </div>
         </div>
       </div>
 
@@ -192,91 +187,11 @@
       </div>
 
       <div v-else-if="reportData" class="mt-6">
-        <!-- Premium Report Metrics Summary Row -->
-        <div class="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-6 mb-8">
-          
-          <div class="flex flex-col justify-between p-6 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:-translate-y-1 hover:shadow-[0_15px_40px_rgba(0,0,0,0.08)] dark:hover:shadow-[0_15px_40px_rgba(0,0,0,0.4)] transition-all duration-300 relative overflow-hidden group">
-            <div class="absolute -right-8 -top-8 w-28 h-28 bg-indigo-500/10 dark:bg-indigo-500/20 rounded-full blur-3xl group-hover:bg-indigo-500/20 transition-colors"></div>
-            <div class="flex flex-col gap-1 relative z-10 mb-4">
-              <span class="text-[0.75rem] font-extrabold text-[var(--text-secondary)] uppercase tracking-[0.05em] mb-2">Total Borrowing Activity</span>
-              <div class="w-12 h-12 rounded-xl flex items-center justify-center text-indigo-600 dark:text-indigo-400 shrink-0 bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200/50 dark:border-indigo-500/30 group-hover:scale-105 transition-transform shadow-inner">
-                <Activity :size="22" stroke-width="2.5" />
-              </div>
-            </div>
-            <div class="text-[2.2rem] font-black text-[var(--text-primary)] tracking-tight leading-none relative z-10">{{ reportData.total_reads }}</div>
-          </div>
-
-          <div class="flex flex-col justify-between p-6 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:-translate-y-1 hover:shadow-[0_15px_40px_rgba(0,0,0,0.08)] dark:hover:shadow-[0_15px_40px_rgba(0,0,0,0.4)] transition-all duration-300 relative overflow-hidden group">
-            <div class="absolute -right-8 -top-8 w-28 h-28 bg-blue-500/10 dark:bg-blue-500/20 rounded-full blur-3xl group-hover:bg-blue-500/20 transition-colors"></div>
-            <div class="flex flex-col gap-1 relative z-10 mb-4">
-              <span class="text-[0.75rem] font-extrabold text-[var(--text-secondary)] uppercase tracking-[0.05em] mb-2">Physical Borrowings</span>
-              <div class="w-12 h-12 rounded-xl flex items-center justify-center text-blue-600 dark:text-blue-400 shrink-0 bg-blue-50 dark:bg-blue-500/10 border border-blue-200/50 dark:border-blue-500/30 group-hover:scale-105 transition-transform shadow-inner">
-                <BookCopy :size="22" stroke-width="2.5" />
-              </div>
-            </div>
-            <div class="text-[2.2rem] font-black text-[var(--text-primary)] tracking-tight leading-none relative z-10">{{ reportData.borrowings_summary?.total_borrowings || 0 }}</div>
-          </div>
-
-          <div class="flex flex-col justify-between p-6 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:-translate-y-1 hover:shadow-[0_15px_40px_rgba(0,0,0,0.08)] dark:hover:shadow-[0_15px_40px_rgba(0,0,0,0.4)] transition-all duration-300 relative overflow-hidden group">
-            <div class="absolute -right-8 -top-8 w-28 h-28 bg-emerald-500/10 dark:bg-emerald-500/20 rounded-full blur-3xl group-hover:bg-emerald-500/20 transition-colors"></div>
-            <div class="flex flex-col gap-1 relative z-10 mb-4">
-              <span class="text-[0.75rem] font-extrabold text-[var(--text-secondary)] uppercase tracking-[0.05em] mb-2">Books Returned</span>
-              <div class="w-12 h-12 rounded-xl flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200/50 dark:border-emerald-500/30 group-hover:scale-105 transition-transform shadow-inner">
-                <ArrowDownToLine :size="22" stroke-width="2.5" />
-              </div>
-            </div>
-            <div class="text-[2.2rem] font-black text-[var(--text-primary)] tracking-tight leading-none relative z-10">{{ reportData.borrowings_summary?.total_returned || 0 }}</div>
-          </div>
-
-          <div class="flex flex-col justify-between p-6 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:-translate-y-1 hover:shadow-[0_15px_40px_rgba(0,0,0,0.08)] dark:hover:shadow-[0_15px_40px_rgba(0,0,0,0.4)] transition-all duration-300 relative overflow-hidden group">
-            <div class="absolute -right-8 -top-8 w-28 h-28 bg-teal-500/10 dark:bg-teal-500/20 rounded-full blur-3xl group-hover:bg-teal-500/20 transition-colors"></div>
-            <div class="flex flex-col gap-1 relative z-10 mb-4">
-              <span class="text-[0.75rem] font-extrabold text-[var(--text-secondary)] uppercase tracking-[0.05em] mb-2">Live Active Readers</span>
-              <div class="w-12 h-12 rounded-xl flex items-center justify-center text-teal-600 dark:text-teal-400 shrink-0 bg-teal-50 dark:bg-teal-500/10 border border-teal-200/50 dark:border-teal-500/30 group-hover:scale-105 transition-transform shadow-inner">
-                <Users :size="22" stroke-width="2.5" />
-              </div>
-            </div>
-            <div class="text-[2.2rem] font-black text-[var(--text-primary)] tracking-tight leading-none relative z-10 flex items-center gap-3">
-              {{ stats?.active_readers_count || 0 }}
-              <span v-if="stats?.active_readers_count > 0" class="flex h-3 w-3 relative">
-              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
-                <span class="relative inline-flex rounded-full h-3 w-3 bg-teal-500"></span>
-              </span>
-            </div>
-          </div>
-        </div>
+        <!-- Report content begins below -->
 
         <div class="grid grid-cols-2 gap-6 max-lg:grid-cols-1">
-          <!-- Left Column: Current Active Readers & Top Student Borrowers -->
+          <!-- Left Column: Top Student Borrowers -->
           <div class="flex flex-col gap-6">
-            <!-- 1. Current Active Readers (Right Now) -->
-            <div class="bg-[var(--bg-card)] p-6 rounded-2xl border border-[var(--border-color)] shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
-              <h4 class="text-[1.05rem] font-extrabold mb-5 text-[var(--text-primary)] tracking-tight">🟢 Current Active Readers (Right Now)</h4>
-              <div v-if="!stats?.active_readers_detail || stats.active_readers_detail.length === 0" class="bg-[rgba(125,125,125,0.03)] p-10 rounded-xl text-center border border-dashed border-[var(--border-color)]">
-                <p class="text-[var(--text-muted)] font-medium">No students are currently reading online right now.</p>
-              </div>
-              <div v-else class="flex flex-col gap-3">
-                <div v-for="(item, idx) in stats.active_readers_detail" :key="item.session_db_id || item.session_id" class="flex items-center gap-4 p-3 hover:bg-[rgba(125,125,125,0.05)] rounded-xl transition-colors border border-transparent hover:border-[var(--border-color)] group">
-                  <span class="text-[0.8rem] font-black text-indigo-500 w-5">#{{ idx + 1 }}</span>
-                  <div class="w-[42px] h-[42px] rounded-full bg-[var(--accent-gradient)] text-white flex items-center justify-center font-bold text-[0.95rem] overflow-hidden shrink-0 shadow-sm border-2 border-emerald-500 relative">
-                    <img v-if="item.profile_photo" :src="item.profile_photo" class="w-full h-full object-cover" />
-                    <span v-else>{{ (item.user_name || 'G').charAt(0).toUpperCase() }}</span>
-                    <span class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-[var(--bg-card)] rounded-full"></span>
-                  </div>
-                  <div class="flex-1">
-                    <div class="text-[0.92rem] font-bold text-[var(--text-primary)] flex items-center gap-[0.4rem] flex-wrap">
-                      {{ item.name_khmer || item.user_name || 'Guest Student' }}
-                      <span v-if="item.student_id" class="bg-indigo-500/10 text-indigo-500 px-2 py-[0.1rem] rounded-md text-[0.7rem] font-bold border border-indigo-500/20">{{ item.student_id }}</span>
-                      <span v-if="item.dorm_room" class="bg-emerald-500/10 text-emerald-500 px-2 py-[0.1rem] rounded-md text-[0.7rem] font-bold border border-emerald-500/20">Room {{ item.dorm_room }}</span>
-                    </div>
-                    <div class="text-[0.8rem] text-[var(--text-secondary)] mt-[0.15rem]">📖 Reading: <strong>{{ item.book_title }}</strong></div>
-                  </div>
-                  <div class="px-3 py-1 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 rounded-md text-[0.75rem] font-bold border border-emerald-100 dark:border-emerald-500/20">
-                    Online
-                  </div>
-                </div>
-              </div>
-            </div>
             <!-- 2. Top Active Student Borrowers -->
             <div class="bg-[rgba(125,125,125,0.03)] p-5 rounded-[var(--radius-md)] border border-[var(--border-color)]">
               <h4 class="text-[0.95rem] font-bold mb-4 text-[var(--text-primary)]">🏆 Top Active Student Borrowers ({{ reportData.period_name }})</h4>
@@ -328,46 +243,91 @@
       </div>
     </div>
 
-    <!-- Official Printable Report Modal -->
-    <OfficialReportModal 
-      :is-open="isReportModalOpen" 
-      :period="currentPeriod" 
-      :report-data="reportData" 
-      @close="isReportModalOpen = false" 
-    />
+
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
-import { Loader2, Printer, CheckCircle, Search, Clock, FileText, Download, TrendingUp, RefreshCw, Activity, BookCopy, ArrowDownToLine, Users } from 'lucide-vue-next';
+import { ref, computed, onMounted, watch } from 'vue';
+import { Loader2, Calendar, ChevronDown, Activity, BookCopy, ArrowDownToLine, Users } from 'lucide-vue-next';
 import { useAuthStore } from '../stores/auth';
-import OfficialReportModal from './OfficialReportModal.vue';
+import { useBorrowingsStore } from '../stores/borrowings';
 
 const props = defineProps({
   stats: Object
 });
 
 const authStore = useAuthStore();
+const borrowingsStore = useBorrowingsStore();
 const fallbackCover = 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&w=600&q=80';
 
-const currentPeriod = ref('1day');
+const dateMode = ref('today');
+const selectedYear = ref('all');
+const selectedMonth = ref('all');
+
 const reportLoading = ref(false);
 const reportData = ref(null);
-const isReportModalOpen = ref(false);
 
-const currentPeriodName = computed(() => {
-  if (currentPeriod.value === '1day') return 'Today (1 Day)';
-  if (currentPeriod.value === '1week') return 'This Week (7 Days)';
-  if (currentPeriod.value === '1month') return 'This Month (30 Days)';
-  return 'All Time';
+const availableYears = computed(() => {
+  const years = new Set();
+  borrowingsStore.adminBorrowings.forEach(b => {
+    if (b.borrow_date) {
+      years.add(b.borrow_date.substring(0, 4));
+    }
+  });
+  const sortedYears = Array.from(years).sort((a, b) => b - a);
+  // Ensure we always have at least the current year if data is totally empty
+  if (sortedYears.length === 0) {
+    sortedYears.push(new Date().getFullYear().toString());
+  }
+  return sortedYears;
 });
 
-async function fetchReport(period = '1day') {
-  currentPeriod.value = period;
+const allMonthsMap = {
+  '01': 'January', '02': 'February', '03': 'March', '04': 'April',
+  '05': 'May', '06': 'June', '07': 'July', '08': 'August',
+  '09': 'September', '10': 'October', '11': 'November', '12': 'December'
+};
+
+const availableMonths = computed(() => {
+  if (selectedYear.value === 'all') return [];
+  
+  const monthsSet = new Set();
+  borrowingsStore.adminBorrowings.forEach(b => {
+    if (b.borrow_date && b.borrow_date.substring(0, 4) === selectedYear.value) {
+      monthsSet.add(b.borrow_date.substring(5, 7));
+    }
+  });
+  
+  return Array.from(monthsSet).sort().map(m => ({
+    value: String(parseInt(m, 10) - 1), // Our old logic expects 0-11 for value
+    label: allMonthsMap[m]
+  }));
+});
+
+const currentPeriodName = computed(() => {
+  if (dateMode.value === 'today') return 'Today';
+  if (dateMode.value === 'all') return 'All Time';
+  if (selectedYear.value !== 'all') {
+    if (selectedMonth.value !== 'all') {
+      // Find the month label manually instead of looking in an array
+      const mStr = String(parseInt(selectedMonth.value, 10) + 1).padStart(2, '0');
+      const m = allMonthsMap[mStr] || 'Unknown Month';
+      return `${m} ${selectedYear.value}`;
+    }
+    return `Year ${selectedYear.value}`;
+  }
+  return 'Custom Period';
+});
+
+async function fetchReport() {
   reportLoading.value = true;
   try {
-    const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/admin/reading-reports?period=${period}`, {
+    let url = `${import.meta.env.VITE_API_URL || ''}/api/admin/reading-reports?period=${dateMode.value}`;
+    if (dateMode.value === 'custom') {
+      url += `&year=${selectedYear.value}&month=${selectedMonth.value}`;
+    }
+    const res = await fetch(url, {
       headers: { Authorization: `Bearer ${authStore.token}` }
     });
     if (res.ok) {
@@ -380,12 +340,19 @@ async function fetchReport(period = '1day') {
   }
 }
 
-function printOfficialReport() {
-  isReportModalOpen.value = true;
-}
+watch([dateMode, selectedYear, selectedMonth], () => {
+  if (dateMode.value !== 'custom') {
+    selectedYear.value = 'all';
+    selectedMonth.value = 'all';
+  } else if (selectedYear.value === 'all') {
+    selectedMonth.value = 'all';
+  }
+  fetchReport();
+});
 
 onMounted(() => {
-  fetchReport('1day');
+  borrowingsStore.fetchAdminBorrowings();
+  fetchReport();
 });
 
 const monthlyData = computed(() => {

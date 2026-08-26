@@ -1,9 +1,9 @@
 <template>
-<main class="flex-1 py-8 px-10 pb-20 w-[calc(100%-280px)] max-w-none relative">
+<main class="flex-1 py-8 px-10 pb-20 w-[calc(100%-280px)] max-w-none relative print:w-full print:px-0 print:py-0 print:pb-0">
       <!-- Decorative Background Glow -->
-      <div class="absolute top-0 left-0 w-full h-[300px] bg-gradient-to-b from-indigo-500/10 to-transparent pointer-events-none -z-10"></div>
+      <div class="absolute top-0 left-0 w-full h-[300px] bg-gradient-to-b from-indigo-500/10 to-transparent pointer-events-none -z-10 print:hidden"></div>
       
-      <header class="mb-10 flex flex-col gap-3 relative z-10">
+      <header class="mb-10 flex flex-col gap-3 relative z-10 print:hidden">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20">
             <ClipboardList :size="20" />
@@ -13,10 +13,37 @@
         <p class="text-[1rem] text-[var(--text-secondary)] font-medium max-w-2xl leading-relaxed">Approve student book requests, record returns, or reject pending applications with a streamlined process.</p>
       </header>
 
-      <div class="bg-white/80 dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200/60 dark:border-slate-700/50 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden flex flex-col transition-all duration-300 relative z-10">
+      <!-- Print Header (Hidden on screen, visible on print) -->
+      <div class="hidden print:flex w-full mb-8 flex-col text-black">
+        <div class="flex justify-between items-start w-full">
+          <!-- Left: Logo & Uni Name -->
+          <div class="flex flex-col items-center w-[250px] text-center">
+            <img src="/duc-logo.png" alt="DUC Logo" class="w-[80px] h-[80px] object-contain mb-2" />
+            <span class="text-[14px]" style="font-family: 'Khmer OS Muol Light', 'Moul', serif;">សាកលវិទ្យាល័យឌីជីថលកម្ពុជា</span>
+            <span class="text-[14px]" style="font-family: 'Khmer OS Muol Light', 'Moul', serif;">បណ្ណាល័យសិក្សា</span>
+          </div>
+
+          <!-- Center: Kingdom & Nation Religion King -->
+          <div class="flex flex-col items-center flex-1 mt-2">
+            <span class="text-[20px]" style="font-family: 'Khmer OS Muol Light', 'Moul', serif;">ព្រះរាជាណាចក្រកម្ពុជា</span>
+            <span class="text-[18px] mt-1" style="z-index: 2; font-family: 'Khmer OS Muol Light', 'Moul', serif;">ជាតិ សាសនា ព្រះមហាក្សត្រ</span>
+            <img src="/khmer-ornament.png" alt="line" style="transform: rotate(-1deg); z-index: 1; margin-top: -20px;" class="h-[60px] mt-4 opacity-80" />
+            
+            <div class="mt-12 flex flex-col items-center">
+              <span class="text-[22px]" style="font-family: 'Khmer OS Muol Light', 'Moul', serif;">របាយការណ៍ខ្ចីសៀវភៅ</span>
+              <span class="text-[15px] mt-3 font-bold" style="font-family: 'Khmer OS Battambang', sans-serif;">កាលបរិច្ឆេទ ៖ {{ printDateText }}</span>
+            </div>
+          </div>
+          
+          <!-- Right: Spacer for balance -->
+          <div class="w-[250px]"></div>
+        </div>
+      </div>
+
+      <div class="bg-white/80 dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200/60 dark:border-slate-700/50 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden flex flex-col transition-all duration-300 relative z-10 print:shadow-none print:border-none print:bg-transparent">
         
         <!-- Header & Filters -->
-        <div class="p-5 sm:px-8 sm:py-6 border-b border-[var(--border-color)]/50 flex items-center justify-between gap-6 flex-wrap relative">
+        <div class="p-5 sm:px-8 sm:py-6 border-b border-[var(--border-color)]/50 flex items-center justify-between gap-6 flex-wrap relative print:hidden">
           <!-- Segmented Control for Tabs -->
           <div class="flex p-1 bg-slate-100 dark:bg-slate-800/80 rounded-xl overflow-x-auto max-w-full shadow-inner border border-slate-200/50 dark:border-slate-700/50">
             <button 
@@ -34,9 +61,43 @@
             </button>
           </div>
           
-          <div class="text-[0.85rem] font-semibold text-[var(--text-muted)] bg-slate-50 dark:bg-slate-800/50 px-5 py-2.5 rounded-xl border border-[var(--border-color)]/50 shadow-sm flex items-center gap-2">
-            <div class="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></div>
-            Showing <span class="text-[var(--text-primary)] font-bold">{{ filteredBorrowings.length }}</span> requests
+          <div class="flex items-center gap-4 flex-wrap">
+            <!-- All / Today Toggle -->
+            <div class="flex items-center bg-slate-50 dark:bg-slate-800/50 rounded-xl p-1 border border-slate-200/50 dark:border-slate-700/50 shadow-sm">
+              <button @click="dateMode = 'all'" :class="dateMode === 'all' ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-md shadow-indigo-500/20' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'" class="px-5 py-1.5 rounded-lg text-[0.85rem] font-bold transition-all duration-300 ease-out min-w-[70px]">All</button>
+              <button @click="dateMode = 'today'" :class="dateMode === 'today' ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-md shadow-indigo-500/20' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'" class="px-5 py-1.5 rounded-lg text-[0.85rem] font-bold transition-all duration-300 ease-out min-w-[70px]">Today</button>
+            </div>
+
+            <!-- Year Dropdown -->
+            <div class="relative bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-[var(--border-color)]/50 shadow-sm transition-all duration-300 flex items-center h-[38px]" :class="dateMode === 'today' ? 'opacity-40 pointer-events-none' : 'hover:border-indigo-300 dark:hover:border-indigo-500/50'">
+              <div class="pl-3 pr-1 text-indigo-500 flex items-center justify-center">
+                <Calendar :size="16" stroke-width="2.5" />
+              </div>
+              <select v-model="selectedYear" class="appearance-none bg-transparent py-1.5 pr-8 pl-1 text-[0.85rem] font-bold text-[var(--text-primary)] cursor-pointer outline-none h-full" :disabled="dateMode === 'today'">
+                <option value="all">Select Year</option>
+                <option v-for="year in availableYears" :key="year" :value="year">{{ year }}</option>
+              </select>
+              <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[var(--text-muted)]">
+                <ChevronDown :size="16" />
+              </div>
+            </div>
+
+            <!-- Month Dropdown -->
+            <div class="relative bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-[var(--border-color)]/50 shadow-sm transition-all duration-300 flex items-center h-[38px]" :class="(dateMode === 'today' || selectedYear === 'all') ? 'opacity-40 pointer-events-none' : 'hover:border-indigo-300 dark:hover:border-indigo-500/50'">
+              <select v-model="selectedMonth" class="appearance-none bg-transparent py-1.5 pl-4 pr-8 text-[0.85rem] font-bold text-[var(--text-primary)] cursor-pointer outline-none h-full min-w-[110px]" :disabled="dateMode === 'today' || selectedYear === 'all'">
+                <option value="all">All Months</option>
+                <option v-for="month in availableMonths" :key="month.value" :value="month.value">{{ month.label }}</option>
+              </select>
+              <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[var(--text-muted)]">
+                <ChevronDown :size="16" />
+              </div>
+            </div>
+
+            <!-- Print / PDF Button -->
+            <button @click="printTable" class="inline-flex items-center gap-2 bg-slate-800 text-white dark:bg-slate-700 dark:text-slate-100 px-4 py-2 rounded-xl text-[0.85rem] font-bold shadow-sm hover:bg-slate-900 dark:hover:bg-slate-600 hover:shadow-md transition-all duration-300 hover:-translate-y-px h-[38px] print:hidden ml-2">
+              <Printer :size="15" />
+              <span>Export PDF</span>
+            </button>
           </div>
         </div>
 
@@ -47,22 +108,23 @@
           </div>
         </div>
 
-        <div v-else class="overflow-x-auto p-4">
-          <table class="w-full text-left border-collapse min-w-[950px]">
-            <thead>
-              <tr class="text-slate-500 dark:text-slate-400 text-[0.7rem] font-extrabold uppercase tracking-[0.1em]">
-                <th class="px-6 py-4 whitespace-nowrap pl-8 rounded-l-xl">Member / Student</th>
-                <th class="px-6 py-4 w-[30%]">Requested Book</th>
-                <th class="px-6 py-4 whitespace-nowrap">Dates</th>
-                <th class="px-6 py-4 text-center whitespace-nowrap">Status</th>
-                <th class="px-6 py-4 text-right whitespace-nowrap pr-8 rounded-r-xl">Actions</th>
+        <div v-else class="overflow-x-auto p-4 print:p-0 print:overflow-visible">
+          <table class="w-full text-left min-w-[950px] print-clean-table">
+            <thead class="bg-slate-50/80 dark:bg-slate-800/40 backdrop-blur-sm border-b border-slate-200 dark:border-slate-700 print:bg-slate-100">
+              <tr class="text-slate-600 dark:text-slate-300 text-[0.85rem] tracking-wider uppercase print:text-black print:text-[13px] print:font-bold" style="font-family: 'Outfit', 'Kantumruy Pro', sans-serif; font-weight: 700;">
+                <th class="px-6 py-4 whitespace-nowrap pl-8 rounded-l-xl font-normal print:rounded-none">ឈ្មោះសិស្ស / និស្សិត</th>
+                <th class="px-6 py-4 whitespace-nowrap font-normal">ជំនាញ</th>
+                <th class="px-6 py-4 font-normal print:w-[35%]">សៀវភៅដែលបានខ្ចី</th>
+                <th class="px-6 py-4 whitespace-nowrap font-normal">កាលបរិច្ឆេទ</th>
+                <th class="px-6 py-4 text-center whitespace-nowrap font-normal">ស្ថានភាព</th>
+                <th class="px-6 py-4 text-right whitespace-nowrap pr-8 rounded-r-xl font-normal print:hidden">សកម្មភាព</th>
               </tr>
             </thead>
-            <tbody class="mt-2 text-[var(--text-primary)]">
-              <tr v-for="item in paginatedBorrowings" :key="item.id" class="group bg-white dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/50 hover:border-indigo-200 dark:hover:border-indigo-500/30 shadow-[0_2px_10px_rgba(0,0,0,0.01)] hover:shadow-[0_8px_30px_rgba(79,70,229,0.06)] transition-all duration-300 rounded-xl relative">
-                <td class="px-6 py-5 rounded-l-xl">
+            <tbody class="mt-2 text-[var(--text-primary)] print:mt-0">
+              <tr v-for="item in paginatedBorrowings" :key="item.id" class="group bg-white dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80 hover:border-indigo-300 dark:hover:border-indigo-500/50 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_24px_-6px_rgba(79,70,229,0.12)] hover:-translate-y-[2px] transition-all duration-300 rounded-2xl relative print:border-none print:shadow-none print:rounded-none print:bg-transparent print:break-inside-avoid print:even:bg-slate-50 print:-translate-y-0" :class="{'print:hidden': item.status === 'rejected'}" style="font-family: 'Outfit', 'Kantumruy Pro', sans-serif;">
+                <td class="px-6 py-5 rounded-l-xl print:rounded-none print:align-top">
                   <div class="flex items-center gap-4">
-                    <div class="relative">
+                    <div class="relative print:hidden">
                       <div class="absolute -inset-0.5 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full opacity-0 group-hover:opacity-100 blur-[2px] transition-opacity duration-300"></div>
                       <div class="relative w-11 h-11 rounded-full bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-slate-700 dark:to-slate-600 flex items-center justify-center font-bold text-[1rem] border-2 border-white dark:border-slate-800 shrink-0 overflow-hidden text-indigo-600 dark:text-indigo-300">
                         <img v-if="item.profile_photo" :src="item.profile_photo" class="w-full h-full object-cover" />
@@ -70,36 +132,39 @@
                       </div>
                     </div>
                     <div class="flex flex-col">
-                      <span class="font-extrabold text-[0.95rem] text-[var(--text-primary)] group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{{ item.user_name }}</span>
-                      <span class="text-[0.8rem] text-[var(--text-muted)] font-medium">{{ item.user_email }}</span>
+                      <span class="font-extrabold text-[0.95rem] text-[var(--text-primary)] group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors print:text-black print:text-[13px] print:font-bold">{{ item.user_name }}</span>
+                      <span class="text-[0.8rem] text-[var(--text-muted)] font-medium print:hidden">{{ item.user_email }}</span>
                     </div>
                   </div>
                 </td>
                 <td class="px-6 py-5">
-                  <div class="flex flex-col max-w-[280px]">
-                    <span class="font-bold text-[0.95rem] text-[var(--text-primary)] truncate" :title="item.book_title">{{ item.book_title }}</span>
-                    <span class="text-[0.8rem] text-indigo-500 dark:text-indigo-400 font-bold truncate mt-1 bg-indigo-50 dark:bg-indigo-500/10 w-fit px-2 py-0.5 rounded-md">{{ item.book_author }}</span>
+                  <span class="font-bold text-[0.85rem] text-[var(--text-primary)] print:text-black print:text-[12px]">{{ item.user_major || 'N/A' }}</span>
+                </td>
+                <td class="px-6 py-5 print:align-top">
+                  <div class="flex flex-col max-w-[280px] print:max-w-none">
+                    <span class="font-bold text-[0.95rem] text-[var(--text-primary)] truncate print:whitespace-normal print:text-black print:text-[13px]" :title="item.book_title">{{ item.book_title }}</span>
+                    <span class="text-[0.8rem] text-indigo-500 dark:text-indigo-400 font-bold truncate mt-1 bg-indigo-50 dark:bg-indigo-500/10 w-fit px-2 py-0.5 rounded-md print:bg-transparent print:px-0 print:text-slate-500 print:font-medium print:mt-1 print:whitespace-normal">{{ item.book_author }}</span>
                   </div>
                 </td>
-                <td class="px-6 py-5">
-                  <div class="flex flex-col gap-2">
-                    <div class="flex items-center gap-2 text-[0.82rem]">
-                      <span class="text-[var(--text-muted)] font-bold w-12 shrink-0">Req:</span>
-                      <span class="font-semibold text-[var(--text-primary)]">{{ formatDate(item.borrow_date) }}</span>
+                <td class="px-6 py-5 print:align-top">
+                  <div class="flex flex-col gap-2 print:gap-1.5" style="font-family: 'Khmer OS Battambang', sans-serif;">
+                    <div class="flex items-center gap-2 text-[0.82rem] print:text-[12px]">
+                      <span class="text-[var(--text-muted)] font-bold w-12 shrink-0 print:text-slate-500">ថ្ងៃខ្ចី៖</span>
+                      <span class="font-semibold text-[var(--text-primary)] print:text-black">{{ formatDate(item.borrow_date) }}</span>
                     </div>
-                    <div class="flex items-center gap-2 text-[0.82rem]">
-                      <span class="text-[var(--text-muted)] font-bold w-12 shrink-0">Due:</span>
-                      <span class="font-bold" :class="isOverdue(item.due_date, item.status) ? 'text-rose-500 bg-rose-500/10 px-2 py-0.5 rounded-md border border-rose-500/20' : 'text-[var(--text-primary)]'">{{ formatDate(item.due_date) }}</span>
+                    <div class="flex items-center gap-2 text-[0.82rem] print:text-[12px]">
+                      <span class="text-[var(--text-muted)] font-bold w-12 shrink-0 print:text-slate-500">ថ្ងៃសង៖</span>
+                      <span class="font-bold print:!shadow-none" :class="isOverdue(item.due_date, item.status) ? 'text-rose-500 bg-rose-500/10 px-2 py-0.5 rounded-md border border-rose-500/20' : 'text-[var(--text-primary)]'" style="-webkit-print-color-adjust: exact; print-color-adjust: exact;">{{ formatDate(item.due_date) }}</span>
                     </div>
                   </div>
                 </td>
-                <td class="px-6 py-5 text-center align-middle">
-                  <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-[0.75rem] font-extrabold uppercase tracking-wider border transition-colors shadow-sm" :class="getStatusBadgeClass(item.status)">
-                    <span class="w-1.5 h-1.5 rounded-full" :class="getStatusDotClass(item.status)"></span>
-                    {{ localeStore.t(item.status) || item.status.toUpperCase() }}
+                <td class="px-6 py-5 text-center align-middle print:align-top">
+                  <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-[0.75rem] font-extrabold uppercase tracking-wider border transition-colors shadow-sm print:!shadow-none print:px-2 print:py-0.5 print:text-[11px] print:rounded-md print:font-bold" :class="getStatusBadgeClass(item.status)" style="font-family: 'Khmer OS Battambang', sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
+                    <span class="w-1.5 h-1.5 rounded-full print:hidden" :class="getStatusDotClass(item.status)"></span>
+                    {{ getStatusKhmer(item.status) }}
                   </span>
                 </td>
-                <td class="px-6 py-5 text-right align-middle rounded-r-xl">
+                <td class="px-6 py-5 text-right align-middle rounded-r-xl print:hidden">
                   <div class="flex justify-end gap-2.5">
                     <button 
                       v-if="item.status === 'pending'"
@@ -128,7 +193,7 @@
                     <button 
                       v-if="item.status === 'approved'"
                       @click="updateStatus(item.id, 'returned', item)" 
-                      class="inline-flex items-center justify-center gap-2 font-bold rounded-xl transition-all duration-300 ease-out active:scale-95 bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-500/20 hover:shadow-[0_8px_20px_rgba(79,70,229,0.4)] hover:-translate-y-1 px-4 py-2 text-[0.85rem] border border-transparent"
+                      class="inline-flex items-center justify-center gap-2 font-bold rounded-xl transition-all duration-300 ease-out active:scale-95 bg-white text-indigo-600 border border-indigo-200 hover:bg-indigo-50 hover:border-indigo-300 hover:shadow-[0_4px_12px_rgba(79,70,229,0.1)] hover:-translate-y-0.5 px-4 py-2 text-[0.85rem] dark:bg-indigo-500/10 dark:border-indigo-500/30 dark:text-indigo-400 dark:hover:bg-indigo-500/20"
                       :class="loadingActionId === item.id && loadingActionType === 'returned' ? 'opacity-70 cursor-not-allowed' : ''"
                       :disabled="loadingActionId === item.id"
                     >
@@ -186,11 +251,32 @@
                 </td>
               </tr>
             </tbody>
+            
+
           </table>
         </div>
+        
+        <!-- Print Summary Box -->
+        <div class="hidden print:flex w-full justify-end mt-10 mb-4">
+          <div class="flex flex-col min-w-[380px] border border-slate-300 rounded-lg overflow-hidden" style="font-family: 'Outfit', 'Kantumruy Pro', sans-serif; page-break-inside: avoid;">
+            <div class="flex justify-between items-center w-full px-5 py-3 border-b border-slate-200 bg-white">
+              <span class="text-slate-600 font-bold text-[12px]">សរុបសៀវភៅដែលបានសង (Returned)</span>
+              <span class="text-[14px] font-extrabold text-slate-800">{{ printTotalReturned }}</span>
+            </div>
+            <div class="flex justify-between items-center w-full px-5 py-3 border-b border-slate-200 bg-white">
+              <span class="text-slate-600 font-bold text-[12px]">សរុបសៀវភៅមិនទាន់សង (Not Returned)</span>
+              <span class="text-[14px] font-extrabold text-slate-800">{{ printTotalNotReturned }}</span>
+            </div>
+            <div class="flex justify-between items-center w-full px-5 py-3.5 bg-slate-800 text-white" style="-webkit-print-color-adjust: exact; print-color-adjust: exact;">
+              <span class="font-extrabold uppercase tracking-wide text-[13px]">សរុបសៀវភៅទាំងអស់ (Total Borrowed)</span>
+              <span class="text-[16px] font-black">{{ printTotalBorrowed }}</span>
+            </div>
+          </div>
+        </div>
+
 
         <!-- Pagination Nav Bar -->
-        <div v-if="totalPages > 1" class="flex justify-between items-center px-8 py-5 border-t border-[var(--border-color)]/50 bg-slate-50/50 dark:bg-slate-800/20 backdrop-blur-md">
+        <div v-if="totalPages > 1" class="flex justify-between items-center px-8 py-5 border-t border-[var(--border-color)]/50 bg-slate-50/50 dark:bg-slate-800/20 backdrop-blur-md print:hidden">
           <div class="text-[0.85rem] text-[var(--text-muted)] font-medium">
             Showing <span class="font-bold text-[var(--text-primary)]">{{ (currentPage - 1) * itemsPerPage + 1 }}</span> to <span class="font-bold text-[var(--text-primary)]">{{ Math.min(currentPage * itemsPerPage, filteredBorrowings.length) }}</span> of <span class="font-bold text-[var(--text-primary)]">{{ filteredBorrowings.length }}</span>
           </div>
@@ -228,27 +314,135 @@ import { useLocaleStore } from '../../stores/locale';
 import { useToastStore } from '../../stores/toast';
 import { useConfirmStore } from '../../stores/confirm';
 import { sendPhoneAndDrawerNotification } from '../../services/notificationService';
-import { Check, X, RotateCcw, BellRing, ClipboardList, Loader2, ChevronLeft, ChevronRight, Trash2 } from 'lucide-vue-next';
+import { Check, X, RotateCcw, BellRing, ClipboardList, Loader2, ChevronLeft, ChevronRight, Trash2, ChevronDown, Calendar, Printer } from 'lucide-vue-next';
 
 const borrowingsStore = useBorrowingsStore();
 const localeStore = useLocaleStore();
 const toastStore = useToastStore();
 const confirmStore = useConfirmStore();
 const activeFilter = ref('all');
+const dateMode = ref('all');
+const selectedYear = ref('all');
+const selectedMonth = ref('all');
+
+const availableYears = computed(() => {
+  const years = new Set();
+  borrowingsStore.adminBorrowings.forEach(b => {
+    if (b.borrow_date) years.add(b.borrow_date.substring(0, 4));
+  });
+  return Array.from(years).sort((a, b) => b - a);
+});
+
+const allMonthsMap = {
+  '01': 'January', '02': 'February', '03': 'March', '04': 'April',
+  '05': 'May', '06': 'June', '07': 'July', '08': 'August',
+  '09': 'September', '10': 'October', '11': 'November', '12': 'December'
+};
+
+const availableMonths = computed(() => {
+  if (selectedYear.value === 'all') return [];
+  
+  const monthsSet = new Set();
+  borrowingsStore.adminBorrowings.forEach(b => {
+    if (b.borrow_date && b.borrow_date.substring(0, 4) === selectedYear.value) {
+      monthsSet.add(b.borrow_date.substring(5, 7));
+    }
+  });
+  
+  return Array.from(monthsSet).sort().map(m => ({
+    value: m,
+    label: allMonthsMap[m]
+  }));
+});
+
+const printDateText = computed(() => {
+  const monthMapKhmer = {
+    '01': 'មករា', '02': 'កុម្ភៈ', '03': 'មីនា', '04': 'មេសា',
+    '05': 'ឧសភា', '06': 'មិថុនា', '07': 'កក្កដា', '08': 'សីហា',
+    '09': 'កញ្ញា', '10': 'តុលា', '11': 'វិច្ឆិកា', '12': 'ធ្នូ'
+  };
+
+  if (dateMode.value === 'today') {
+    const today = new Date();
+    const day = today.getDate();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const year = today.getFullYear();
+    return `ថ្ងៃទី ${day} ខែ ${monthMapKhmer[month]} ឆ្នាំ ${year}`;
+  } else if (dateMode.value === 'all') {
+    if (selectedYear.value === 'all') {
+      return 'ទាំងអស់';
+    } else {
+      let text = `ឆ្នាំ ${selectedYear.value}`;
+      if (selectedMonth.value !== 'all') {
+        text += ` ខែ ${monthMapKhmer[selectedMonth.value]}`;
+      }
+      return text;
+    }
+  }
+  return 'ទាំងអស់';
+});
 
 onMounted(() => {
   borrowingsStore.fetchAdminBorrowings();
 });
 
 const filteredBorrowings = computed(() => {
-  if (activeFilter.value === 'all') return borrowingsStore.adminBorrowings;
-  return borrowingsStore.adminBorrowings.filter(b => b.status === activeFilter.value);
+  let result = borrowingsStore.adminBorrowings;
+  
+  // 1. Status Filter
+  if (activeFilter.value !== 'all') {
+    result = result.filter(b => b.status === activeFilter.value);
+  }
+  
+  // 2. Date Filter
+  if (dateMode.value === 'today') {
+    const now = new Date();
+    // Use local timezone to prevent UTC day shift bugs
+    const today = new Date(now.getTime() - (now.getTimezoneOffset() * 60000));
+    const todayStr = today.toISOString().split('T')[0];
+
+    result = result.filter(b => {
+      if (!b.borrow_date) return false;
+      const bDate = b.borrow_date.substring(0, 10);
+      return bDate === todayStr;
+    });
+  } else {
+    if (selectedYear.value !== 'all') {
+      result = result.filter(b => b.borrow_date && b.borrow_date.substring(0, 4) === selectedYear.value);
+      if (selectedMonth.value !== 'all') {
+        result = result.filter(b => b.borrow_date && b.borrow_date.substring(5, 7) === selectedMonth.value);
+      }
+    }
+  }
+  
+  return result;
 });
 
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
 
-watch(activeFilter, () => {
+function printTable() {
+  const originalLimit = itemsPerPage.value;
+  itemsPerPage.value = 9999;
+  // Wait for the DOM to render all rows before opening print dialog
+  setTimeout(() => {
+    window.print();
+    itemsPerPage.value = originalLimit;
+  }, 300);
+}
+
+watch(dateMode, (newMode) => {
+  if (newMode === 'today') {
+    selectedYear.value = 'all';
+    selectedMonth.value = 'all';
+  }
+  currentPage.value = 1;
+});
+
+watch([selectedYear, selectedMonth, activeFilter], () => {
+  if (selectedYear.value === 'all') {
+    selectedMonth.value = 'all';
+  }
   currentPage.value = 1;
 });
 
@@ -258,6 +452,10 @@ const paginatedBorrowings = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage.value;
   return filteredBorrowings.value.slice(start, start + itemsPerPage.value);
 });
+
+const printTotalReturned = computed(() => paginatedBorrowings.value.filter(b => b.status === 'returned').length);
+const printTotalNotReturned = computed(() => paginatedBorrowings.value.filter(b => b.status === 'approved' || b.status === 'pending').length);
+const printTotalBorrowed = computed(() => paginatedBorrowings.value.filter(b => b.status !== 'rejected').length);
 
 const pendingCount = computed(() => {
   return borrowingsStore.adminBorrowings.filter(b => b.status === 'pending').length;
@@ -364,6 +562,16 @@ function formatDate(dateStr) {
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
+const getStatusKhmer = (status) => {
+  const map = {
+    'pending': 'កំពុងរង់ចាំ',
+    'approved': 'បានអនុម័ត',
+    'returned': 'បានសង',
+    'rejected': 'បានបដិសេធ'
+  };
+  return map[status] || status.toUpperCase();
+};
+
 function isOverdue(dueDate, status) {
   if (status === 'returned' || status === 'rejected' || !dueDate) return false;
   
@@ -397,6 +605,61 @@ function getStatusDotClass(status) {
 <style scoped>
 table {
   border-collapse: separate !important;
-  border-spacing: 0 12px !important;
+  border-spacing: 0 8px !important;
+}
+
+@media print {
+  @page {
+    margin: 15mm;
+    @bottom-right {
+      content: "Page " counter(page) " of " counter(pages);
+      font-family: sans-serif;
+      font-size: 10px;
+    }
+  }
+  
+  table {
+    border-spacing: 0 !important;
+  }
+  
+  .print-clean-table {
+    min-width: 0 !important;
+    width: 100% !important;
+    border-collapse: collapse !important;
+    margin-top: 15px;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 6px !important;
+    overflow: hidden;
+  }
+  
+  .print-clean-table th,
+  .print-clean-table td {
+    border: 1px solid #cbd5e1 !important;
+    padding: 10px 14px !important;
+    color: #0f172a !important;
+    vertical-align: middle !important;
+    font-family: 'Kantumruy Pro', 'Siemreap', sans-serif !important;
+  }
+  
+  .print-clean-table th {
+    background-color: #0f172a !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    font-size: 12px !important;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  
+  .print-clean-table tr {
+    page-break-inside: avoid !important;
+  }
+  
+  .print-clean-table tr:nth-child(even) {
+    background-color: #f8fafc !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
 }
 </style>
