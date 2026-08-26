@@ -299,6 +299,11 @@ router.post('/', authenticateToken, requireAdmin, async (req, res) => {
     };
 
     const inserted = await ORM.insert('Books', newBookData);
+    
+    if (global.bookCache) global.bookCache.clear();
+    const sse = require('../services/sse');
+    sse.broadcast('catalog_updated', { type: 'books' });
+
     res.status(201).json({ message: 'Book added successfully', book: inserted });
   } catch (error) {
     console.error('Error adding book:', error);
@@ -363,6 +368,11 @@ router.put('/:id', authenticateToken, requireAdmin, async (req, res) => {
     };
 
     const updated = await ORM.update('Books', id, updateData);
+    
+    if (global.bookCache) global.bookCache.clear();
+    const sse = require('../services/sse');
+    sse.broadcast('catalog_updated', { type: 'books' });
+
     res.json({ message: 'Book updated successfully', book: updated });
   } catch (error) {
     console.error('Error updating book:', error);
@@ -381,6 +391,11 @@ router.patch('/:id/toggle-featured', authenticateToken, requireAdmin, async (req
     const newFeatured = isCurrentlyFeatured ? 0 : 1;
     
     await ORM.update('Books', id, { is_featured: newFeatured });
+    
+    if (global.bookCache) global.bookCache.clear();
+    const sse = require('../services/sse');
+    sse.broadcast('catalog_updated', { type: 'books' });
+
     res.json({ message: 'Featured status updated', is_featured: newFeatured });
   } catch (error) {
     console.error('Error toggling featured status:', error);
@@ -405,6 +420,11 @@ router.delete('/:id', authenticateToken, requireAdmin, async (req, res) => {
     }
 
     await ORM.remove('Books', id);
+    
+    if (global.bookCache) global.bookCache.clear();
+    const sse = require('../services/sse');
+    sse.broadcast('catalog_updated', { type: 'books' });
+
     res.json({ message: 'Book deleted successfully.' });
   } catch (error) {
     console.error('Error deleting book:', error);
@@ -441,6 +461,11 @@ router.put('/:id/pdf', authenticateToken, requireAdmin, async (req, res) => {
         : 'Book PDF updated successfully',
       book: updatedBook
     });
+    
+    if (global.bookCache) global.bookCache.clear();
+    const sse = require('../services/sse');
+    sse.broadcast('catalog_updated', { type: 'books' });
+    
   } catch (error) {
     console.error('Error updating book PDF:', error);
     res.status(500).json({ message: 'Failed to update book PDF.' });
