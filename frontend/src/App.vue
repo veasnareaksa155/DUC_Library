@@ -169,6 +169,19 @@ function setupSSE(token) {
         }
       } else if (data.type === 'active_readers_updated') {
         window.dispatchEvent(new CustomEvent('active_readers_updated', { detail: data.payload }));
+      } else if (data.type === 'catalog_updated') {
+        // Trigger real-time catalog update
+        import('./stores/books').then(module => {
+          const booksStore = module.useBooksStore();
+          if (data.payload?.type === 'categories') {
+            booksStore.fetchCategories(true);
+          } else if (data.payload?.type === 'books') {
+            booksStore.fetchBooks(true);
+          } else {
+            booksStore.fetchCategories(true);
+            booksStore.fetchBooks(true);
+          }
+        });
       }
     } catch (e) {
       console.error('SSE parsing error:', e);
@@ -195,6 +208,16 @@ watch(() => authStore.token, (newToken) => {
 onMounted(() => {
   authStore.checkAuth();
   requestPhoneNotificationPermission();
+  
+  // Re-establish connection when waking up from background on mobile
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      console.log('App became visible. Checking SSE connection...');
+      if (authStore.token) {
+        setupSSE(authStore.token);
+      }
+    }
+  });
 });
 </script>
 

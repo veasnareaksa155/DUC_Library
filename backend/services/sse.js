@@ -6,6 +6,23 @@
 // Key: user_id, Value: Set of response objects (one user might have multiple tabs open)
 const clients = new Map();
 
+// Start a heartbeat interval to keep mobile connections alive (30 seconds)
+setInterval(() => {
+  const pingData = JSON.stringify({ type: 'ping' });
+  for (const [userId, userClients] of clients.entries()) {
+    for (const res of userClients) {
+      try {
+        res.write(`data: ${pingData}\n\n`);
+      } catch (e) {
+        userClients.delete(res);
+      }
+    }
+    if (clients.get(userId).size === 0) {
+      clients.delete(userId);
+    }
+  }
+}, 30000);
+
 function addClient(userId, res, userObj = null) {
   if (!clients.has(userId)) {
     clients.set(userId, new Set());

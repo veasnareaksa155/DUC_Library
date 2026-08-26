@@ -56,6 +56,9 @@ router.post('/', authenticateToken, requireAdmin, async (req, res) => {
 
     const inserted = await ORM.insert('Categories', newCategory);
 
+    const sse = require('../services/sse');
+    sse.broadcast('catalog_updated', { type: 'categories' });
+
     res.status(201).json({
       ...inserted,
       message: 'Category created successfully'
@@ -99,6 +102,9 @@ router.put('/:id', authenticateToken, requireAdmin, async (req, res) => {
 
     const updated = await ORM.update('Categories', categoryId, updatedData);
 
+    const sse = require('../services/sse');
+    sse.broadcast('catalog_updated', { type: 'categories' });
+
     res.json({
       ...updated,
       message: 'Category updated successfully'
@@ -133,6 +139,9 @@ router.delete('/:id', authenticateToken, requireAdmin, async (req, res) => {
     }
 
     await ORM.remove('Categories', categoryId);
+
+    const sse = require('../services/sse');
+    sse.broadcast('catalog_updated', { type: 'categories' });
 
     res.json({ message: 'Category deleted successfully' });
   } catch (error) {

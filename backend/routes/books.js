@@ -53,8 +53,13 @@ async function autoExtractTextFromPdfIfNeeded(pdfUrl, digitalContent) {
 
 // Sync books inventory from Google Sheet (Admin only)
 router.post('/sync-sheet', authenticateToken, requireAdmin, async (req, res) => {
+  if (global.bookCache) global.bookCache.clear();
+  
+  const sse = require('../services/sse');
+  sse.broadcast('catalog_updated', { type: 'books' });
+
   res.json({
-    message: `Sync is no longer needed. The database is already Google Sheets!`,
+    message: `Library catalog synchronized! All users have been notified of the updates.`,
     details: { synced: true }
   });
 });
