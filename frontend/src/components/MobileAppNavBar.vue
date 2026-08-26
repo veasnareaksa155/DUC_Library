@@ -2,18 +2,18 @@
   <!-- Floating Check-In Button (Global for Mobile & Desktop) -->
   <div v-if="authStore.isAuthenticated && authStore.user?.role !== 'admin' && !hideOnReadPage" class="fixed right-4 md:right-8 bottom-[85px] md:bottom-8 z-[9998] group">
     <!-- Glowing background pulse (only when not checked in) -->
-    <div v-if="!checkinStore.hasCheckedInToday" class="absolute inset-0 bg-indigo-500/40 rounded-full blur-xl animate-pulse group-hover:bg-indigo-500/60 transition-all duration-500"></div>
+    <div v-if="!checkinStore.hasCheckedInToday" class="absolute inset-0 bg-indigo-500/30 rounded-full blur-xl animate-pulse group-hover:bg-indigo-500/50 transition-all duration-500"></div>
     
     <button 
       @click="openCheckinModal"
-      class="relative flex w-[55px] h-[55px] md:w-[65px] md:h-[65px] rounded-[1.2rem] md:rounded-full items-center justify-center text-white z-[9999] transition-all duration-500 outline-none cursor-pointer border-2 shadow-[0_8px_25px_rgba(0,0,0,0.2)] hover:shadow-[0_12px_35px_rgba(99,102,241,0.4)] hover:-translate-y-1.5 active:scale-95 group-hover:rotate-3 overflow-hidden"
-      :class="checkinStore.hasCheckedInToday ? 'bg-gradient-to-br from-emerald-400 to-emerald-600 border-emerald-400/50 shadow-[0_8px_25px_rgba(16,185,129,0.3)]' : 'bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 border-white/30 dark:border-white/10'"
+      class="relative flex w-[55px] h-[55px] md:w-[65px] md:h-[65px] rounded-[1.2rem] md:rounded-[1.4rem] items-center justify-center text-white z-[9999] transition-all duration-500 outline-none cursor-pointer border shadow-[0_8px_20px_rgba(0,0,0,0.15)] hover:shadow-[0_12px_30px_rgba(99,102,241,0.35)] hover:-translate-y-1 active:scale-95 overflow-hidden"
+      :class="checkinStore.hasCheckedInToday ? 'bg-gradient-to-br from-emerald-400 to-emerald-600 border-emerald-400/50 shadow-[0_8px_25px_rgba(16,185,129,0.3)]' : 'bg-gradient-to-br from-indigo-500 to-purple-600 border-indigo-400/30 dark:border-indigo-400/20'"
       :title="checkinStore.hasCheckedInToday ? 'Checked In' : 'Check In to Library'"
     >
       <!-- Glossy highlight overlay -->
-      <div class="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full pointer-events-none"></div>
+      <div class="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-[inherit] pointer-events-none"></div>
       
-      <MapPin :size="26" stroke-width="2.5" class="relative z-10 transition-transform duration-500" :class="{ 'animate-bounce': !checkinStore.hasCheckedInToday, 'scale-110': checkinStore.hasCheckedInToday }" />
+      <MapPin :size="26" stroke-width="2.5" class="relative z-10 transition-all duration-500" :class="{ 'group-hover:scale-110': !checkinStore.hasCheckedInToday, 'scale-110 text-emerald-50': checkinStore.hasCheckedInToday }" />
     </button>
   </div>
 

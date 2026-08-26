@@ -125,7 +125,7 @@
       
       <div class="relative w-full max-w-[420px] bg-[var(--bg-card)] rounded-[2rem] shadow-[0_20px_60px_rgba(0,0,0,0.15)] dark:shadow-[0_20px_60px_rgba(0,0,0,0.4)] border border-[var(--border-color)] overflow-hidden text-center p-8 max-sm:p-6 animate-[fadeInUp_0.4s_cubic-bezier(0.16,1,0.3,1)_both] transform-gpu">
         <!-- Close Button -->
-        <button @click="checkinStore.closeModal()" class="absolute top-5 right-5 w-8 h-8 flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] bg-[var(--bg-secondary)] hover:bg-[var(--border-color)] border border-[var(--border-color)] rounded-full transition-all duration-300 hover:rotate-90 cursor-pointer shadow-sm">
+        <button @click="checkinStore.closeModal()" class="absolute z-50 top-5 right-5 w-8 h-8 flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] bg-[var(--bg-secondary)] hover:bg-[var(--border-color)] border border-[var(--border-color)] rounded-full transition-all duration-300 hover:rotate-90 cursor-pointer shadow-sm">
           <X :size="16" stroke-width="2.5" />
         </button>
         

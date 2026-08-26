@@ -43,6 +43,32 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', service: 'DUC-Library API (Google Sheets DB)', timestamp: new Date() });
 });
 
+// SSE Endpoint
+const sse = require('./services/sse');
+const jwt = require('jsonwebtoken');
+const { JWT_SECRET } = require('./middleware/auth');
+
+app.get('/api/events/stream', (req, res) => {
+  const token = req.query.token;
+  
+  // Set headers for SSE
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+  
+  if (token && token !== 'null' && token !== 'undefined') {
+    jwt.verify(token, JWT_SECRET, (err, user) => {
+      if (err) {
+        sse.addClient(`anon-${Date.now()}-${Math.random()}`, res, null);
+      } else {
+        sse.addClient(user.id, res, user);
+      }
+    });
+  } else {
+    sse.addClient(`anon-${Date.now()}-${Math.random()}`, res, null);
+  }
+});
+
 // Global Error Handler
 app.use((err, req, res, next) => {
   console.error('[SERVER ERROR]', err);

@@ -7,7 +7,19 @@ router.use(authenticateToken, requireAdmin);
 
 const { fetchStudentsFromSheet } = require('../googleSheets');
 
-async function getMappedUsers() {
+// In-memory cache for expensive Google Sheets operations
+const cache = {
+  users: { data: null, timestamp: 0 },
+  books: { data: null, timestamp: 0 }
+};
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+async function getMappedUsers(forceSync = false) {
+  const now = Date.now();
+  if (!forceSync && cache.users.data && (now - cache.users.timestamp < CACHE_TTL)) {
+    return cache.users.data;
+  }
+
   const LIVE_STUDENTS = await fetchStudentsFromSheet(process.env.SPREADSHEET_ID || '1YWZoN8THhaxO7H734gRxa7ahGsJoNHWcvyeR-QSa3LU') || [];
   
   let photoMap = {};
@@ -18,7 +30,7 @@ async function getMappedUsers() {
     console.error('Failed to load ProfilePhotos for admin mapping', e);
   }
 
-  return LIVE_STUDENTS.map(s => ({
+  const mapped = LIVE_STUDENTS.map(s => ({
     id: s.studentId,
     name: s.latinName,
     email: `${s.studentId.toLowerCase()}@duc.com`,
@@ -43,6 +55,10 @@ async function getMappedUsers() {
     profile_photo: photoMap[s.studentId] || s.profilePhoto || '',
     created_at: new Date().toISOString()
   }));
+
+  cache.users.data = mapped;
+  cache.users.timestamp = now;
+  return mapped;
 }
 
 async function getUserMap() {
@@ -55,11 +71,19 @@ async function getUserMap() {
 }
 
 async function getBookMap() {
+  const now = Date.now();
+  if (cache.books.data && (now - cache.books.timestamp < CACHE_TTL)) {
+    return cache.books.data;
+  }
+
   const books = await ORM.getAll('Books');
   const map = {};
   books.forEach(b => {
     map[b.id] = b;
   });
+  
+  cache.books.data = map;
+  cache.books.timestamp = now;
   return map;
 }
 
@@ -281,6 +305,14 @@ router.put('/borrowings/:id/status', async (req, res) => {
       return_date: returnDateVal
     });
 
+    const sse = require('../services/sse');
+    sse.emitToUser(borrowing.user_id, 'borrowing_updated', {
+      id: borrowing.id,
+      status: status,
+      book_title: book.title,
+      admin_notes: admin_notes || ''
+    });
+
     res.json({ message: `Borrowing status updated to ${status}.` });
   } catch (error) {
     console.error('Error updating borrowing status:', error);
@@ -314,7 +346,8 @@ router.delete('/borrowings/:id', async (req, res) => {
 // List all registered users
 router.get('/users', async (req, res) => {
   try {
-    const users = await getMappedUsers();
+    const forceSync = req.query.force === 'true';
+    const users = await getMappedUsers(forceSync);
     const borrowings = await ORM.getAll('Borrowings');
 
     const userStats = {};
@@ -487,10 +520,19 @@ router.get('/checkins', async (req, res) => {
     res.status(500).json({ message: 'Failed to fetch checkins' });
   }
 });
+
 // GET /digital-reads - Get historical digital reading sessions
 router.get('/digital-reads', async (req, res) => {
   try {
-    const reads = await ORM.getAll('DigitalReads') || [];
+    const now = Date.now();
+    let reads = [];
+    if (global.digitalReadsCache && (now - global.digitalReadsCache.timestamp < 60000)) {
+      reads = global.digitalReadsCache.data;
+    } else {
+      reads = await ORM.getAll('DigitalReads') || [];
+      global.digitalReadsCache = { data: reads, timestamp: now };
+    }
+    
     const userMap = await getUserMap();
     const bookMap = await getBookMap();
     

@@ -1,19 +1,19 @@
 <template>
-  <div class="flex items-start min-h-screen w-full">
-    <!-- Left Admin Sidebar -->
-    <AdminSidebar />
-
-    <!-- Main Content Area -->
-    <main class="flex-1 py-6 px-8 pb-16 w-[calc(100%-280px)] max-w-none">
+  <main class="flex-1 py-6 px-8 pb-16 w-[calc(100%-280px)] max-w-none">
       <header class="flex justify-between items-end mb-8">
         <div>
           <h1 class="text-[2.2rem] font-extrabold">{{ localeStore.t('users') }} <span class="bg-clip-text text-transparent bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500">Directory</span></h1>
           <p class="text-[var(--text-secondary)]">View all registered student accounts, sync live data from Google Sheet, or manage roles.</p>
         </div>
 
-        <button @click="openDatabaseModal" class="inline-flex items-center justify-center gap-2 font-bold rounded-xl transition-all duration-300 ease-out active:scale-95 bg-[var(--text-primary)] text-[var(--bg-primary)] shadow-[0_4px_12px_rgba(0,0,0,0.1)] hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] hover:-translate-y-0.5 px-5 py-3 text-[0.95rem]">
-          <FileSpreadsheet :size="18" /> Live Database
-        </button>
+        <div class="flex items-center gap-3">
+          <button @click="fetchUsers(true)" class="inline-flex items-center justify-center gap-2 font-bold rounded-xl transition-all duration-300 ease-out active:scale-95 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-500/30 shadow-sm hover:shadow-md hover:bg-indigo-500 hover:text-white px-5 py-3 text-[0.95rem]">
+            <RefreshCw :size="18" :class="{'animate-spin': loadingSync}" /> Sync Now
+          </button>
+          <button @click="openDatabaseModal" class="inline-flex items-center justify-center gap-2 font-bold rounded-xl transition-all duration-300 ease-out active:scale-95 bg-[var(--text-primary)] text-[var(--bg-primary)] shadow-[0_4px_12px_rgba(0,0,0,0.1)] hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] hover:-translate-y-0.5 px-5 py-3 text-[0.95rem]">
+            <FileSpreadsheet :size="18" /> Live Database
+          </button>
+        </div>
       </header>
 
       <div class="p-6 bg-[var(--bg-card)] border-[var(--border-color)] border rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
@@ -328,20 +328,21 @@
         </div>
       </div>
     </main>
-  </div>
 </template>
 
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue';
 import { useAuthStore } from '../../stores/auth';
 import { useLocaleStore } from '../../stores/locale';
-import AdminSidebar from '../../components/AdminSidebar.vue';
+import { useToastStore } from '../../stores/toast';
 import { FileSpreadsheet, X, RefreshCw, AlertCircle, CheckCircle, Search, User, UserCheck, GraduationCap, ChevronLeft, ChevronRight, Loader2 } from 'lucide-vue-next';
 
 const authStore = useAuthStore();
 const localeStore = useLocaleStore();
+const toastStore = useToastStore();
 const users = ref([]);
 const loading = ref(false);
+const loadingSync = ref(false);
 const searchQuery = ref('');
 const currentPage = ref(1);
 const itemsPerPage = ref(15);
@@ -352,6 +353,54 @@ const serviceAccountEmail = ref('');
 
 const isProfileModalOpen = ref(false);
 const selectedStudent = ref(null);
+
+async function fetchUsers(force = false, silent = false) {
+  if (users.value.length === 0) {
+    try {
+      const cached = localStorage.getItem('library_admin_users_cache');
+      if (cached) users.value = JSON.parse(cached);
+    } catch (e) {
+      console.warn('Failed to parse cached users', e);
+    }
+  }
+
+  if (users.value.length === 0 && !silent) {
+    loading.value = true;
+  }
+  
+  if (force && !silent) {
+    loadingSync.value = true;
+  }
+
+  try {
+    const url = force 
+      ? `${import.meta.env.VITE_API_URL || ''}/api/admin/users?force=true`
+      : `${import.meta.env.VITE_API_URL || ''}/api/admin/users`;
+
+    const res = await fetch(url, {
+      headers: { Authorization: `Bearer ${authStore.token}` }
+    });
+    if (res.ok) {
+      const data = await res.json();
+      users.value = data;
+      localStorage.setItem('library_admin_users_cache', JSON.stringify(data));
+      
+      if (force && !silent) {
+        toastStore.showSuccess('Student directory synced with live Google Sheets data!', 'Sync Successful');
+      }
+    }
+  } catch (err) {
+    if (users.value.length === 0) {
+      console.error('Failed to fetch users:', err);
+    }
+    if (force && !silent) {
+      toastStore.show('Failed to sync live data.', { type: 'error' });
+    }
+  } finally {
+    loading.value = false;
+    loadingSync.value = false;
+  }
+}
 
 async function openProfileModal(student) {
   selectedStudent.value = student;
@@ -398,6 +447,11 @@ watch(searchQuery, () => {
 onMounted(async () => {
   fetchUsers();
   fetchServiceAccount();
+  
+  // Auto-sync real data every 5 minutes in the background
+  setInterval(() => {
+    fetchUsers(true, true);
+  }, 5 * 60 * 1000);
 });
 
 async function fetchServiceAccount() {
@@ -419,21 +473,7 @@ function copyEmail() {
   }
 }
 
-async function fetchUsers() {
-  loading.value = true;
-  try {
-    const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/admin/users`, {
-      headers: { Authorization: `Bearer ${authStore.token}` }
-    });
-    if (res.ok) {
-      users.value = await res.json();
-    }
-  } catch (err) {
-    console.error('Failed to fetch users:', err);
-  } finally {
-    loading.value = false;
-  }
-}
+
 
 function openDatabaseModal() {
   isDatabaseModalOpen.value = true;

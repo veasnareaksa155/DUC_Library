@@ -78,7 +78,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import Navbar from './components/Navbar.vue';
 import MobileHeader from './components/MobileHeader.vue';
@@ -87,11 +87,110 @@ import ScrollToTop from './components/ScrollToTop.vue';
 import ToastNotification from './components/ToastNotification.vue';
 import ConfirmModal from './components/ConfirmModal.vue';
 import { useAuthStore } from './stores/auth';
+import { useToastStore } from './stores/toast';
+import { useBorrowingsStore } from './stores/borrowings';
+import { useNotificationsStore } from './stores/notifications';
 import { requestPhoneNotificationPermission } from './services/notificationService';
 
 const authStore = useAuthStore();
+const toastStore = useToastStore();
+const borrowingsStore = useBorrowingsStore();
+const notificationsStore = useNotificationsStore();
 const route = useRoute();
 const hideGlobalNav = computed(() => route.path.startsWith('/admin') || route.path.startsWith('/read'));
+
+let eventSource = null;
+
+function setupSSE(token) {
+  if (eventSource) {
+    eventSource.close();
+    eventSource = null;
+  }
+  
+  const tokenParam = token ? `?token=${token}` : '';
+  eventSource = new EventSource(`${import.meta.env.VITE_API_URL || ''}/api/events/stream${tokenParam}`);
+  
+  eventSource.onmessage = (event) => {
+    try {
+      const data = JSON.parse(event.data);
+      console.log('SSE Event Received:', data.type, data.payload);
+      
+      if (data.type === 'borrowing_updated') {
+        const statusStr = data.payload.status === 'approved' ? 'Approved! 🎉' : 'Declined';
+        const msg = `Your request for "${data.payload.book_title}" was ${data.payload.status}.`;
+        
+        if (data.payload.status === 'approved') {
+          toastStore.showSuccess(msg, `Request ${statusStr}`);
+        } else {
+          toastStore.showError(msg, `Request ${statusStr}`);
+        }
+        
+        // Refresh stores to instantly update the UI (bypassing local cache)
+        borrowingsStore.fetchMyBorrowings(true);
+        notificationsStore.loadNotifications();
+      } else if (data.type === 'new_borrowing_request') {
+        if (authStore.isAdmin) {
+          toastStore.showSuccess(
+            `New book request for "${data.payload.book_title}"`, 
+            'New Request Alert'
+          );
+          borrowingsStore.fetchAdminBorrowings('all', true);
+          borrowingsStore.fetchAdminDashboardStats(true);
+        }
+      } else if (data.type === 'new_checkin') {
+        if (authStore.isAdmin) {
+          toastStore.showSuccess(
+            `New check-in from ${data.payload.user_name}`, 
+            'Check-In Alert'
+          );
+          window.dispatchEvent(new CustomEvent('refresh-admin-checkins'));
+        }
+      } else if (data.type === 'new_digital_read') {
+        if (authStore.isAdmin) {
+          toastStore.showSuccess(
+            `Student ${data.payload.user_name} started reading "${data.payload.book_title}"`, 
+            'Live Reading Alert'
+          );
+          if (!borrowingsStore.dashboardStats) {
+            borrowingsStore.dashboardStats = { active_readers_count: data.payload.total_active_readers || 1 };
+          } else if (typeof data.payload.total_active_readers !== 'undefined') {
+            borrowingsStore.dashboardStats.active_readers_count = data.payload.total_active_readers;
+          }
+          window.dispatchEvent(new CustomEvent('refresh-admin-digital-reads'));
+        }
+      } else if (data.type === 'digital_read_ended') {
+        if (authStore.isAdmin) {
+          if (!borrowingsStore.dashboardStats) {
+            borrowingsStore.dashboardStats = { active_readers_count: data.payload.total_active_readers || 0 };
+          } else if (typeof data.payload.total_active_readers !== 'undefined') {
+            borrowingsStore.dashboardStats.active_readers_count = data.payload.total_active_readers;
+          }
+          window.dispatchEvent(new CustomEvent('refresh-admin-digital-reads'));
+        }
+      } else if (data.type === 'active_readers_updated') {
+        window.dispatchEvent(new CustomEvent('active_readers_updated', { detail: data.payload }));
+      }
+    } catch (e) {
+      console.error('SSE parsing error:', e);
+    }
+  };
+  
+  eventSource.onerror = () => {
+    console.error('SSE connection lost. Forcing reconnect...');
+    if (eventSource) {
+      eventSource.close();
+      eventSource = null;
+    }
+    // Try reconnecting after 2 seconds
+    setTimeout(() => {
+      setupSSE(authStore.token);
+    }, 2000);
+  };
+}
+
+watch(() => authStore.token, (newToken) => {
+  setupSSE(newToken);
+}, { immediate: true });
 
 onMounted(() => {
   authStore.checkAuth();

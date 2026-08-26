@@ -154,7 +154,7 @@ router.get('/:id', async (req, res) => {
 // Add read-ping endpoint to track live readers
 router.post('/:id/read-ping', async (req, res) => {
   try {
-    const { session_id } = req.body;
+    const { session_id, book_title } = req.body;
     if (session_id) {
       const activeReadersService = require('../services/activeReaders');
       
@@ -172,9 +172,45 @@ router.post('/:id/read-ping', async (req, res) => {
         }
       }
 
-      activeReadersService.pingReader(session_id, req.params.id, user);
+      // Use a local cache for the PDF check to prevent hitting Google Sheets rate limit on every ping
+      if (!global.bookCache) global.bookCache = new Map();
+      const now = Date.now();
+      let book = null;
+      
+      if (global.bookCache.has(req.params.id) && (now - global.bookCache.get(req.params.id).timestamp < 5 * 60 * 1000)) {
+        book = global.bookCache.get(req.params.id).data;
+      } else {
+        book = await ORM.getById('Books', req.params.id);
+        global.bookCache.set(req.params.id, { data: book, timestamp: now });
+      }
+      
+      // Enforce: only count if it actually has a digital PDF to read
+      if (!book || !book.pdf_url) {
+        activeReadersService.removeReader(session_id);
+        return res.json({ active_readers_count: 0 });
+      }
+
+      const isNew = activeReadersService.pingReader(session_id, req.params.id, user);
+      console.log(`[read-ping] session: ${session_id}, book_id: ${req.params.id}, isNew: ${isNew}`);
+      
+      const sse = require('../services/sse');
+      
+      if (isNew) {
+        const totalReaders = activeReadersService.getActiveReaders().count;
+        console.log(`[read-ping] Broadcasting new_digital_read. Total: ${totalReaders}`);
+        sse.broadcastToAdmins('new_digital_read', {
+          user_name: user ? (user.name || user.name_latin) : 'Anonymous Student',
+          book_title: book_title || 'A Digital Book',
+          total_active_readers: totalReaders
+        });
+      }
       
       const count = activeReadersService.getActiveReadersForBook(req.params.id);
+      if (isNew) {
+        // Broadcast to ALL connected clients so they see the count update instantly
+        sse.broadcast('active_readers_updated', { book_id: req.params.id, count });
+      }
+      
       return res.json({ active_readers_count: count });
     }
     res.json({ active_readers_count: 1 });
@@ -192,7 +228,18 @@ router.post('/:id/read-leave', async (req, res) => {
       const activeReadersService = require('../services/activeReaders');
       activeReadersService.removeReader(session_id);
       
+      const totalReaders = activeReadersService.getActiveReaders().count;
+      const sse = require('../services/sse');
+      sse.broadcastToAdmins('digital_read_ended', {
+        session_id,
+        total_active_readers: totalReaders
+      });
+      
       const count = activeReadersService.getActiveReadersForBook(req.params.id);
+      
+      // Broadcast to ALL connected clients so they see the count decrease instantly
+      sse.broadcast('active_readers_updated', { book_id: req.params.id, count });
+      
       return res.json({ active_readers_count: count });
     }
     res.json({ active_readers_count: 0 });
@@ -392,25 +439,6 @@ router.put('/:id/pdf', authenticateToken, requireAdmin, async (req, res) => {
   } catch (error) {
     console.error('Error updating book PDF:', error);
     res.status(500).json({ message: 'Failed to update book PDF.' });
-  }
-});
-
-// Register or ping active digital reading session
-router.post('/:id/read-ping', async (req, res) => {
-  try {
-    const { id } = req.params;
-    // We mock active readers for Google Sheets DB to avoid excessive quota usage
-    const bookDoc = await ORM.getById('Books', id);
-
-    res.json({
-      book_id: id,
-      active_readers_count: 1,
-      total_active_readers: 1,
-      read_count: bookDoc ? (Number(bookDoc.read_count) || 0) : 0
-    });
-  } catch (error) {
-    console.error('Reading ping error:', error);
-    res.status(500).json({ message: 'Failed to update reading heartbeat.' });
   }
 });
 

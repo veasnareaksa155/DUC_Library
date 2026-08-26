@@ -42,19 +42,53 @@ export const useBooksStore = defineStore('books', () => {
     return result;
   });
 
-  async function fetchCategories() {
+  async function fetchCategories(forceLoader = false) {
+    // 1. Attempt to load from localStorage first for instant display
+    if (!forceLoader && categories.value.length === 0) {
+      try {
+        const cachedCategories = localStorage.getItem('library_categories_cache');
+        if (cachedCategories) {
+          categories.value = JSON.parse(cachedCategories);
+        }
+      } catch (e) {
+        console.warn('Failed to parse cached categories', e);
+      }
+    }
+
+    if (categories.value.length === 0 || forceLoader) {
+      loading.value = true;
+    }
+
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/categories`);
       const data = await res.json();
       if (res.ok) {
         categories.value = data;
+        // 2. Update cache with fresh data in the background
+        localStorage.setItem('library_categories_cache', JSON.stringify(data));
       }
     } catch (err) {
-      console.error('Failed to fetch categories:', err);
+      if (categories.value.length === 0) {
+        console.error('Failed to fetch categories:', err);
+      }
+    } finally {
+      loading.value = false;
     }
   }
 
   async function fetchBooks(forceLoader = false) {
+    // 1. Attempt to load from localStorage first for instant display (Stale-While-Revalidate)
+    if (!forceLoader && masterBooks.value.length === 0) {
+      try {
+        const cachedBooks = localStorage.getItem('library_books_cache');
+        if (cachedBooks) {
+          masterBooks.value = JSON.parse(cachedBooks);
+        }
+      } catch (e) {
+        console.warn('Failed to parse cached books', e);
+      }
+    }
+
     if (masterBooks.value.length === 0 || forceLoader) {
       loading.value = true;
     }
@@ -65,8 +99,14 @@ export const useBooksStore = defineStore('books', () => {
       if (!res.ok) throw new Error(data.message || 'Failed to load books');
 
       masterBooks.value = data;
+      // 2. Update cache with fresh data in the background
+      localStorage.setItem('library_books_cache', JSON.stringify(data));
     } catch (err) {
-      error.value = err.message;
+      if (masterBooks.value.length === 0) {
+        error.value = err.message;
+      } else {
+        console.warn('Failed to fetch latest books, using cache.', err);
+      }
     } finally {
       loading.value = false;
     }
@@ -165,6 +205,19 @@ export const useBooksStore = defineStore('books', () => {
     if (!res.ok) throw new Error(data.message || 'Failed to delete category');
     await fetchCategories();
     return data;
+  }
+
+  // Fetch on window focus to ensure fresh data
+  if (typeof window !== 'undefined') {
+    window.addEventListener('focus', () => {
+      // Only refetch if we already have some data (meaning initial load is done)
+      if (masterBooks.value.length > 0) {
+        fetchBooks(false); // Fetch in background without forcing loader
+      }
+      if (categories.value.length > 0) {
+        fetchCategories(false);
+      }
+    });
   }
 
   return {

@@ -12,17 +12,24 @@ async function saveSessionToDb(sessionId, reader) {
   const duration_seconds = Math.round((end_time - reader.start_time) / 1000);
   
   if (duration_seconds >= MINIMUM_SAVE_DURATION_SEC) {
+    const newRow = {
+      id: `read-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+      session_id: sessionId,
+      user_id: reader.user_id || 'anonymous',
+      user_name: reader.user_name || 'Anonymous Student',
+      book_id: reader.book_id,
+      start_time: new Date(reader.start_time).toISOString(),
+      end_time: new Date(end_time).toISOString(),
+      duration_seconds: duration_seconds
+    };
+
+    // Optimistically update the admin cache so the UI sees it instantly!
+    if (global.digitalReadsCache && global.digitalReadsCache.data) {
+      global.digitalReadsCache.data.unshift(newRow);
+    }
+
     try {
-      await ORM.insert('DigitalReads', {
-        id: `read-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
-        session_id: sessionId,
-        user_id: reader.user_id || 'anonymous',
-        user_name: reader.user_name || 'Anonymous Student',
-        book_id: reader.book_id,
-        start_time: new Date(reader.start_time).toISOString(),
-        end_time: new Date(end_time).toISOString(),
-        duration_seconds: duration_seconds
-      });
+      await ORM.insert('DigitalReads', newRow);
       console.log(`Saved reading session ${sessionId} (${duration_seconds}s) to DB.`);
     } catch (e) {
       console.error('Failed to save reading session:', e);
@@ -37,6 +44,7 @@ async function saveSessionToDb(sessionId, reader) {
  * @param {object} user - Optional user information (name, id)
  */
 function pingReader(sessionId, bookId, user) {
+  let isNew = false;
   if (!activeReaders[sessionId]) {
     activeReaders[sessionId] = {
       book_id: bookId,
@@ -45,11 +53,13 @@ function pingReader(sessionId, bookId, user) {
       start_time: Date.now(),
       last_ping: Date.now()
     };
+    isNew = true;
   } else {
     activeReaders[sessionId].last_ping = Date.now();
     activeReaders[sessionId].user_id = user?.id || activeReaders[sessionId].user_id;
     activeReaders[sessionId].user_name = user?.name || activeReaders[sessionId].user_name;
   }
+  return isNew;
 }
 
 /**
@@ -95,7 +105,14 @@ function getActiveReadersForBook(bookId) {
  */
 async function removeReader(sessionId) {
   if (activeReaders[sessionId]) {
-    await saveSessionToDb(sessionId, activeReaders[sessionId]);
+    const session = activeReaders[sessionId];
+    const duration = Date.now() - session.start_time;
+    // Save to DB if they read for more than 10 seconds (ignore misclicks)
+    if (duration > 10000) {
+      saveSessionToDb(sessionId, session).catch(err => {
+        console.error('Failed to save session on explicit leave:', err);
+      });
+    }
     delete activeReaders[sessionId];
   }
 }
@@ -108,6 +125,17 @@ setInterval(async () => {
     if (now - activeReaders[sessionId].last_ping >= timeoutMs) {
       await saveSessionToDb(sessionId, activeReaders[sessionId]);
       delete activeReaders[sessionId];
+      
+      try {
+        const sse = require('./sse');
+        const totalReaders = Object.keys(activeReaders).length;
+        sse.broadcastToAdmins('digital_read_ended', { 
+          session_id: sessionId,
+          total_active_readers: totalReaders
+        });
+      } catch (err) {
+        console.error('Failed to broadcast read end event:', err);
+      }
     }
   }
 }, 30000); // Check every 30 seconds

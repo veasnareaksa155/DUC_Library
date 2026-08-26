@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @source "../";
 
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
 :root {
   /* Dark Theme (Default) */
   --bg-primary: #0b0f19;

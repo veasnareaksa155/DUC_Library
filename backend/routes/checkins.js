@@ -74,6 +74,13 @@ router.post('/verify', authenticateToken, async (req, res) => {
 
     await ORM.insert('Checkins', checkinRecord);
 
+    // Notify admins in real-time
+    const sse = require('../services/sse');
+    sse.broadcastToAdmins('new_checkin', {
+      user_name: req.user.name || req.user.name_latin,
+      checkin_time: checkinRecord.checkin_time
+    });
+
     res.status(200).json({
       message: 'Successfully checked in to the library!',
       distance_meters: Math.round(distance),

@@ -1,178 +1,203 @@
 <template>
-  <div class="flex items-start min-h-screen w-full">
-    <!-- Left Admin Sidebar -->
-    <AdminSidebar />
-
-    <!-- Main Content Area -->
-    <main class="flex-1 py-6 px-8 pb-16 w-[calc(100%-280px)] max-w-none">
-      <header class="flex justify-between items-end mb-8">
-        <div>
-          <h1 class="text-[2.2rem] font-extrabold">{{ localeStore.t('categories', 'Categories') }} <span class="bg-clip-text text-transparent bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500">Management</span></h1>
-          <p class="text-[var(--text-secondary)]">Organize your library catalog by managing categories.</p>
-        </div>
-        <div class="flex items-center gap-2">
-          <button @click="openAddModal" class="inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out active:scale-95 bg-indigo-600 text-white shadow-sm hover:bg-indigo-700 hover:-translate-y-px hover:shadow-md px-5 py-2.5 text-sm shadow-md shadow-indigo-500/20">
-            <Plus :size="18" /> Add Category
-          </button>
-        </div>
-      </header>
-
-      <!-- Categories Table -->
-      <div class="p-6 bg-[var(--bg-card)] border-[var(--border-color)] border rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
-        <div class="overflow-x-auto min-h-[400px]">
-          <table class="w-full text-left border-collapse">
-            <thead>
-              <tr class="border-b border-[var(--border-color)]">
-                <th class="py-4 px-4 font-bold text-[0.8rem] uppercase tracking-wider text-[var(--text-muted)] w-[60px]">Icon</th>
-                <th class="py-4 px-4 font-bold text-[0.8rem] uppercase tracking-wider text-[var(--text-muted)]">Category Name</th>
-                <th class="py-4 px-4 font-bold text-[0.8rem] uppercase tracking-wider text-[var(--text-muted)]">Description</th>
-                <th class="py-4 px-4 font-bold text-[0.8rem] uppercase tracking-wider text-[var(--text-muted)] text-center w-[120px]">Books</th>
-                <th class="py-4 px-4 font-bold text-[0.8rem] uppercase tracking-wider text-[var(--text-muted)] text-right w-[150px]">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-if="booksStore.loading" class="border-b border-[var(--border-color)]">
-                <td colspan="5" class="py-12 text-center text-[var(--text-muted)]">
-                  <div class="flex flex-col items-center gap-3">
-                    <Loader2 class="animate-spin text-indigo-500" :size="32" />
-                    <span>Loading categories...</span>
-                  </div>
-                </td>
-              </tr>
-              <tr v-else-if="booksStore.categories.length === 0" class="border-b border-[var(--border-color)]">
-                <td colspan="5" class="py-12 text-center text-[var(--text-muted)]">
-                  No categories found. Click "Add Category" to create one.
-                </td>
-              </tr>
-              <tr v-for="category in booksStore.categories" :key="category.id" class="border-b border-[var(--border-color)] hover:bg-gray-500/5 transition-colors group">
-                <td class="py-4 px-4">
-                  <div class="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-500 shadow-inner">
-                    <component :is="getIconComponent(category.icon)" :size="18" stroke-width="2.5" />
-                  </div>
-                </td>
-                <td class="py-4 px-4">
-                  <span class="font-bold text-[1rem] text-[var(--text-primary)] group-hover:text-indigo-400 transition-colors">{{ category.name }}</span>
-                </td>
-                <td class="py-4 px-4">
-                  <span class="text-[0.9rem] text-[var(--text-secondary)] line-clamp-1">{{ category.description || 'No description' }}</span>
-                </td>
-                <td class="py-4 px-4 text-center">
-                  <span class="inline-flex items-center justify-center px-3 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-full text-[0.85rem] font-bold">
-                    {{ category.book_count || 0 }}
-                  </span>
-                </td>
-                <td class="py-4 px-4 text-right">
-                  <div class="flex items-center justify-end gap-2 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button @click="openEditModal(category)" class="w-8 h-8 rounded-lg bg-[var(--bg-primary)] border border-[var(--border-color)] flex items-center justify-center text-[var(--text-secondary)] hover:text-indigo-500 hover:border-indigo-500/30 hover:bg-indigo-500/10 transition-all shadow-sm" title="Edit Category">
-                      <Pencil :size="14" />
-                    </button>
-                    <button @click="confirmDelete(category)" class="w-8 h-8 rounded-lg bg-[var(--bg-primary)] border border-[var(--border-color)] flex items-center justify-center text-[var(--text-secondary)] hover:text-red-500 hover:border-red-500/30 hover:bg-red-500/10 transition-all shadow-sm" title="Delete Category">
-                      <Trash2 :size="14" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+  <main class="flex-1 py-8 px-10 pb-20 w-[calc(100%-280px)] max-w-none">
+    <header class="flex justify-between items-end mb-10">
+      <div>
+        <h1 class="text-[2.5rem] font-extrabold tracking-tight mb-2 text-[var(--text-primary)]">
+          {{ localeStore.t('categories', 'Categories') }} 
+          <span class="bg-clip-text text-transparent bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500">Management</span>
+        </h1>
+        <div class="flex items-center gap-3">
+          <p class="text-[1.05rem] text-[var(--text-secondary)] m-0">Organize your library catalog by managing categories.</p>
+          <span class="inline-flex items-center justify-center px-3 py-1 bg-purple-50 dark:bg-purple-500/10 border border-purple-200 dark:border-purple-500/20 text-purple-600 dark:text-purple-400 rounded-lg text-[0.85rem] font-bold shadow-sm whitespace-nowrap">
+            <Tags :size="14" class="mr-1.5" />
+            {{ booksStore.categories.length }} Categories
+          </span>
+          <span class="inline-flex items-center justify-center px-3 py-1 bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 text-indigo-600 dark:text-indigo-400 rounded-lg text-[0.85rem] font-bold shadow-sm whitespace-nowrap">
+            <BookOpen :size="14" class="mr-1.5" />
+            {{ totalCatalogBooks }} Total Books
+          </span>
         </div>
       </div>
+      <div class="flex items-center gap-3">
+        <button @click="openAddModal" class="inline-flex items-center justify-center gap-2 font-bold rounded-xl transition-all duration-300 ease-out active:scale-95 bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-[0_8px_20px_rgba(99,102,241,0.3)] hover:shadow-[0_12px_25px_rgba(99,102,241,0.45)] hover:-translate-y-0.5 px-6 py-3.5 text-[0.95rem]">
+          <Plus :size="20" stroke-width="2.5" /> Add Category
+        </button>
+      </div>
+    </header>
 
-      <!-- Add / Edit Category Modal -->
-      <div v-if="isModalOpen" class="fixed inset-0 z-[99999] flex items-center justify-center p-4 sm:p-6" @click.self="isModalOpen = false">
-        <div class="absolute inset-0 bg-slate-900/30 dark:bg-slate-950/60 backdrop-blur-md transition-all duration-300"></div>
+    <!-- Categories Table -->
+    <div class="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.04)] overflow-hidden">
+      <div class="overflow-x-auto min-h-[400px]">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-50/50 dark:bg-slate-800/30 border-b border-[var(--border-color)]">
+              <th class="py-5 px-6 font-bold text-[0.75rem] uppercase tracking-widest text-[var(--text-muted)] w-[80px]">Icon</th>
+              <th class="py-5 px-6 font-bold text-[0.75rem] uppercase tracking-widest text-[var(--text-muted)]">Category Name</th>
+              <th class="py-5 px-6 font-bold text-[0.75rem] uppercase tracking-widest text-[var(--text-muted)] w-[35%]">Description</th>
+              <th class="py-5 px-6 font-bold text-[0.75rem] uppercase tracking-widest text-[var(--text-muted)] text-center w-[120px]">Books</th>
+              <th class="py-5 px-6 font-bold text-[0.75rem] uppercase tracking-widest text-[var(--text-muted)] text-right w-[160px]">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-if="booksStore.loading" class="border-b border-[var(--border-color)]">
+              <td colspan="5" class="py-20 text-center text-[var(--text-muted)]">
+                <div class="flex flex-col items-center gap-4">
+                  <Loader2 class="animate-spin text-indigo-500" :size="40" />
+                  <span class="font-medium text-[1.1rem]">Loading categories...</span>
+                </div>
+              </td>
+            </tr>
+            <tr v-else-if="booksStore.categories.length === 0" class="border-b border-[var(--border-color)]">
+              <td colspan="5" class="py-20 text-center text-[var(--text-muted)]">
+                <div class="flex flex-col items-center gap-4">
+                  <div class="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400">
+                    <Tags :size="32" />
+                  </div>
+                  <span class="font-medium text-[1.1rem]">No categories found. Click "Add Category" to create one.</span>
+                </div>
+              </td>
+            </tr>
+            <tr v-for="(category, index) in booksStore.categories" :key="category.id" class="border-b border-[var(--border-color)] hover:bg-indigo-50/40 dark:hover:bg-indigo-500/5 transition-all duration-300 group">
+              <td class="py-5 px-6">
+                <div class="w-12 h-12 rounded-2xl bg-white dark:bg-slate-800 border border-[var(--border-color)] shadow-sm flex items-center justify-center text-indigo-500 group-hover:scale-110 group-hover:shadow-md transition-all duration-300">
+                  <component :is="getIconComponent(category.icon)" :size="22" stroke-width="2.5" />
+                </div>
+              </td>
+              <td class="py-5 px-6">
+                <span class="font-extrabold text-[1.1rem] text-[var(--text-primary)] group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{{ category.name }}</span>
+              </td>
+              <td class="py-5 px-6">
+                <span class="text-[0.95rem] text-[var(--text-secondary)] line-clamp-2 leading-relaxed">{{ category.description || 'No description provided.' }}</span>
+              </td>
+              <td class="py-5 px-6 text-center">
+                <span class="inline-flex items-center justify-center px-4 py-1.5 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-full text-[0.85rem] font-bold shadow-sm whitespace-nowrap">
+                  {{ category.book_count || 0 }} Books
+                </span>
+              </td>
+              <td class="py-5 px-6">
+                <div class="flex items-center justify-end gap-3 opacity-100 transition-opacity">
+                  <button @click="openEditModal(category)" class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 flex items-center justify-center text-blue-600 dark:text-blue-400 hover:bg-blue-500 hover:text-white hover:border-blue-500 transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5" title="Edit Category">
+                    <Pencil :size="18" stroke-width="2.5" />
+                  </button>
+                  <button @click="confirmDelete(category)" class="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 flex items-center justify-center text-red-600 dark:text-red-400 hover:bg-red-500 hover:text-white hover:border-red-500 transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5" title="Delete Category">
+                    <Trash2 :size="18" stroke-width="2.5" />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Add / Edit Category Modal -->
+    <div v-if="isModalOpen" class="fixed inset-0 z-[99999] flex items-center justify-center p-4 sm:p-6" @click.self="isModalOpen = false">
+      <div class="absolute inset-0 bg-slate-900/40 dark:bg-slate-950/70 backdrop-blur-sm transition-all duration-300"></div>
+      
+      <div class="relative w-full max-w-[600px] bg-[var(--bg-card)] rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.2)] dark:shadow-[0_20px_60px_rgba(0,0,0,0.5)] border border-[var(--border-color)] flex flex-col max-h-[90vh] overflow-hidden transform transition-all duration-300">
         
-        <div class="relative w-full max-w-[600px] bg-[var(--bg-card)] rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.15)] dark:shadow-[0_20px_60px_rgba(0,0,0,0.4)] border border-[var(--border-color)] flex flex-col max-h-[90vh] overflow-hidden transform transition-all duration-300 scale-100 opacity-100">
-          
-          <header class="flex justify-between items-center px-8 py-6 border-b border-[var(--border-color)] bg-[var(--bg-primary)] shrink-0">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-500">
-                <Tags :size="20" stroke-width="2.5" />
-              </div>
-              <h2 class="text-[1.3rem] font-bold text-[var(--text-primary)] tracking-tight">{{ isEditing ? 'Edit Category' : 'Add New Category' }}</h2>
+        <header class="flex justify-between items-center px-8 py-6 border-b border-[var(--border-color)] bg-[var(--bg-primary)] shrink-0">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500/10 to-purple-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-500">
+              <Tags :size="24" stroke-width="2.5" />
             </div>
-            <button @click="isModalOpen = false" class="w-10 h-10 rounded-full bg-gray-500/5 flex items-center justify-center text-[var(--text-muted)] border border-transparent hover:bg-gray-500/10 hover:text-[var(--text-primary)] transition-all duration-200"><X :size="20" stroke-width="2" /></button>
-          </header>
+            <div>
+              <h2 class="text-[1.4rem] font-extrabold text-[var(--text-primary)] tracking-tight">{{ isEditing ? 'Edit Category' : 'Add New Category' }}</h2>
+              <p class="text-[0.85rem] text-[var(--text-secondary)] mt-0.5">{{ isEditing ? 'Update the details below' : 'Create a new category for your library' }}</p>
+            </div>
+          </div>
+          <button @click="isModalOpen = false" class="w-10 h-10 rounded-full bg-gray-500/5 flex items-center justify-center text-[var(--text-muted)] border border-transparent hover:bg-gray-500/10 hover:text-[var(--text-primary)] transition-all duration-200 hover:rotate-90"><X :size="20" stroke-width="2" /></button>
+        </header>
 
-          <form @submit.prevent="saveCategory" class="flex flex-col flex-1 overflow-hidden">
-            <div class="p-8 overflow-y-auto flex-1 custom-scrollbar space-y-6">
-              
-              <div class="group">
-                <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-2 uppercase tracking-wide group-focus-within:text-indigo-500 transition-colors">Category Name *</label>
-                <input v-model="form.name" type="text" class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-xl px-4 py-3.5 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-medium" required placeholder="e.g. Science Fiction" />
-              </div>
-
-              <div class="group">
-                <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-2 uppercase tracking-wide group-focus-within:text-indigo-500 transition-colors">Description</label>
-                <textarea v-model="form.description" rows="3" class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-xl px-4 py-3.5 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-medium resize-none" placeholder="Brief description of this category..."></textarea>
-              </div>
-
-              <div class="group">
-                <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-2 uppercase tracking-wide group-focus-within:text-indigo-500 transition-colors">Icon Name (Lucide)</label>
-                <input v-model="form.icon" type="text" class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-xl px-4 py-3.5 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-mono text-[0.9rem]" placeholder="e.g. BookOpen, Globe, CPU" />
-                <p class="text-[0.75rem] text-[var(--text-muted)] mt-2">Enter any valid icon name from the Lucide icon set.</p>
-              </div>
-              
-              <div v-if="formError" class="p-4 bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 font-bold rounded-xl text-[0.9rem] flex items-center gap-3">
-                <AlertCircle :size="18" stroke-width="2.5" class="shrink-0 text-red-500" /> {{ formError }}
-              </div>
+        <form @submit.prevent="saveCategory" class="flex flex-col flex-1 overflow-hidden">
+          <div class="p-8 overflow-y-auto flex-1 custom-scrollbar space-y-6">
+            
+            <div class="group">
+              <label class="block text-[0.85rem] font-bold text-[var(--text-secondary)] mb-2 uppercase tracking-wider group-focus-within:text-indigo-500 transition-colors">Category Name *</label>
+              <input v-model="form.name" type="text" class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-2xl px-5 py-4 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-medium text-[1.05rem]" required placeholder="e.g. Science Fiction" />
             </div>
 
-            <footer class="flex justify-end gap-3 px-8 py-5 border-t border-[var(--border-color)] bg-[var(--bg-primary)] shrink-0">
-              <button type="button" @click="isModalOpen = false" class="px-6 py-2.5 rounded-xl font-bold text-[var(--text-secondary)] bg-transparent border border-transparent hover:bg-gray-500/5 transition-all duration-300">Cancel</button>
-              <button type="submit" class="px-8 py-2.5 rounded-xl font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-all duration-300 shadow-md shadow-indigo-500/20 flex items-center gap-2" :disabled="saving">
-                <Save :size="18" :class="{ 'animate-pulse': saving }" />
-                {{ saving ? 'Saving...' : 'Save Category' }}
-              </button>
-            </footer>
-          </form>
-        </div>
-      </div>
+            <div class="group">
+              <label class="block text-[0.85rem] font-bold text-[var(--text-secondary)] mb-2 uppercase tracking-wider group-focus-within:text-indigo-500 transition-colors">Description</label>
+              <textarea v-model="form.description" rows="3" class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-2xl px-5 py-4 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-medium text-[1.05rem] resize-none" placeholder="Brief description of this category..."></textarea>
+            </div>
 
-      <!-- Delete Confirmation Modal -->
-      <div v-if="isDeleteModalOpen" class="fixed inset-0 bg-gray-900/75 backdrop-blur-sm z-50 flex items-center justify-center p-6 animate-in fade-in duration-200" @click.self="isDeleteModalOpen = false">
-        <div class="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-[var(--bg-card)] border-[var(--border-color)] border rounded-2xl shadow-2xl max-w-[440px] px-6 py-8 text-center animate-in zoom-in-95 duration-200">
-          <div class="flex justify-center mb-4">
-            <div class="w-16 h-16 rounded-full bg-red-500/12 border border-red-500/30 flex items-center justify-center shadow-[0_0_25px_rgba(239,68,68,0.2)]">
-              <AlertTriangle :size="32" class="text-red-500" />
+            <div class="group">
+              <label class="block text-[0.85rem] font-bold text-[var(--text-secondary)] mb-2 uppercase tracking-wider group-focus-within:text-indigo-500 transition-colors">Icon Name (Lucide)</label>
+              <div class="relative">
+                <div class="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--text-muted)]">
+                  <component :is="getIconComponent(form.icon)" :size="20" />
+                </div>
+                <input v-model="form.icon" type="text" class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-2xl pl-12 pr-5 py-4 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-mono text-[1rem]" placeholder="e.g. BookOpen, Globe, CPU" />
+              </div>
+              <p class="text-[0.8rem] text-[var(--text-muted)] mt-2">Enter any valid icon name from the <a href="https://lucide.dev/icons" target="_blank" class="text-indigo-500 hover:underline">Lucide icon set</a>.</p>
+            </div>
+            
+            <div v-if="formError" class="p-4 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 font-bold rounded-2xl text-[0.95rem] flex items-center gap-3 shadow-sm">
+              <AlertCircle :size="20" stroke-width="2.5" class="shrink-0 text-red-500" /> {{ formError }}
             </div>
           </div>
 
-          <h2 class="text-[1.35rem] font-extrabold mb-2">Delete Category</h2>
-          
-          <div v-if="categoryToDelete?.book_count > 0" class="mb-5">
-            <p class="text-[0.95rem] text-[var(--text-primary)] mb-3 leading-relaxed">
-              Cannot delete <strong class="text-[var(--accent-primary)]">"{{ categoryToDelete.name }}"</strong> because it currently contains <strong>{{ categoryToDelete.book_count }} book(s)</strong>.
-            </p>
-            <p class="text-[0.85rem] text-[var(--text-secondary)] bg-red-500/5 p-3 rounded-lg border border-red-500/10">
-              Please reassign or delete these books before removing the category.
-            </p>
-          </div>
-          <div v-else>
-            <p class="text-[0.95rem] text-[var(--text-primary)] mb-1.5 leading-relaxed">
-              Are you sure you want to delete <strong class="text-[var(--accent-primary)]">"{{ categoryToDelete?.name }}"</strong>?
-            </p>
-            <small class="text-[0.78rem] text-[var(--text-muted)] block mb-5">This action cannot be undone.</small>
-          </div>
-
-          <footer class="flex justify-center gap-3 mt-4">
-            <button @click="isDeleteModalOpen = false" class="inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out active:scale-95 bg-gray-100 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-800 hover:border-indigo-400 dark:hover:border-indigo-500 hover:-translate-y-px px-5 py-2.5 text-sm">{{ categoryToDelete?.book_count > 0 ? 'Close' : 'Cancel' }}</button>
-            <button v-if="categoryToDelete?.book_count === 0" @click="executeDelete" class="bg-gradient-to-br from-red-500 to-red-600 text-white border-none font-bold shadow-[0_4px_15px_rgba(239,68,68,0.35)] transition-all duration-250 ease-[var(--spring-ease)] hover:-translate-y-[2px] hover:shadow-[0_6px_20px_rgba(239,68,68,0.5)] px-4 py-2 rounded-md flex items-center gap-2" :disabled="deleting">
-              <Trash2 :size="16" />
-              {{ deleting ? 'Deleting...' : 'Yes, Delete Category' }}
+          <footer class="flex justify-end gap-3 px-8 py-6 border-t border-[var(--border-color)] bg-[var(--bg-primary)] shrink-0">
+            <button type="button" @click="isModalOpen = false" class="px-6 py-3 rounded-xl font-bold text-[var(--text-secondary)] bg-transparent border border-transparent hover:bg-gray-500/10 transition-all duration-300">Cancel</button>
+            <button type="submit" class="px-8 py-3 rounded-xl font-bold text-white bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 transition-all duration-300 shadow-[0_4px_15px_rgba(99,102,241,0.3)] hover:shadow-[0_8px_25px_rgba(99,102,241,0.4)] flex items-center gap-2 hover:-translate-y-0.5" :disabled="saving">
+              <Save :size="20" stroke-width="2.5" :class="{ 'animate-pulse': saving }" />
+              {{ saving ? 'Saving...' : 'Save Category' }}
             </button>
           </footer>
-        </div>
+        </form>
       </div>
-    </main>
-  </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div v-if="isDeleteModalOpen" class="fixed inset-0 bg-slate-900/40 dark:bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-6 animate-in fade-in duration-200" @click.self="isDeleteModalOpen = false">
+      <div class="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-[var(--bg-card)] border-[var(--border-color)] border rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.2)] max-w-[460px] px-8 py-10 text-center animate-in zoom-in-95 duration-200">
+        <div class="flex justify-center mb-6">
+          <div class="w-20 h-20 rounded-full bg-red-50 dark:bg-red-500/10 border-4 border-red-100 dark:border-red-500/20 flex items-center justify-center shadow-[0_0_30px_rgba(239,68,68,0.15)] relative overflow-hidden">
+            <div class="absolute inset-0 bg-red-500/20 animate-ping rounded-full"></div>
+            <AlertTriangle :size="36" stroke-width="2.5" class="text-red-500 relative z-10" />
+          </div>
+        </div>
+
+        <h2 class="text-[1.6rem] font-extrabold mb-3 text-[var(--text-primary)]">Delete Category?</h2>
+        
+        <div v-if="categoryToDelete?.book_count > 0" class="mb-8">
+          <p class="text-[1.05rem] text-[var(--text-primary)] mb-4 leading-relaxed">
+            Cannot delete <strong class="text-indigo-500">"{{ categoryToDelete.name }}"</strong> because it currently contains <strong>{{ categoryToDelete.book_count }} book(s)</strong>.
+          </p>
+          <div class="bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 p-4 rounded-2xl flex items-start gap-3 text-left">
+            <AlertCircle class="text-amber-500 shrink-0 mt-0.5" :size="20" />
+            <p class="text-[0.9rem] text-amber-800 dark:text-amber-200 m-0 font-medium leading-relaxed">
+              Please reassign or delete these books from the Catalog before attempting to remove this category.
+            </p>
+          </div>
+        </div>
+        <div v-else class="mb-8">
+          <p class="text-[1.05rem] text-[var(--text-secondary)] mb-2 leading-relaxed">
+            Are you sure you want to permanently delete <strong class="text-[var(--text-primary)]">"{{ categoryToDelete?.name }}"</strong>?
+          </p>
+          <p class="text-[0.9rem] font-bold text-red-500 uppercase tracking-wider">This action cannot be undone.</p>
+        </div>
+
+        <footer class="flex justify-center gap-4">
+          <button @click="isDeleteModalOpen = false" class="px-6 py-3 rounded-xl font-bold text-[var(--text-secondary)] bg-[var(--bg-primary)] border border-[var(--border-color)] hover:bg-gray-500/5 transition-all duration-300 shadow-sm hover:shadow-md active:scale-95">
+            {{ categoryToDelete?.book_count > 0 ? 'Go Back' : 'Cancel' }}
+          </button>
+          <button v-if="categoryToDelete?.book_count === 0" @click="executeDelete" class="px-6 py-3 rounded-xl font-bold text-white bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 transition-all duration-300 shadow-[0_4px_15px_rgba(239,68,68,0.3)] hover:shadow-[0_8px_25px_rgba(239,68,68,0.4)] flex items-center gap-2 hover:-translate-y-0.5 active:scale-95" :disabled="deleting">
+            <Trash2 :size="20" stroke-width="2.5" />
+            {{ deleting ? 'Deleting...' : 'Yes, Delete' }}
+          </button>
+        </footer>
+      </div>
+    </div>
+  </main>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, onMounted, computed } from 'vue';
 import { useBooksStore } from '../../stores/books';
 import { useLocaleStore } from '../../stores/locale';
 import { useToastStore } from '../../stores/toast';
-import AdminSidebar from '../../components/AdminSidebar.vue';
 import * as LucideIcons from 'lucide-vue-next';
 import { Plus, Pencil, Trash2, X, Save, AlertCircle, AlertTriangle, Loader2, Tags, BookOpen } from 'lucide-vue-next';
 
@@ -183,6 +208,10 @@ const toastStore = useToastStore();
 const isModalOpen = ref(false);
 const isEditing = ref(false);
 const saving = ref(false);
+
+const totalCatalogBooks = computed(() => {
+  return booksStore.categories.reduce((sum, cat) => sum + (cat.book_count || 0), 0);
+});
 const formError = ref('');
 const form = reactive({
   id: '',

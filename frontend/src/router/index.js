@@ -11,6 +11,7 @@ import LoginView from '../views/LoginView.vue';
 import MyBorrowingsView from '../views/MyBorrowingsView.vue';
 import ProfileView from '../views/ProfileView.vue';
 
+import AdminLayout from '../views/admin/AdminLayout.vue';
 import AdminDashboardView from '../views/admin/AdminDashboardView.vue';
 import AdminBooksView from '../views/admin/AdminBooksView.vue';
 import AdminBorrowingsView from '../views/admin/AdminBorrowingsView.vue';
@@ -73,51 +74,50 @@ const routes = [
   },
   {
     path: '/admin',
-    name: 'admin-dashboard',
-    component: AdminDashboardView,
-    meta: { requiresAuth: true, requiresAdmin: true }
-  },
-  {
-    path: '/admin/books',
-    name: 'admin-books',
-    component: AdminBooksView,
-    meta: { requiresAuth: true, requiresAdmin: true }
-  },
-  {
-    path: '/admin/categories',
-    name: 'admin-categories',
-    component: AdminCategoriesView,
-    meta: { requiresAuth: true, requiresAdmin: true }
-  },
-  {
-    path: '/admin/borrowings',
-    name: 'admin-borrowings',
-    component: AdminBorrowingsView,
-    meta: { requiresAuth: true, requiresAdmin: true }
-  },
-  {
-    path: '/admin/checkins',
-    name: 'admin-checkins',
-    component: AdminCheckinsView,
-    meta: { requiresAuth: true, requiresAdmin: true }
-  },
-  {
-    path: '/admin/digital-reads',
-    name: 'admin-digital-reads',
-    component: AdminDigitalReadsView,
-    meta: { requiresAuth: true, requiresAdmin: true }
-  },
-  {
-    path: '/admin/users',
-    name: 'admin-users',
-    component: AdminUsersView,
-    meta: { requiresAuth: true, requiresAdmin: true }
-  },
-  {
-    path: '/admin/profile',
-    name: 'admin-profile',
-    component: AdminProfileView,
-    meta: { requiresAuth: true, requiresAdmin: true }
+    component: AdminLayout,
+    meta: { requiresAuth: true, requiresAdmin: true },
+    children: [
+      {
+        path: '',
+        name: 'admin-dashboard',
+        component: AdminDashboardView
+      },
+      {
+        path: 'books',
+        name: 'admin-books',
+        component: AdminBooksView
+      },
+      {
+        path: 'categories',
+        name: 'admin-categories',
+        component: AdminCategoriesView
+      },
+      {
+        path: 'borrowings',
+        name: 'admin-borrowings',
+        component: AdminBorrowingsView
+      },
+      {
+        path: 'checkins',
+        name: 'admin-checkins',
+        component: AdminCheckinsView
+      },
+      {
+        path: 'digital-reads',
+        name: 'admin-digital-reads',
+        component: AdminDigitalReadsView
+      },
+      {
+        path: 'users',
+        name: 'admin-users',
+        component: AdminUsersView
+      },
+      {
+        path: 'profile',
+        name: 'admin-profile',
+        component: AdminProfileView
+      }
+    ]
   }
 ];
 

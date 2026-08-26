@@ -1,9 +1,4 @@
 <template>
-  <div class="flex items-start min-h-screen w-full">
-    <!-- Left Admin Sidebar -->
-    <AdminSidebar />
-
-    <!-- Main Content Area -->
     <main class="flex-1 py-6 px-8 pb-16 w-[calc(100%-280px)] max-w-none">
       <header class="flex justify-between items-end mb-8">
         <div>
@@ -195,7 +190,6 @@
         </section>
       </template>
     </main>
-  </div>
 </template>
 
 <script setup>
@@ -203,7 +197,6 @@ import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useBorrowingsStore } from '../../stores/borrowings';
 import { useAuthStore } from '../../stores/auth';
 import { useLocaleStore } from '../../stores/locale';
-import AdminSidebar from '../../components/AdminSidebar.vue';
 import AdminCharts from '../../components/AdminCharts.vue';
 import { ShieldCheck, Plus, BookOpen, Users, BookmarkCheck, Clock, AlertTriangle, Loader2, Eye, Activity, ArrowRight } from 'lucide-vue-next';
 

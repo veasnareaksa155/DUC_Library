@@ -421,7 +421,7 @@ async function initPdfReader(url) {
 }
 
 async function sendReadingPing(isInitial = false) {
-  if (!book.value?.id) return;
+  if (!book.value?.id || !book.value?.pdf_url) return;
   try {
     const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/books/${book.value.id}/read-ping`, {
       method: 'POST',
@@ -429,7 +429,10 @@ async function sendReadingPing(isInitial = false) {
         'Content-Type': 'application/json',
         ...(authStore.token ? { 'Authorization': `Bearer ${authStore.token}` } : {})
       },
-      body: JSON.stringify({ session_id: sessionId })
+      body: JSON.stringify({ 
+        session_id: sessionId,
+        book_title: book.value.title 
+      })
     });
     if (res.ok) {
       const data = await res.json();
@@ -441,7 +444,7 @@ async function sendReadingPing(isInitial = false) {
 }
 
 async function sendReadingLeave() {
-  if (!book.value?.id || !sessionId) return;
+  if (!book.value?.id || !sessionId || !book.value?.pdf_url) return;
   try {
     const url = `${import.meta.env.VITE_API_URL || ''}/api/books/${book.value.id}/read-leave`;
     const data = JSON.stringify({ session_id: sessionId });
@@ -460,17 +463,26 @@ const handleBeforeUnload = () => {
   sendReadingLeave();
 };
 
+const handleActiveReadersUpdate = (e) => {
+  if (book.value?.id && String(book.value.id) === String(e.detail.book_id)) {
+    activeReadersCount.value = e.detail.count;
+  }
+};
+
 onMounted(async () => {
   window.addEventListener('beforeunload', handleBeforeUnload);
+  window.addEventListener('active_readers_updated', handleActiveReadersUpdate);
   try {
     const bookId = route.params.id;
     book.value = await booksStore.fetchBookById(bookId);
     if (book.value?.id) {
-      await sendReadingPing(true);
-      heartbeatTimer = setInterval(() => sendReadingPing(false), 25000);
-      
       if (book.value.pdf_url) {
+        await sendReadingPing(true);
+        heartbeatTimer = setInterval(() => sendReadingPing(false), 25000);
         initPdfReader(book.value.pdf_url);
+      } else {
+        // Not a digital read, reset count to 0 so it doesn't show "1 reading now"
+        activeReadersCount.value = 0;
       }
     }
   } catch (err) {
@@ -482,6 +494,7 @@ onMounted(async () => {
 
 onUnmounted(() => {
   window.removeEventListener('beforeunload', handleBeforeUnload);
+  window.removeEventListener('active_readers_updated', handleActiveReadersUpdate);
   if (heartbeatTimer) clearInterval(heartbeatTimer);
   sendReadingLeave();
 });

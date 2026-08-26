@@ -20,28 +20,28 @@
         <div class="h-px bg-gradient-to-r from-[var(--border-color)] to-transparent flex-1"></div>
       </div>
 
-      <router-link to="/admin" class="group flex items-center gap-3.5 px-3 py-2.5 rounded-[14px] text-[var(--text-secondary)] text-[0.92rem] font-bold transition-all duration-300 hover:text-[var(--text-primary)] hover:bg-indigo-500/5 [&.active]:text-[var(--text-primary)] [&.active]:bg-[var(--bg-primary)] [&.active]:shadow-[0_2px_10px_rgba(0,0,0,0.02)] [&.active]:border [&.active]:border-[var(--border-color)] border border-transparent" active-class="active" exact>
+      <router-link to="/admin" class="group flex items-center gap-3.5 px-3 py-2.5 rounded-[14px] text-[var(--text-secondary)] text-[0.92rem] font-bold transition-all duration-300 hover:text-[var(--text-primary)] hover:bg-slate-100 dark:hover:bg-slate-800/50 [&.active]:text-indigo-700 dark:[&.active]:text-indigo-300 [&.active]:bg-indigo-50 dark:[&.active]:bg-indigo-500/10 [&.active]:shadow-[0_4px_15px_rgba(99,102,241,0.05)] [&.active]:border [&.active]:border-indigo-200/60 dark:[&.active]:border-indigo-500/20 border border-transparent relative overflow-hidden [&.active]:before:content-[''] [&.active]:before:absolute [&.active]:before:left-0 [&.active]:before:top-1/2 [&.active]:before:-translate-y-1/2 [&.active]:before:h-[60%] [&.active]:before:w-1.5 [&.active]:before:bg-indigo-500 [&.active]:before:rounded-r-full [&.active]:before:shadow-[0_0_10px_rgba(99,102,241,0.5)]" exact-active-class="active">
         <div class="flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-300 [&.active]:[background:var(--accent-gradient)] [&.active]:text-white [&.active]:shadow-[0_4px_12px_rgba(99,102,241,0.35)] group-hover:not(.active):text-indigo-500 group-hover:not(.active):bg-indigo-500/10 text-[var(--text-muted)]">
           <LayoutDashboard :size="18" class="transition-transform duration-300 group-hover:scale-110" />
         </div>
         <span class="tracking-wide capitalize">{{ localeStore.t('dashboard') }}</span>
       </router-link>
 
-      <router-link to="/admin/books" class="group flex items-center gap-3.5 px-3 py-2.5 rounded-[14px] text-[var(--text-secondary)] text-[0.92rem] font-bold transition-all duration-300 hover:text-[var(--text-primary)] hover:bg-indigo-500/5 [&.active]:text-[var(--text-primary)] [&.active]:bg-[var(--bg-primary)] [&.active]:shadow-[0_2px_10px_rgba(0,0,0,0.02)] [&.active]:border [&.active]:border-[var(--border-color)] border border-transparent" active-class="active">
+      <router-link to="/admin/books" class="group flex items-center gap-3.5 px-3 py-2.5 rounded-[14px] text-[var(--text-secondary)] text-[0.92rem] font-bold transition-all duration-300 hover:text-[var(--text-primary)] hover:bg-slate-100 dark:hover:bg-slate-800/50 [&.active]:text-indigo-700 dark:[&.active]:text-indigo-300 [&.active]:bg-indigo-50 dark:[&.active]:bg-indigo-500/10 [&.active]:shadow-[0_4px_15px_rgba(99,102,241,0.05)] [&.active]:border [&.active]:border-indigo-200/60 dark:[&.active]:border-indigo-500/20 border border-transparent relative overflow-hidden [&.active]:before:content-[''] [&.active]:before:absolute [&.active]:before:left-0 [&.active]:before:top-1/2 [&.active]:before:-translate-y-1/2 [&.active]:before:h-[60%] [&.active]:before:w-1.5 [&.active]:before:bg-indigo-500 [&.active]:before:rounded-r-full [&.active]:before:shadow-[0_0_10px_rgba(99,102,241,0.5)]" active-class="active">
         <div class="flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-300 [&.active]:[background:var(--accent-gradient)] [&.active]:text-white [&.active]:shadow-[0_4px_12px_rgba(99,102,241,0.35)] group-hover:not(.active):text-indigo-500 group-hover:not(.active):bg-indigo-500/10 text-[var(--text-muted)]">
           <BookPlus :size="18" class="transition-transform duration-300 group-hover:scale-110" />
         </div>
         <span class="tracking-wide capitalize">{{ localeStore.t('books') }}</span>
       </router-link>
 
-      <router-link to="/admin/categories" class="group flex items-center gap-3.5 px-3 py-2.5 rounded-[14px] text-[var(--text-secondary)] text-[0.92rem] font-bold transition-all duration-300 hover:text-[var(--text-primary)] hover:bg-indigo-500/5 [&.active]:text-[var(--text-primary)] [&.active]:bg-[var(--bg-primary)] [&.active]:shadow-[0_2px_10px_rgba(0,0,0,0.02)] [&.active]:border [&.active]:border-[var(--border-color)] border border-transparent" active-class="active">
+      <router-link to="/admin/categories" class="group flex items-center gap-3.5 px-3 py-2.5 rounded-[14px] text-[var(--text-secondary)] text-[0.92rem] font-bold transition-all duration-300 hover:text-[var(--text-primary)] hover:bg-slate-100 dark:hover:bg-slate-800/50 [&.active]:text-indigo-700 dark:[&.active]:text-indigo-300 [&.active]:bg-indigo-50 dark:[&.active]:bg-indigo-500/10 [&.active]:shadow-[0_4px_15px_rgba(99,102,241,0.05)] [&.active]:border [&.active]:border-indigo-200/60 dark:[&.active]:border-indigo-500/20 border border-transparent relative overflow-hidden [&.active]:before:content-[''] [&.active]:before:absolute [&.active]:before:left-0 [&.active]:before:top-1/2 [&.active]:before:-translate-y-1/2 [&.active]:before:h-[60%] [&.active]:before:w-1.5 [&.active]:before:bg-indigo-500 [&.active]:before:rounded-r-full [&.active]:before:shadow-[0_0_10px_rgba(99,102,241,0.5)]" active-class="active">
         <div class="flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-300 [&.active]:[background:var(--accent-gradient)] [&.active]:text-white [&.active]:shadow-[0_4px_12px_rgba(99,102,241,0.35)] group-hover:not(.active):text-indigo-500 group-hover:not(.active):bg-indigo-500/10 text-[var(--text-muted)]">
           <Tags :size="18" class="transition-transform duration-300 group-hover:scale-110" />
         </div>
         <span class="tracking-wide capitalize">{{ localeStore.t('categories', 'Categories') }}</span>
       </router-link>
 
-      <router-link to="/admin/borrowings" class="group flex items-center gap-3.5 px-3 py-2.5 rounded-[14px] text-[var(--text-secondary)] text-[0.92rem] font-bold transition-all duration-300 hover:text-[var(--text-primary)] hover:bg-indigo-500/5 [&.active]:text-[var(--text-primary)] [&.active]:bg-[var(--bg-primary)] [&.active]:shadow-[0_2px_10px_rgba(0,0,0,0.02)] [&.active]:border [&.active]:border-[var(--border-color)] border border-transparent" active-class="active">
+      <router-link to="/admin/borrowings" class="group flex items-center gap-3.5 px-3 py-2.5 rounded-[14px] text-[var(--text-secondary)] text-[0.92rem] font-bold transition-all duration-300 hover:text-[var(--text-primary)] hover:bg-slate-100 dark:hover:bg-slate-800/50 [&.active]:text-indigo-700 dark:[&.active]:text-indigo-300 [&.active]:bg-indigo-50 dark:[&.active]:bg-indigo-500/10 [&.active]:shadow-[0_4px_15px_rgba(99,102,241,0.05)] [&.active]:border [&.active]:border-indigo-200/60 dark:[&.active]:border-indigo-500/20 border border-transparent relative overflow-hidden [&.active]:before:content-[''] [&.active]:before:absolute [&.active]:before:left-0 [&.active]:before:top-1/2 [&.active]:before:-translate-y-1/2 [&.active]:before:h-[60%] [&.active]:before:w-1.5 [&.active]:before:bg-indigo-500 [&.active]:before:rounded-r-full [&.active]:before:shadow-[0_0_10px_rgba(99,102,241,0.5)]" active-class="active">
         <div class="flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-300 [&.active]:[background:var(--accent-gradient)] [&.active]:text-white [&.active]:shadow-[0_4px_12px_rgba(99,102,241,0.35)] group-hover:not(.active):text-indigo-500 group-hover:not(.active):bg-indigo-500/10 text-[var(--text-muted)] relative">
           <ClipboardList :size="18" class="transition-transform duration-300 group-hover:scale-110" />
           <span v-if="pendingCount > 0" class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 rounded-full animate-ping"></span>
@@ -51,21 +51,24 @@
         <span v-if="pendingCount > 0" class="bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400 group-[.active]:bg-rose-500/20 group-[.active]:text-rose-500 border border-rose-200 dark:border-rose-500/20 group-[.active]:border-rose-500/30 text-[0.7rem] font-extrabold px-2 py-0.5 rounded-md transition-colors">{{ pendingCount }}</span>
       </router-link>
 
-      <router-link to="/admin/checkins" class="group flex items-center gap-3.5 px-3 py-2.5 rounded-[14px] text-[var(--text-secondary)] text-[0.92rem] font-bold transition-all duration-300 hover:text-[var(--text-primary)] hover:bg-indigo-500/5 [&.active]:text-[var(--text-primary)] [&.active]:bg-[var(--bg-primary)] [&.active]:shadow-[0_2px_10px_rgba(0,0,0,0.02)] [&.active]:border [&.active]:border-[var(--border-color)] border border-transparent" active-class="active">
+      <router-link to="/admin/checkins" class="group flex items-center gap-3.5 px-3 py-2.5 rounded-[14px] text-[var(--text-secondary)] text-[0.92rem] font-bold transition-all duration-300 hover:text-[var(--text-primary)] hover:bg-slate-100 dark:hover:bg-slate-800/50 [&.active]:text-indigo-700 dark:[&.active]:text-indigo-300 [&.active]:bg-indigo-50 dark:[&.active]:bg-indigo-500/10 [&.active]:shadow-[0_4px_15px_rgba(99,102,241,0.05)] [&.active]:border [&.active]:border-indigo-200/60 dark:[&.active]:border-indigo-500/20 border border-transparent relative overflow-hidden [&.active]:before:content-[''] [&.active]:before:absolute [&.active]:before:left-0 [&.active]:before:top-1/2 [&.active]:before:-translate-y-1/2 [&.active]:before:h-[60%] [&.active]:before:w-1.5 [&.active]:before:bg-indigo-500 [&.active]:before:rounded-r-full [&.active]:before:shadow-[0_0_10px_rgba(99,102,241,0.5)]" active-class="active">
         <div class="flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-300 [&.active]:[background:var(--accent-gradient)] [&.active]:text-white [&.active]:shadow-[0_4px_12px_rgba(99,102,241,0.35)] group-hover:not(.active):text-indigo-500 group-hover:not(.active):bg-indigo-500/10 text-[var(--text-muted)]">
           <MapPin :size="18" class="transition-transform duration-300 group-hover:scale-110" />
         </div>
         <span class="tracking-wide capitalize">{{ localeStore.t('checkins', 'Check-Ins') }}</span>
       </router-link>
 
-      <router-link to="/admin/digital-reads" class="group flex items-center gap-3.5 px-3 py-2.5 rounded-[14px] text-[var(--text-secondary)] text-[0.92rem] font-bold transition-all duration-300 hover:text-[var(--text-primary)] hover:bg-indigo-500/5 [&.active]:text-[var(--text-primary)] [&.active]:bg-[var(--bg-primary)] [&.active]:shadow-[0_2px_10px_rgba(0,0,0,0.02)] [&.active]:border [&.active]:border-[var(--border-color)] border border-transparent" active-class="active">
-        <div class="flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-300 [&.active]:[background:var(--accent-gradient)] [&.active]:text-white [&.active]:shadow-[0_4px_12px_rgba(99,102,241,0.35)] group-hover:not(.active):text-indigo-500 group-hover:not(.active):bg-indigo-500/10 text-[var(--text-muted)]">
+      <router-link to="/admin/digital-reads" class="group flex items-center gap-3.5 px-3 py-2.5 rounded-[14px] text-[var(--text-secondary)] text-[0.92rem] font-bold transition-all duration-300 hover:text-[var(--text-primary)] hover:bg-slate-100 dark:hover:bg-slate-800/50 [&.active]:text-indigo-700 dark:[&.active]:text-indigo-300 [&.active]:bg-indigo-50 dark:[&.active]:bg-indigo-500/10 [&.active]:shadow-[0_4px_15px_rgba(99,102,241,0.05)] [&.active]:border [&.active]:border-indigo-200/60 dark:[&.active]:border-indigo-500/20 border border-transparent relative overflow-hidden [&.active]:before:content-[''] [&.active]:before:absolute [&.active]:before:left-0 [&.active]:before:top-1/2 [&.active]:before:-translate-y-1/2 [&.active]:before:h-[60%] [&.active]:before:w-1.5 [&.active]:before:bg-indigo-500 [&.active]:before:rounded-r-full [&.active]:before:shadow-[0_0_10px_rgba(99,102,241,0.5)]" active-class="active">
+        <div class="flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-300 [&.active]:[background:var(--accent-gradient)] [&.active]:text-white [&.active]:shadow-[0_4px_12px_rgba(99,102,241,0.35)] group-hover:not(.active):text-indigo-500 group-hover:not(.active):bg-indigo-500/10 text-[var(--text-muted)] relative">
           <BookOpen :size="18" class="transition-transform duration-300 group-hover:scale-110" />
+          <span v-if="activeReadersCount > 0" class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-500 rounded-full animate-ping"></span>
+          <span v-if="activeReadersCount > 0" class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-500 rounded-full border border-[var(--bg-card)]"></span>
         </div>
-        <span class="tracking-wide capitalize">Digital Reads</span>
+        <span class="tracking-wide capitalize flex-1">Digital Reads</span>
+        <span v-if="activeReadersCount > 0" class="bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 group-[.active]:bg-emerald-500/20 group-[.active]:text-emerald-500 border border-emerald-200 dark:border-emerald-500/20 group-[.active]:border-emerald-500/30 text-[0.7rem] font-extrabold px-2 py-0.5 rounded-md transition-colors">{{ activeReadersCount }}</span>
       </router-link>
 
-      <router-link to="/admin/users" class="group flex items-center gap-3.5 px-3 py-2.5 rounded-[14px] text-[var(--text-secondary)] text-[0.92rem] font-bold transition-all duration-300 hover:text-[var(--text-primary)] hover:bg-indigo-500/5 [&.active]:text-[var(--text-primary)] [&.active]:bg-[var(--bg-primary)] [&.active]:shadow-[0_2px_10px_rgba(0,0,0,0.02)] [&.active]:border [&.active]:border-[var(--border-color)] border border-transparent" active-class="active">
+      <router-link to="/admin/users" class="group flex items-center gap-3.5 px-3 py-2.5 rounded-[14px] text-[var(--text-secondary)] text-[0.92rem] font-bold transition-all duration-300 hover:text-[var(--text-primary)] hover:bg-slate-100 dark:hover:bg-slate-800/50 [&.active]:text-indigo-700 dark:[&.active]:text-indigo-300 [&.active]:bg-indigo-50 dark:[&.active]:bg-indigo-500/10 [&.active]:shadow-[0_4px_15px_rgba(99,102,241,0.05)] [&.active]:border [&.active]:border-indigo-200/60 dark:[&.active]:border-indigo-500/20 border border-transparent relative overflow-hidden [&.active]:before:content-[''] [&.active]:before:absolute [&.active]:before:left-0 [&.active]:before:top-1/2 [&.active]:before:-translate-y-1/2 [&.active]:before:h-[60%] [&.active]:before:w-1.5 [&.active]:before:bg-indigo-500 [&.active]:before:rounded-r-full [&.active]:before:shadow-[0_0_10px_rgba(99,102,241,0.5)]" active-class="active">
         <div class="flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-300 [&.active]:[background:var(--accent-gradient)] [&.active]:text-white [&.active]:shadow-[0_4px_12px_rgba(99,102,241,0.35)] group-hover:not(.active):text-indigo-500 group-hover:not(.active):bg-indigo-500/10 text-[var(--text-muted)]">
           <Users :size="18" class="transition-transform duration-300 group-hover:scale-110" />
         </div>
@@ -91,7 +94,7 @@
 
       <!-- Admin User Pill -->
       <div class="flex items-center gap-3 p-3 bg-[var(--bg-primary)] hover:bg-[var(--bg-card)] hover:border-indigo-500/30 border border-[var(--border-color)] rounded-[16px] cursor-pointer transition-all duration-300 group shadow-[0_2px_10px_rgba(0,0,0,0.02)]" @click="router.push('/admin/profile')" title="Click to view My Full Profile">
-        <div class="w-10 h-10 rounded-[12px] bg-[var(--accent-gradient)] text-white flex items-center justify-center font-extrabold text-[1.1rem] shadow-[0_4px_12px_rgba(99,102,241,0.3)] group-hover:scale-105 transition-transform duration-300 overflow-hidden">
+        <div class="w-10 h-10 rounded-[12px] bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center font-extrabold text-[1.1rem] shadow-[0_4px_12px_rgba(99,102,241,0.3)] group-hover:scale-105 transition-transform duration-300 overflow-hidden">
           <img v-if="authStore.user?.profile_photo" :src="authStore.user.profile_photo" class="w-full h-full object-cover" alt="Admin Photo" />
           <span v-else>{{ (authStore.user?.name_latin || authStore.user?.name || 'A').charAt(0).toUpperCase() }}</span>
         </div>
@@ -131,6 +134,11 @@ const pendingCount = computed(() => {
   }
   return borrowingsStore.dashboardStats?.pending_requests || 0;
 });
+
+const activeReadersCount = computed(() => {
+  return borrowingsStore.dashboardStats?.active_readers_count || 0;
+});
+
 onMounted(() => {
   const savedTheme = localStorage.getItem('duc_theme') || 'dark';
   isDark.value = savedTheme === 'dark';

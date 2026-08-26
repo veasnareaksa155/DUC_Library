@@ -33,6 +33,10 @@ async function getSheetsClient() {
   return sheetsClient;
 }
 
+// In-Memory Cache to avoid Google Sheets API rate limits
+const CACHE = {};
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes TTL
+
 // Maps sheet names to their exact column layouts
 const SCHEMAS = {
   'Books': ['id', 'title', 'author', 'isbn', 'category_id', 'description', 'cover_url', 'pdf_url', 'digital_content', 'copies_total', 'copies_available', 'publisher', 'publish_year', 'is_featured', 'read_count', 'created_at'],
@@ -101,6 +105,11 @@ async function initializeSheets() {
  * Get all rows from a sheet as an array of objects
  */
 async function getAll(sheetName) {
+  // Check cache first
+  if (CACHE[sheetName] && (Date.now() - CACHE[sheetName].timestamp < CACHE_TTL_MS)) {
+    return CACHE[sheetName].data;
+  }
+
   const sheets = await getSheetsClient();
   const headers = SCHEMAS[sheetName];
   if (!headers) throw new Error(`Unknown sheet: ${sheetName}`);
@@ -111,7 +120,7 @@ async function getAll(sheetName) {
     const res = await sheets.spreadsheets.values.get({ spreadsheetId: SPREADSHEET_ID, range });
     const rows = res.data.values || [];
     
-    return rows.map(row => {
+    const mappedRows = rows.map(row => {
       const obj = {};
       headers.forEach((header, index) => {
         let val = row[index] || '';
@@ -138,8 +147,17 @@ async function getAll(sheetName) {
       });
       return obj;
     });
+
+    // Save to cache
+    CACHE[sheetName] = { data: mappedRows, timestamp: Date.now() };
+    return mappedRows;
   } catch (err) {
     console.error(`[GoogleSheetsORM] Error getting ${sheetName}:`, err.message);
+    // If error occurs, try to return stale cache if available to prevent app crash
+    if (CACHE[sheetName]) {
+      console.warn(`[GoogleSheetsORM] Returning stale cache for ${sheetName} due to error.`);
+      return CACHE[sheetName].data;
+    }
     return [];
   }
 }
@@ -184,6 +202,10 @@ async function insert(sheetName, data) {
     resource: { values: [rowValues] }
   });
 
+  // Optimistically update cache instead of invalidating it to save 3+ seconds on refetches
+  if (CACHE[sheetName]) {
+    CACHE[sheetName].data.push(data);
+  }
   return data;
 }
 
@@ -226,6 +248,13 @@ async function update(sheetName, id, updateData) {
     resource: { values: [newRowValues] }
   });
 
+  // Optimistically update cache instead of invalidating it
+  if (CACHE[sheetName]) {
+    const idx = CACHE[sheetName].data.findIndex(r => String(r.id) === String(id));
+    if (idx !== -1) {
+      CACHE[sheetName].data[idx] = mergedObj;
+    }
+  }
   return mergedObj;
 }
 
@@ -263,6 +292,10 @@ async function remove(sheetName, id) {
     }
   });
   
+  // Optimistically update cache instead of invalidating it
+  if (CACHE[sheetName]) {
+    CACHE[sheetName].data = CACHE[sheetName].data.filter(r => String(r.id) !== String(id));
+  }
   return true;
 }
 
@@ -292,6 +325,10 @@ async function insertMany(sheetName, dataArray) {
     resource: { values: rows }
   });
 
+  // Optimistically update cache instead of invalidating it
+  if (CACHE[sheetName]) {
+    CACHE[sheetName].data.push(...dataArray);
+  }
   return dataArray;
 }
 

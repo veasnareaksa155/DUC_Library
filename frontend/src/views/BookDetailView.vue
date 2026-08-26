@@ -168,7 +168,6 @@ function openBorrowFromReader() {
 }
 
 function handleBorrowSuccess(msg) {
-  alert(msg);
   booksStore.fetchBookById(route.params.id).then(res => book.value = res);
 }
 </script>

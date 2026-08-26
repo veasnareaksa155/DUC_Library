@@ -1,10 +1,5 @@
 <template>
-  <div class="flex items-start min-h-screen w-full">
-    <!-- Left Admin Sidebar -->
-    <AdminSidebar />
-
-    <!-- Main Content Area -->
-    <main class="flex-1 py-8 px-10 pb-16 w-[calc(100%-280px)] max-w-none">
+<main class="flex-1 py-8 px-10 pb-16 w-[calc(100%-280px)] max-w-none">
       <header class="mb-10">
         <h1 class="text-[2.2rem] font-extrabold text-[var(--text-primary)] mb-2 tracking-tight">My Admin Profile</h1>
         <p class="text-[1.05rem] text-[var(--text-secondary)]">Manage your library administrator account and privileges.</p>
@@ -73,13 +68,11 @@
         </div>
       </div>
     </main>
-  </div>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue';
 import { useAuthStore } from '../../stores/auth';
-import AdminSidebar from '../../components/AdminSidebar.vue';
 import { ShieldCheck, Camera } from 'lucide-vue-next';
 
 const authStore = useAuthStore();

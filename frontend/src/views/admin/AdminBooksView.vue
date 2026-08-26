@@ -1,10 +1,5 @@
 <template>
-  <div class="flex items-start min-h-screen w-full">
-    <!-- Left Admin Sidebar -->
-    <AdminSidebar />
-
-    <!-- Main Content Area -->
-    <main class="flex-1 py-6 px-8 pb-16 w-[calc(100%-280px)] max-w-none">
+<main class="flex-1 py-6 px-8 pb-16 w-[calc(100%-280px)] max-w-none">
       <header class="flex justify-between items-end mb-8">
         <div>
           <h1 class="text-[2.2rem] font-extrabold text-[var(--text-primary)]">{{ localeStore.t('books') }} Management</h1>
@@ -455,24 +450,7 @@
         </div>
       </div>
 
-      <!-- Delete Success Popup Modal -->
-      <div v-if="isDeleteSuccessOpen" class="fixed inset-0 bg-gray-900/75 backdrop-blur-sm z-50 flex items-center justify-center p-6 animate-in fade-in duration-200 backdrop-blur-[8px]" @click="isDeleteSuccessOpen = false">
-        <div class="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl shadow-2xl max-w-[420px] px-7 py-9 animate-[modalPopIn_0.35s_var(--spring-ease)] text-center animate-in zoom-in-95 duration-200">
-          <div class="flex justify-center mb-4">
-            <div class="w-[70px] h-[70px] rounded-full bg-emerald-500/15 border border-emerald-500/40 flex items-center justify-center shadow-[0_0_30px_rgba(16,185,129,0.3)]">
-              <CheckCircle :size="36" class="text-emerald-500" />
-            </div>
-          </div>
-
-          <h2 class="text-[1.3rem] font-extrabold text-emerald-500 mb-2">Book Deleted Successfully!</h2>
-          <p class="text-[0.9rem] text-[var(--text-secondary)] leading-relaxed">
-            <strong class="text-[var(--accent-primary)]">"{{ deleteSuccessTitle }}"</strong> has been removed from the library catalog.
-          </p>
-          <button @click="isDeleteSuccessOpen = false" class="inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out active:scale-95 bg-indigo-600 text-white shadow-sm hover:bg-indigo-700 hover:-translate-y-px hover:shadow-md px-4 py-2 text-sm mt-5">OK, Got It</button>
-        </div>
-      </div>
     </main>
-  </div>
 </template>
 
 <script setup>
@@ -481,7 +459,6 @@ import { useBooksStore } from '../../stores/books';
 import { useAuthStore } from '../../stores/auth';
 import { useLocaleStore } from '../../stores/locale';
 import { useToastStore } from '../../stores/toast';
-import AdminSidebar from '../../components/AdminSidebar.vue';
 import { Star, Plus, Search, Pencil, Trash2, X, Save, FileSpreadsheet, RefreshCw, CheckCircle, AlertCircle, 
 AlertTriangle, ChevronLeft, ChevronRight, FileText, Upload, Bookmark, Image, Loader2, Library, ChevronDown, BookOpen } from 'lucide-vue-next';
 
@@ -744,9 +721,6 @@ const isDeleteModalOpen = ref(false);
 const bookToDelete = ref(null);
 const deleting = ref(false);
 
-const isDeleteSuccessOpen = ref(false);
-const deleteSuccessTitle = ref('');
-
 function confirmDelete(book) {
   bookToDelete.value = book;
   isDeleteModalOpen.value = true;
@@ -756,15 +730,12 @@ async function executeDeleteBook() {
   if (!bookToDelete.value) return;
   deleting.value = true;
   try {
-    deleteSuccessTitle.value = bookToDelete.value.title;
+    const title = bookToDelete.value.title;
     await booksStore.deleteBook(bookToDelete.value.id);
     isDeleteModalOpen.value = false;
-    isDeleteSuccessOpen.value = true;
-    setTimeout(() => {
-      isDeleteSuccessOpen.value = false;
-    }, 2800);
+    toastStore.showSuccess(`"${title}" has been removed from the library catalog.`, 'Book Deleted Successfully!');
   } catch (err) {
-    alert(err.message || 'Failed to delete book.');
+    toastStore.showError(err.message || 'Failed to delete book.', 'Delete Error');
   } finally {
     deleting.value = false;
   }

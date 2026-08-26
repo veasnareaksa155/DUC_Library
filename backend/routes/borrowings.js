@@ -1,6 +1,7 @@
 const express = require('express');
 const { authenticateToken } = require('../middleware/auth');
 const ORM = require('../googleSheetsORM');
+const sse = require('../services/sse');
 
 const router = express.Router();
 
@@ -55,6 +56,12 @@ router.post('/request', authenticateToken, async (req, res) => {
     };
 
     const inserted = await ORM.insert('Borrowings', newBorrowing);
+
+    // Alert connected Admins instantly
+    sse.broadcastToAdmins('new_borrowing_request', {
+      book_title: book.title,
+      borrowing_id: inserted.id
+    });
 
     res.status(201).json({
       message: 'Borrow request submitted successfully. Awaiting admin approval.',

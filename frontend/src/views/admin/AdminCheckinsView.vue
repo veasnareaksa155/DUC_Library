@@ -1,10 +1,5 @@
 <template>
-  <div class="flex items-start min-h-screen w-full print:block">
-    <!-- Left Admin Sidebar -->
-    <AdminSidebar />
-
-    <!-- Main Content Area -->
-    <main class="flex-1 py-8 px-10 pb-20 w-[calc(100%-280px)] max-w-none print:w-full print:p-0 print:m-0 print:block">
+<main class="flex-1 py-8 px-10 pb-20 w-[calc(100%-280px)] max-w-none print:w-full print:p-0 print:m-0 print:block">
       <header class="mb-10 flex flex-col gap-2 print:hidden">
         <div class="flex items-center gap-3 text-indigo-500 mb-1">
           <MapPin :size="28" class="p-1.5 bg-indigo-500/10 rounded-lg shadow-sm" />
@@ -264,7 +259,6 @@
         </div>
       </div>
     </main>
-  </div>
 </template>
 
 <style scoped>
@@ -277,10 +271,9 @@
 </style>
 
 <script setup>
-import { ref, computed, onMounted, watch, nextTick } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue';
 import { useAuthStore } from '../../stores/auth';
 import { useToastStore } from '../../stores/toast';
-import AdminSidebar from '../../components/AdminSidebar.vue';
 import { MapPin, ChevronLeft, ChevronRight, CalendarDays, ChevronDown, Printer } from 'lucide-vue-next';
 
 const authStore = useAuthStore();
@@ -342,12 +335,33 @@ const reportDateText = computed(() => {
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
 
+const handleRefresh = () => {
+  fetchCheckins();
+};
+
 onMounted(() => {
   fetchCheckins();
+  window.addEventListener('refresh-admin-checkins', handleRefresh);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('refresh-admin-checkins', handleRefresh);
 });
 
 async function fetchCheckins() {
-  loading.value = true;
+  if (checkins.value.length === 0) {
+    try {
+      const cached = localStorage.getItem('library_admin_checkins_cache');
+      if (cached) checkins.value = JSON.parse(cached);
+    } catch (e) {
+      console.warn('Failed to parse cached checkins', e);
+    }
+  }
+
+  if (checkins.value.length === 0) {
+    loading.value = true;
+  }
+
   try {
     const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/admin/checkins`, {
       headers: {
@@ -361,8 +375,11 @@ async function fetchCheckins() {
     
     const data = await res.json();
     checkins.value = data;
+    localStorage.setItem('library_admin_checkins_cache', JSON.stringify(data));
   } catch (err) {
-    toastStore.show(err.message, { type: 'error', title: 'Error' });
+    if (checkins.value.length === 0) {
+      toastStore.show(err.message, { type: 'error', title: 'Error' });
+    }
   } finally {
     loading.value = false;
   }

@@ -1,8 +1,5 @@
 <template>
-  <div class="flex items-start min-h-screen w-full print:block bg-gradient-to-br from-indigo-50/50 to-purple-50/30 dark:from-slate-950 dark:to-indigo-950/20">
-    <AdminSidebar />
-
-    <main class="flex-1 py-8 px-10 pb-20 w-[calc(100%-280px)] max-w-none print:w-full print:p-0 print:m-0 print:block">
+<main class="flex-1 py-8 px-10 pb-20 w-[calc(100%-280px)] max-w-none print:w-full print:p-0 print:m-0 print:block">
       <header class="mb-10 flex flex-col gap-2 print:hidden relative">
         <div class="absolute -top-10 -left-10 w-40 h-40 bg-indigo-500/20 blur-[80px] rounded-full pointer-events-none"></div>
         <div class="absolute top-10 right-20 w-60 h-60 bg-purple-500/10 blur-[100px] rounded-full pointer-events-none"></div>
@@ -278,7 +275,6 @@
         </div>
       </div>
     </main>
-  </div>
 </template>
 
 <style scoped>
@@ -295,7 +291,6 @@
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
 import { useAuthStore } from '../../stores/auth';
 import { useToastStore } from '../../stores/toast';
-import AdminSidebar from '../../components/AdminSidebar.vue';
 import { BookOpen, ChevronLeft, ChevronRight, Printer, Activity, Users, Clock, History, Search, Timer, Loader2, MonitorOff, ChevronDown, CalendarDays } from 'lucide-vue-next';
 
 const authStore = useAuthStore();
@@ -326,6 +321,11 @@ const printReport = async () => {
 const currentPage = ref(1);
 const itemsPerPage = ref(15);
 
+const handleRefresh = () => {
+  fetchLiveReads();
+  fetchHistoricalReads();
+};
+
 onMounted(() => {
   fetchHistoricalReads();
   fetchLiveReads();
@@ -334,24 +334,42 @@ onMounted(() => {
     fetchHistoricalReads();
   }, 10000); // Check live and historical readers every 10s
   clockTimer = setInterval(() => { now.value = Date.now(); }, 1000); // Update the real-time clock every 1s
+  window.addEventListener('refresh-admin-digital-reads', handleRefresh);
 });
 
 onUnmounted(() => {
   if (liveTimer) clearInterval(liveTimer);
   if (clockTimer) clearInterval(clockTimer);
+  window.removeEventListener('refresh-admin-digital-reads', handleRefresh);
 });
 
 async function fetchHistoricalReads() {
-  if (historicalReads.value.length === 0) loading.value = true;
+  if (historicalReads.value.length === 0) {
+    try {
+      const cached = localStorage.getItem('library_admin_digital_reads_cache');
+      if (cached) historicalReads.value = JSON.parse(cached);
+    } catch (e) {
+      console.warn('Failed to parse cached historical reads', e);
+    }
+  }
+
+  if (historicalReads.value.length === 0) {
+    loading.value = true;
+  }
+
   try {
     const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/admin/digital-reads`, {
       headers: { Authorization: `Bearer ${authStore.token}` }
     });
     if (res.ok) {
-      historicalReads.value = await res.json();
+      const data = await res.json();
+      historicalReads.value = data;
+      localStorage.setItem('library_admin_digital_reads_cache', JSON.stringify(data));
     }
   } catch (err) {
-    console.error(err);
+    if (historicalReads.value.length === 0) {
+      console.error(err);
+    }
   } finally {
     loading.value = false;
   }
