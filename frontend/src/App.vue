@@ -90,12 +90,14 @@ import { useAuthStore } from './stores/auth';
 import { useToastStore } from './stores/toast';
 import { useBorrowingsStore } from './stores/borrowings';
 import { useNotificationsStore } from './stores/notifications';
+import { useWishlistStore } from './stores/wishlist';
 import { requestPhoneNotificationPermission } from './services/notificationService';
 
 const authStore = useAuthStore();
 const toastStore = useToastStore();
 const borrowingsStore = useBorrowingsStore();
 const notificationsStore = useNotificationsStore();
+const wishlistStore = useWishlistStore();
 const route = useRoute();
 const hideGlobalNav = computed(() => route.path.startsWith('/admin') || route.path.startsWith('/read'));
 
@@ -116,13 +118,17 @@ function setupSSE(token) {
       console.log('SSE Event Received:', data.type, data.payload);
       
       if (data.type === 'borrowing_updated') {
-        const statusStr = data.payload.status === 'approved' ? 'Approved! 🎉' : 'Declined';
-        const msg = `Your request for "${data.payload.book_title}" was ${data.payload.status}.`;
+        const status = data.payload.status;
+        const bookTitle = data.payload.book_title;
         
-        if (data.payload.status === 'approved') {
-          toastStore.showSuccess(msg, `Request ${statusStr}`);
+        if (status === 'approved') {
+          toastStore.showSuccess(`Your request for "${bookTitle}" was approved.`, `Request Approved! 🎉`);
+        } else if (status === 'rejected') {
+          toastStore.showError(`Your request for "${bookTitle}" was declined.`, `Request Declined`);
+        } else if (status === 'returned') {
+          toastStore.showSuccess(`"${bookTitle}" has been successfully returned.`, `Book Returned`);
         } else {
-          toastStore.showError(msg, `Request ${statusStr}`);
+          toastStore.showSuccess(`Status for "${bookTitle}" changed to ${status}.`, `Update`);
         }
         
         // Refresh stores to instantly update the UI (bypassing local cache)
@@ -147,16 +153,27 @@ function setupSSE(token) {
         }
       } else if (data.type === 'new_digital_read') {
         if (authStore.isAdmin) {
-          toastStore.showSuccess(
-            `Student ${data.payload.user_name} started reading "${data.payload.book_title}"`, 
-            'Live Reading Alert'
-          );
+          // Throttle toasts during mass concurrency: only show 1 per second
+          const now = Date.now();
+          if (!window.lastReadToast || now - window.lastReadToast > 1000) {
+            toastStore.showSuccess(
+              `Student ${data.payload.user_name} started reading "${data.payload.book_title}"`, 
+              'Live Reading Alert'
+            );
+            window.lastReadToast = now;
+          }
+          
           if (!borrowingsStore.dashboardStats) {
             borrowingsStore.dashboardStats = { active_readers_count: data.payload.total_active_readers || 1 };
           } else if (typeof data.payload.total_active_readers !== 'undefined') {
             borrowingsStore.dashboardStats.active_readers_count = data.payload.total_active_readers;
           }
-          window.dispatchEvent(new CustomEvent('refresh-admin-digital-reads'));
+          
+          // Debounce dispatching the refresh event to prevent flooding
+          if (window.readRefreshTimer) clearTimeout(window.readRefreshTimer);
+          window.readRefreshTimer = setTimeout(() => {
+            window.dispatchEvent(new CustomEvent('refresh-admin-digital-reads'));
+          }, 300);
         }
       } else if (data.type === 'digital_read_ended') {
         if (authStore.isAdmin) {
@@ -165,7 +182,11 @@ function setupSSE(token) {
           } else if (typeof data.payload.total_active_readers !== 'undefined') {
             borrowingsStore.dashboardStats.active_readers_count = data.payload.total_active_readers;
           }
-          window.dispatchEvent(new CustomEvent('refresh-admin-digital-reads'));
+          
+          if (window.readEndRefreshTimer) clearTimeout(window.readEndRefreshTimer);
+          window.readEndRefreshTimer = setTimeout(() => {
+            window.dispatchEvent(new CustomEvent('refresh-admin-digital-reads'));
+          }, 300);
         }
       } else if (data.type === 'active_readers_updated') {
         window.dispatchEvent(new CustomEvent('active_readers_updated', { detail: data.payload }));
@@ -181,6 +202,16 @@ function setupSSE(token) {
             booksStore.fetchCategories(true);
             booksStore.fetchBooks(true);
           }
+        });
+      } else if (data.type === 'wishlist_trends_updated') {
+        if (authStore.isAdmin) {
+           wishlistStore.fetchPopularBooks(true);
+        }
+      } else if (data.type === 'settings_updated') {
+        import('./stores/settings').then(module => {
+          const settingsStore = module.useSettingsStore();
+          // Real-time optimistic update of frontend cache
+          settingsStore.settings[data.payload.setting_key] = data.payload.setting_value;
         });
       }
     } catch (e) {
@@ -207,6 +238,7 @@ watch(() => authStore.token, (newToken) => {
 
 onMounted(() => {
   authStore.checkAuth();
+  wishlistStore.fetchMyWishlist();
   requestPhoneNotificationPermission();
   
   // Re-establish connection when waking up from background on mobile

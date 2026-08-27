@@ -273,6 +273,9 @@ router.put('/borrowings/:id/status', async (req, res) => {
       }
       await ORM.update('Books', book.id, { copies_available: copiesAvailable - 1 });
       
+      const sse = require('../services/sse');
+      sse.broadcast('catalog_updated', { type: 'books' });
+      
       // Notify student
       await ORM.insert('Notifications', {
         user_id: borrowing.user_id,
@@ -295,6 +298,8 @@ router.put('/borrowings/:id/status', async (req, res) => {
     } else if (status === 'returned' && (borrowing.status === 'approved' || borrowing.status === 'pending')) {
       if (borrowing.status === 'approved') {
         await ORM.update('Books', book.id, { copies_available: copiesAvailable + 1 });
+        const sse = require('../services/sse');
+        sse.broadcast('catalog_updated', { type: 'books' });
       }
     }
 
@@ -609,6 +614,63 @@ router.get('/digital-reads/live', async (req, res) => {
   } catch (error) {
     console.error('Error fetching live digital reads:', error);
     res.status(500).json({ message: 'Failed to fetch live digital reads' });
+  }
+});
+
+// GET /wishlists/popular - Get leaderboard of most wishlisted books
+router.get('/wishlists/popular', async (req, res) => {
+  try {
+    const wishlists = await ORM.getAll('Wishlists') || [];
+    const booksMap = await getBookMap();
+    const usersMap = await getUserMap();
+    const categories = await ORM.getAll('Categories') || [];
+    
+    const categoriesMap = {};
+    categories.forEach(c => categoriesMap[c.id] = c.name);
+
+    // Count wishlists per book
+    const wishlistCounts = {};
+    const recentLovers = {};
+    
+    wishlists.forEach(w => {
+      const bId = w.book_id;
+      if (!wishlistCounts[bId]) {
+        wishlistCounts[bId] = 0;
+        recentLovers[bId] = [];
+      }
+      wishlistCounts[bId]++;
+      
+      // Keep track of up to 5 users who wishlisted this
+      if (recentLovers[bId].length < 5) {
+        const u = usersMap[w.user_id];
+        if (u) {
+          recentLovers[bId].push({
+            id: u.id,
+            name: u.name,
+            photo: u.profile_photo || ''
+          });
+        }
+      }
+    });
+
+    const popularBooks = Object.keys(wishlistCounts).map(bId => {
+      const b = booksMap[bId];
+      if (!b) return null;
+      return {
+        id: b.id,
+        title: b.title,
+        author: b.author,
+        cover_url: b.cover_url,
+        category_name: categoriesMap[b.category_id] || 'N/A',
+        wishlist_count: wishlistCounts[bId],
+        recent_users: recentLovers[bId]
+      };
+    }).filter(b => b !== null).sort((a, b) => b.wishlist_count - a.wishlist_count);
+    
+    res.json(popularBooks);
+  } catch (error) {
+    console.error('Error fetching popular wishlists:', error);
+    res.status(500).json({ message: 'Failed to fetch wishlist trends' });
   }
 });
 

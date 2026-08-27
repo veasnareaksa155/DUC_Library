@@ -14,7 +14,7 @@
     </div>
 
     <!-- Navigation Menu -->
-    <nav class="flex flex-col gap-1.5 mb-6 flex-1">
+    <nav class="flex flex-col gap-1.5 mb-4 flex-1 overflow-y-auto min-h-0 pr-2 -mr-2">
       <div class="flex items-center gap-3 px-2 mb-3">
         <span class="text-[0.65rem] font-extrabold text-[var(--text-muted)] tracking-[0.15em] uppercase">Main Menu</span>
         <div class="h-px bg-gradient-to-r from-[var(--border-color)] to-transparent flex-1"></div>
@@ -64,8 +64,15 @@
           <span v-if="activeReadersCount > 0" class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-500 rounded-full animate-ping"></span>
           <span v-if="activeReadersCount > 0" class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-500 rounded-full border border-[var(--bg-card)]"></span>
         </div>
-        <span class="tracking-wide capitalize flex-1">Digital Reads</span>
+        <span class="tracking-wide capitalize flex-1">{{ localeStore.t('digitalReads', 'Digital Reads') }}</span>
         <span v-if="activeReadersCount > 0" class="bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 group-[.active]:bg-emerald-500/20 group-[.active]:text-emerald-500 border border-emerald-200 dark:border-emerald-500/20 group-[.active]:border-emerald-500/30 text-[0.7rem] font-extrabold px-2 py-0.5 rounded-md transition-colors">{{ activeReadersCount }}</span>
+      </router-link>
+
+      <router-link to="/admin/wishlists" class="group flex items-center gap-3.5 px-3 py-2.5 rounded-[14px] text-[var(--text-secondary)] text-[0.92rem] font-bold transition-all duration-300 hover:text-[var(--text-primary)] hover:bg-slate-100 dark:hover:bg-slate-800/50 [&.active]:text-pink-600 dark:[&.active]:text-pink-300 [&.active]:bg-pink-50 dark:[&.active]:bg-pink-500/10 [&.active]:shadow-[0_4px_15px_rgba(244,114,182,0.05)] [&.active]:border [&.active]:border-pink-200/60 dark:[&.active]:border-pink-500/20 border border-transparent relative overflow-hidden [&.active]:before:content-[''] [&.active]:before:absolute [&.active]:before:left-0 [&.active]:before:top-1/2 [&.active]:before:-translate-y-1/2 [&.active]:before:h-[60%] [&.active]:before:w-1.5 [&.active]:before:bg-pink-500 [&.active]:before:rounded-r-full" active-class="active">
+        <div class="flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-300 [&.active]:bg-pink-500 [&.active]:text-white text-[var(--text-muted)] group-hover:not(.active):text-pink-500">
+          <Heart :size="18" class="transition-transform duration-300 group-hover:scale-110" />
+        </div>
+        <span class="tracking-wide capitalize">{{ localeStore.t('wishlists', 'Wishlist Trends') }}</span>
       </router-link>
 
       <router-link to="/admin/users" class="group flex items-center gap-3.5 px-3 py-2.5 rounded-[14px] text-[var(--text-secondary)] text-[0.92rem] font-bold transition-all duration-300 hover:text-[var(--text-primary)] hover:bg-slate-100 dark:hover:bg-slate-800/50 [&.active]:text-indigo-700 dark:[&.active]:text-indigo-300 [&.active]:bg-indigo-50 dark:[&.active]:bg-indigo-500/10 [&.active]:shadow-[0_4px_15px_rgba(99,102,241,0.05)] [&.active]:border [&.active]:border-indigo-200/60 dark:[&.active]:border-indigo-500/20 border border-transparent relative overflow-hidden [&.active]:before:content-[''] [&.active]:before:absolute [&.active]:before:left-0 [&.active]:before:top-1/2 [&.active]:before:-translate-y-1/2 [&.active]:before:h-[60%] [&.active]:before:w-1.5 [&.active]:before:bg-indigo-500 [&.active]:before:rounded-r-full [&.active]:before:shadow-[0_0_10px_rgba(99,102,241,0.5)]" active-class="active">
@@ -73,6 +80,13 @@
           <Users :size="18" class="transition-transform duration-300 group-hover:scale-110" />
         </div>
         <span class="tracking-wide capitalize">{{ localeStore.t('users') }}</span>
+      </router-link>
+
+      <router-link to="/admin/settings" class="group flex items-center gap-3.5 px-3 py-2.5 rounded-[14px] text-[var(--text-secondary)] text-[0.92rem] font-bold transition-all duration-300 hover:text-[var(--text-primary)] hover:bg-slate-100 dark:hover:bg-slate-800/50 [&.active]:text-indigo-700 dark:[&.active]:text-indigo-300 [&.active]:bg-indigo-50 dark:[&.active]:bg-indigo-500/10 [&.active]:shadow-[0_4px_15px_rgba(99,102,241,0.05)] [&.active]:border [&.active]:border-indigo-200/60 dark:[&.active]:border-indigo-500/20 border border-transparent relative overflow-hidden [&.active]:before:content-[''] [&.active]:before:absolute [&.active]:before:left-0 [&.active]:before:top-1/2 [&.active]:before:-translate-y-1/2 [&.active]:before:h-[60%] [&.active]:before:w-1.5 [&.active]:before:bg-indigo-500 [&.active]:before:rounded-r-full [&.active]:before:shadow-[0_0_10px_rgba(99,102,241,0.5)]" active-class="active">
+        <div class="flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-300 [&.active]:[background:var(--accent-gradient)] [&.active]:text-white [&.active]:shadow-[0_4px_12px_rgba(99,102,241,0.35)] group-hover:not(.active):text-indigo-500 group-hover:not(.active):bg-indigo-500/10 text-[var(--text-muted)]">
+          <Settings :size="18" class="transition-transform duration-300 group-hover:scale-110 group-hover:rotate-45" />
+        </div>
+        <span class="tracking-wide capitalize">{{ localeStore.t('settings', 'System Settings') }}</span>
       </router-link>
     </nav>
 
@@ -118,7 +132,7 @@ import { useBorrowingsStore } from '../stores/borrowings';
 import { useConfirmStore } from '../stores/confirm';
 import { useRouter } from 'vue-router';
 import { 
-  LayoutDashboard, BookPlus, ClipboardList, Tags, Users, LogOut, MapPin, Globe, Moon, Sun, BookOpen 
+  LayoutDashboard, BookPlus, ClipboardList, Tags, Users, LogOut, MapPin, Globe, Moon, Sun, BookOpen, Heart, Settings 
 } from 'lucide-vue-next';
 
 const authStore = useAuthStore();
@@ -143,6 +157,10 @@ onMounted(() => {
   const savedTheme = localStorage.getItem('duc_theme') || 'dark';
   isDark.value = savedTheme === 'dark';
   applyTheme(savedTheme);
+  
+  if (authStore.isAdmin) {
+    borrowingsStore.fetchAdminDashboardStats();
+  }
 });
 
 function toggleLanguage() {

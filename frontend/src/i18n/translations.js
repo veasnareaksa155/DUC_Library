@@ -99,7 +99,9 @@ export const translations = {
     approved: "Approved",
     returned: "Returned",
     rejected: "Rejected",
-    overdue: "Overdue"
+    overdue: "Overdue",
+    digitalReads: "Digital Reads",
+    wishlists: "Wishlist Trends"
   },
   km: {
     brand: "បណ្ណាល័យ DUC",
@@ -201,6 +203,8 @@ export const translations = {
     approved: "បានអនុម័ត",
     returned: "បានសងវិញ",
     rejected: "បានបដិសេធ",
-    overdue: "ហួសកាលកំណត់"
+    overdue: "ហួសកាលកំណត់",
+    digitalReads: "ការអានឌីជីថល",
+    wishlists: "សៀវភៅពេញនិយម"
   }
 };

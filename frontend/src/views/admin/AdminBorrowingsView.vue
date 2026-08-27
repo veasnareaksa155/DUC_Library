@@ -62,6 +62,22 @@
           </div>
           
           <div class="flex items-center gap-4 flex-wrap">
+            <!-- Search Input -->
+            <div class="relative bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-[var(--border-color)]/50 shadow-sm transition-all duration-300 flex items-center h-[38px] hover:border-indigo-300 dark:hover:border-indigo-500/50 min-w-[220px]">
+              <div class="pl-3 pr-2 text-[var(--text-muted)] flex items-center justify-center">
+                <Search :size="16" />
+              </div>
+              <input 
+                v-model="searchQuery" 
+                type="text" 
+                placeholder="Search name, email, book..." 
+                class="bg-transparent border-none outline-none text-[0.85rem] font-medium text-[var(--text-primary)] placeholder:text-[var(--text-muted)] w-full py-1.5 h-full"
+              />
+              <button v-if="searchQuery" @click="searchQuery = ''" class="pr-3 text-[var(--text-muted)] hover:text-rose-500 flex items-center justify-center h-full">
+                <X :size="14" />
+              </button>
+            </div>
+
             <!-- All / Today Toggle -->
             <div class="flex items-center bg-slate-50 dark:bg-slate-800/50 rounded-xl p-1 border border-slate-200/50 dark:border-slate-700/50 shadow-sm">
               <button @click="dateMode = 'all'" :class="dateMode === 'all' ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-md shadow-indigo-500/20' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'" class="px-5 py-1.5 rounded-lg text-[0.85rem] font-bold transition-all duration-300 ease-out min-w-[70px]">All</button>
@@ -314,7 +330,7 @@ import { useLocaleStore } from '../../stores/locale';
 import { useToastStore } from '../../stores/toast';
 import { useConfirmStore } from '../../stores/confirm';
 import { sendPhoneAndDrawerNotification } from '../../services/notificationService';
-import { Check, X, RotateCcw, BellRing, ClipboardList, Loader2, ChevronLeft, ChevronRight, Trash2, ChevronDown, Calendar, Printer } from 'lucide-vue-next';
+import { Check, X, RotateCcw, BellRing, ClipboardList, Loader2, ChevronLeft, ChevronRight, Trash2, ChevronDown, Calendar, Printer, Search } from 'lucide-vue-next';
 
 const borrowingsStore = useBorrowingsStore();
 const localeStore = useLocaleStore();
@@ -324,6 +340,7 @@ const activeFilter = ref('all');
 const dateMode = ref('all');
 const selectedYear = ref('all');
 const selectedMonth = ref('all');
+const searchQuery = ref('');
 
 const availableYears = computed(() => {
   const years = new Set();
@@ -388,6 +405,17 @@ onMounted(() => {
 
 const filteredBorrowings = computed(() => {
   let result = borrowingsStore.adminBorrowings;
+
+  // 0. Search Filter
+  if (searchQuery.value && searchQuery.value.trim() !== '') {
+    const q = searchQuery.value.toLowerCase().trim();
+    result = result.filter(b => {
+      const nameMatch = b.user_name ? String(b.user_name).toLowerCase().includes(q) : false;
+      const emailMatch = b.user_email ? String(b.user_email).toLowerCase().includes(q) : false;
+      const titleMatch = b.book_title ? String(b.book_title).toLowerCase().includes(q) : false;
+      return nameMatch || emailMatch || titleMatch;
+    });
+  }
   
   // 1. Status Filter
   if (activeFilter.value !== 'all') {
@@ -439,7 +467,7 @@ watch(dateMode, (newMode) => {
   currentPage.value = 1;
 });
 
-watch([selectedYear, selectedMonth, activeFilter], () => {
+watch([selectedYear, selectedMonth, activeFilter, searchQuery], () => {
   if (selectedYear.value === 'all') {
     selectedMonth.value = 'all';
   }

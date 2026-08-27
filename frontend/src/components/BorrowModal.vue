@@ -20,7 +20,7 @@
           <label class="block text-[0.85rem] font-bold mb-2.5 text-[var(--text-primary)]">{{ localeStore.t('selectDuration') }}</label>
           <div class="grid grid-cols-4 gap-2">
             <button 
-              v-for="d in [7, 14, 21, 30]" 
+              v-for="d in settingsStore.borrowingDurations" 
               :key="d"
               @click="selectedDays = d"
               class="h-10 border rounded-md font-bold text-[0.8rem] transition-colors cursor-pointer"
@@ -57,6 +57,7 @@ import { ref, computed } from 'vue';
 import { useBorrowingsStore } from '../stores/borrowings';
 import { useLocaleStore } from '../stores/locale';
 import { useToastStore } from '../stores/toast';
+import { useSettingsStore } from '../stores/settings';
 import { X, Calendar, BookmarkPlus } from 'lucide-vue-next';
 
 const props = defineProps({
@@ -69,8 +70,29 @@ const emit = defineEmits(['close', 'success']);
 const borrowingsStore = useBorrowingsStore();
 const localeStore = useLocaleStore();
 const toastStore = useToastStore();
+const settingsStore = useSettingsStore();
 const selectedDays = ref(14);
 const loading = ref(false);
+
+import { onMounted, watch } from 'vue';
+
+onMounted(() => {
+  settingsStore.fetchSettings().then(() => {
+    if (!settingsStore.borrowingDurations.includes(selectedDays.value)) {
+      selectedDays.value = settingsStore.borrowingDurations[0] || 14;
+    }
+  });
+});
+
+watch(() => props.isOpen, async (open) => {
+  if (open) {
+    // Fetch fresh settings every time the modal opens to guarantee immediate updates
+    await settingsStore.fetchSettings();
+    if (!settingsStore.borrowingDurations.includes(selectedDays.value)) {
+      selectedDays.value = settingsStore.borrowingDurations[0] || 14;
+    }
+  }
+});
 
 const fallbackCover = 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&w=600&q=80';
 

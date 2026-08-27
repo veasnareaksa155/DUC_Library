@@ -121,22 +121,43 @@ async function removeReader(sessionId) {
 setInterval(async () => {
   const now = Date.now();
   const timeoutMs = 45000;
+  
+  const timedOutSessions = [];
+  
+  // 1. Identify all timed-out sessions
   for (const sessionId in activeReaders) {
     if (now - activeReaders[sessionId].last_ping >= timeoutMs) {
-      await saveSessionToDb(sessionId, activeReaders[sessionId]);
-      delete activeReaders[sessionId];
-      
-      try {
-        const sse = require('./sse');
-        const totalReaders = Object.keys(activeReaders).length;
-        sse.broadcastToAdmins('digital_read_ended', { 
-          session_id: sessionId,
-          total_active_readers: totalReaders
-        });
-      } catch (err) {
-        console.error('Failed to broadcast read end event:', err);
-      }
+      timedOutSessions.push({
+        sessionId,
+        data: activeReaders[sessionId]
+      });
     }
+  }
+
+  if (timedOutSessions.length === 0) return;
+
+  // 2. Remove them synchronously so `activeReaders` is instantly accurate
+  timedOutSessions.forEach(({ sessionId }) => {
+    delete activeReaders[sessionId];
+  });
+
+  // 3. Broadcast the correct total immediately
+  try {
+    const sse = require('./sse');
+    const totalReaders = Object.keys(activeReaders).length;
+    // Broadcast one event to update the count on the frontend
+    sse.broadcastToAdmins('digital_read_ended', { 
+      session_id: 'batch-cleanup', // not specifically needed if we just want to update the total
+      total_active_readers: totalReaders
+    });
+  } catch (err) {
+    console.error('Failed to broadcast read end event:', err);
+  }
+
+  // 4. Asynchronously save them to DB (preventing Google Sheets rate limits from blocking the cleanup)
+  // We process them in chunks or just sequentially without blocking the main interval
+  for (const session of timedOutSessions) {
+    await saveSessionToDb(session.sessionId, session.data).catch(e => console.error(e));
   }
 }, 30000); // Check every 30 seconds
 

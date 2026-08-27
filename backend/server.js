@@ -37,6 +37,8 @@ app.use('/api/borrowings', borrowingRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/checkins', checkinRoutes);
+app.use('/api/wishlists', require('./routes/wishlists'));
+app.use('/api/settings', require('./routes/settings'));
 
 // Health Check
 app.get('/api/health', (req, res) => {

@@ -21,6 +21,8 @@ import AdminLoginView from '../views/admin/AdminLoginView.vue';
 import AdminCategoriesView from '../views/admin/AdminCategoriesView.vue';
 import AdminCheckinsView from '../views/admin/AdminCheckinsView.vue';
 import AdminDigitalReadsView from '../views/admin/AdminDigitalReadsView.vue';
+import AdminWishlistTrendsView from '../views/admin/AdminWishlistTrendsView.vue';
+import AdminSettingsView from '../views/admin/AdminSettingsView.vue';
 
 const routes = [
   {
@@ -108,9 +110,19 @@ const routes = [
         component: AdminDigitalReadsView
       },
       {
+        path: 'wishlists',
+        name: 'admin-wishlists',
+        component: AdminWishlistTrendsView
+      },
+      {
         path: 'users',
         name: 'admin-users',
         component: AdminUsersView
+      },
+      {
+        path: 'settings',
+        name: 'admin-settings',
+        component: AdminSettingsView
       },
       {
         path: 'profile',

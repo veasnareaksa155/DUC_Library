@@ -26,7 +26,7 @@
 
       <div class="hidden print:flex flex-col items-center justify-center w-full mb-6 mt-4">
         <h2 class="text-[1.3rem] text-black tracking-wide" style="font-family: 'Khmer OS Muol Light', 'Moul', serif;">របាយការណ៍សិស្សអានសៀវភៅឌីជីថល</h2>
-        <p class="text-[1rem] text-black mt-2 font-bold">ការបរិច្ឆេទ៖ {{ printHeaderSubtitle }}</p>
+        <p class="text-[1rem] text-black mt-2 font-bold">ការបរិច្ឆេទ៖ {{ printDateText }}</p>
       </div>
 
 
@@ -373,6 +373,7 @@
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
 import { useAuthStore } from '../../stores/auth';
 import { useToastStore } from '../../stores/toast';
+import { useBorrowingsStore } from '../../stores/borrowings';
 import { BookOpen, ChevronLeft, ChevronRight, Printer, Activity, Users, Clock, History, Search, Timer, Loader2, MonitorOff, ChevronDown, CalendarDays, ChevronUp, ArrowDownUp } from 'lucide-vue-next';
 
 const authStore = useAuthStore();
@@ -475,6 +476,13 @@ async function fetchLiveReads() {
     });
     if (res.ok) {
       liveReads.value = await res.json();
+      // Sync the global sidebar badge so it never gets out of sync with the main dashboard view
+      const borrowingsStore = useBorrowingsStore();
+      if (!borrowingsStore.dashboardStats) {
+        borrowingsStore.dashboardStats = { active_readers_count: liveReads.value.length };
+      } else {
+        borrowingsStore.dashboardStats.active_readers_count = liveReads.value.length;
+      }
     }
   } catch (err) {
     console.error(err);

@@ -136,6 +136,7 @@ router.post('/:id/return', authenticateToken, async (req, res) => {
     if (book) {
       const newAvailable = (Number(book.copies_available) || 0) + 1;
       await ORM.update('Books', book.id, { copies_available: newAvailable });
+      sse.broadcast('catalog_updated', { type: 'books' });
     }
 
     res.json({ message: 'Book returned successfully!' });

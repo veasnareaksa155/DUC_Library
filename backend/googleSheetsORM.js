@@ -46,7 +46,9 @@ const SCHEMAS = {
   'Checkins': ['id', 'user_id', 'checkin_time', 'lat', 'lng', 'status'],
   'ProfilePhotos': ['id', 'student_id', 'photo_url', 'updated_at'],
   'Admins': ['id', 'username', 'password', 'name', 'email', 'profile_photo', 'role'],
-  'DigitalReads': ['id', 'session_id', 'user_id', 'user_name', 'book_id', 'start_time', 'end_time', 'duration_seconds']
+  'DigitalReads': ['id', 'session_id', 'user_id', 'user_name', 'book_id', 'start_time', 'end_time', 'duration_seconds'],
+  'Wishlists': ['id', 'user_id', 'book_id', 'created_at'],
+  'Settings': ['id', 'setting_key', 'setting_value', 'updated_at']
 };
 
 /**
@@ -178,11 +180,48 @@ async function find(sheetName, conditionFn) {
   return rows.filter(conditionFn);
 }
 
+// In-Memory Queue for batching Google Sheets write requests
+global.writeQueue = global.writeQueue || {};
+
+// Start background writer loop
+if (!global.writeQueueIntervalStarted) {
+  global.writeQueueIntervalStarted = true;
+  setInterval(async () => {
+    for (const sheetName of Object.keys(global.writeQueue)) {
+      const items = global.writeQueue[sheetName];
+      if (items && items.length > 0) {
+        // Take all items currently in the queue
+        const batchToInsert = items.splice(0, items.length);
+        try {
+          const sheets = await getSheetsClient();
+          const headers = SCHEMAS[sheetName];
+          
+          const rows = batchToInsert.map(data => {
+            return headers.map(header => data[header] === undefined || data[header] === null ? '' : String(data[header]));
+          });
+
+          await sheets.spreadsheets.values.append({
+            spreadsheetId: SPREADSHEET_ID,
+            range: `${sheetName}!A:A`,
+            valueInputOption: 'USER_ENTERED',
+            insertDataOption: 'INSERT_ROWS',
+            resource: { values: rows }
+          });
+          console.log(`[GoogleSheetsORM] Successfully batched ${rows.length} writes into ${sheetName}`);
+        } catch (err) {
+          console.error(`[GoogleSheetsORM] Failed to batch write into ${sheetName}:`, err.message);
+          // Put them back in the queue to retry next tick if they failed!
+          global.writeQueue[sheetName].unshift(...batchToInsert);
+        }
+      }
+    }
+  }, 5000); // Flush queue every 5 seconds
+}
+
 /**
  * Insert a new row
  */
 async function insert(sheetName, data) {
-  const sheets = await getSheetsClient();
   const headers = SCHEMAS[sheetName];
   
   if (!data.id) {
@@ -192,20 +231,15 @@ async function insert(sheetName, data) {
     data.created_at = new Date().toISOString();
   }
 
-  const rowValues = headers.map(header => data[header] === undefined || data[header] === null ? '' : String(data[header]));
+  // Enqueue for background batch writing
+  if (!global.writeQueue[sheetName]) global.writeQueue[sheetName] = [];
+  global.writeQueue[sheetName].push(data);
 
-  await sheets.spreadsheets.values.append({
-    spreadsheetId: SPREADSHEET_ID,
-    range: `${sheetName}!A:A`,
-    valueInputOption: 'USER_ENTERED',
-    insertDataOption: 'INSERT_ROWS',
-    resource: { values: [rowValues] }
-  });
-
-  // Optimistically update cache instead of invalidating it to save 3+ seconds on refetches
+  // Optimistically update cache instantly
   if (CACHE[sheetName]) {
     CACHE[sheetName].data.push(data);
   }
+  
   return data;
 }
 

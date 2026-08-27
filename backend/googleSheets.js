@@ -204,26 +204,43 @@ async function fetchViaServiceAccount(spreadsheetId, range = 'A:Z') {
   }
 }
 
+let studentsCache = {
+  data: null,
+  timestamp: 0
+};
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
 /**
  * Fetch all students (Tries 1. Public CSV, 2. Service Account, 3. Sample Fallback)
  */
 async function fetchStudentsFromSheet(spreadsheetId) {
+  const now = Date.now();
+  if (studentsCache.data && (now - studentsCache.timestamp < CACHE_TTL_MS)) {
+    return studentsCache.data;
+  }
+
   if (spreadsheetId) {
     // 1. Try fetching directly via public Google Sheet CSV URL
     const csvStudents = await fetchPublicSheetCsv(spreadsheetId);
     if (csvStudents && csvStudents.length > 0) {
+      studentsCache.data = csvStudents;
+      studentsCache.timestamp = now;
       return csvStudents;
     }
 
     // 2. Try fetching via Service Account credentials
     const saStudents = await fetchViaServiceAccount(spreadsheetId);
     if (saStudents && saStudents.length > 0) {
+      studentsCache.data = saStudents;
+      studentsCache.timestamp = now;
       return saStudents;
     }
   }
 
   // 3. Fallback to sample data
   console.log('[GoogleSheets] Falling back to sample student data.');
+  studentsCache.data = SAMPLE_STUDENTS;
+  studentsCache.timestamp = now;
   return SAMPLE_STUDENTS;
 }
 
