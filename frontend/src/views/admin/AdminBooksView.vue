@@ -298,7 +298,7 @@
                         <input 
                           :value="form.cover_url && form.cover_url.startsWith('data:image/') ? '[ Local Image File Attached ]' : form.cover_url" 
                           @input="form.cover_url = $event.target.value"
-                          :readonly="form.cover_url && form.cover_url.startsWith('data:image/')"
+                          :readonly="form.cover_url ? form.cover_url.startsWith('data:image/') : false"
                           type="text" 
                           placeholder="https://..." 
                           class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-md pl-10 pr-3.5 py-2.5 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-mono text-[0.85rem]" 
@@ -322,7 +322,7 @@
                         <input 
                           :value="form.pdf_url && form.pdf_url.startsWith('data:application/pdf') ? '[ Local PDF File Attached ]' : form.pdf_url" 
                           @input="form.pdf_url = $event.target.value"
-                          :readonly="form.pdf_url && form.pdf_url.startsWith('data:application/pdf')"
+                          :readonly="form.pdf_url ? form.pdf_url.startsWith('data:application/pdf') : false"
                           type="text" 
                           placeholder="https://..." 
                           class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-md pl-10 pr-3.5 py-2.5 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-mono text-[0.85rem]" 

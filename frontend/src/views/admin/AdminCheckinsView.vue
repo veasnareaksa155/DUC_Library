@@ -14,18 +14,18 @@
           <!-- Left: Logo & Uni Name -->
           <div class="flex flex-col items-center w-[250px] text-center">
             <img src="/duc-logo.png" alt="DUC Logo" class="w-[80px] h-[80px] object-contain mb-2" />
-            <span class="text-[14px]" style="font-family: 'Moul', serif;">សាកលវិទ្យាល័យឌីជីថលកម្ពុជា</span>
-            <span class="text-[14px]" style="font-family: 'Moul', serif;">បណ្ណាល័យសិក្សា</span>
+            <span class="text-[16px]" style="font-family: 'Moul', serif;">សាកលវិទ្យាល័យឌីជីថលកម្ពុជា</span>
+            <span class="text-[16px]" style="font-family: 'Moul', serif;">បណ្ណាល័យសិក្សា</span>
           </div>
 
           <!-- Center: Kingdom & Nation Religion King -->
           <div class="flex flex-col items-center flex-1 mt-2">
-            <span class="text-[20px]" style="font-family: 'Moul', serif;">ព្រះរាជាណាចក្រកម្ពុជា</span>
+            <span class="text-[19px]" style="font-family: 'Moul', serif;">ព្រះរាជាណាចក្រកម្ពុជា</span>
             <span class="text-[18px] mt-1" style="z-index: 2; font-family: 'Moul', serif;">ជាតិ សាសនា ព្រះមហាក្សត្រ</span>
             <img src="/khmer-ornament.png" alt="line" style="transform: rotate(-1deg); z-index: 1; margin-top: -20px;" class="h-[60px] mt-4 opacity-80" />
             
             <div class="mt-12 flex flex-col items-center">
-              <span class="text-[22px]" style="font-family: 'Moul', serif;">របាយការណ៍សិស្សចូលក្នុងបណ្ណាល័យ</span>
+              <span class="text-[16px]" style="font-family: 'Moul', serif;">របាយការណ៍សិស្សចូលក្នុងបណ្ណាល័យ</span>
               <span class="text-[15px] mt-3 font-bold" style="font-family: 'Siemreap', sans-serif;">កាលបរិច្ឆេទ ៖ {{ reportDateText }}</span>
             </div>
           </div>
@@ -268,7 +268,7 @@
         </div>
 
         <!-- Print Footer / Signature Block (Hidden except when printing) -->
-        <div class="hidden print:flex flex-col items-end mt-12 pr-12 text-[16px]" style="font-family: 'Siemreap', sans-serif; page-break-inside: avoid;">
+        <div class="hidden print:flex flex-col items-end mt-12 pr-12 text-[16px] text-black print:text-black" style="font-family: 'Siemreap', sans-serif; page-break-inside: avoid;">
           <div class="mb-2" style="font-family: 'Siemreap', sans-serif; page-break-inside: avoid;">{{ currentLunarDate }}</div>
           <div class="mb-8" style="font-family: 'Siemreap', sans-serif; page-break-inside: avoid;">កំពង់ស្ពឺ {{ currentGregorianDate }}</div>
           <div class="mr-6" style="font-family: 'Siemreap', sans-serif; page-break-inside: avoid;">អ្នកធ្វើរបាយការណ៍</div>

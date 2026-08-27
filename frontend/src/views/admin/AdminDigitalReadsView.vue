@@ -14,18 +14,18 @@
       <div class="hidden print:flex flex-row items-start w-full mb-10 pb-4 relative">
         <div class="flex flex-col items-center min-w-[280px]">
           <img src="/duc-logo.png" alt="DUC Logo" class="h-[95px] w-auto mb-3" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));" />
-          <span class="text-[1.1rem] text-black" style="font-family: 'Moul', serif;">សាកលវិទ្យាល័យឌីជីថលកម្ពុជា</span>
-          <span class="text-[1.05rem] text-black mt-1.5" style="font-family: 'Moul', serif;">បណ្ណាល័យសិក្សា</span>
+          <span class="text-[16px] text-black" style="font-family: 'Moul', serif;">សាកលវិទ្យាល័យឌីជីថលកម្ពុជា</span>
+          <span class="text-[16px] text-black mt-1.5" style="font-family: 'Moul', serif;">បណ្ណាល័យសិក្សា</span>
         </div>
         <div class="absolute left-1/2 -translate-x-1/2 flex flex-col items-center pt-1">
-          <span class="text-[1.4rem] text-black tracking-wide" style="font-family: 'Moul', serif;">ព្រះរាជាណាចក្រកម្ពុជា</span>
-          <span class="text-[1.2rem] text-black tracking-widest mt-2" style="font-family: 'Moul', serif; z-index: 2;">ជាតិ សាសនា ព្រះមហាក្សត្រ</span>
+          <span class="text-[19px] text-black tracking-wide" style="font-family: 'Moul', serif;">ព្រះរាជាណាចក្រកម្ពុជា</span>
+          <span class="text-[18px] text-black tracking-widest mt-2" style="font-family: 'Moul', serif; z-index: 2;">ជាតិ សាសនា ព្រះមហាក្សត្រ</span>
           <img src="/khmer-ornament.png" alt="Tact" class="h-[60px] opacity-90" style="margin-top: -15px; transform: rotate(-1deg); z-index: 1;" />
         </div>
       </div>
 
       <div class="hidden print:flex flex-col items-center justify-center w-full mb-6 mt-4">
-        <h2 class="text-[1.3rem] text-black tracking-wide" style="font-family: 'Moul', serif;">របាយការណ៍សិស្សអានសៀវភៅឌីជីថល</h2>
+        <h2 class="text-[16px] text-black tracking-wide" style="font-family: 'Moul', serif;">របាយការណ៍សិស្សអានសៀវភៅឌីជីថល</h2>
         <p class="text-[1rem] text-black mt-2 font-bold">ការបរិច្ឆេទ៖ {{ printDateText }}</p>
       </div>
 
@@ -299,7 +299,7 @@
         </div>
 
         <!-- Print Footer / Signature Block (Hidden except when printing) -->
-        <div class="hidden print:flex flex-col items-end mt-12 pr-12 text-[16px]" style="font-family: 'Siemreap', sans-serif; page-break-inside: avoid;">
+        <div class="hidden print:flex flex-col items-end mt-12 pr-12 text-[16px] text-black print:text-black" style="font-family: 'Siemreap', sans-serif; page-break-inside: avoid;">
           <div class="mb-2">{{ currentLunarDate }}</div>
           <div class="mb-8">កំពង់ស្ពឺ {{ currentGregorianDate }}</div>
           <div class="mr-6">អ្នកធ្វើរបាយការណ៍</div>
