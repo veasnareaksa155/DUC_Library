@@ -1,7 +1,7 @@
 const ORM = require('../googleSheetsORM');
 
 const activeReaders = {};
-const MINIMUM_SAVE_DURATION_SEC = 10; // Only save sessions longer than 10 seconds
+const MINIMUM_SAVE_DURATION_SEC = 120; // Only save sessions longer than 2 minutes
 
 /**
  * Save a reader session to Google Sheets
@@ -68,7 +68,7 @@ function pingReader(sessionId, bookId, user) {
  */
 function getActiveReaders() {
   const now = Date.now();
-  const timeoutMs = 45000; // 45 seconds
+  const timeoutMs = 300000; // 5 minutes
 
   const activeSessions = Object.keys(activeReaders).filter(sessionId => {
     return (now - activeReaders[sessionId].last_ping) < timeoutMs;
@@ -92,7 +92,7 @@ function getActiveReaders() {
  */
 function getActiveReadersForBook(bookId) {
   const now = Date.now();
-  const timeoutMs = 45000;
+  const timeoutMs = 300000; // 5 minutes
 
   return Object.values(activeReaders).filter(reader => 
     String(reader.book_id) === String(bookId) && (now - reader.last_ping) < timeoutMs
@@ -107,8 +107,8 @@ async function removeReader(sessionId) {
   if (activeReaders[sessionId]) {
     const session = activeReaders[sessionId];
     const duration = Date.now() - session.start_time;
-    // Save to DB if they read for more than 10 seconds (ignore misclicks)
-    if (duration > 10000) {
+    // Save to DB if they read for at least 2 minutes (handled inside saveSessionToDb, but double check here)
+    if (duration >= 120000) {
       saveSessionToDb(sessionId, session).catch(err => {
         console.error('Failed to save session on explicit leave:', err);
       });
@@ -120,7 +120,7 @@ async function removeReader(sessionId) {
 // Background cleanup task to save timed-out sessions
 setInterval(async () => {
   const now = Date.now();
-  const timeoutMs = 45000;
+  const timeoutMs = 300000; // 5 minutes
   
   const timedOutSessions = [];
   

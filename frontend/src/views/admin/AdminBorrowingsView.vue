@@ -19,19 +19,19 @@
           <!-- Left: Logo & Uni Name -->
           <div class="flex flex-col items-center w-[250px] text-center">
             <img src="/duc-logo.png" alt="DUC Logo" class="w-[80px] h-[80px] object-contain mb-2" />
-            <span class="text-[14px]" style="font-family: 'Khmer OS Muol Light', 'Moul', serif;">សាកលវិទ្យាល័យឌីជីថលកម្ពុជា</span>
-            <span class="text-[14px]" style="font-family: 'Khmer OS Muol Light', 'Moul', serif;">បណ្ណាល័យសិក្សា</span>
+            <span class="text-[14px]" style="font-family: 'Moul', serif;">សាកលវិទ្យាល័យឌីជីថលកម្ពុជា</span>
+            <span class="text-[14px]" style="font-family: 'Moul', serif;">បណ្ណាល័យសិក្សា</span>
           </div>
 
           <!-- Center: Kingdom & Nation Religion King -->
           <div class="flex flex-col items-center flex-1 mt-2">
-            <span class="text-[20px]" style="font-family: 'Khmer OS Muol Light', 'Moul', serif;">ព្រះរាជាណាចក្រកម្ពុជា</span>
-            <span class="text-[18px] mt-1" style="z-index: 2; font-family: 'Khmer OS Muol Light', 'Moul', serif;">ជាតិ សាសនា ព្រះមហាក្សត្រ</span>
+            <span class="text-[20px]" style="font-family: 'Moul', serif;">ព្រះរាជាណាចក្រកម្ពុជា</span>
+            <span class="text-[18px] mt-1" style="z-index: 2; font-family: 'Moul', serif;">ជាតិ សាសនា ព្រះមហាក្សត្រ</span>
             <img src="/khmer-ornament.png" alt="line" style="transform: rotate(-1deg); z-index: 1; margin-top: -20px;" class="h-[60px] mt-4 opacity-80" />
             
             <div class="mt-12 flex flex-col items-center">
-              <span class="text-[22px]" style="font-family: 'Khmer OS Muol Light', 'Moul', serif;">របាយការណ៍ខ្ចីសៀវភៅ</span>
-              <span class="text-[15px] mt-3 font-bold" style="font-family: 'Khmer OS Battambang', sans-serif;">កាលបរិច្ឆេទ ៖ {{ printDateText }}</span>
+              <span class="text-[22px]" style="font-family: 'Moul', serif;">របាយការណ៍ខ្ចីសៀវភៅ</span>
+              <span class="text-[15px] mt-3 font-bold" style="font-family: 'Siemreap', sans-serif;">កាលបរិច្ឆេទ ៖ {{ printDateText }}</span>
             </div>
           </div>
           
@@ -125,10 +125,11 @@
         </div>
 
         <div v-else class="overflow-x-auto p-4 print:p-0 print:overflow-visible">
-          <table class="w-full text-left min-w-[950px] print-clean-table">
+          <table class="w-full text-left min-w-[950px] print-clean-table" style="font-family: 'Siemreap', sans-serif;">
             <thead class="bg-slate-50/80 dark:bg-slate-800/40 backdrop-blur-sm border-b border-slate-200 dark:border-slate-700 print:bg-slate-100">
-              <tr class="text-slate-600 dark:text-slate-300 text-[0.85rem] tracking-wider uppercase print:text-black print:text-[13px] print:font-bold" style="font-family: 'Outfit', 'Kantumruy Pro', sans-serif; font-weight: 700;">
+              <tr class="text-slate-600 dark:text-slate-300 text-[0.85rem] tracking-wider uppercase print:text-black print:text-[13px] print:font-bold">
                 <th class="px-6 py-4 whitespace-nowrap pl-8 rounded-l-xl font-normal print:rounded-none">ឈ្មោះសិស្ស / និស្សិត</th>
+                <th class="px-6 py-4 whitespace-nowrap text-center font-normal">ភេទ</th>
                 <th class="px-6 py-4 whitespace-nowrap font-normal">ជំនាញ</th>
                 <th class="px-6 py-4 font-normal print:w-[35%]">សៀវភៅដែលបានខ្ចី</th>
                 <th class="px-6 py-4 whitespace-nowrap font-normal">កាលបរិច្ឆេទ</th>
@@ -137,21 +138,26 @@
               </tr>
             </thead>
             <tbody class="mt-2 text-[var(--text-primary)] print:mt-0">
-              <tr v-for="item in paginatedBorrowings" :key="item.id" class="group bg-white dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80 hover:border-indigo-300 dark:hover:border-indigo-500/50 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_24px_-6px_rgba(79,70,229,0.12)] hover:-translate-y-[2px] transition-all duration-300 rounded-2xl relative print:border-none print:shadow-none print:rounded-none print:bg-transparent print:break-inside-avoid print:even:bg-slate-50 print:-translate-y-0" :class="{'print:hidden': item.status === 'rejected'}" style="font-family: 'Outfit', 'Kantumruy Pro', sans-serif;">
+              <tr v-for="item in paginatedBorrowings" :key="item.id" class="group bg-white dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80 hover:border-indigo-300 dark:hover:border-indigo-500/50 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_24px_-6px_rgba(79,70,229,0.12)] hover:-translate-y-[2px] transition-all duration-300 rounded-2xl relative print:border-none print:shadow-none print:rounded-none print:bg-transparent print:break-inside-avoid print:even:bg-slate-50 print:-translate-y-0" :class="{'print:hidden': item.status === 'rejected'}">
                 <td class="px-6 py-5 rounded-l-xl print:rounded-none print:align-top">
                   <div class="flex items-center gap-4">
                     <div class="relative print:hidden">
                       <div class="absolute -inset-0.5 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full opacity-0 group-hover:opacity-100 blur-[2px] transition-opacity duration-300"></div>
                       <div class="relative w-11 h-11 rounded-full bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-slate-700 dark:to-slate-600 flex items-center justify-center font-bold text-[1rem] border-2 border-white dark:border-slate-800 shrink-0 overflow-hidden text-indigo-600 dark:text-indigo-300">
                         <img v-if="item.profile_photo" :src="item.profile_photo" class="w-full h-full object-cover" />
-                        <span v-else>{{ item.user_name?.charAt(0).toUpperCase() }}</span>
+                        <span v-else>{{ (item.user_name_khmer || item.user_name)?.charAt(0).toUpperCase() }}</span>
                       </div>
                     </div>
                     <div class="flex flex-col">
-                      <span class="font-extrabold text-[0.95rem] text-[var(--text-primary)] group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors print:text-black print:text-[13px] print:font-bold">{{ item.user_name }}</span>
+                      <span class="font-extrabold text-[0.95rem] text-[var(--text-primary)] group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors print:text-black print:text-[13px] print:font-bold">{{ item.user_name_khmer || item.user_name }}</span>
                       <span class="text-[0.8rem] text-[var(--text-muted)] font-medium print:hidden">{{ item.user_email }}</span>
                     </div>
                   </div>
+                </td>
+                <td class="px-6 py-5 text-center whitespace-nowrap" style="font-family: 'Khmer OS Battambang', sans-serif;">
+                  <span v-if="item.user_gender === 'M' || item.user_gender?.toUpperCase() === 'MALE' || item.user_gender === 'ប្រុស'" class="text-[0.8rem] font-bold text-blue-600 bg-blue-50 dark:bg-blue-900/30 dark:text-blue-400 px-2.5 py-1 rounded">ប្រុស</span>
+                  <span v-else-if="item.user_gender === 'F' || item.user_gender?.toUpperCase() === 'FEMALE' || item.user_gender === 'ស្រី'" class="text-[0.8rem] font-bold text-pink-600 bg-pink-50 dark:bg-pink-900/30 dark:text-pink-400 px-2.5 py-1 rounded">ស្រី</span>
+                  <span v-else class="text-[0.75rem] text-[var(--text-muted)] italic">N/A</span>
                 </td>
                 <td class="px-6 py-5">
                   <span class="font-bold text-[0.85rem] text-[var(--text-primary)] print:text-black print:text-[12px]">{{ item.user_major || 'N/A' }}</span>
@@ -251,7 +257,7 @@
               
               <!-- Empty State -->
               <tr v-if="paginatedBorrowings.length === 0">
-                <td colspan="5" class="px-6 py-28 text-center border-none bg-transparent">
+                <td colspan="7" class="px-6 py-28 text-center border-none bg-transparent">
                   <div class="flex flex-col items-center justify-center text-[var(--text-muted)] gap-6">
                     <div class="relative w-24 h-24 flex items-center justify-center">
                       <div class="absolute inset-0 bg-indigo-500/10 rounded-full animate-ping opacity-50"></div>
@@ -290,6 +296,12 @@
           </div>
         </div>
 
+        <!-- Print Footer / Signature Block (Hidden except when printing) -->
+        <div class="hidden print:flex flex-col items-end mt-12 pr-12 text-[16px]" style="font-family: 'Siemreap', sans-serif; page-break-inside: avoid;">
+          <div class="mb-2">{{ currentLunarDate }}</div>
+          <div class="mb-8">កំពង់ស្ពឺ {{ currentGregorianDate }}</div>
+          <div class="mr-6">អ្នកធ្វើរបាយការណ៍</div>
+        </div>
 
         <!-- Pagination Nav Bar -->
         <div v-if="totalPages > 1" class="flex justify-between items-center px-8 py-5 border-t border-[var(--border-color)]/50 bg-slate-50/50 dark:bg-slate-800/20 backdrop-blur-md print:hidden">
@@ -325,6 +337,7 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
+import { toKhmerLunarDate } from 'khmer-chhankitek-calendar';
 import { useBorrowingsStore } from '../../stores/borrowings';
 import { useLocaleStore } from '../../stores/locale';
 import { useToastStore } from '../../stores/toast';
@@ -341,6 +354,11 @@ const dateMode = ref('all');
 const selectedYear = ref('all');
 const selectedMonth = ref('all');
 const searchQuery = ref('');
+
+const currentDate = new Date();
+const khmerDateInfo = toKhmerLunarDate(currentDate);
+const currentLunarDate = computed(() => khmerDateInfo.lunarDateText.replace('ពុទ្ធសករាជ', 'ព.ស'));
+const currentGregorianDate = computed(() => khmerDateInfo.gregorianDateText);
 
 const availableYears = computed(() => {
   const years = new Set();

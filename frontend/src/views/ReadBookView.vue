@@ -35,7 +35,7 @@
         </button>
 
         <!-- Borrow Book Action Button -->
-        <button v-if="book" @click="openBorrowModal" class="inline-flex items-center gap-1.5 px-3 sm:px-4 py-1.5 rounded-md bg-indigo-600 hover:bg-indigo-700 border-none text-white text-[0.85rem] font-medium cursor-pointer transition-colors">
+        <button v-if="book" @click="openBorrowModal" class="inline-flex items-center gap-1.5 px-3 sm:px-4 py-1.5 rounded-md bg-indigo-600 text-white border-none text-[0.85rem] font-medium cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-indigo-600 [&:not(:disabled)]:hover:bg-indigo-700" :disabled="book.copies_available <= 0">
           <BookmarkPlus :size="16" /> <span class="hidden lg:inline-block">Borrow Physical Copy</span>
         </button>
       </div>

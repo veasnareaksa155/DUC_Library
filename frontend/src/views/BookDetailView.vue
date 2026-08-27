@@ -86,7 +86,7 @@
             </button>
             <button 
               @click="openBorrow" 
-              class="inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out active:scale-95 bg-indigo-600 text-white border-none shadow-sm hover:bg-indigo-700 hover:-translate-y-px hover:shadow-md px-5 py-2.5 text-sm cursor-pointer"
+              class="inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out bg-indigo-600 text-white border-none shadow-sm px-5 py-2.5 text-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-indigo-600 disabled:hover:translate-y-0 disabled:active:scale-100 [&:not(:disabled)]:active:scale-95 [&:not(:disabled)]:hover:bg-indigo-700 [&:not(:disabled)]:hover:-translate-y-px [&:not(:disabled)]:hover:shadow-md"
               :disabled="book.copies_available <= 0"
             >
               <BookmarkPlus :size="18" /> Borrow Physical Copy

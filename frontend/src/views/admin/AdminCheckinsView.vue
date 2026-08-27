@@ -14,19 +14,19 @@
           <!-- Left: Logo & Uni Name -->
           <div class="flex flex-col items-center w-[250px] text-center">
             <img src="/duc-logo.png" alt="DUC Logo" class="w-[80px] h-[80px] object-contain mb-2" />
-            <span class="text-[14px]" style="font-family: 'Khmer OS Muol Light', 'Moul', serif;">សាកលវិទ្យាល័យឌីជីថលកម្ពុជា</span>
-            <span class="text-[14px]" style="font-family: 'Khmer OS Muol Light', 'Moul', serif;">បណ្ណាល័យសិក្សា</span>
+            <span class="text-[14px]" style="font-family: 'Moul', serif;">សាកលវិទ្យាល័យឌីជីថលកម្ពុជា</span>
+            <span class="text-[14px]" style="font-family: 'Moul', serif;">បណ្ណាល័យសិក្សា</span>
           </div>
 
           <!-- Center: Kingdom & Nation Religion King -->
           <div class="flex flex-col items-center flex-1 mt-2">
-            <span class="text-[20px]" style="font-family: 'Khmer OS Muol Light', 'Moul', serif;">ព្រះរាជាណាចក្រកម្ពុជា</span>
-            <span class="text-[18px] mt-1" style="z-index: 2; font-family: 'Khmer OS Muol Light', 'Moul', serif;">ជាតិ សាសនា ព្រះមហាក្សត្រ</span>
+            <span class="text-[20px]" style="font-family: 'Moul', serif;">ព្រះរាជាណាចក្រកម្ពុជា</span>
+            <span class="text-[18px] mt-1" style="z-index: 2; font-family: 'Moul', serif;">ជាតិ សាសនា ព្រះមហាក្សត្រ</span>
             <img src="/khmer-ornament.png" alt="line" style="transform: rotate(-1deg); z-index: 1; margin-top: -20px;" class="h-[60px] mt-4 opacity-80" />
             
             <div class="mt-12 flex flex-col items-center">
-              <span class="text-[22px]" style="font-family: 'Khmer OS Muol Light', 'Moul', serif;">របាយការណ៍សិស្សចូលក្នុងបណ្ណាល័យ</span>
-              <span class="text-[15px] mt-3 font-bold" style="font-family: 'Khmer OS Battambang', sans-serif;">កាលបរិច្ឆេទ ៖ {{ reportDateText }}</span>
+              <span class="text-[22px]" style="font-family: 'Moul', serif;">របាយការណ៍សិស្សចូលក្នុងបណ្ណាល័យ</span>
+              <span class="text-[15px] mt-3 font-bold" style="font-family: 'Siemreap', sans-serif;">កាលបរិច្ឆេទ ៖ {{ reportDateText }}</span>
             </div>
           </div>
           
@@ -157,9 +157,9 @@
         </div>
 
         <div v-else class="overflow-x-auto print:overflow-visible">
-          <table class="w-full text-left border-collapse min-w-[900px] print:min-w-0 print-clean-table">
+          <table class="w-full text-left border-collapse min-w-[900px] print:min-w-0 print-clean-table" style="font-family: 'Siemreap', sans-serif;">
             <thead>
-              <tr class="bg-gray-500/5 text-[var(--text-muted)] text-[0.75rem] font-bold tracking-wider" style="font-family: 'Khmer OS Battambang', sans-serif;">
+              <tr class="bg-gray-500/5 text-[var(--text-muted)] text-[0.75rem] font-bold tracking-wider">
                 <th class="px-6 py-4 border-b border-[var(--border-color)] whitespace-nowrap">ឈ្មោះសិស្ស / សមាជិក</th>
                 <th class="px-6 py-4 border-b border-[var(--border-color)] text-center whitespace-nowrap">ភេទ</th>
                 <th class="px-6 py-4 border-b border-[var(--border-color)] whitespace-nowrap">ជំនាញ</th>
@@ -186,18 +186,18 @@
                     <div class="w-10 h-10 rounded-full bg-[var(--border-color)] overflow-hidden flex items-center justify-center font-bold text-[1.1rem] shadow-sm shrink-0">
                       <img v-if="item.user_photo" :src="item.user_photo" class="w-full h-full object-cover" />
                       <div v-else class="w-full h-full [background-image:var(--accent-gradient)] text-white flex items-center justify-center">
-                        {{ item.user_name?.charAt(0).toUpperCase() }}
+                        {{ (item.user_name_khmer || item.user_name)?.charAt(0).toUpperCase() }}
                       </div>
                     </div>
                     <div class="flex flex-col">
-                      <span class="font-extrabold text-[0.95rem] text-[var(--text-primary)] group-hover:text-indigo-400 transition-colors">{{ item.user_name }}</span>
+                      <span class="font-extrabold text-[0.95rem] text-[var(--text-primary)] group-hover:text-indigo-400 transition-colors">{{ item.user_name_khmer || item.user_name }}</span>
                       <div class="flex items-center gap-2 mt-0.5">
                         <span class="text-[0.75rem] text-[var(--text-muted)] font-medium print:hidden">{{ item.user_email }}</span>
                       </div>
                     </div>
                   </div>
                 </td>
-                <td class="px-6 py-4 text-center whitespace-nowrap" style="font-family: 'Khmer OS Battambang', sans-serif;">
+                <td class="px-6 py-4 text-center whitespace-nowrap">
                   <span v-if="item.user_gender === 'M' || item.user_gender === 'Male' || item.user_gender === 'ប្រុស'" class="text-[0.8rem] font-bold text-blue-600 bg-blue-50 dark:bg-blue-900/30 dark:text-blue-400 px-2.5 py-1 rounded">ប្រុស</span>
                   <span v-else-if="item.user_gender === 'F' || item.user_gender === 'Female' || item.user_gender === 'ស្រី'" class="text-[0.8rem] font-bold text-pink-600 bg-pink-50 dark:bg-pink-900/30 dark:text-pink-400 px-2.5 py-1 rounded">ស្រី</span>
                   <span v-else class="text-[0.75rem] text-[var(--text-muted)] italic">N/A</span>
@@ -265,6 +265,13 @@
               <span class="text-[16px] font-black">{{ printTotalCheckins }}</span>
             </div>
           </div>
+        </div>
+
+        <!-- Print Footer / Signature Block (Hidden except when printing) -->
+        <div class="hidden print:flex flex-col items-end mt-12 pr-12 text-[16px]" style="font-family: 'Siemreap', sans-serif; page-break-inside: avoid;">
+          <div class="mb-2" style="font-family: 'Siemreap', sans-serif; page-break-inside: avoid;">{{ currentLunarDate }}</div>
+          <div class="mb-8" style="font-family: 'Siemreap', sans-serif; page-break-inside: avoid;">កំពង់ស្ពឺ {{ currentGregorianDate }}</div>
+          <div class="mr-6" style="font-family: 'Siemreap', sans-serif; page-break-inside: avoid;">អ្នកធ្វើរបាយការណ៍</div>
         </div>
 
         <!-- Pagination Nav Bar -->
@@ -347,7 +354,7 @@
     padding: 10px 14px !important;
     color: #0f172a !important;
     vertical-align: middle !important;
-    font-family: 'Kantumruy Pro', sans-serif !important;
+    font-family: 'Siemreap', sans-serif !important;
   }
   
   .print-clean-table th {
@@ -375,6 +382,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue';
+import { toKhmerLunarDate } from 'khmer-chhankitek-calendar';
 import { useAuthStore } from '../../stores/auth';
 import { useToastStore } from '../../stores/toast';
 import { MapPin, ChevronLeft, ChevronRight, CalendarDays, ChevronDown, ChevronUp, Printer, ArrowDownUp } from 'lucide-vue-next';
@@ -385,6 +393,11 @@ const toastStore = useToastStore();
 const checkins = ref([]);
 const loading = ref(false);
 const activeFilter = ref('all');
+
+const currentDate = new Date();
+const khmerDateInfo = toKhmerLunarDate(currentDate);
+const currentLunarDate = computed(() => khmerDateInfo.lunarDateText.replace('ពុទ្ធសករាជ', 'ព.ស'));
+const currentGregorianDate = computed(() => khmerDateInfo.gregorianDateText);
 
 const selectedYear = ref('');
 const selectedMonth = ref('');

@@ -26,3 +26,4 @@ build/
 Thumbs.db
 .vscode/
 .idea/
+simulate_users.js

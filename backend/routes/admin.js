@@ -233,6 +233,8 @@ router.get('/borrowings', async (req, res) => {
       return {
         ...br,
         user_name: u.name,
+        user_name_khmer: u.name_khmer || '',
+        user_gender: u.gender || '',
         user_email: u.email,
         book_title: b.title,
         book_author: b.author,
@@ -527,6 +529,7 @@ router.get('/checkins', async (req, res) => {
       return {
         ...c,
         user_name: user.name || 'Unknown',
+        user_name_khmer: user.name_khmer || '',
         user_email: user.email || 'N/A',
         user_photo: user.profile_photo || '',
         user_major: user.major || '',
@@ -564,6 +567,7 @@ router.get('/digital-reads', async (req, res) => {
       return {
         ...r,
         user_name: user.name || r.user_name || 'Unknown',
+        user_name_khmer: user.name_khmer || '',
         user_email: user.email || 'N/A',
         user_photo: user.profile_photo || '',
         user_major: user.major || '',
@@ -596,6 +600,7 @@ router.get('/digital-reads/live', async (req, res) => {
         // We will fix that, actually it's fine just return what we have.
         user_id: r.user_id,
         user_name: user.name || r.user_name || 'Anonymous',
+        user_name_khmer: user.name_khmer || '',
         user_email: user.email || 'N/A',
         user_photo: user.profile_photo || '',
         user_major: user.major || '',

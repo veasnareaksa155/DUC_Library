@@ -14,18 +14,18 @@
       <div class="hidden print:flex flex-row items-start w-full mb-10 pb-4 relative">
         <div class="flex flex-col items-center min-w-[280px]">
           <img src="/duc-logo.png" alt="DUC Logo" class="h-[95px] w-auto mb-3" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));" />
-          <span class="text-[1.1rem] text-black" style="font-family: 'Khmer OS Muol Light', 'Moul', serif;">សាកលវិទ្យាល័យឌីជីថលកម្ពុជា</span>
-          <span class="text-[1.05rem] text-black mt-1.5" style="font-family: 'Khmer OS Muol Light', 'Moul', serif;">បណ្ណាល័យសិក្សា</span>
+          <span class="text-[1.1rem] text-black" style="font-family: 'Moul', serif;">សាកលវិទ្យាល័យឌីជីថលកម្ពុជា</span>
+          <span class="text-[1.05rem] text-black mt-1.5" style="font-family: 'Moul', serif;">បណ្ណាល័យសិក្សា</span>
         </div>
         <div class="absolute left-1/2 -translate-x-1/2 flex flex-col items-center pt-1">
-          <span class="text-[1.4rem] text-black tracking-wide" style="font-family: 'Khmer OS Muol Light', 'Moul', serif;">ព្រះរាជាណាចក្រកម្ពុជា</span>
-          <span class="text-[1.2rem] text-black tracking-widest mt-2" style="font-family: 'Khmer OS Muol Light', 'Moul', serif; z-index: 2;">ជាតិ សាសនា ព្រះមហាក្សត្រ</span>
+          <span class="text-[1.4rem] text-black tracking-wide" style="font-family: 'Moul', serif;">ព្រះរាជាណាចក្រកម្ពុជា</span>
+          <span class="text-[1.2rem] text-black tracking-widest mt-2" style="font-family: 'Moul', serif; z-index: 2;">ជាតិ សាសនា ព្រះមហាក្សត្រ</span>
           <img src="/khmer-ornament.png" alt="Tact" class="h-[60px] opacity-90" style="margin-top: -15px; transform: rotate(-1deg); z-index: 1;" />
         </div>
       </div>
 
       <div class="hidden print:flex flex-col items-center justify-center w-full mb-6 mt-4">
-        <h2 class="text-[1.3rem] text-black tracking-wide" style="font-family: 'Khmer OS Muol Light', 'Moul', serif;">របាយការណ៍សិស្សអានសៀវភៅឌីជីថល</h2>
+        <h2 class="text-[1.3rem] text-black tracking-wide" style="font-family: 'Moul', serif;">របាយការណ៍សិស្សអានសៀវភៅឌីជីថល</h2>
         <p class="text-[1rem] text-black mt-2 font-bold">ការបរិច្ឆេទ៖ {{ printDateText }}</p>
       </div>
 
@@ -98,11 +98,15 @@
                 </div>
               </div>
               <div class="flex flex-col flex-1 min-w-0">
-                <span class="font-black text-[1.1rem] text-[var(--text-primary)] truncate">{{ live.user_name }}</span>
+                <span class="font-black text-[1.1rem] text-[var(--text-primary)] truncate" :style="live.user_name_khmer ? 'font-family: \'Kantumruy Pro\', sans-serif;' : ''">{{ live.user_name_khmer || live.user_name }}</span>
                 <span class="text-[0.85rem] font-bold text-[var(--text-muted)] truncate flex items-center gap-2">
                   <span class="text-indigo-500">{{ live.user_major || 'N/A' }}</span>
                   <span class="w-1 h-1 rounded-full bg-[var(--border-color)]"></span>
                   <span>{{ live.user_class || 'N/A' }}</span>
+                  <span class="w-1 h-1 rounded-full bg-[var(--border-color)]"></span>
+                  <span :class="live.user_gender?.toUpperCase() === 'F' || live.user_gender === 'ស្រី' || live.user_gender?.toUpperCase() === 'FEMALE' ? 'text-pink-500' : 'text-blue-500'">
+                    {{ live.user_gender === 'M' || live.user_gender?.toUpperCase() === 'MALE' ? 'ប្រុស' : (live.user_gender === 'F' || live.user_gender?.toUpperCase() === 'FEMALE' ? 'ស្រី' : (live.user_gender || 'N/A')) }}
+                  </span>
                 </span>
               </div>
             </div>
@@ -185,15 +189,16 @@
         </div>
 
         <div v-else class="overflow-x-auto print:overflow-visible pb-4">
-          <table class="w-full text-left min-w-[900px] print-clean-table">
+          <table class="w-full text-left min-w-[900px] print-clean-table" style="font-family: 'Siemreap', sans-serif;">
             <thead class="bg-[var(--bg-primary)] border-b border-[var(--border-color)] print:bg-slate-100">
               <tr class="text-[var(--text-muted)] text-[0.75rem] font-black uppercase tracking-[0.1em] border-b border-[var(--border-color)] print:text-black print:text-[13px] print:font-bold" style="font-family: 'Outfit', 'Kantumruy Pro', sans-serif; font-weight: 700;">
-                <th class="px-8 py-5 whitespace-nowrap" style="font-family: 'Khmer OS Muol Light', 'Moul', serif; letter-spacing: normal;">អត្តសញ្ញាណសិស្ស</th>
-                <th class="px-6 py-5 whitespace-nowrap" style="font-family: 'Khmer OS Muol Light', 'Moul', serif; letter-spacing: normal;">ព័ត៌មានការសិក្សា</th>
-                <th class="px-6 py-5 whitespace-nowrap w-1/3" style="font-family: 'Khmer OS Muol Light', 'Moul', serif; letter-spacing: normal;">សៀវភៅដែលបានអាន</th>
-                <th class="px-6 py-5 whitespace-nowrap" style="font-family: 'Khmer OS Muol Light', 'Moul', serif; letter-spacing: normal;">កាលបរិច្ឆេទ</th>
+                <th class="px-8 py-5 whitespace-nowrap">អត្តសញ្ញាណសិស្ស</th>
+                <th class="px-6 py-5 whitespace-nowrap">ភេទ</th>
+                <th class="px-6 py-5 whitespace-nowrap">ព័ត៌មានការសិក្សា</th>
+                <th class="px-6 py-5 whitespace-nowrap w-1/3">សៀវភៅដែលបានអាន</th>
+                <th class="px-6 py-5 whitespace-nowrap">កាលបរិច្ឆេទ</th>
                 <th class="px-8 py-5 whitespace-nowrap text-right cursor-pointer hover:bg-gray-500/5 transition-colors select-none group" @click="toggleSortDuration">
-                  <div class="flex items-center justify-end gap-2" style="font-family: 'Khmer OS Muol Light', 'Moul', serif; letter-spacing: normal;">
+                  <div class="flex items-center justify-end gap-2">
                     <span class="flex flex-col opacity-40 group-hover:opacity-100 transition-opacity print:hidden">
                       <ChevronUp v-if="sortDurationDir === 'asc'" :size="14" class="text-indigo-500 font-bold" />
                       <ChevronDown v-else-if="sortDurationDir === 'desc'" :size="14" class="text-indigo-500 font-bold" />
@@ -211,13 +216,18 @@
                     <div class="w-11 h-11 rounded-full bg-[var(--bg-primary)] border border-[var(--border-color)] overflow-hidden flex items-center justify-center font-bold text-[1.1rem] shadow-sm shrink-0 print:hidden">
                       <img v-if="item.user_photo" :src="item.user_photo" class="w-full h-full object-cover" />
                       <div v-else class="w-full h-full [background-image:var(--accent-gradient)] text-white flex items-center justify-center">
-                        {{ item.user_name?.charAt(0).toUpperCase() }}
+                        {{ (item.user_name_khmer || item.user_name)?.charAt(0).toUpperCase() }}
                       </div>
                     </div>
                     <div class="flex flex-col">
-                      <span class="font-black text-[1rem] text-[var(--text-primary)] group-hover:text-indigo-500 transition-colors print:text-[13px] print:font-bold print:text-black">{{ item.user_name }}</span>
+                      <span class="font-black text-[1rem] text-[var(--text-primary)] group-hover:text-indigo-500 transition-colors print:text-[13px] print:font-bold print:text-black">{{ item.user_name_khmer || item.user_name }}</span>
                     </div>
                   </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="text-[0.9rem] font-bold text-[var(--text-primary)]" :class="item.user_gender?.toUpperCase() === 'F' || item.user_gender === 'ស្រី' || item.user_gender?.toUpperCase() === 'FEMALE' ? 'text-pink-500' : 'text-blue-500'">
+                    {{ item.user_gender === 'M' || item.user_gender?.toUpperCase() === 'MALE' ? 'ប្រុស' : (item.user_gender === 'F' || item.user_gender?.toUpperCase() === 'FEMALE' ? 'ស្រី' : (item.user_gender || 'N/A')) }}
+                  </span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                   <div class="flex flex-col gap-1.5">
@@ -248,7 +258,7 @@
                 </td>
               </tr>
               <tr v-if="paginatedReads.length === 0 && !loading">
-                <td colspan="5" class="px-6 py-20 text-center">
+                <td colspan="6" class="px-6 py-20 text-center">
                   <div class="flex flex-col items-center justify-center">
                     <div class="w-16 h-16 bg-gray-500/5 rounded-full flex items-center justify-center border border-[var(--border-color)] text-[var(--text-muted)] mb-4">
                       <Search :size="24" />
@@ -286,6 +296,13 @@
               <span class="text-[16px] font-black">{{ printTotalSessions }}</span>
             </div>
           </div>
+        </div>
+
+        <!-- Print Footer / Signature Block (Hidden except when printing) -->
+        <div class="hidden print:flex flex-col items-end mt-12 pr-12 text-[16px]" style="font-family: 'Siemreap', sans-serif; page-break-inside: avoid;">
+          <div class="mb-2">{{ currentLunarDate }}</div>
+          <div class="mb-8">កំពង់ស្ពឺ {{ currentGregorianDate }}</div>
+          <div class="mr-6">អ្នកធ្វើរបាយការណ៍</div>
         </div>
 
         <div class="flex flex-col sm:flex-row justify-between items-center gap-4 p-6 border-t border-[var(--border-color)] print:hidden">
@@ -370,7 +387,8 @@
 </style>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue';
+import { toKhmerLunarDate } from 'khmer-chhankitek-calendar';
 import { useAuthStore } from '../../stores/auth';
 import { useToastStore } from '../../stores/toast';
 import { useBorrowingsStore } from '../../stores/borrowings';
@@ -543,9 +561,12 @@ const printDateText = computed(() => {
   return 'ទិន្នន័យទាំងអស់កន្លងមក';
 });
 
-
-
 const printTotalSessions = computed(() => filteredReads.value.length);
+
+const currentDate = new Date();
+const khmerDateInfo = toKhmerLunarDate(currentDate);
+const currentLunarDate = computed(() => khmerDateInfo.lunarDateText.replace('ពុទ្ធសករាជ', 'ព.ស'));
+const currentGregorianDate = computed(() => khmerDateInfo.gregorianDateText);
 
 const printLongestReader = computed(() => {
   if (filteredReads.value.length === 0) return null;
