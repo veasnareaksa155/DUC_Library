@@ -25,11 +25,11 @@
             Manage the devices that are currently logged into your account.
           </p>
 
-          <div v-if="loading" class="flex justify-center p-8">
+          <div v-if="loading && authStore.sessions.length === 0" class="flex justify-center p-8">
             <Loader2 class="animate-spin text-indigo-500" :size="32" />
           </div>
           
-          <div v-else-if="authStore.sessions.length === 0" class="text-center p-8 text-[var(--text-muted)] border border-dashed border-[var(--border-color)] rounded-xl">
+          <div v-else-if="authStore.sessions.length === 0 && !loading" class="text-center p-8 text-[var(--text-muted)] border border-dashed border-[var(--border-color)] rounded-xl">
             No active sessions found.
           </div>
 
