@@ -66,10 +66,18 @@ export const useAuthStore = defineStore('auth', () => {
     loading.value = true;
     error.value = '';
     try {
+      let deviceModel = '';
+      if (navigator.userAgentData) {
+        try {
+          const hints = await navigator.userAgentData.getHighEntropyValues(['model']);
+          if (hints && hints.model) deviceModel = hints.model;
+        } catch (e) {}
+      }
+
       const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ email, password, deviceModel })
       });
 
       const data = await res.json();
@@ -95,10 +103,18 @@ export const useAuthStore = defineStore('auth', () => {
     loading.value = true;
     error.value = '';
     try {
+      let deviceModel = '';
+      if (navigator.userAgentData) {
+        try {
+          const hints = await navigator.userAgentData.getHighEntropyValues(['model']);
+          if (hints && hints.model) deviceModel = hints.model;
+        } catch (e) {}
+      }
+
       const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/auth/admin-login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ email, password, deviceModel })
       });
 
       const data = await res.json();

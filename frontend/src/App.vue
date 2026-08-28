@@ -79,7 +79,7 @@
 
 <script setup>
 import { computed, onMounted, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import Navbar from './components/Navbar.vue';
 import MobileHeader from './components/MobileHeader.vue';
 import MobileAppNavBar from './components/MobileAppNavBar.vue';
@@ -100,6 +100,7 @@ const borrowingsStore = useBorrowingsStore();
 const notificationsStore = useNotificationsStore();
 const wishlistStore = useWishlistStore();
 const route = useRoute();
+const router = useRouter();
 const hideGlobalNav = computed(() => route.path.startsWith('/admin') || route.path.startsWith('/read'));
 
 let eventSource = null;
@@ -141,7 +142,8 @@ function setupSSE(token) {
             const decoded = jwtDecode(authStore.token);
             if (decoded.session_id === data.payload.session_id) {
               authStore.logout();
-              window.location.href = '/login';
+              toastStore.showError('Your session was terminated from another device.', 'Session Terminated');
+              router.push('/login');
             }
           } catch (e) {}
         }

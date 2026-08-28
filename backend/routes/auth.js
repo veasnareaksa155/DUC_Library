@@ -60,7 +60,7 @@ router.post('/register', async (req, res) => {
 // Login user or admin
 router.post('/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, deviceModel: clientHintModel } = req.body;
 
     if (!email || !password) {
       return res.status(400).json({ message: 'Username / Student ID / Email and password are required.' });
@@ -131,7 +131,9 @@ router.post('/login', async (req, res) => {
     const deviceType = device.type || (os.name === 'iOS' || os.name === 'Android' ? 'mobile' : 'desktop');
     
     let deviceName = 'Unknown Device';
-    if (device.vendor && device.model && device.model !== 'K') {
+    if (clientHintModel) {
+      deviceName = device.vendor ? `${device.vendor} ${clientHintModel}` : clientHintModel;
+    } else if (device.vendor && device.model && device.model !== 'K') {
       deviceName = `${device.vendor} ${device.model}`;
     } else if (device.vendor) {
       deviceName = device.vendor;
@@ -197,7 +199,7 @@ router.post('/login', async (req, res) => {
 // Admin Login Route
 router.post('/admin-login', async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, deviceModel: clientHintModel } = req.body;
     
     if (!email || !password) {
       return res.status(400).json({ message: 'Username and password are required.' });
@@ -233,7 +235,9 @@ router.post('/admin-login', async (req, res) => {
     const deviceType = device.type || (os.name === 'iOS' || os.name === 'Android' ? 'mobile' : 'desktop');
     
     let deviceName = 'Unknown Device';
-    if (device.vendor && device.model && device.model !== 'K') {
+    if (clientHintModel) {
+      deviceName = device.vendor ? `${device.vendor} ${clientHintModel}` : clientHintModel;
+    } else if (device.vendor && device.model && device.model !== 'K') {
       deviceName = `${device.vendor} ${device.model}`;
     } else if (device.vendor) {
       deviceName = device.vendor;
