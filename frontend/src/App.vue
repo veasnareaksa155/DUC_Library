@@ -92,6 +92,7 @@ import { useBorrowingsStore } from './stores/borrowings';
 import { useNotificationsStore } from './stores/notifications';
 import { useWishlistStore } from './stores/wishlist';
 import { requestPhoneNotificationPermission } from './services/notificationService';
+import { jwtDecode } from 'jwt-decode';
 
 const authStore = useAuthStore();
 const toastStore = useToastStore();
@@ -134,6 +135,16 @@ function setupSSE(token) {
         // Refresh stores to instantly update the UI (bypassing local cache)
         borrowingsStore.fetchMyBorrowings(true);
         notificationsStore.loadNotifications();
+      } else if (data.type === 'session_terminated') {
+        if (authStore.token) {
+          try {
+            const decoded = jwtDecode(authStore.token);
+            if (decoded.session_id === data.payload.session_id) {
+              authStore.logout();
+              window.location.href = '/login';
+            }
+          } catch (e) {}
+        }
       } else if (data.type === 'new_borrowing_request') {
         if (authStore.isAdmin) {
           toastStore.showSuccess(

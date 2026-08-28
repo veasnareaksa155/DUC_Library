@@ -64,7 +64,7 @@
               </div>
 
               <!-- Action -->
-              <div class="shrink-0 flex items-center h-full pt-1">
+              <div class="shrink-0 flex items-center h-full pt-1" v-if="session.id !== currentSessionId">
                 <button 
                   @click="terminate(session.id)"
                   :disabled="terminatingId === session.id"

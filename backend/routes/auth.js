@@ -8,6 +8,7 @@ const cloudinary = require('cloudinary').v2;
 const crypto = require('crypto');
 const UAParser = require('ua-parser-js');
 const geoip = require('geoip-lite');
+const sse = require('../services/sse');
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -130,11 +131,11 @@ router.post('/login', async (req, res) => {
     const deviceType = device.type || (os.name === 'iOS' || os.name === 'Android' ? 'mobile' : 'desktop');
     
     let deviceName = 'Unknown Device';
-    if (device.vendor && device.model) {
+    if (device.vendor && device.model && device.model !== 'K') {
       deviceName = `${device.vendor} ${device.model}`;
     } else if (device.vendor) {
       deviceName = device.vendor;
-    } else if (device.model) {
+    } else if (device.model && device.model !== 'K') {
       deviceName = device.model;
     } else if (deviceType === 'desktop') {
       deviceName = 'Desktop Computer';
@@ -232,11 +233,11 @@ router.post('/admin-login', async (req, res) => {
     const deviceType = device.type || (os.name === 'iOS' || os.name === 'Android' ? 'mobile' : 'desktop');
     
     let deviceName = 'Unknown Device';
-    if (device.vendor && device.model) {
+    if (device.vendor && device.model && device.model !== 'K') {
       deviceName = `${device.vendor} ${device.model}`;
     } else if (device.vendor) {
       deviceName = device.vendor;
-    } else if (device.model) {
+    } else if (device.model && device.model !== 'K') {
       deviceName = device.model;
     } else if (deviceType === 'desktop') {
       deviceName = 'Desktop Computer';
@@ -316,6 +317,9 @@ router.delete('/sessions/:id', authenticateToken, async (req, res) => {
     
     session.status = 'terminated';
     await ORM.update('UserSessions', session.id, session);
+    
+    // Broadcast real-time termination to that specific user
+    sse.emitToUser(session.user_id, 'session_terminated', { session_id: session.id });
     
     res.json({ message: 'Session terminated successfully' });
   } catch (err) {
