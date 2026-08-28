@@ -57,6 +57,25 @@ router.post('/register', async (req, res) => {
   }
 });
 
+// Logout current session
+router.post('/logout', authenticateToken, async (req, res) => {
+  try {
+    const sessionId = req.user.session_id;
+    if (sessionId) {
+      const allSessions = await ORM.getAll('UserSessions') || [];
+      const session = allSessions.find(s => s.id === sessionId);
+      if (session) {
+        session.status = 'terminated';
+        await ORM.update('UserSessions', session.id, session);
+      }
+    }
+    res.json({ message: 'Logged out successfully' });
+  } catch (err) {
+    console.error('Logout error:', err);
+    res.status(500).json({ message: 'Logout failed' });
+  }
+});
+
 // Login user or admin
 router.post('/login', async (req, res) => {
   try {
@@ -174,6 +193,14 @@ router.post('/login', async (req, res) => {
       location: location
     });
 
+    // Broadcast new login to the user's other active sessions
+    sse.emitToUser(userDoc.id, 'new_login_session', {
+      session_id: sessionId,
+      device_name: deviceName,
+      location: location,
+      ip: ip
+    });
+
     const tokenPayload = {
       id: userDoc.id,
       email: userDoc.email,
@@ -277,7 +304,15 @@ router.post('/admin-login', async (req, res) => {
       device_name: deviceName,
       location: location
     });
-    
+
+    // Broadcast new login to the admin's other active sessions
+    sse.emitToUser(adminDoc.id, 'new_login_session', {
+      session_id: sessionId,
+      device_name: deviceName,
+      location: location,
+      ip: ip
+    });
+
     adminDoc.session_id = sessionId;
     
     const token = jwt.sign(adminDoc, JWT_SECRET, { expiresIn: '7d' });

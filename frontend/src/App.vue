@@ -147,6 +147,19 @@ function setupSSE(token) {
             }
           } catch (e) {}
         }
+      } else if (data.type === 'new_login_session') {
+        if (authStore.token) {
+          try {
+            const decoded = jwtDecode(authStore.token);
+            if (decoded.session_id !== data.payload.session_id) {
+              toastStore.showWarning(`New login detected from ${data.payload.device_name} (${data.payload.location})`, 'Security Alert');
+              // Silently refresh sessions in the background in case the SettingsModal is currently open
+              import('./stores/auth').then(({ useAuthStore }) => {
+                useAuthStore().fetchSessions();
+              });
+            }
+          } catch (e) {}
+        }
       } else if (data.type === 'new_borrowing_request') {
         if (authStore.isAdmin) {
           toastStore.showSuccess(

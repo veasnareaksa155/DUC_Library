@@ -49,6 +49,15 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   function logout(roleContext = context.value) {
+    const currentToken = roleContext === 'admin' ? adminToken.value : userToken.value;
+    if (currentToken) {
+      // Fire-and-forget termination request to the backend
+      fetch(`${import.meta.env.VITE_API_URL || ''}/api/auth/logout`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${currentToken}` }
+      }).catch(e => console.error('Logout error:', e));
+    }
+
     if (roleContext === 'admin') {
       adminToken.value = '';
       adminData.value = null;
