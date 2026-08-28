@@ -12,6 +12,7 @@ const notificationRoutes = require('./routes/notifications');
 const checkinRoutes = require('./routes/checkins');
 
 const app = express();
+app.set('trust proxy', true); // Trust reverse proxy headers (crucial for getting IP on Render/Heroku)
 const PORT = process.env.PORT || 5001;
 
 // Middlewares
