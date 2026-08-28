@@ -6,13 +6,18 @@
         
         <header class="mb-10">
           <div class="w-14 h-14 rounded-[1rem] bg-[var(--bg-card)] border border-[var(--border-color)] shadow-sm flex items-center justify-center mb-6 transition-transform hover:scale-110 duration-300">
-            <BookOpen :size="28" class="text-indigo-500" stroke-width="2.5" />
+            <ShieldCheck v-if="step === '2fa'" :size="28" class="text-indigo-500" stroke-width="2.5" />
+            <BookOpen v-else :size="28" class="text-indigo-500" stroke-width="2.5" />
           </div>
-          <h2 class="text-[2.25rem] font-black text-[var(--text-primary)] tracking-tight mb-2">{{ localeStore.t('welcomeBack') }}</h2>
-          <p class="text-[1.05rem] font-medium text-[var(--text-muted)]">{{ localeStore.t('signInAccount') }}</p>
+          <h2 class="text-[2.25rem] font-black text-[var(--text-primary)] tracking-tight mb-2">
+            {{ step === '2fa' ? 'Two-Factor Auth' : localeStore.t('welcomeBack') }}
+          </h2>
+          <p class="text-[1.05rem] font-medium text-[var(--text-muted)]">
+            {{ step === '2fa' ? 'Enter the 6-digit code from your authenticator app.' : localeStore.t('signInAccount') }}
+          </p>
         </header>
 
-        <form @submit.prevent="handleLogin" class="flex flex-col gap-6">
+        <form v-if="step === 'login'" @submit.prevent="handleLogin" class="flex flex-col gap-6 animate-in slide-in-from-right-4 duration-300">
           <div class="group">
             <label class="block text-[0.72rem] font-black uppercase tracking-widest mb-2.5 text-[var(--text-secondary)] ml-1">Student ID / Username / Email</label>
             <div class="relative">
@@ -49,6 +54,27 @@
             {{ authStore.loading ? localeStore.t('signingIn') : localeStore.t('signIn') }}
           </button>
         </form>
+
+        <form v-else-if="step === '2fa'" @submit.prevent="handleVerify2FA" class="flex flex-col gap-6 animate-in slide-in-from-right-4 duration-300">
+          <div class="group">
+            <label class="block text-[0.72rem] font-black uppercase tracking-widest mb-2.5 text-[var(--text-secondary)] ml-1">Authentication Code</label>
+            <OTPInput v-model="otpCode" />
+          </div>
+
+          <div v-if="authStore.error" class="flex items-center gap-3 bg-red-500/10 border border-red-500/20 text-red-500 font-bold p-4 rounded-[14px] text-[0.9rem] animate-in slide-in-from-top-2">
+            <AlertCircle :size="20" stroke-width="2.5" class="shrink-0" /> {{ authStore.error }}
+          </div>
+
+          <div class="flex gap-3 mt-4">
+            <button type="button" @click="step = 'login'; authStore.error = ''" class="w-1/3 bg-[var(--bg-card)] border-2 border-[var(--border-color)] hover:bg-[var(--bg-secondary)] text-[var(--text-primary)] font-black text-[1.05rem] py-4.5 rounded-[16px] transition-all duration-300 flex items-center justify-center disabled:opacity-50" :disabled="authStore.loading">
+              Back
+            </button>
+            <button type="submit" class="flex-1 bg-[var(--text-primary)] hover:bg-indigo-600 hover:scale-[1.01] active:scale-[0.98] text-[var(--bg-primary)] hover:text-white font-black text-[1.05rem] py-4.5 rounded-[16px] shadow-[0_4px_14px_rgba(0,0,0,0.1)] hover:shadow-[0_8px_25px_rgba(99,102,241,0.4)] transition-all duration-300 flex items-center justify-center gap-2.5 group" :disabled="authStore.loading">
+              <div v-if="authStore.loading" class="w-5 h-5 border-2 border-[var(--bg-primary)] border-t-transparent rounded-full animate-spin"></div>
+              <span v-else>Verify</span>
+            </button>
+          </div>
+        </form>
       </div>
     </div>
 
@@ -83,22 +109,41 @@ import { ref } from 'vue';
 import { useAuthStore } from '../stores/auth';
 import { useLocaleStore } from '../stores/locale';
 import { useRouter, useRoute } from 'vue-router';
-import { BookOpen, Mail, Lock, LogIn, User, AlertCircle, Eye, EyeOff } from 'lucide-vue-next';
+import OTPInput from '../components/OTPInput.vue';
+import { BookOpen, Mail, Lock, LogIn, User, AlertCircle, Eye, EyeOff, ShieldCheck } from 'lucide-vue-next';
 
 const authStore = useAuthStore();
 const localeStore = useLocaleStore();
 const router = useRouter();
 const route = useRoute();
 
+const step = ref('login');
+const tempToken = ref('');
+const otpCode = ref('');
+
 const email = ref('');
 const password = ref('');
 const showPassword = ref(false);
 
-
-
 async function handleLogin() {
   try {
     const res = await authStore.loginUser(email.value, password.value);
+    if (res && res.require2FA) {
+      tempToken.value = res.tempToken;
+      step.value = '2fa';
+      authStore.error = '';
+      return;
+    }
+    const redirectPath = route.query.redirect || '/';
+    router.push(redirectPath);
+  } catch (err) {
+    // handled by store
+  }
+}
+
+async function handleVerify2FA() {
+  try {
+    const res = await authStore.verify2FALogin(tempToken.value, otpCode.value, 'user');
     const redirectPath = route.query.redirect || '/';
     router.push(redirectPath);
   } catch (err) {

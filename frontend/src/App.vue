@@ -155,6 +155,8 @@ function setupSSE(token) {
               toastStore.show(`New login detected from ${data.payload.device_name} (${data.payload.location})`, { title: 'Security Alert', type: 'info', duration: 5000 });
               // Silently refresh sessions in the background in case the SettingsModal is currently open
               authStore.fetchSessions();
+              // Load notifications to display the new login security alert in the panel
+              notificationsStore.loadNotifications();
             }
           } catch (e) {}
         }

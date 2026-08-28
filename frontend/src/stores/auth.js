@@ -94,6 +94,10 @@ export const useAuthStore = defineStore('auth', () => {
         throw new Error(data.message || 'Login failed');
       }
 
+      if (data.require2FA) {
+        return data;
+      }
+
       setAuthData(data.token, data.user, roleContext);
       return data;
     } catch (err) {
@@ -131,6 +135,10 @@ export const useAuthStore = defineStore('auth', () => {
         throw new Error(data.message || 'Admin login failed');
       }
 
+      if (data.require2FA) {
+        return data;
+      }
+
       setAuthData(data.token, data.user, 'admin');
       return data;
     } catch (err) {
@@ -138,6 +146,94 @@ export const useAuthStore = defineStore('auth', () => {
       throw err;
     } finally {
       loading.value = false;
+    }
+  }
+
+  async function verify2FALogin(tempToken, code, roleContext) {
+    loading.value = true;
+    error.value = '';
+    try {
+      let deviceModel = '';
+      if (navigator.userAgentData) {
+        try {
+          const hints = await navigator.userAgentData.getHighEntropyValues(['model']);
+          if (hints && hints.model) deviceModel = hints.model;
+        } catch (e) {}
+      }
+
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/auth/2fa/verify-login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tempToken, code, clientHintModel: deviceModel })
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Invalid 2FA code');
+      }
+
+      setAuthData(data.token, data.user, roleContext);
+      return data;
+    } catch (err) {
+      error.value = err.message;
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  async function check2FAStatus() {
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/auth/2fa/status`, {
+        headers: { 'Authorization': `Bearer ${token.value}` }
+      });
+      const data = await res.json();
+      return data.enabled;
+    } catch (err) {
+      return false;
+    }
+  }
+
+  async function generate2FA() {
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/auth/2fa/generate`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token.value}` }
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to generate 2FA');
+      return data;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async function verify2FASetup(code) {
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/auth/2fa/verify-setup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token.value}` },
+        body: JSON.stringify({ token: code })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to verify');
+      return data;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async function disable2FA() {
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/auth/2fa/disable`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token.value}` }
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to disable');
+      return data;
+    } catch (err) {
+      throw err;
     }
   }
 
@@ -236,6 +332,32 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  async function updateProfilePhoto(base64Image) {
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/auth/profile-photo`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token.value}`
+        },
+        body: JSON.stringify({ profile_photo: base64Image })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Failed to update profile photo');
+      
+      if (context.value === 'admin') {
+        adminData.value = data.user;
+        localStorage.setItem('duc_admin', JSON.stringify(data.user));
+      } else {
+        userData.value = data.user;
+        localStorage.setItem('duc_user', JSON.stringify(data.user));
+      }
+      return data;
+    } catch (err) {
+      throw err;
+    }
+  }
+
   return {
     userToken,
     userData,
@@ -251,14 +373,21 @@ export const useAuthStore = defineStore('auth', () => {
     isAuthenticated,
     isAdmin,
     setContext,
+    setAuthData,
     login,
     loginUser,
     loginAdmin,
+    verify2FALogin,
+    check2FAStatus,
+    generate2FA,
+    verify2FASetup,
+    disable2FA,
     register,
     logout,
     checkAuth,
     sessions,
     fetchSessions,
-    terminateSession
+    terminateSession,
+    updateProfilePhoto
   };
 });

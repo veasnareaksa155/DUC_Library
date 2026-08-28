@@ -2,7 +2,7 @@
   <Transition name="toast-slide">
     <div 
       v-if="toastStore.isVisible" 
-      class="fixed bottom-6 right-6 max-sm:bottom-auto max-sm:top-20 max-sm:right-4 max-sm:left-auto z-[99999] w-auto max-sm:w-auto min-w-[320px] max-w-[380px] pointer-events-auto"
+      class="fixed bottom-6 right-6 max-sm:bottom-auto max-sm:top-20 max-sm:right-4 max-sm:left-auto z-[999999] w-auto max-sm:w-auto min-w-[320px] max-w-[380px] pointer-events-auto"
       :class="toastStore.type"
       @click="toastStore.hide"
     >

@@ -50,35 +50,9 @@
 
       <!-- Right Section: Actions -->
       <div class="flex items-center gap-2 lg:gap-3 shrink-0 ml-4">
-        <!-- Language Switcher -->
-        <button 
-          @click="localeStore.toggleLanguage()" 
-          class="inline-flex items-center justify-center gap-1.5 px-2.5 h-8 rounded-md bg-transparent text-[var(--text-secondary)] text-[0.8rem] font-semibold transition-colors hover:bg-[var(--bg-card-hover)] hover:text-[var(--text-primary)] cursor-pointer border-none"
-          :title="localeStore.currentLang === 'en' ? 'Switch to Khmer (ភាសាខ្មែរ)' : 'Switch to English'"
-        >
-          <Globe :size="16" />
-          <span>{{ localeStore.currentLang === 'en' ? 'EN' : 'ខ្មែរ' }}</span>
-        </button>
 
-        <!-- Theme Toggle -->
-        <button 
-          @click="themeStore.toggleTheme()" 
-          class="w-8 h-8 rounded-md bg-transparent text-[var(--text-secondary)] flex items-center justify-center cursor-pointer transition-colors hover:bg-[var(--bg-card-hover)] hover:text-[var(--text-primary)] border-none" 
-          :title="themeStore.isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
-        >
-          <Sun v-if="themeStore.isDark" :size="16" />
-          <Moon v-else :size="16" />
-        </button>
 
-        <!-- Settings -->
-        <button 
-          v-if="authStore.isAuthenticated"
-          @click="isSettingsOpen = true" 
-          class="w-8 h-8 rounded-md bg-transparent text-[var(--text-secondary)] flex items-center justify-center cursor-pointer transition-colors hover:bg-[var(--bg-card-hover)] hover:text-[var(--text-primary)] border-none" 
-          title="Account Settings"
-        >
-          <Settings :size="16" />
-        </button>
+
 
         <!-- Notifications -->
         <button 
@@ -114,8 +88,16 @@
             <span class="hidden sm:block text-[0.8rem] font-semibold text-[var(--text-primary)] truncate max-w-[100px]">{{ authStore.user?.name }}</span>
           </div>
 
-          <button @click="handleLogout" class="w-8 h-8 rounded-md bg-transparent text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 flex items-center justify-center transition-colors cursor-pointer border-none" title="Log Out">
-            <LogOut :size="16" />
+
+          <div class="h-5 w-px bg-[var(--border-color)] mx-1 hidden sm:block"></div>
+
+          <!-- Settings -->
+          <button 
+            @click="isSettingsOpen = true" 
+            class="w-8 h-8 rounded-md bg-transparent text-[var(--text-secondary)] flex items-center justify-center cursor-pointer transition-colors hover:bg-[var(--bg-card-hover)] hover:text-[var(--text-primary)] border-none" 
+            title="Account Settings"
+          >
+            <Settings :size="16" />
           </button>
         </template>
 

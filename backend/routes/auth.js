@@ -9,6 +9,8 @@ const crypto = require('crypto');
 const UAParser = require('ua-parser-js');
 const geoip = require('geoip-lite');
 const sse = require('../services/sse');
+const { generateSecret, verifySync } = require('otplib');
+const QRCode = require('qrcode');
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -141,6 +143,18 @@ router.post('/login', async (req, res) => {
       created_at: new Date().toISOString()
     };
 
+    // --- 2FA Check ---
+    const user2fa = await ORM.find('User2FA', t => t.user_id === String(userDoc.id));
+    if (user2fa.length > 0 && user2fa[0].is_enabled === 'true') {
+      const tempToken = jwt.sign(
+        { id: userDoc.id, role: userDoc.role, name: userDoc.name, email: userDoc.email, student_id: userDoc.student_id, profile_photo: finalPhoto, is_2fa_temp: true }, 
+        JWT_SECRET, 
+        { expiresIn: '5m' }
+      );
+      return res.json({ message: '2FA Required', require2FA: true, tempToken });
+    }
+    // -----------------
+
     // Create session
     const sessionId = crypto.randomUUID();
     const parser = new UAParser(req.headers['user-agent']);
@@ -201,6 +215,17 @@ router.post('/login', async (req, res) => {
       ip: ip
     });
 
+    // Create a persistent notification for the security alert
+    await ORM.insert('Notifications', {
+      id: Date.now().toString(),
+      user_id: userDoc.id,
+      title: 'Security Alert: New Login',
+      message: `A new login was detected on your account from ${deviceName} in ${location}. If this wasn't you, please secure your account immediately.`,
+      type: 'warning',
+      is_read: 'false',
+      created_at: new Date().toISOString()
+    });
+
     const tokenPayload = {
       id: userDoc.id,
       email: userDoc.email,
@@ -252,6 +277,18 @@ router.post('/admin-login', async (req, res) => {
       name: adminMatch.name,
       profile_photo: adminMatch.profile_photo || ''
     };
+
+    // --- 2FA Check ---
+    const user2fa = await ORM.find('User2FA', t => t.user_id === String(adminDoc.id));
+    if (user2fa.length > 0 && user2fa[0].is_enabled === 'true') {
+      const tempToken = jwt.sign(
+        { id: adminDoc.id, role: adminDoc.role, name: adminDoc.name, email: adminDoc.email, profile_photo: adminDoc.profile_photo, is_2fa_temp: true }, 
+        JWT_SECRET, 
+        { expiresIn: '5m' }
+      );
+      return res.json({ message: '2FA Required', require2FA: true, tempToken });
+    }
+    // -----------------
     
     // Create session for admin
     const sessionId = crypto.randomUUID();
@@ -311,6 +348,17 @@ router.post('/admin-login', async (req, res) => {
       device_name: deviceName,
       location: location,
       ip: ip
+    });
+
+    // Create a persistent notification for the security alert
+    await ORM.insert('Notifications', {
+      id: Date.now().toString(),
+      user_id: adminDoc.id,
+      title: 'Security Alert: New Login',
+      message: `A new login was detected on your account from ${deviceName} in ${location}. If this wasn't you, please secure your account immediately.`,
+      type: 'warning',
+      is_read: 'false',
+      created_at: new Date().toISOString()
     });
 
     adminDoc.session_id = sessionId;
@@ -470,6 +518,193 @@ router.put('/profile-photo', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('Error updating profile photo:', error);
     res.status(500).json({ message: 'Failed to update profile photo.', error: error.message });
+  }
+});
+
+// ----------------------------------------------------
+// 2FA Routes
+// ----------------------------------------------------
+
+router.get('/2fa/status', authenticateToken, async (req, res) => {
+  try {
+    const user2fa = await ORM.find('User2FA', t => t.user_id === String(req.user.id));
+    if (user2fa.length > 0 && String(user2fa[0].is_enabled).toLowerCase() === 'true') {
+      return res.json({ enabled: true });
+    }
+    res.json({ enabled: false });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to check 2FA status' });
+  }
+});
+
+router.post('/2fa/generate', authenticateToken, async (req, res) => {
+  try {
+    const secret = generateSecret();
+    const accountName = encodeURIComponent(req.user.email || req.user.id);
+    const issuer = encodeURIComponent('DUC Library');
+    const otpauth = `otpauth://totp/${issuer}:${accountName}?secret=${secret}&issuer=${issuer}`;
+    const qrCodeUrl = await QRCode.toDataURL(otpauth);
+    
+    // Check if exists
+    const existing = await ORM.find('User2FA', t => t.user_id === String(req.user.id));
+    if (existing.length > 0) {
+      await ORM.update('User2FA', existing[0].id, { secret, is_enabled: 'false', updated_at: new Date().toISOString() });
+    } else {
+      await ORM.insert('User2FA', {
+        id: crypto.randomUUID(),
+        user_id: String(req.user.id),
+        secret,
+        is_enabled: 'false',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      });
+    }
+
+    res.json({ secret, qrCodeUrl });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to generate 2FA secret' });
+  }
+});
+
+router.post('/2fa/verify-setup', authenticateToken, async (req, res) => {
+  try {
+    const { token } = req.body;
+    const user2fa = await ORM.find('User2FA', t => t.user_id === String(req.user.id));
+    
+    if (user2fa.length === 0) return res.status(400).json({ error: '2FA not generated' });
+
+    const { valid } = verifySync({ token, secret: user2fa[0].secret });
+    if (!valid) return res.status(400).json({ error: 'Invalid 2FA code' });
+
+    await ORM.update('User2FA', user2fa[0].id, { is_enabled: 'true', updated_at: new Date().toISOString() });
+    res.json({ success: true, message: '2FA enabled successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to verify 2FA' });
+  }
+});
+
+router.post('/2fa/disable', authenticateToken, async (req, res) => {
+  try {
+    const user2fa = await ORM.find('User2FA', t => t.user_id === String(req.user.id));
+    if (user2fa.length > 0) {
+      await ORM.update('User2FA', user2fa[0].id, { is_enabled: 'false', updated_at: new Date().toISOString() });
+    }
+    res.json({ success: true, message: '2FA disabled successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to disable 2FA' });
+  }
+});
+
+router.post('/2fa/verify-login', async (req, res) => {
+  try {
+    const { tempToken, code, clientHintModel } = req.body;
+    let decoded;
+    try {
+      decoded = jwt.verify(tempToken, JWT_SECRET);
+    } catch (e) {
+      return res.status(401).json({ error: 'Invalid or expired temporary token' });
+    }
+
+    if (!decoded.is_2fa_temp) return res.status(400).json({ error: 'Invalid token type' });
+
+    const user2fa = await ORM.find('User2FA', t => t.user_id === String(decoded.id));
+    if (user2fa.length === 0 || String(user2fa[0].is_enabled).toLowerCase() !== 'true') {
+      return res.status(400).json({ error: '2FA is not enabled for this user' });
+    }
+
+    const { valid } = verifySync({ token: code, secret: user2fa[0].secret });
+    if (!valid) return res.status(400).json({ error: 'Invalid 2FA code' });
+
+    // 2FA passed! Create session.
+    const sessionId = crypto.randomUUID();
+    const parser = new UAParser(req.headers['user-agent']);
+    const browser = parser.getBrowser();
+    const os = parser.getOS();
+    const device = parser.getDevice();
+    const deviceType = device.type || (os.name === 'iOS' || os.name === 'Android' ? 'mobile' : 'desktop');
+    
+    let deviceName = 'Unknown Device';
+    if (clientHintModel) {
+      deviceName = device.vendor ? `${device.vendor} ${clientHintModel}` : clientHintModel;
+    } else if (device.vendor && device.model && device.model !== 'K') {
+      deviceName = `${device.vendor} ${device.model}`;
+    } else if (device.vendor) {
+      deviceName = device.vendor;
+    } else if (device.model && device.model !== 'K') {
+      deviceName = device.model;
+    } else if (deviceType === 'desktop') {
+      deviceName = 'Desktop Computer';
+    } else if (deviceType === 'mobile') {
+      deviceName = 'Mobile Device';
+    }
+
+    let ip = req.headers['x-forwarded-for'] || req.socket?.remoteAddress || 'Unknown IP';
+    if (ip.includes(',')) ip = ip.split(',')[0].trim();
+    
+    let location = 'Unknown Location';
+    if (ip === '::1' || ip === '127.0.0.1') {
+      ip = 'Localhost (::1)';
+      location = 'Local Network';
+    } else {
+      const geo = geoip.lookup(ip);
+      if (geo) {
+        location = `${geo.city || 'Unknown City'}, ${geo.country || ''}`.trim();
+        if (location === ',') location = 'Unknown Location';
+      }
+    }
+    
+    await ORM.insert('UserSessions', {
+      id: sessionId,
+      user_id: decoded.id,
+      device_type: deviceType,
+      os: os.name ? `${os.name} ${os.version || ''}`.trim() : 'Unknown OS',
+      browser: browser.name ? `${browser.name} ${browser.version || ''}`.trim() : 'Unknown Browser',
+      ip_address: ip,
+      status: 'active',
+      created_at: new Date().toISOString(),
+      last_active: new Date().toISOString(),
+      device_name: deviceName,
+      location: location
+    });
+
+    sse.emitToUser(decoded.id, 'new_login_session', {
+      session_id: sessionId,
+      device_name: deviceName,
+      location: location,
+      ip: ip
+    });
+
+    // Create a persistent notification for the security alert
+    await ORM.insert('Notifications', {
+      id: Date.now().toString(),
+      user_id: decoded.id,
+      title: 'Security Alert: New Login (2FA Verified)',
+      message: `A new login was detected on your account from ${deviceName} in ${location}.`,
+      type: 'warning',
+      is_read: 'false',
+      created_at: new Date().toISOString()
+    });
+
+    const tokenPayload = {
+      id: decoded.id,
+      email: decoded.email,
+      role: decoded.role,
+      name: decoded.name,
+      student_id: decoded.student_id,
+      session_id: sessionId
+    };
+    
+    const finalToken = jwt.sign(tokenPayload, JWT_SECRET, { expiresIn: '7d' });
+
+    res.json({
+      message: 'Login successful',
+      token: finalToken,
+      user: decoded
+    });
+
+  } catch (error) {
+    console.error('2FA Verify Login Error:', error);
+    res.status(500).json({ error: 'Failed to verify 2FA login' });
   }
 });
 

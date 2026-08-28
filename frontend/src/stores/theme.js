@@ -17,10 +17,14 @@ export const useThemeStore = defineStore('theme', () => {
   }
 
   function toggleTheme() {
-    isDark.value = !isDark.value;
-    const themeName = isDark.value ? 'dark' : 'light';
+    setTheme(!isDark.value);
+  }
+
+  function setTheme(dark) {
+    isDark.value = dark;
+    const themeName = dark ? 'dark' : 'light';
     localStorage.setItem('duc_theme', themeName);
-    applyTheme(isDark.value);
+    applyTheme(dark);
   }
 
   // Initialize theme on load
@@ -29,6 +33,7 @@ export const useThemeStore = defineStore('theme', () => {
   return {
     isDark,
     toggleTheme,
-    applyTheme
+    applyTheme,
+    setTheme
   };
 });

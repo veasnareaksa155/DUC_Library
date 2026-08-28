@@ -6,24 +6,7 @@
     </div>
 
     <div class="flex items-center gap-1.5">
-      <!-- Language Switcher -->
-      <button 
-        @click="localeStore.toggleLanguage()" 
-        class="inline-flex items-center justify-center w-8 h-8 rounded-md bg-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card-hover)] cursor-pointer transition-colors border-none" 
-        :title="localeStore.currentLang === 'en' ? 'Switch to Khmer (ភាសាខ្មែរ)' : 'Switch to English'"
-      >
-        <span class="text-[0.75rem] font-bold uppercase">{{ localeStore.currentLang }}</span>
-      </button>
 
-      <!-- Theme Mode Toggle -->
-      <button 
-        @click="themeStore.toggleTheme()" 
-        class="inline-flex items-center justify-center w-8 h-8 rounded-md bg-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card-hover)] cursor-pointer transition-colors border-none"
-        :title="themeStore.isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
-      >
-        <Sun v-if="themeStore.isDark" :size="18" />
-        <Moon v-else :size="18" />
-      </button>
 
       <!-- Notification Button -->
       <button v-if="authStore.isAuthenticated" @click="notifStore.toggleDrawer()" class="relative inline-flex items-center justify-center w-8 h-8 rounded-md bg-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card-hover)] cursor-pointer transition-colors border-none" title="Notifications">
@@ -36,10 +19,6 @@
         <Settings :size="18" />
       </button>
 
-      <!-- Logout Button -->
-      <button v-if="authStore.isAuthenticated" @click="handleLogout" class="inline-flex items-center justify-center w-8 h-8 rounded-md bg-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card-hover)] cursor-pointer transition-colors border-none ml-0.5" title="Log Out">
-        <LogOut :size="18" />
-      </button>
     </div>
 
     <SettingsModal :isOpen="isSettingsOpen" @close="isSettingsOpen = false" />
