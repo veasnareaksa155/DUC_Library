@@ -48,7 +48,8 @@ const SCHEMAS = {
   'Admins': ['id', 'username', 'password', 'name', 'email', 'profile_photo', 'role'],
   'DigitalReads': ['id', 'session_id', 'user_id', 'user_name', 'book_id', 'start_time', 'end_time', 'duration_seconds'],
   'Wishlists': ['id', 'user_id', 'book_id', 'created_at'],
-  'Settings': ['id', 'setting_key', 'setting_value', 'updated_at']
+  'Settings': ['id', 'setting_key', 'setting_value', 'updated_at'],
+  'UserSessions': ['id', 'user_id', 'device_type', 'os', 'browser', 'ip_address', 'status', 'created_at', 'last_active', 'device_name', 'location']
 };
 
 /**

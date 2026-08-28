@@ -191,6 +191,7 @@ function setupSSE(token) {
       } else if (data.type === 'active_readers_updated') {
         window.dispatchEvent(new CustomEvent('active_readers_updated', { detail: data.payload }));
       } else if (data.type === 'catalog_updated') {
+        window.dispatchEvent(new CustomEvent('catalog_updated', { detail: data.payload }));
         // Trigger real-time catalog update
         import('./stores/books').then(module => {
           const booksStore = module.useBooksStore();

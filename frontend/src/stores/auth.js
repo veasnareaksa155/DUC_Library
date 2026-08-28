@@ -12,6 +12,7 @@ export const useAuthStore = defineStore('auth', () => {
   const context = ref('user'); // 'user' or 'admin'
   const loading = ref(false);
   const error = ref('');
+  const sessions = ref([]);
 
   // --- DYNAMIC CONTEXT GETTERS ---
   // The 'token' and 'user' getters automatically switch based on the current context route
@@ -178,6 +179,38 @@ export const useAuthStore = defineStore('auth', () => {
     await Promise.all(promises);
   }
 
+  async function fetchSessions() {
+    if (!token.value) return;
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/auth/sessions`, {
+        headers: { Authorization: `Bearer ${token.value}` }
+      });
+      if (res.ok) {
+        sessions.value = await res.json();
+      }
+    } catch (err) {
+      console.error('Failed to fetch sessions', err);
+    }
+  }
+  
+  async function terminateSession(sessionId) {
+    if (!token.value) return;
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/auth/sessions/${sessionId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token.value}` }
+      });
+      if (res.ok) {
+        sessions.value = sessions.value.filter(s => s.id !== sessionId);
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error('Failed to terminate session', err);
+      return false;
+    }
+  }
+
   return {
     userToken,
     userData,
@@ -198,6 +231,9 @@ export const useAuthStore = defineStore('auth', () => {
     loginAdmin,
     register,
     logout,
-    checkAuth
+    checkAuth,
+    sessions,
+    fetchSessions,
+    terminateSession
   };
 });

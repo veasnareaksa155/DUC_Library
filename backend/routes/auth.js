@@ -5,6 +5,9 @@ const { JWT_SECRET, authenticateToken } = require('../middleware/auth');
 const { getServiceAccountEmail } = require('../googleSheets');
 const ORM = require('../googleSheetsORM');
 const cloudinary = require('cloudinary').v2;
+const crypto = require('crypto');
+const UAParser = require('ua-parser-js');
+const geoip = require('geoip-lite');
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -118,12 +121,63 @@ router.post('/login', async (req, res) => {
       created_at: new Date().toISOString()
     };
 
+    // Create session
+    const sessionId = crypto.randomUUID();
+    const parser = new UAParser(req.headers['user-agent']);
+    const browser = parser.getBrowser();
+    const os = parser.getOS();
+    const device = parser.getDevice();
+    const deviceType = device.type || (os.name === 'iOS' || os.name === 'Android' ? 'mobile' : 'desktop');
+    
+    let deviceName = 'Unknown Device';
+    if (device.vendor && device.model) {
+      deviceName = `${device.vendor} ${device.model}`;
+    } else if (device.vendor) {
+      deviceName = device.vendor;
+    } else if (device.model) {
+      deviceName = device.model;
+    } else if (deviceType === 'desktop') {
+      deviceName = 'Desktop Computer';
+    } else if (deviceType === 'mobile') {
+      deviceName = 'Mobile Device';
+    }
+
+    let ip = req.headers['x-forwarded-for'] || req.socket?.remoteAddress || 'Unknown IP';
+    if (ip.includes(',')) ip = ip.split(',')[0].trim();
+    
+    let location = 'Unknown Location';
+    if (ip === '::1' || ip === '127.0.0.1') {
+      ip = 'Localhost (::1)';
+      location = 'Local Network';
+    } else {
+      const geo = geoip.lookup(ip);
+      if (geo) {
+        location = `${geo.city || 'Unknown City'}, ${geo.country || ''}`.trim();
+        if (location === ',') location = 'Unknown Location';
+      }
+    }
+    
+    await ORM.insert('UserSessions', {
+      id: sessionId,
+      user_id: userDoc.id,
+      device_type: deviceType,
+      os: os.name ? `${os.name} ${os.version || ''}`.trim() : 'Unknown OS',
+      browser: browser.name ? `${browser.name} ${browser.version || ''}`.trim() : 'Unknown Browser',
+      ip_address: ip,
+      status: 'active',
+      created_at: new Date().toISOString(),
+      last_active: new Date().toISOString(),
+      device_name: deviceName,
+      location: location
+    });
+
     const tokenPayload = {
       id: userDoc.id,
       email: userDoc.email,
       role: userDoc.role,
       name: userDoc.name,
-      student_id: userDoc.student_id
+      student_id: userDoc.student_id,
+      session_id: sessionId
     };
     
     const token = jwt.sign(tokenPayload, JWT_SECRET, { expiresIn: '7d' });
@@ -169,12 +223,104 @@ router.post('/admin-login', async (req, res) => {
       profile_photo: adminMatch.profile_photo || ''
     };
     
+    // Create session for admin
+    const sessionId = crypto.randomUUID();
+    const parser = new UAParser(req.headers['user-agent']);
+    const browser = parser.getBrowser();
+    const os = parser.getOS();
+    const device = parser.getDevice();
+    const deviceType = device.type || (os.name === 'iOS' || os.name === 'Android' ? 'mobile' : 'desktop');
+    
+    let deviceName = 'Unknown Device';
+    if (device.vendor && device.model) {
+      deviceName = `${device.vendor} ${device.model}`;
+    } else if (device.vendor) {
+      deviceName = device.vendor;
+    } else if (device.model) {
+      deviceName = device.model;
+    } else if (deviceType === 'desktop') {
+      deviceName = 'Desktop Computer';
+    } else if (deviceType === 'mobile') {
+      deviceName = 'Mobile Device';
+    }
+
+    let ip = req.headers['x-forwarded-for'] || req.socket?.remoteAddress || 'Unknown IP';
+    if (ip.includes(',')) ip = ip.split(',')[0].trim();
+    
+    let location = 'Unknown Location';
+    if (ip === '::1' || ip === '127.0.0.1') {
+      ip = 'Localhost (::1)';
+      location = 'Local Network';
+    } else {
+      const geo = geoip.lookup(ip);
+      if (geo) {
+        location = `${geo.city || 'Unknown City'}, ${geo.country || ''}`.trim();
+        if (location === ',') location = 'Unknown Location';
+      }
+    }
+    
+    await ORM.insert('UserSessions', {
+      id: sessionId,
+      user_id: adminDoc.id,
+      device_type: deviceType,
+      os: os.name ? `${os.name} ${os.version || ''}`.trim() : 'Unknown OS',
+      browser: browser.name ? `${browser.name} ${browser.version || ''}`.trim() : 'Unknown Browser',
+      ip_address: ip,
+      status: 'active',
+      created_at: new Date().toISOString(),
+      last_active: new Date().toISOString(),
+      device_name: deviceName,
+      location: location
+    });
+    
+    adminDoc.session_id = sessionId;
+    
     const token = jwt.sign(adminDoc, JWT_SECRET, { expiresIn: '7d' });
     return res.json({ message: 'Admin login successful', token, user: adminDoc });
     
   } catch (error) {
     console.error('Admin Login error:', error);
     res.status(500).json({ message: 'Internal server error during admin login.' });
+  }
+});
+
+// Get active sessions for current user
+router.get('/sessions', authenticateToken, async (req, res) => {
+  try {
+    const allSessions = await ORM.getAll('UserSessions') || [];
+    const userSessions = allSessions.filter(s => 
+      String(s.user_id) === String(req.user.id) && s.status === 'active'
+    );
+    // Sort by most recent
+    userSessions.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    res.json(userSessions);
+  } catch (err) {
+    console.error('Failed to get sessions:', err);
+    res.status(500).json({ message: 'Failed to fetch active sessions' });
+  }
+});
+
+// Terminate a specific session
+router.delete('/sessions/:id', authenticateToken, async (req, res) => {
+  try {
+    const allSessions = await ORM.getAll('UserSessions') || [];
+    const session = allSessions.find(s => s.id === req.params.id);
+    
+    if (!session) {
+      return res.status(404).json({ message: 'Session not found' });
+    }
+    
+    if (String(session.user_id) !== String(req.user.id) && req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Not authorized to terminate this session' });
+    }
+    
+    session.status = 'terminated';
+    await ORM.update('UserSessions', session.id, session);
+    
+    res.json({ message: 'Session terminated successfully' });
+  } catch (err) {
+    console.error('Failed to terminate session:', err);
+    res.status(500).json({ message: 'Failed to terminate session' });
   }
 });
 

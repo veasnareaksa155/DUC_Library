@@ -268,10 +268,12 @@
         </div>
 
         <!-- Print Footer / Signature Block (Hidden except when printing) -->
-        <div class="hidden print:flex flex-col items-end mt-12 pr-12 text-[16px] text-black print:text-black" style="font-family: 'Siemreap', sans-serif; page-break-inside: avoid;">
-          <div class="mb-2" style="font-family: 'Siemreap', sans-serif; page-break-inside: avoid;">{{ currentLunarDate }}</div>
-          <div class="mb-8" style="font-family: 'Siemreap', sans-serif; page-break-inside: avoid;">កំពង់ស្ពឺ {{ currentGregorianDate }}</div>
-          <div class="mr-6" style="font-family: 'Siemreap', sans-serif; page-break-inside: avoid;">អ្នកធ្វើរបាយការណ៍</div>
+        <div class="hidden print:flex w-full justify-end mt-12 pr-12 text-[16px] text-black print:text-black" style="font-family: 'Siemreap', sans-serif; page-break-inside: avoid;">
+          <div class="flex flex-col items-center">
+            <div class="mb-2" style="font-family: 'Siemreap', sans-serif; page-break-inside: avoid;">{{ currentLunarDate }}</div>
+            <div class="mb-8" style="font-family: 'Siemreap', sans-serif; page-break-inside: avoid;">កំពង់ស្ពឺ {{ currentGregorianDate }}</div>
+            <div style="font-family: 'Siemreap', sans-serif; page-break-inside: avoid;">អ្នកធ្វើរបាយការណ៍</div>
+          </div>
         </div>
 
         <!-- Pagination Nav Bar -->
@@ -319,10 +321,11 @@
     size: A4 portrait;
     margin: 15mm 15mm;
     @bottom-right {
-      content: "ទំព័រ " counter(page) " / " counter(pages);
-      font-family: 'Khmer OS Battambang', sans-serif;
-      font-size: 11px;
-      color: #64748b;
+      content: "ទំព័រទី " counter(page) " នៃ " counter(pages);
+      font-family: 'Siemreap', sans-serif !important;
+      font-size: 11px !important;
+      font-weight: 600 !important;
+      color: #4f46e5 !important;
     }
   }
 
@@ -352,9 +355,13 @@
   .print-clean-table td {
     border: 1px solid #cbd5e1 !important;
     padding: 10px 14px !important;
-    color: #0f172a !important;
+    color: #000000 !important;
     vertical-align: middle !important;
     font-family: 'Siemreap', sans-serif !important;
+  }
+  
+  .print-clean-table td * {
+    color: #000000 !important;
   }
   
   .print-clean-table th {
@@ -373,9 +380,7 @@
   }
   
   .print-clean-table tr:nth-child(even) {
-    background-color: #f8fafc !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
+    background-color: transparent !important;
   }
 }
 </style>
@@ -396,7 +401,7 @@ const activeFilter = ref('all');
 
 const currentDate = new Date();
 const khmerDateInfo = toKhmerLunarDate(currentDate);
-const currentLunarDate = computed(() => khmerDateInfo.lunarDateText.replace('ពុទ្ធសករាជ', 'ព.ស'));
+const currentLunarDate = computed(() => khmerDateInfo.lunarDateText.replace('ពុទ្ធសករាជ', 'ព.ស.'));
 const currentGregorianDate = computed(() => khmerDateInfo.gregorianDateText);
 
 const selectedYear = ref('');

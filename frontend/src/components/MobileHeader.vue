@@ -31,11 +31,18 @@
         <span v-if="notifStore.unreadCount > 0" class="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-red-500 rounded-full"></span>
       </button>
 
+      <!-- Settings Button -->
+      <button v-if="authStore.isAuthenticated" @click="isSettingsOpen = true" class="inline-flex items-center justify-center w-8 h-8 rounded-md bg-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card-hover)] cursor-pointer transition-colors border-none" title="Account Settings">
+        <Settings :size="18" />
+      </button>
+
       <!-- Logout Button -->
       <button v-if="authStore.isAuthenticated" @click="handleLogout" class="inline-flex items-center justify-center w-8 h-8 rounded-md bg-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card-hover)] cursor-pointer transition-colors border-none ml-0.5" title="Log Out">
         <LogOut :size="18" />
       </button>
     </div>
+
+    <SettingsModal :isOpen="isSettingsOpen" @close="isSettingsOpen = false" />
   </header>
 </template>
 
@@ -47,7 +54,9 @@ import { useBooksStore } from '../stores/books';
 import { useNotificationsStore } from '../stores/notifications';
 import { useAuthStore } from '../stores/auth';
 import { useConfirmStore } from '../stores/confirm';
-import { Globe, Sun, Moon, Bell, LogOut } from 'lucide-vue-next';
+import { Globe, Sun, Moon, Bell, LogOut, Settings } from 'lucide-vue-next';
+import SettingsModal from './SettingsModal.vue';
+import { ref } from 'vue';
 
 defineEmits(['toast']);
 
@@ -57,6 +66,7 @@ const themeStore = useThemeStore();
 const booksStore = useBooksStore();
 const notifStore = useNotificationsStore();
 const authStore = useAuthStore();
+const isSettingsOpen = ref(false);
 
 function goHome() {
   booksStore.selectedCategory = 'all';

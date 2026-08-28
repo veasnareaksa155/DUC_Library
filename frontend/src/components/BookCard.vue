@@ -10,11 +10,12 @@
         <!-- Wishlist Heart Button -->
         <button 
           @click.stop="handleWishlistToggle" 
-          class="absolute top-2.5 right-2.5 w-8 h-8 rounded-md bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-secondary)] flex items-center justify-center cursor-pointer z-10 transition-all duration-200 shadow-sm hover:text-red-500 hover:border-red-500/30"
+          class="absolute top-2.5 right-2.5 h-8 px-2 min-w-[32px] rounded-md bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-secondary)] flex items-center justify-center gap-1.5 cursor-pointer z-10 transition-all duration-200 shadow-sm hover:text-red-500 hover:border-red-500/30"
           :class="{ 'text-red-500': isSaved }"
           :title="isSaved ? 'Remove from Wishlist' : 'Add to Wishlist'"
         >
           <Heart :size="15" :fill="isSaved ? 'currentColor' : 'none'" />
+          <span v-if="book.wishlist_count > 0" class="text-[0.75rem] font-bold tabular-nums">{{ book.wishlist_count }}</span>
         </button>
         
         <!-- Availability Indicator -->
@@ -79,12 +80,12 @@ const fallbackCover = 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e
 
 const isSaved = computed(() => wishlistStore.isInWishlist(props.book.id));
 
-function handleWishlistToggle() {
+async function handleWishlistToggle() {
   if (!authStore.isAuthenticated) {
     toastStore.show('Login is required to add to wishlist!', { type: 'error', title: 'Authentication Required' });
     return;
   }
-  const added = wishlistStore.toggleWishlist(props.book.id);
+  const added = await wishlistStore.toggleWishlist(props.book.id);
   toastStore.showWishlist(props.book.title, added);
 }
 

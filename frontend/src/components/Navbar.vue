@@ -70,6 +70,16 @@
           <Moon v-else :size="16" />
         </button>
 
+        <!-- Settings -->
+        <button 
+          v-if="authStore.isAuthenticated"
+          @click="isSettingsOpen = true" 
+          class="w-8 h-8 rounded-md bg-transparent text-[var(--text-secondary)] flex items-center justify-center cursor-pointer transition-colors hover:bg-[var(--bg-card-hover)] hover:text-[var(--text-primary)] border-none" 
+          title="Account Settings"
+        >
+          <Settings :size="16" />
+        </button>
+
         <!-- Notifications -->
         <button 
           v-if="authStore.isAuthenticated"
@@ -169,6 +179,9 @@
         <button v-else @click="checkinStore.closeModal()" class="w-full py-3.5 mt-2 rounded-[16px] font-extrabold text-[1.05rem] text-[var(--text-primary)] bg-[var(--bg-secondary)] hover:bg-[var(--border-color)] transition-all active:scale-[0.98] border border-[var(--border-color)] cursor-pointer">Done</button>
       </div>
     </div>
+    
+    <!-- Settings Modal -->
+    <SettingsModal :isOpen="isSettingsOpen" @close="isSettingsOpen = false" />
 </template>
 
 <script setup>
@@ -182,10 +195,11 @@ import { useConfirmStore } from '../stores/confirm';
 import { useCheckinStore } from '../stores/checkin';
 import { useRoute, useRouter } from 'vue-router';
 import NotificationsDrawer from './NotificationsDrawer.vue';
+import SettingsModal from './SettingsModal.vue';
 import { 
   Home, BookOpen, Library, BookmarkCheck, Heart, LayoutDashboard, 
   BookPlus, ClipboardList, Users, LogOut, Sun, Moon, Globe, Download, Bell,
-  Compass, Bookmark, MapPin, X, Loader2, CheckCircle, AlertTriangle, RefreshCw, Tags
+  Compass, Bookmark, MapPin, X, Loader2, CheckCircle, AlertTriangle, RefreshCw, Tags, Settings
 } from 'lucide-vue-next';
 
 const authStore = useAuthStore();
@@ -200,6 +214,9 @@ const router = useRouter();
 // Check-In State
 const checkinStatus = ref('');
 const checkinErrorMsg = ref('');
+
+// Settings State
+const isSettingsOpen = ref(false);
 
 onMounted(() => {
   window.addEventListener('beforeinstallprompt', (e) => {

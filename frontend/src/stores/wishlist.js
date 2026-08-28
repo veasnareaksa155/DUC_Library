@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { useAuthStore } from './auth';
+import { useBooksStore } from './books';
 
 export const useWishlistStore = defineStore('wishlist', () => {
   const initialData = JSON.parse(localStorage.getItem('duc_wishlist') || '[]');
@@ -48,22 +49,34 @@ export const useWishlistStore = defineStore('wishlist', () => {
     }
     saveToStorage();
 
-    // Background sync
+    // Also update the book's global total wishlist_count instantly
+    const booksStore = useBooksStore();
+    const bookInStore = booksStore.masterBooks.find(b => String(b.id) === idStr);
+    if (bookInStore) {
+      if (!bookInStore.wishlist_count) bookInStore.wishlist_count = 0;
+      bookInStore.wishlist_count += (isAdded ? 1 : -1);
+      if (bookInStore.wishlist_count < 0) bookInStore.wishlist_count = 0;
+    }
+    
+    if (booksStore.currentBook && String(booksStore.currentBook.id) === idStr) {
+      if (!booksStore.currentBook.wishlist_count) booksStore.currentBook.wishlist_count = 0;
+      booksStore.currentBook.wishlist_count += (isAdded ? 1 : -1);
+      if (booksStore.currentBook.wishlist_count < 0) booksStore.currentBook.wishlist_count = 0;
+    }
+
+    // Background sync (fire and forget for instant UI)
     const authStore = useAuthStore();
     if (authStore.token) {
-      try {
-        await fetch(`${import.meta.env.VITE_API_URL || ''}/api/wishlists/toggle`, {
-          method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${authStore.token}` 
-          },
-          body: JSON.stringify({ book_id: idStr })
-        });
-      } catch (err) {
+      fetch(`${import.meta.env.VITE_API_URL || ''}/api/wishlists/toggle`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authStore.token}` 
+        },
+        body: JSON.stringify({ book_id: idStr })
+      }).catch(err => {
         console.error('Failed to sync wishlist to server', err);
-        // Optionally revert local state if failed, but usually it's fine
-      }
+      });
     }
 
     return isAdded;

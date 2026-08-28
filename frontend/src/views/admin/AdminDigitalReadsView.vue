@@ -50,7 +50,7 @@
           <div class="flex flex-col relative z-10">
             <span class="text-[0.8rem] font-bold text-[var(--text-muted)] uppercase tracking-wider">Active Now</span>
             <span class="text-[1.8rem] font-black text-[var(--text-primary)] leading-tight flex items-baseline gap-2">
-              {{ liveReads.length }} <span class="text-[0.85rem] font-medium text-emerald-500 tracking-normal">reading</span>
+              {{ borrowingsStore.dashboardStats?.active_readers_count || liveReads.length }} <span class="text-[0.85rem] font-medium text-emerald-500 tracking-normal">reading</span>
             </span>
           </div>
         </div>
@@ -82,8 +82,9 @@
           <p class="text-[0.95rem] text-[var(--text-muted)] mt-1">Students will appear here instantly when they open a digital book.</p>
         </div>
         
-        <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div v-for="live in liveReads" :key="live.session_id" class="group bg-[var(--bg-card)]/90 backdrop-blur-xl border border-[var(--border-color)] rounded-[2rem] p-6 shadow-[0_10px_40px_rgba(0,0,0,0.03)] hover:shadow-[0_20px_50px_rgba(99,102,241,0.1)] hover:border-indigo-500/30 transition-all duration-500 relative overflow-hidden flex flex-col">
+        <div v-else class="flex flex-col gap-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div v-for="live in paginatedLiveReads" :key="live.session_id" class="group bg-[var(--bg-card)]/90 backdrop-blur-xl border border-[var(--border-color)] rounded-[2rem] p-6 shadow-[0_10px_40px_rgba(0,0,0,0.03)] hover:shadow-[0_20px_50px_rgba(99,102,241,0.1)] hover:border-indigo-500/30 transition-all duration-500 relative overflow-hidden flex flex-col">
             <div class="absolute top-0 right-0 h-1.5 w-full bg-gradient-to-r from-emerald-400 to-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.5)]"></div>
             
             <div class="flex items-center gap-4 mb-6">
@@ -93,17 +94,21 @@
                 <div class="w-14 h-14 rounded-full bg-[var(--bg-primary)] border-2 border-[var(--border-color)] overflow-hidden flex items-center justify-center font-bold text-[1.2rem] shrink-0 relative z-10 shadow-lg group-hover:border-indigo-500/50 transition-colors duration-300">
                   <img v-if="live.user_photo" :src="live.user_photo" class="w-full h-full object-cover" />
                   <div v-else class="w-full h-full [background-image:var(--accent-gradient)] text-white flex items-center justify-center">
-                    {{ live.user_name?.charAt(0).toUpperCase() }}
+                    {{ (live.user_name_khmer || live.user_name)?.charAt(0).toUpperCase() }}
                   </div>
                 </div>
               </div>
               <div class="flex flex-col flex-1 min-w-0">
                 <span class="font-black text-[1.1rem] text-[var(--text-primary)] truncate" :style="live.user_name_khmer ? 'font-family: \'Kantumruy Pro\', sans-serif;' : ''">{{ live.user_name_khmer || live.user_name }}</span>
                 <span class="text-[0.85rem] font-bold text-[var(--text-muted)] truncate flex items-center gap-2">
-                  <span class="text-indigo-500">{{ live.user_major || 'N/A' }}</span>
-                  <span class="w-1 h-1 rounded-full bg-[var(--border-color)]"></span>
-                  <span>{{ live.user_class || 'N/A' }}</span>
-                  <span class="w-1 h-1 rounded-full bg-[var(--border-color)]"></span>
+                  <template v-if="live.user_major">
+                    <span class="text-indigo-500">{{ live.user_major }}</span>
+                    <span class="w-1 h-1 rounded-full bg-[var(--border-color)]"></span>
+                  </template>
+                  <template v-if="live.user_class">
+                    <span>{{ live.user_class }}</span>
+                    <span class="w-1 h-1 rounded-full bg-[var(--border-color)]"></span>
+                  </template>
                   <span :class="live.user_gender?.toUpperCase() === 'F' || live.user_gender === 'ស្រី' || live.user_gender?.toUpperCase() === 'FEMALE' ? 'text-pink-500' : 'text-blue-500'">
                     {{ live.user_gender === 'M' || live.user_gender?.toUpperCase() === 'MALE' ? 'ប្រុស' : (live.user_gender === 'F' || live.user_gender?.toUpperCase() === 'FEMALE' ? 'ស្រី' : (live.user_gender || 'N/A')) }}
                   </span>
@@ -123,6 +128,18 @@
                   <span class="text-[0.85rem] font-black tabular-nums tracking-wide">{{ formatLiveDuration(Math.max(0, Math.round((now - new Date(live.start_time).getTime()) / 1000))) }}</span>
                 </div>
               </div>
+            </div>
+          </div>
+          </div>
+          
+          <div v-if="liveTotalPages > 1" class="flex flex-col sm:flex-row justify-between items-center gap-4 bg-[var(--bg-card)]/50 backdrop-blur-md rounded-2xl p-4 border border-[var(--border-color)] shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
+            <div class="text-[0.85rem] text-[var(--text-muted)] font-bold tracking-wide uppercase">
+              Showing <span class="text-[var(--text-primary)]">{{ (liveCurrentPage - 1) * liveItemsPerPage + 1 }}</span> to <span class="text-[var(--text-primary)]">{{ Math.min(liveCurrentPage * liveItemsPerPage, liveReads.length) }}</span> of {{ liveReads.length }}
+            </div>
+            <div class="flex items-center gap-2">
+              <button @click="liveCurrentPage--" :disabled="liveCurrentPage === 1" class="w-9 h-9 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] flex items-center justify-center transition-all duration-200 cursor-pointer disabled:opacity-35 disabled:cursor-not-allowed hover:not(:disabled):border-indigo-500/50 hover:not(:disabled):text-indigo-500 shadow-sm"><ChevronLeft :size="18" /></button>
+              <button v-for="page in liveVisiblePages" :key="page" @click="liveCurrentPage = page" class="w-9 h-9 rounded-xl flex items-center justify-center text-[0.9rem] font-black transition-all duration-300 cursor-pointer shadow-sm" :class="liveCurrentPage === page ? 'text-white [background:var(--accent-gradient)] border-transparent' : 'bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:border-indigo-500/30'">{{ page }}</button>
+              <button @click="liveCurrentPage++" :disabled="liveCurrentPage >= liveTotalPages" class="w-9 h-9 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] flex items-center justify-center transition-all duration-200 cursor-pointer disabled:opacity-35 disabled:cursor-not-allowed hover:not(:disabled):border-indigo-500/50 hover:not(:disabled):text-indigo-500 shadow-sm"><ChevronRight :size="18" /></button>
             </div>
           </div>
         </div>
@@ -299,10 +316,12 @@
         </div>
 
         <!-- Print Footer / Signature Block (Hidden except when printing) -->
-        <div class="hidden print:flex flex-col items-end mt-12 pr-12 text-[16px] text-black print:text-black" style="font-family: 'Siemreap', sans-serif; page-break-inside: avoid;">
-          <div class="mb-2">{{ currentLunarDate }}</div>
-          <div class="mb-8">កំពង់ស្ពឺ {{ currentGregorianDate }}</div>
-          <div class="mr-6">អ្នកធ្វើរបាយការណ៍</div>
+        <div class="hidden print:flex w-full justify-end mt-12 pr-12 text-[16px] text-black print:text-black" style="font-family: 'Siemreap', sans-serif; page-break-inside: avoid;">
+          <div class="flex flex-col items-center">
+            <div class="mb-2">{{ currentLunarDate }}</div>
+            <div class="mb-8">កំពង់ស្ពឺ {{ currentGregorianDate }}</div>
+            <div>អ្នកធ្វើរបាយការណ៍</div>
+          </div>
         </div>
 
         <div class="flex flex-col sm:flex-row justify-between items-center gap-4 p-6 border-t border-[var(--border-color)] print:hidden">
@@ -333,7 +352,17 @@
 
 <style scoped>
 @media print {
-  @page { size: landscape; margin: 12mm; }
+  @page {
+    size: landscape;
+    margin: 12mm;
+    @bottom-right {
+      content: "ទំព័រទី " counter(page) " នៃ " counter(pages);
+      font-family: 'Siemreap', sans-serif !important;
+      font-size: 11px !important;
+      font-weight: 600 !important;
+      color: #4f46e5 !important;
+    }
+  }
   body { background: white !important; color: black !important; }
   .bg-\[var\(--bg-card\)\] { background: transparent !important; box-shadow: none !important; border: none !important; }
   
@@ -358,9 +387,13 @@
   .print-clean-table td {
     border: 1px solid #cbd5e1 !important;
     padding: 10px 14px !important;
-    color: #0f172a !important;
+    color: #000000 !important;
     vertical-align: middle !important;
     font-family: 'Kantumruy Pro', 'Siemreap', sans-serif !important;
+  }
+  
+  .print-clean-table td * {
+    color: #000000 !important;
   }
   
   .print-clean-table th {
@@ -379,9 +412,7 @@
   }
   
   .print-clean-table tr:nth-child(even) {
-    background-color: #f8fafc !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
+    background-color: transparent !important;
   }
 }
 </style>
@@ -396,6 +427,7 @@ import { BookOpen, ChevronLeft, ChevronRight, Printer, Activity, Users, Clock, H
 
 const authStore = useAuthStore();
 const toastStore = useToastStore();
+const borrowingsStore = useBorrowingsStore();
 
 const historicalReads = ref([]);
 const liveReads = ref([]);
@@ -432,6 +464,8 @@ const printReport = async () => {
 
 const currentPage = ref(1);
 const itemsPerPage = ref(15);
+const liveCurrentPage = ref(1);
+const liveItemsPerPage = ref(12);
 
 const handleRefresh = () => {
   fetchLiveReads();
@@ -495,7 +529,6 @@ async function fetchLiveReads() {
     if (res.ok) {
       liveReads.value = await res.json();
       // Sync the global sidebar badge so it never gets out of sync with the main dashboard view
-      const borrowingsStore = useBorrowingsStore();
       if (!borrowingsStore.dashboardStats) {
         borrowingsStore.dashboardStats = { active_readers_count: liveReads.value.length };
       } else {
@@ -565,7 +598,7 @@ const printTotalSessions = computed(() => filteredReads.value.length);
 
 const currentDate = new Date();
 const khmerDateInfo = toKhmerLunarDate(currentDate);
-const currentLunarDate = computed(() => khmerDateInfo.lunarDateText.replace('ពុទ្ធសករាជ', 'ព.ស'));
+const currentLunarDate = computed(() => khmerDateInfo.lunarDateText.replace('ពុទ្ធសករាជ', 'ព.ស.'));
 const currentGregorianDate = computed(() => khmerDateInfo.gregorianDateText);
 
 const printLongestReader = computed(() => {
@@ -639,6 +672,29 @@ const visiblePages = computed(() => {
 const paginatedReads = computed(() => {
   const start = (currentPage.value - 1) * computedItemsPerPage.value;
   return filteredReads.value.slice(start, start + computedItemsPerPage.value);
+});
+
+const liveTotalPages = computed(() => Math.ceil(liveReads.value.length / liveItemsPerPage.value) || 1);
+
+const liveVisiblePages = computed(() => {
+  const pages = [];
+  const maxVisible = 5;
+  let start = Math.max(1, liveCurrentPage.value - Math.floor(maxVisible / 2));
+  let end = Math.min(liveTotalPages.value, start + maxVisible - 1);
+  if (end - start + 1 < maxVisible) start = Math.max(1, end - maxVisible + 1);
+  for (let i = start; i <= end; i++) pages.push(i);
+  return pages;
+});
+
+const paginatedLiveReads = computed(() => {
+  const start = (liveCurrentPage.value - 1) * liveItemsPerPage.value;
+  return liveReads.value.slice(start, start + liveItemsPerPage.value);
+});
+
+watch(() => liveTotalPages.value, (newTotal) => {
+  if (liveCurrentPage.value > newTotal) {
+    liveCurrentPage.value = Math.max(1, newTotal);
+  }
 });
 
 function formatDate(dateStr) {

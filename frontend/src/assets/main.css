@@ -84,7 +84,7 @@
   }
 
   body {
-    font-family: 'Inter', 'Siemreap', 'Kantumruy Pro', system-ui, -apple-system, sans-serif;
+    font-family: 'Siemreap', 'Inter', 'Kantumruy Pro', system-ui, -apple-system, sans-serif;
     background-color: var(--bg-primary);
     color: var(--text-primary);
     line-height: 1.6;
@@ -118,7 +118,7 @@
   }
 
   h1, h2, h3, h4, .brand-font {
-    font-family: 'Outfit', 'Siemreap', 'Kantumruy Pro', 'Inter', sans-serif;
+    font-family: 'Siemreap', 'Outfit', 'Kantumruy Pro', 'Inter', sans-serif;
     letter-spacing: -0.02em;
   }
 

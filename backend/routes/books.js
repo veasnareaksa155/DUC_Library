@@ -92,6 +92,12 @@ router.get('/', async (req, res) => {
       books = books.filter(b => Number(b.copies_available) > 0);
     }
 
+    const wishlists = await ORM.getAll('Wishlists') || [];
+    const wishlistCounts = {};
+    wishlists.forEach(w => {
+      wishlistCounts[w.book_id] = (wishlistCounts[w.book_id] || 0) + 1;
+    });
+
     // Map fields to what frontend expects
     books = books.map(b => ({
       id: b.id,
@@ -109,7 +115,8 @@ router.get('/', async (req, res) => {
       is_featured: b.is_featured === '1' || b.is_featured === 1 || b.is_featured === true || String(b.is_featured).toLowerCase() === 'true' ? 1 : 0,
       has_pdf: (b.pdf_url && b.pdf_url.length > 0) ? 1 : 0,
       has_digital_content: (b.digital_content && b.digital_content.length > 0) ? 1 : 0,
-      category_name: b.category_id ? categoriesMap[b.category_id] : null
+      category_name: b.category_id ? categoriesMap[b.category_id] : null,
+      wishlist_count: wishlistCounts[b.id] || 0
     }));
 
     if (search) {
@@ -148,6 +155,9 @@ router.get('/:id', async (req, res) => {
     book.copies_total = Number(book.copies_total) || 0;
     book.copies_available = Number(book.copies_available) || 0;
     book.is_featured = book.is_featured === '1' || book.is_featured === 1 || String(book.is_featured).toLowerCase() === 'true' ? 1 : 0;
+
+    const wishlists = await ORM.getAll('Wishlists') || [];
+    book.wishlist_count = wishlists.filter(w => String(w.book_id) === String(book.id)).length;
 
     res.json(book);
   } catch (error) {

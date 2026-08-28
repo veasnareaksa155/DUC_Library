@@ -23,11 +23,6 @@ async function saveSessionToDb(sessionId, reader) {
       duration_seconds: duration_seconds
     };
 
-    // Optimistically update the admin cache so the UI sees it instantly!
-    if (global.digitalReadsCache && global.digitalReadsCache.data) {
-      global.digitalReadsCache.data.unshift(newRow);
-    }
-
     try {
       await ORM.insert('DigitalReads', newRow);
       console.log(`Saved reading session ${sessionId} (${duration_seconds}s) to DB.`);
@@ -68,7 +63,7 @@ function pingReader(sessionId, bookId, user) {
  */
 function getActiveReaders() {
   const now = Date.now();
-  const timeoutMs = 300000; // 5 minutes
+  const timeoutMs = 60000; // 1 minute (timeout if ping is missed)
 
   const activeSessions = Object.keys(activeReaders).filter(sessionId => {
     return (now - activeReaders[sessionId].last_ping) < timeoutMs;
@@ -92,7 +87,7 @@ function getActiveReaders() {
  */
 function getActiveReadersForBook(bookId) {
   const now = Date.now();
-  const timeoutMs = 300000; // 5 minutes
+  const timeoutMs = 60000; // 1 minute (timeout if ping is missed)
 
   return Object.values(activeReaders).filter(reader => 
     String(reader.book_id) === String(bookId) && (now - reader.last_ping) < timeoutMs
@@ -120,7 +115,7 @@ async function removeReader(sessionId) {
 // Background cleanup task to save timed-out sessions
 setInterval(async () => {
   const now = Date.now();
-  const timeoutMs = 300000; // 5 minutes
+  const timeoutMs = 60000; // 1 minute (timeout if ping is missed)
   
   const timedOutSessions = [];
   

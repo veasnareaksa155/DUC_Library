@@ -141,7 +141,7 @@
               <tr v-for="item in paginatedBorrowings" :key="item.id" class="group bg-white dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80 hover:border-indigo-300 dark:hover:border-indigo-500/50 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_24px_-6px_rgba(79,70,229,0.12)] hover:-translate-y-[2px] transition-all duration-300 rounded-2xl relative print:border-none print:shadow-none print:rounded-none print:bg-transparent print:break-inside-avoid print:even:bg-slate-50 print:-translate-y-0" :class="{'print:hidden': item.status === 'rejected'}">
                 <td class="px-6 py-5 rounded-l-xl print:rounded-none print:align-top">
                   <div class="flex items-center gap-4">
-                    <div class="relative print:hidden">
+                    <div class="relative print:hidden print-hide-avatar">
                       <div class="absolute -inset-0.5 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full opacity-0 group-hover:opacity-100 blur-[2px] transition-opacity duration-300"></div>
                       <div class="relative w-11 h-11 rounded-full bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-slate-700 dark:to-slate-600 flex items-center justify-center font-bold text-[1rem] border-2 border-white dark:border-slate-800 shrink-0 overflow-hidden text-indigo-600 dark:text-indigo-300">
                         <img v-if="item.profile_photo" :src="item.profile_photo" class="w-full h-full object-cover" />
@@ -171,18 +171,18 @@
                 <td class="px-6 py-5 print:align-top">
                   <div class="flex flex-col gap-2 print:gap-1.5" style="font-family: 'Khmer OS Battambang', sans-serif;">
                     <div class="flex items-center gap-2 text-[0.82rem] print:text-[12px]">
-                      <span class="text-[var(--text-muted)] font-bold w-12 shrink-0 print:text-slate-500">ថ្ងៃខ្ចី៖</span>
+                      <span class="text-[var(--text-muted)] font-bold w-12 shrink-0 print:text-slate-500" style="font-family: 'Siemreap', sans-serif;">ថ្ងៃខ្ចី៖</span>
                       <span class="font-semibold text-[var(--text-primary)] print:text-black">{{ formatDate(item.borrow_date) }}</span>
                     </div>
                     <div class="flex items-center gap-2 text-[0.82rem] print:text-[12px]">
-                      <span class="text-[var(--text-muted)] font-bold w-12 shrink-0 print:text-slate-500">ថ្ងៃសង៖</span>
+                      <span class="text-[var(--text-muted)] font-bold w-12 shrink-0 print:text-slate-500" style="font-family: 'Siemreap', sans-serif;">ថ្ងៃសង៖</span>
                       <span class="font-bold print:!shadow-none" :class="isOverdue(item.due_date, item.status) ? 'text-rose-500 bg-rose-500/10 px-2 py-0.5 rounded-md border border-rose-500/20' : 'text-[var(--text-primary)]'" style="-webkit-print-color-adjust: exact; print-color-adjust: exact;">{{ formatDate(item.due_date) }}</span>
                     </div>
                   </div>
                 </td>
                 <td class="px-6 py-5 text-center align-middle print:align-top">
-                  <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-[0.75rem] font-extrabold uppercase tracking-wider border transition-colors shadow-sm print:!shadow-none print:px-2 print:py-0.5 print:text-[11px] print:rounded-md print:font-bold" :class="getStatusBadgeClass(item.status)" style="font-family: 'Khmer OS Battambang', sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
-                    <span class="w-1.5 h-1.5 rounded-full print:hidden" :class="getStatusDotClass(item.status)"></span>
+                  <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-[0.75rem] font-extrabold uppercase tracking-wider border transition-colors shadow-sm print:!shadow-none print:px-0 print:py-0 print:text-[12px] print:rounded-none print:border-none print:!bg-transparent print:!text-black print:font-bold" :class="getStatusBadgeClass(item.status)" style="font-family: 'Siemreap', sans-serif;">
+                    <span class="w-1.5 h-1.5 rounded-full print:hidden" :class="getStatusDotClass(item.status)" style="font-family: 'Siemreap', sans-serif;"></span>
                     {{ getStatusKhmer(item.status) }}
                   </span>
                 </td>
@@ -297,10 +297,12 @@
         </div>
 
         <!-- Print Footer / Signature Block (Hidden except when printing) -->
-        <div class="hidden print:flex flex-col items-end mt-12 pr-12 text-[16px] text-black print:text-black" style="font-family: 'Siemreap', sans-serif; page-break-inside: avoid;">
-          <div class="mb-2">{{ currentLunarDate }}</div>
-          <div class="mb-8">កំពង់ស្ពឺ {{ currentGregorianDate }}</div>
-          <div class="mr-6">អ្នកធ្វើរបាយការណ៍</div>
+        <div class="hidden print:flex w-full justify-end mt-12 pr-12 text-[16px] text-black print:text-black" style="font-family: 'Siemreap', sans-serif; page-break-inside: avoid;">
+          <div class="flex flex-col items-center">
+            <div class="mb-2">{{ currentLunarDate }}</div>
+            <div class="mb-8">កំពង់ស្ពឺ {{ currentGregorianDate }}</div>
+            <div>អ្នកធ្វើរបាយការណ៍</div>
+          </div>
         </div>
 
         <!-- Pagination Nav Bar -->
@@ -357,7 +359,7 @@ const searchQuery = ref('');
 
 const currentDate = new Date();
 const khmerDateInfo = toKhmerLunarDate(currentDate);
-const currentLunarDate = computed(() => khmerDateInfo.lunarDateText.replace('ពុទ្ធសករាជ', 'ព.ស'));
+const currentLunarDate = computed(() => khmerDateInfo.lunarDateText.replace('ពុទ្ធសករាជ', 'ព.ស.'));
 const currentGregorianDate = computed(() => khmerDateInfo.gregorianDateText);
 
 const availableYears = computed(() => {
@@ -658,9 +660,11 @@ table {
   @page {
     margin: 15mm;
     @bottom-right {
-      content: "Page " counter(page) " of " counter(pages);
-      font-family: sans-serif;
-      font-size: 10px;
+      content: "ទំព័រទី " counter(page) " នៃ " counter(pages);
+      font-family: 'Siemreap', sans-serif !important;
+      font-size: 11px !important;
+      font-weight: 600 !important;
+      color: #4f46e5 !important;
     }
   }
   
@@ -682,9 +686,13 @@ table {
   .print-clean-table td {
     border: 1px solid #cbd5e1 !important;
     padding: 10px 14px !important;
-    color: #0f172a !important;
+    color: #000000 !important;
     vertical-align: middle !important;
     font-family: 'Kantumruy Pro', 'Siemreap', sans-serif !important;
+  }
+  
+  .print-clean-table td * {
+    color: #000000 !important;
   }
   
   .print-clean-table th {
@@ -703,9 +711,11 @@ table {
   }
   
   .print-clean-table tr:nth-child(even) {
-    background-color: #f8fafc !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
+    background-color: transparent !important;
+  }
+  
+  .print-hide-avatar {
+    display: none !important;
   }
 }
 </style>
