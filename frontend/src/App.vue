@@ -152,11 +152,9 @@ function setupSSE(token) {
           try {
             const decoded = jwtDecode(authStore.token);
             if (decoded.session_id !== data.payload.session_id) {
-              toastStore.showWarning(`New login detected from ${data.payload.device_name} (${data.payload.location})`, 'Security Alert');
+              toastStore.show(`New login detected from ${data.payload.device_name} (${data.payload.location})`, { title: 'Security Alert', type: 'info', duration: 5000 });
               // Silently refresh sessions in the background in case the SettingsModal is currently open
-              import('./stores/auth').then(({ useAuthStore }) => {
-                useAuthStore().fetchSessions();
-              });
+              authStore.fetchSessions();
             }
           } catch (e) {}
         }
