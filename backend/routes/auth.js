@@ -145,7 +145,7 @@ router.post('/login', async (req, res) => {
 
     // --- 2FA Check ---
     const user2fa = await ORM.find('User2FA', t => t.user_id === String(userDoc.id));
-    if (user2fa.length > 0 && user2fa[0].is_enabled === 'true') {
+    if (user2fa.length > 0 && String(user2fa[0].is_enabled).toLowerCase() === 'true') {
       const tempToken = jwt.sign(
         { id: userDoc.id, role: userDoc.role, name: userDoc.name, email: userDoc.email, student_id: userDoc.student_id, profile_photo: finalPhoto, is_2fa_temp: true }, 
         JWT_SECRET, 
@@ -280,7 +280,7 @@ router.post('/admin-login', async (req, res) => {
 
     // --- 2FA Check ---
     const user2fa = await ORM.find('User2FA', t => t.user_id === String(adminDoc.id));
-    if (user2fa.length > 0 && user2fa[0].is_enabled === 'true') {
+    if (user2fa.length > 0 && String(user2fa[0].is_enabled).toLowerCase() === 'true') {
       const tempToken = jwt.sign(
         { id: adminDoc.id, role: adminDoc.role, name: adminDoc.name, email: adminDoc.email, profile_photo: adminDoc.profile_photo, is_2fa_temp: true }, 
         JWT_SECRET, 
