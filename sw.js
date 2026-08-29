@@ -1,9 +1,9 @@
 // DUC Library Service Worker for PWA Mini App Capability
 const CACHE_NAME = 'duc-library-pwa-v1';
 const ASSETS_TO_CACHE = [
-  '/',
-  '/index.html',
-  '/manifest.json'
+  './',
+  './index.html',
+  './manifest.json'
 ];
 
 self.addEventListener('install', (event) => {
@@ -29,7 +29,7 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   if (event.request.mode === 'navigate') {
     event.respondWith(
-      fetch(event.request).catch(() => caches.match('/index.html'))
+      fetch(event.request).catch(() => caches.match('./index.html'))
     );
     return;
   }
@@ -48,11 +48,11 @@ self.addEventListener('push', function(event) {
       const title = payload.title || 'DUC-Library Notification';
       const options = {
         body: payload.body || 'You have a new notification.',
-        icon: '/favicon.ico',
-        badge: '/favicon.ico',
+        icon: './favicon.ico',
+        badge: './favicon.ico',
         vibrate: [100, 50, 100],
         data: {
-          url: payload.url || '/'
+          url: payload.url || './'
         }
       };
       
@@ -65,7 +65,7 @@ self.addEventListener('push', function(event) {
       event.waitUntil(
         self.registration.showNotification('DUC-Library', {
           body: event.data.text(),
-          icon: '/favicon.ico'
+          icon: './favicon.ico'
         })
       );
     }
@@ -75,7 +75,7 @@ self.addEventListener('push', function(event) {
 self.addEventListener('notificationclick', function(event) {
   event.notification.close();
   
-  const urlToOpen = event.notification.data.url || '/';
+  const urlToOpen = event.notification.data.url || './';
   
   event.waitUntil(
     clients.matchAll({
