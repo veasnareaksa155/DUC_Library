@@ -315,7 +315,7 @@ router.put('/borrowings/:id/status', async (req, res) => {
       });
     }
 
-    const returnDateVal = status === 'returned' ? new Date().toISOString() : borrowing.return_date;
+    const returnDateVal = status === 'returned' ? new Date().toISOString() : (borrowing.return_date || '');
 
     await ORM.update('Borrowings', id, {
       status,

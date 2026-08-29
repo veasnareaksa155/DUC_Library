@@ -40,7 +40,7 @@
       <span class="text-[0.65rem] font-semibold tracking-tight">{{ localeStore.t('myBooks') || 'My Books' }}</span>
     </router-link>
 
-    <button @click="goToWishlist" class="group flex flex-col items-center justify-center flex-1 h-full gap-0.5 transition-colors cursor-pointer border-none bg-transparent" :class="isWishlistActive ? 'text-[var(--nav-active-text)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'">
+    <button v-if="authStore.isAuthenticated && authStore.user?.role !== 'admin'" @click="goToWishlist" class="group flex flex-col items-center justify-center flex-1 h-full gap-0.5 transition-colors cursor-pointer border-none bg-transparent" :class="isWishlistActive ? 'text-[var(--nav-active-text)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'">
       <div class="px-4 py-1 rounded-full transition-all duration-300" :class="isWishlistActive ? 'bg-[var(--nav-active-bg)]' : 'bg-transparent'">
         <Library :size="22" :stroke-width="isWishlistActive ? 2.5 : 2" />
       </div>

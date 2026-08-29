@@ -13,7 +13,7 @@
     <ScrollToTop />
     <ToastNotification />
     <ConfirmModal />
-    <footer v-if="!hideGlobalNav" class="hidden md:block border-t border-[var(--border-color)] bg-[var(--bg-card)] pt-12 pb-6 text-[0.85rem] text-[var(--text-muted)] transition-colors duration-300">
+    <footer v-if="!hideFooter" class="hidden md:block border-t border-[var(--border-color)] bg-[var(--bg-card)] pt-12 pb-6 text-[0.85rem] text-[var(--text-muted)] transition-colors duration-300">
       <div class="max-w-[1280px] mx-auto px-6 max-sm:px-3">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1.2fr] gap-8 lg:gap-10 mb-10">
           <!-- Col 1: Brand & Mission -->
@@ -104,6 +104,7 @@ const booksStore = useBooksStore();
 const route = useRoute();
 const router = useRouter();
 const hideGlobalNav = computed(() => route.path.startsWith('/admin') || route.path.startsWith('/read'));
+const hideFooter = computed(() => hideGlobalNav.value || route.path === '/login' || route.path === '/admin/login');
 
 let eventSource = null;
 
@@ -276,6 +277,20 @@ function setupSSE(token) {
     }, 2000);
   };
 }
+
+watch(() => authStore.isAuthenticated, (newVal) => {
+  if (!newVal) {
+    wishlistStore.clearWishlist();
+    borrowingsStore.borrowings = [];
+    notificationsStore.notifications = [];
+  } else {
+    wishlistStore.fetchMyWishlist();
+    if (authStore.user?.role !== 'admin') {
+      borrowingsStore.fetchMyBorrowings();
+    }
+    notificationsStore.loadNotifications();
+  }
+});
 
 watch(() => authStore.token, (newToken) => {
   setupSSE(newToken);

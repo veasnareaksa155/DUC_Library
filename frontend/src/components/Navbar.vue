@@ -33,7 +33,7 @@
             <span class="hidden lg:inline">{{ localeStore.t('myBorrowings') }}</span>
           </router-link>
 
-          <router-link v-if="authStore.user?.role !== 'admin'" to="/wishlist" class="group flex items-center gap-2 px-3.5 py-2 rounded-xl text-[0.85rem] lg:text-[0.9rem] transition-all duration-300 border-none no-underline whitespace-nowrap" :class="route.path === '/wishlist' ? 'text-[var(--nav-active-text)] font-bold bg-[var(--nav-active-bg)]' : 'bg-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] font-medium hover:bg-[var(--bg-card-hover)]'">
+          <router-link v-if="authStore.isAuthenticated && authStore.user?.role !== 'admin'" to="/wishlist" class="group flex items-center gap-2 px-3.5 py-2 rounded-xl text-[0.85rem] lg:text-[0.9rem] transition-all duration-300 border-none no-underline whitespace-nowrap" :class="route.path === '/wishlist' ? 'text-[var(--nav-active-text)] font-bold bg-[var(--nav-active-bg)]' : 'bg-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] font-medium hover:bg-[var(--bg-card-hover)]'">
             <Library :size="16" :stroke-width="route.path === '/wishlist' ? 2.5 : 2" />
             <span class="hidden lg:inline">{{ localeStore.t('wishlist') || 'My Collection' }}</span>
           </router-link>

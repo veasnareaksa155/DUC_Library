@@ -191,8 +191,24 @@ router.post('/login', async (req, res) => {
     } else {
       const geo = geoip.lookup(ip);
       if (geo) {
-        location = `${geo.city || 'Unknown City'}, ${geo.country || ''}`.trim();
-        if (location === ',') location = 'Unknown Location';
+        if (geo.city && geo.country) {
+          try {
+            const countryName = new Intl.DisplayNames(['en'], { type: 'region' }).of(geo.country);
+            location = `${geo.city}, ${countryName}`;
+          } catch (e) {
+            location = `${geo.city}, ${geo.country}`;
+          }
+        } else if (geo.city) {
+          location = geo.city;
+        } else if (geo.country) {
+          try {
+            location = new Intl.DisplayNames(['en'], { type: 'region' }).of(geo.country);
+          } catch (e) {
+            location = geo.country;
+          }
+        } else {
+          location = 'Unknown Location';
+        }
       }
     }
     
@@ -326,8 +342,24 @@ router.post('/admin-login', async (req, res) => {
     } else {
       const geo = geoip.lookup(ip);
       if (geo) {
-        location = `${geo.city || 'Unknown City'}, ${geo.country || ''}`.trim();
-        if (location === ',') location = 'Unknown Location';
+        if (geo.city && geo.country) {
+          try {
+            const countryName = new Intl.DisplayNames(['en'], { type: 'region' }).of(geo.country);
+            location = `${geo.city}, ${countryName}`;
+          } catch (e) {
+            location = `${geo.city}, ${geo.country}`;
+          }
+        } else if (geo.city) {
+          location = geo.city;
+        } else if (geo.country) {
+          try {
+            location = new Intl.DisplayNames(['en'], { type: 'region' }).of(geo.country);
+          } catch (e) {
+            location = geo.country;
+          }
+        } else {
+          location = 'Unknown Location';
+        }
       }
     }
     
@@ -658,8 +690,24 @@ router.post('/2fa/verify-login', async (req, res) => {
     } else {
       const geo = geoip.lookup(ip);
       if (geo) {
-        location = `${geo.city || 'Unknown City'}, ${geo.country || ''}`.trim();
-        if (location === ',') location = 'Unknown Location';
+        if (geo.city && geo.country) {
+          try {
+            const countryName = new Intl.DisplayNames(['en'], { type: 'region' }).of(geo.country);
+            location = `${geo.city}, ${countryName}`;
+          } catch (e) {
+            location = `${geo.city}, ${geo.country}`;
+          }
+        } else if (geo.city) {
+          location = geo.city;
+        } else if (geo.country) {
+          try {
+            location = new Intl.DisplayNames(['en'], { type: 'region' }).of(geo.country);
+          } catch (e) {
+            location = geo.country;
+          }
+        } else {
+          location = 'Unknown Location';
+        }
       }
     }
     

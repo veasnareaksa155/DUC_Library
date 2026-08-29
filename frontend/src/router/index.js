@@ -38,7 +38,8 @@ const routes = [
   {
     path: '/wishlist',
     name: 'wishlist',
-    component: WishlistView
+    component: WishlistView,
+    meta: { requiresAuth: true }
   },
   {
     path: '/book/:id',

@@ -12,6 +12,11 @@ export const useWishlistStore = defineStore('wishlist', () => {
     localStorage.setItem('duc_wishlist', JSON.stringify(wishlistIds.value));
   }
 
+  function clearWishlist() {
+    wishlistIds.value = [];
+    localStorage.removeItem('duc_wishlist');
+  }
+
   async function fetchMyWishlist() {
     const authStore = useAuthStore();
     if (!authStore.token) return;
@@ -32,6 +37,8 @@ export const useWishlistStore = defineStore('wishlist', () => {
 
   function isInWishlist(bookId) {
     if (!bookId) return false;
+    const authStore = useAuthStore();
+    if (!authStore.isAuthenticated) return false;
     return wishlistIds.value.includes(String(bookId));
   }
 
@@ -113,6 +120,7 @@ export const useWishlistStore = defineStore('wishlist', () => {
     fetchMyWishlist,
     wishlistCount,
     popularBooks,
-    fetchPopularBooks
+    fetchPopularBooks,
+    clearWishlist
   };
 });
