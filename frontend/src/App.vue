@@ -159,6 +159,11 @@ function setupSSE(token) {
             }
           } catch (e) {}
         }
+      } else if (data.type === '2fa_status_changed') {
+        if (authStore.token) {
+          authStore.is2FAEnabled = data.payload.enabled;
+          toastStore.show(data.payload.enabled ? '2FA was enabled on another device.' : '2FA was disabled on another device.', { type: 'info' });
+        }
       } else if (data.type === 'new_borrowing_request') {
         if (authStore.isAdmin) {
           toastStore.showSuccess(

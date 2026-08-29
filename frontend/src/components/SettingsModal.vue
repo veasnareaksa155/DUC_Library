@@ -554,7 +554,7 @@ const activeTab = ref('appearance');
 const showMobileMenu = ref(true);
 const selectedSession = ref(null);
 
-const is2FAEnabled = ref(false);
+const is2FAEnabled = computed(() => authStore.is2FAEnabled);
 const show2FAModal = ref(false);
 const setup2FAStep = ref('setup');
 const showQR = ref(false);
@@ -599,7 +599,7 @@ watch(() => props.isOpen, async (newVal) => {
     show2FAModal.value = false;
     twoFAVerifyCode.value = '';
     await authStore.fetchSessions();
-    is2FAEnabled.value = await authStore.check2FAStatus();
+    await authStore.check2FAStatus();
     loading.value = false;
   }
 });

@@ -577,6 +577,10 @@ router.post('/2fa/verify-setup', authenticateToken, async (req, res) => {
     if (!valid) return res.status(400).json({ error: 'Invalid 2FA code' });
 
     await ORM.update('User2FA', user2fa[0].id, { is_enabled: 'true', updated_at: new Date().toISOString() });
+    
+    const sse = require('../services/sse');
+    sse.emitToUser(String(req.user.id), '2fa_status_changed', { enabled: true });
+    
     res.json({ success: true, message: '2FA enabled successfully' });
   } catch (error) {
     res.status(500).json({ error: 'Failed to verify 2FA' });
@@ -588,6 +592,9 @@ router.post('/2fa/disable', authenticateToken, async (req, res) => {
     const user2fa = await ORM.find('User2FA', t => t.user_id === String(req.user.id));
     if (user2fa.length > 0) {
       await ORM.update('User2FA', user2fa[0].id, { is_enabled: 'false', updated_at: new Date().toISOString() });
+      
+      const sse = require('../services/sse');
+      sse.emitToUser(String(req.user.id), '2fa_status_changed', { enabled: false });
     }
     res.json({ success: true, message: '2FA disabled successfully' });
   } catch (error) {

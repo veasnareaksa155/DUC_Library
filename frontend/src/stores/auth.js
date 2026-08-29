@@ -182,14 +182,18 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  const is2FAEnabled = ref(false);
+
   async function check2FAStatus() {
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/auth/2fa/status`, {
         headers: { 'Authorization': `Bearer ${token.value}` }
       });
       const data = await res.json();
+      is2FAEnabled.value = data.enabled;
       return data.enabled;
     } catch (err) {
+      is2FAEnabled.value = false;
       return false;
     }
   }
@@ -368,6 +372,7 @@ export const useAuthStore = defineStore('auth', () => {
     user,
     loading,
     error,
+    is2FAEnabled,
     isUserAuthenticated,
     isAdminAuthenticated,
     isAuthenticated,
