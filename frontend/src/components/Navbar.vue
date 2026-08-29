@@ -167,7 +167,7 @@
 </template>
 
 <script setup>
-import { computed, ref, onMounted } from 'vue';
+import { computed, ref, onMounted, toRef } from 'vue';
 import { useAuthStore } from '../stores/auth';
 import { useLocaleStore } from '../stores/locale';
 import { useBooksStore } from '../stores/books';
@@ -175,6 +175,7 @@ import { useThemeStore } from '../stores/theme';
 import { useNotificationsStore } from '../stores/notifications';
 import { useConfirmStore } from '../stores/confirm';
 import { useCheckinStore } from '../stores/checkin';
+import { useModalScrollLock } from '../composables/useModalScrollLock';
 import { useRoute, useRouter } from 'vue-router';
 import NotificationsDrawer from './NotificationsDrawer.vue';
 import SettingsModal from './SettingsModal.vue';
@@ -192,6 +193,8 @@ const notifStore = useNotificationsStore();
 const checkinStore = useCheckinStore();
 const route = useRoute();
 const router = useRouter();
+
+useModalScrollLock(toRef(checkinStore, 'isCheckinModalOpen'));
 
 // Check-In State
 const checkinStatus = ref('');

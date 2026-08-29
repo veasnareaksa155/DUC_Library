@@ -2,6 +2,9 @@ const { google } = require('googleapis');
 const path = require('path');
 const fs = require('fs');
 require('dotenv').config();
+const EventEmitter = require('events');
+class ORMEmitter extends EventEmitter {}
+const ormEvents = new ORMEmitter();
 
 // Set a default or use env var
 const SPREADSHEET_ID = process.env.SPREADSHEET_ID;
@@ -50,7 +53,8 @@ const SCHEMAS = {
   'Wishlists': ['id', 'user_id', 'book_id', 'created_at'],
   'Settings': ['id', 'setting_key', 'setting_value', 'updated_at'],
   'UserSessions': ['id', 'user_id', 'device_type', 'os', 'browser', 'ip_address', 'status', 'created_at', 'last_active', 'device_name', 'location'],
-  'User2FA': ['id', 'user_id', 'secret', 'is_enabled', 'created_at', 'updated_at']
+  'User2FA': ['id', 'user_id', 'secret', 'is_enabled', 'created_at', 'updated_at'],
+  'PushSubscriptions': ['id', 'user_id', 'endpoint', 'p256dh', 'auth', 'created_at']
 };
 
 /**
@@ -152,6 +156,15 @@ async function getAll(sheetName) {
       return obj;
     });
 
+    // Add any pending writes to the result so they aren't lost in the race condition
+    if (global.writeQueue && global.writeQueue[sheetName]) {
+      for (const pending of global.writeQueue[sheetName]) {
+        if (!mappedRows.find(r => r.id === pending.id)) {
+          mappedRows.push(pending);
+        }
+      }
+    }
+
     // Save to cache
     CACHE[sheetName] = { data: mappedRows, timestamp: Date.now() };
     return mappedRows;
@@ -236,6 +249,10 @@ async function insert(sheetName, data) {
   // Enqueue for background batch writing
   if (!global.writeQueue[sheetName]) global.writeQueue[sheetName] = [];
   global.writeQueue[sheetName].push(data);
+
+  if (sheetName === 'Notifications') {
+    ormEvents.emit('notification_inserted', data);
+  }
 
   // Optimistically update cache instantly
   if (CACHE[sheetName]) {
@@ -376,5 +393,6 @@ module.exports = {
   insert,
   insertMany,
   update,
-  remove
+  remove,
+  events: ormEvents
 };

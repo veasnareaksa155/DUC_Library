@@ -51,8 +51,12 @@
 <script setup>
 import { useConfirmStore } from '../stores/confirm';
 import { LogOut, AlertTriangle, Info } from 'lucide-vue-next';
+import { toRef } from 'vue';
+import { useModalScrollLock } from '../composables/useModalScrollLock';
 
 const confirmStore = useConfirmStore();
+
+useModalScrollLock(toRef(confirmStore, 'isOpen'));
 </script>
 
 <style scoped>

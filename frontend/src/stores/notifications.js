@@ -2,6 +2,19 @@ import { defineStore } from 'pinia';
 import { ref, computed, watch } from 'vue';
 import { useAuthStore } from './auth';
 
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding)
+    .replace(/-/g, '+')
+    .replace(/_/g, '/');
+  const rawData = window.atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+  return outputArray;
+}
+
 export const useNotificationsStore = defineStore('notifications', () => {
   const isDrawerOpen = ref(false);
   const notifications = ref([]);
@@ -38,11 +51,17 @@ export const useNotificationsStore = defineStore('notifications', () => {
   // Load immediately if user exists
   if (authStore.token) {
     loadNotifications();
+    subscribeToPushNotifications();
   }
 
   // Reload when the user changes (login/logout)
-  watch(() => authStore.token, () => {
+  watch(() => authStore.token, (newToken) => {
     loadNotifications();
+    if (newToken) {
+      subscribeToPushNotifications();
+    } else {
+      unsubscribeFromPushNotifications();
+    }
   });
 
   const unreadCount = computed(() => notifications.value.filter(n => !n.read).length);
@@ -148,6 +167,64 @@ export const useNotificationsStore = defineStore('notifications', () => {
     });
   }
 
+  async function subscribeToPushNotifications() {
+    if (!authStore.token || !('serviceWorker' in navigator) || !('PushManager' in window)) {
+      return;
+    }
+    
+    try {
+      const registration = await navigator.serviceWorker.register('/sw.js');
+      
+      const permission = await Notification.requestPermission();
+      if (permission !== 'granted') {
+        console.warn('Push notification permission denied');
+        return;
+      }
+      
+      const vapidPublicKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
+      if (!vapidPublicKey) return;
+      const convertedVapidKey = urlBase64ToUint8Array(vapidPublicKey);
+      
+      let subscription = await registration.pushManager.getSubscription();
+      if (!subscription) {
+        subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: convertedVapidKey
+        });
+      }
+      
+      // Send subscription to backend
+      await fetch(`${import.meta.env.VITE_API_URL || ''}/api/notifications/subscribe`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authStore.token}`
+        },
+        body: JSON.stringify(subscription)
+      });
+      console.log('Successfully subscribed to push notifications');
+    } catch (err) {
+      console.error('Failed to subscribe to push notifications:', err);
+    }
+  }
+
+  async function unsubscribeFromPushNotifications() {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+      return;
+    }
+    
+    try {
+      const registration = await navigator.serviceWorker.ready;
+      const subscription = await registration.pushManager.getSubscription();
+      
+      if (subscription) {
+        await subscription.unsubscribe();
+      }
+    } catch (err) {
+      console.error('Failed to unsubscribe from push notifications:', err);
+    }
+  }
+
   return {
     isDrawerOpen,
     notifications,
@@ -160,6 +237,8 @@ export const useNotificationsStore = defineStore('notifications', () => {
     removeNotification,
     clearAll,
     addNotification,
-    loadNotifications
+    loadNotifications,
+    subscribeToPushNotifications,
+    unsubscribeFromPushNotifications
   };
 });

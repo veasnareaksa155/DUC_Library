@@ -516,7 +516,7 @@
 </template>
 
 <script setup>
-import { ref, watch, computed } from 'vue';
+import { ref, watch, computed, toRef } from 'vue';
 import { useAuthStore } from '../stores/auth';
 import { useToastStore } from '../stores/toast';
 import { useConfirmStore } from '../stores/confirm';
@@ -530,12 +530,17 @@ import {
   Moon, Sun, Globe, Palette, ShieldCheck, LogOut, Check,
   ChevronRight, ChevronLeft, AlertCircle, Copy, Lock
 } from 'lucide-vue-next';
+import { useModalScrollLock } from '../composables/useModalScrollLock';
 
 const props = defineProps({
   isOpen: Boolean
 });
 
 const emit = defineEmits(['close']);
+
+// Lock scroll when modal is open
+useModalScrollLock(toRef(props, 'isOpen'));
+
 const authStore = useAuthStore();
 const toastStore = useToastStore();
 const confirmStore = useConfirmStore();

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isOpen" class="fixed inset-0 bg-gray-900/75 backdrop-blur-sm z-50 flex items-center justify-center p-6 animate-in fade-in duration-200" @click.self="$emit('close')">
+  <div v-if="isOpen" class="fixed inset-0 bg-gray-900/75 backdrop-blur-sm z-[99999] flex items-center justify-center p-6 animate-in fade-in duration-200" @click.self="$emit('close')">
     <div class="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-8 shadow-2xl animate-in zoom-in-95 duration-200 max-w-[850px] max-h-[92vh] flex flex-col p-0 overflow-hidden bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm">
       <header class="flex justify-between items-start px-8 py-6 border-b border-[var(--border-color)] bg-[var(--bg-secondary)]">
         <div>

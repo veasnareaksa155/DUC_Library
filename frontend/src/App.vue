@@ -148,14 +148,13 @@ function setupSSE(token) {
           } catch (e) {}
         }
       } else if (data.type === 'new_login_session') {
+        // another login session started for this user
         if (authStore.token) {
           try {
             const decoded = jwtDecode(authStore.token);
-            if (decoded.session_id !== data.payload.session_id) {
-              toastStore.show(`New login detected from ${data.payload.device_name} (${data.payload.location})`, { title: 'Security Alert', type: 'info', duration: 5000 });
-              // Silently refresh sessions in the background in case the SettingsModal is currently open
+            if (decoded.session_id !== data.payload.session_id && (data.payload.user_id === decoded.id || data.payload.user_id === decoded.user_id)) {
+              toastStore.showError(`A new login was detected on your account from ${data.payload.device_name} in ${data.payload.location}.`, 'Security Alert');
               authStore.fetchSessions();
-              // Load notifications to display the new login security alert in the panel
               notificationsStore.loadNotifications();
             }
           } catch (e) {}

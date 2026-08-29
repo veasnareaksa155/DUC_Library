@@ -303,6 +303,16 @@ router.put('/borrowings/:id/status', async (req, res) => {
         const sse = require('../services/sse');
         sse.broadcast('catalog_updated', { type: 'books' });
       }
+      
+      // Notify student
+      await ORM.insert('Notifications', {
+        user_id: borrowing.user_id,
+        title: 'Book Returned Successfully',
+        message: `Your borrowed book "${book.title}" has been marked as returned. Thank you!`,
+        type: 'success',
+        is_read: 'false',
+        created_at: new Date().toISOString()
+      });
     }
 
     const returnDateVal = status === 'returned' ? new Date().toISOString() : borrowing.return_date;

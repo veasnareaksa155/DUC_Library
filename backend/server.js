@@ -84,6 +84,16 @@ async function startServer() {
     await ORM.initializeSheets();
     console.log('[GoogleSheetsORM] Initialized successfully');
     
+    // Wire up push notifications
+    const pushService = require('./services/pushService');
+    ORM.events.on('notification_inserted', (notif) => {
+      pushService.sendPushNotification(notif.user_id, {
+        title: notif.title,
+        body: notif.message,
+        url: '/' // URL to open when clicked
+      });
+    });
+    
     // Start Server
     const server = app.listen(PORT, () => {
       console.log(`=======================================================`);

@@ -206,14 +206,17 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, toRef } from 'vue';
 import { Printer, X, FileText } from 'lucide-vue-next';
+import { useModalScrollLock } from '../composables/useModalScrollLock';
 
 const props = defineProps({
   isOpen: Boolean,
   period: String,
   reportData: Object
 });
+
+useModalScrollLock(toRef(props, 'isOpen'));
 
 const emit = defineEmits(['close']);
 

@@ -11,8 +11,8 @@ export const useToastStore = defineStore('toast', () => {
   function show(msg, options = {}) {
     if (timer) clearTimeout(timer);
     message.value = msg;
-    title.value = options.title || 'Success!';
     type.value = options.type || 'success';
+    title.value = options.title || (type.value === 'error' ? 'Error' : 'Success!');
     isVisible.value = true;
 
     timer = setTimeout(() => {

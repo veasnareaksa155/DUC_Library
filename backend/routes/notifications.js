@@ -127,4 +127,63 @@ router.delete('/', authenticateToken, async (req, res) => {
   }
 });
 
+// POST /subscribe to save push subscription
+router.post('/subscribe', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const subscription = req.body;
+    
+    if (!subscription || !subscription.endpoint) {
+      return res.status(400).json({ message: 'Invalid subscription object' });
+    }
+
+    // Check if it already exists
+    const existing = await ORM.find('PushSubscriptions', s => s.endpoint === subscription.endpoint && String(s.user_id) === String(userId));
+    if (existing && existing.length > 0) {
+      return res.json({ message: 'Already subscribed' });
+    }
+
+    const newSub = {
+      id: uuidv4(),
+      user_id: userId,
+      endpoint: subscription.endpoint,
+      p256dh: subscription.keys ? subscription.keys.p256dh : '',
+      auth: subscription.keys ? subscription.keys.auth : '',
+      created_at: new Date().toISOString()
+    };
+
+    await ORM.insert('PushSubscriptions', newSub);
+    res.status(201).json({ message: 'Subscribed successfully' });
+  } catch (error) {
+    console.error('Failed to save push subscription:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// DELETE /subscribe to remove a push subscription
+router.delete('/subscribe', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const endpoint = req.body.endpoint; // Client can send endpoint to remove specific device, or we can just delete all for user
+
+    if (endpoint) {
+      const subs = await ORM.find('PushSubscriptions', s => s.endpoint === endpoint && String(s.user_id) === String(userId));
+      for (const sub of subs) {
+        await ORM.remove('PushSubscriptions', sub.id);
+      }
+    } else {
+      // Remove all subscriptions for this user if no endpoint provided
+      const subs = await ORM.find('PushSubscriptions', s => String(s.user_id) === String(userId));
+      for (const sub of subs) {
+        await ORM.remove('PushSubscriptions', sub.id);
+      }
+    }
+
+    res.json({ message: 'Unsubscribed successfully' });
+  } catch (error) {
+    console.error('Failed to remove push subscription:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
 module.exports = router;
