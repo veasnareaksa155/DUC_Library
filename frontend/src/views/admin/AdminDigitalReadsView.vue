@@ -208,13 +208,13 @@
         <div v-else class="overflow-x-auto print:overflow-visible pb-4">
           <table class="w-full text-left min-w-[900px] print-clean-table" style="font-family: 'Siemreap', sans-serif;">
             <thead class="bg-[var(--bg-primary)] border-b border-[var(--border-color)] print:bg-slate-100">
-              <tr class="text-[var(--text-muted)] text-[0.75rem] font-black uppercase tracking-[0.1em] border-b border-[var(--border-color)] print:text-black print:text-[13px] print:font-bold" style="font-family: 'Outfit', 'Kantumruy Pro', sans-serif; font-weight: 700;">
-                <th class="px-8 py-5 whitespace-nowrap">អត្តសញ្ញាណសិស្ស</th>
-                <th class="px-6 py-5 whitespace-nowrap">ភេទ</th>
-                <th class="px-6 py-5 whitespace-nowrap">ព័ត៌មានការសិក្សា</th>
-                <th class="px-6 py-5 whitespace-nowrap w-1/3">សៀវភៅដែលបានអាន</th>
-                <th class="px-6 py-5 whitespace-nowrap">កាលបរិច្ឆេទ</th>
-                <th class="px-8 py-5 whitespace-nowrap text-right cursor-pointer hover:bg-gray-500/5 transition-colors select-none group" @click="toggleSortDuration">
+              <tr class="text-[var(--text-muted)] text-[0.75rem] font-black uppercase tracking-[0.1em] border-b border-[var(--border-color)] print:text-black print:font-bold" style="font-family: 'Outfit', 'Kantumruy Pro', sans-serif; font-weight: 700;">
+                <th class="px-8 py-5 whitespace-nowrap print:!text-[16px]">អត្តសញ្ញាណសិស្ស</th>
+                <th class="px-6 py-5 whitespace-nowrap print:!text-[16px]">ភេទ</th>
+                <th class="px-6 py-5 whitespace-nowrap print:!text-[16px]">ព័ត៌មានការសិក្សា</th>
+                <th class="px-6 py-5 whitespace-nowrap w-1/3 print:!text-[16px]">សៀវភៅដែលបានអាន</th>
+                <th class="px-6 py-5 whitespace-nowrap print:!text-[16px]">កាលបរិច្ឆេទ</th>
+                <th class="px-8 py-5 whitespace-nowrap text-right cursor-pointer hover:bg-gray-500/5 transition-colors select-none group print:!text-[16px]" @click="toggleSortDuration">
                   <div class="flex items-center justify-end gap-2">
                     <span class="flex flex-col opacity-40 group-hover:opacity-100 transition-opacity print:hidden">
                       <ChevronUp v-if="sortDurationDir === 'asc'" :size="14" class="text-indigo-500 font-bold" />
@@ -237,19 +237,19 @@
                       </div>
                     </div>
                     <div class="flex flex-col">
-                      <span class="font-black text-[1rem] text-[var(--text-primary)] group-hover:text-indigo-500 transition-colors print:text-[13px] print:font-bold print:text-black">{{ item.user_name_khmer || item.user_name }}</span>
+                      <span class="font-black text-[1rem] text-[var(--text-primary)] group-hover:text-indigo-500 transition-colors print:!text-[15px] print:font-bold print:text-black">{{ item.user_name_khmer || item.user_name }}</span>
                     </div>
                   </div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <span class="text-[0.9rem] font-bold text-[var(--text-primary)]" :class="item.user_gender?.toUpperCase() === 'F' || item.user_gender === 'ស្រី' || item.user_gender?.toUpperCase() === 'FEMALE' ? 'text-pink-500' : 'text-blue-500'">
+                  <span class="text-[0.9rem] font-bold text-[var(--text-primary)] print:!text-[15px]" :class="item.user_gender?.toUpperCase() === 'F' || item.user_gender === 'ស្រី' || item.user_gender?.toUpperCase() === 'FEMALE' ? 'text-pink-500' : 'text-blue-500'">
                     {{ item.user_gender === 'M' || item.user_gender?.toUpperCase() === 'MALE' ? 'ប្រុស' : (item.user_gender === 'F' || item.user_gender?.toUpperCase() === 'FEMALE' ? 'ស្រី' : (item.user_gender || 'N/A')) }}
                   </span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                   <div class="flex flex-col gap-1.5">
-                    <span v-if="item.user_major" class="text-[0.7rem] font-black tracking-wider text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded-md uppercase w-fit">{{ item.user_major }}</span>
-                    <span v-if="item.user_class" class="text-[0.75rem] font-bold text-[var(--text-secondary)] px-2 py-0.5 bg-gray-500/10 rounded-md uppercase w-fit">{{ item.user_class }}</span>
+                    <span v-if="item.user_major" class="text-[0.7rem] font-black tracking-wider text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded-md uppercase w-fit print:!text-[15px]">{{ item.user_major }}</span>
+                    <span v-if="item.user_class" class="text-[0.75rem] font-bold text-[var(--text-secondary)] px-2 py-0.5 bg-gray-500/10 rounded-md uppercase w-fit print:!text-[15px]">{{ item.user_class }}</span>
                   </div>
                 </td>
                 <td class="px-6 py-4">
@@ -258,17 +258,17 @@
                     <div v-else class="w-10 h-14 rounded-md bg-[var(--bg-primary)] border border-[var(--border-color)] flex items-center justify-center text-[var(--text-muted)]">
                       <BookOpen :size="16" />
                     </div>
-                    <span class="font-bold text-[0.95rem] text-[var(--text-primary)] pt-1 leading-snug line-clamp-2">{{ item.book_title }}</span>
+                    <span class="font-bold text-[0.95rem] text-[var(--text-primary)] pt-1 leading-snug line-clamp-2 print:!text-[15px]">{{ item.book_title }}</span>
                   </div>
                 </td>
                 <td class="px-6 py-4">
-                  <div class="flex flex-col gap-1 text-[0.88rem]">
+                  <div class="flex flex-col gap-1 text-[0.88rem] print:!text-[15px]">
                     <span class="font-bold text-[var(--text-primary)]">{{ formatDate(item.start_time) }}</span>
-                    <span class="text-[var(--text-muted)] font-medium text-[0.8rem] flex items-center gap-1.5"><Clock :size="12"/>{{ formatTime(item.start_time) }}</span>
+                    <span class="text-[var(--text-muted)] font-medium text-[0.8rem] flex items-center gap-1.5 print:!text-[15px]"><Clock :size="12"/>{{ formatTime(item.start_time) }}</span>
                   </div>
                 </td>
                 <td class="px-8 py-4 text-right">
-                  <span class="inline-flex items-center justify-center px-3.5 py-1.5 rounded-lg font-black text-[0.88rem] border shadow-sm tracking-wide tabular-nums print:bg-transparent print:border-none print:shadow-none print:text-black print:p-0"
+                  <span class="inline-flex items-center justify-center px-3.5 py-1.5 rounded-lg font-black text-[0.88rem] border shadow-sm tracking-wide tabular-nums print:bg-transparent print:border-none print:shadow-none print:text-black print:p-0 print:!text-[15px]"
                         :class="getDurationBadgeClass(item.duration_seconds)">
                     {{ formatDuration(item.duration_seconds) }}
                   </span>

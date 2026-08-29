@@ -25,8 +25,8 @@
             <img src="/khmer-ornament.png" alt="line" style="transform: rotate(-1deg); z-index: 1; margin-top: -20px;" class="h-[60px] mt-4 opacity-80" />
             
             <div class="mt-12 flex flex-col items-center">
-              <span class="text-[16px]" style="font-family: 'Moul', serif;">របាយការណ៍សិស្សចូលក្នុងបណ្ណាល័យ</span>
-              <span class="text-[15px] mt-3 font-bold" style="font-family: 'Siemreap', sans-serif;">កាលបរិច្ឆេទ ៖ {{ reportDateText }}</span>
+              <span class="text-[17px]" style="font-family: 'Moul', serif;">របាយការណ៍សិស្សចូលក្នុងបណ្ណាល័យ</span>
+              <span class="text-[16px] mt-3 font-bold" style="font-family: 'Siemreap', sans-serif;">កាលបរិច្ឆេទ ៖ {{ reportDateText }}</span>
             </div>
           </div>
           
@@ -160,12 +160,12 @@
           <table class="w-full text-left border-collapse min-w-[900px] print:min-w-0 print-clean-table" style="font-family: 'Siemreap', sans-serif;">
             <thead>
               <tr class="bg-gray-500/5 text-[var(--text-muted)] text-[0.75rem] font-bold tracking-wider">
-                <th class="px-6 py-4 border-b border-[var(--border-color)] whitespace-nowrap">ឈ្មោះសិស្ស / សមាជិក</th>
-                <th class="px-6 py-4 border-b border-[var(--border-color)] text-center whitespace-nowrap">ភេទ</th>
-                <th class="px-6 py-4 border-b border-[var(--border-color)] whitespace-nowrap">ជំនាញ</th>
-                <th class="px-6 py-4 border-b border-[var(--border-color)] whitespace-nowrap">ថ្នាក់</th>
+                <th class="px-6 py-4 border-b border-[var(--border-color)] whitespace-nowrap print:!text-[16px]">ឈ្មោះសិស្ស / សមាជិក</th>
+                <th class="px-6 py-4 border-b border-[var(--border-color)] text-center whitespace-nowrap print:!text-[16px]">ភេទ</th>
+                <th class="px-6 py-4 border-b border-[var(--border-color)] whitespace-nowrap print:!text-[16px]">ជំនាញ</th>
+                <th class="px-6 py-4 border-b border-[var(--border-color)] whitespace-nowrap print:!text-[16px]">ថ្នាក់</th>
                 <th class="px-6 py-4 border-b border-[var(--border-color)] whitespace-nowrap print:hidden">កាលបរិច្ឆេទ និង ម៉ោង</th>
-                <th @click="toggleSort" class="px-6 py-4 border-b border-[var(--border-color)] text-center whitespace-nowrap cursor-pointer hover:bg-gray-500/10 transition-colors select-none group">
+                <th @click="toggleSort" class="px-6 py-4 border-b border-[var(--border-color)] text-center whitespace-nowrap cursor-pointer hover:bg-gray-500/10 transition-colors select-none group print:!text-[16px]">
                   <div class="flex items-center justify-center gap-2">
                     <span>ចំនួនចូលសរុប</span>
                     <span class="flex flex-col opacity-40 group-hover:opacity-100 transition-opacity print:hidden">
@@ -183,7 +183,7 @@
               <tr v-for="item in (isPrinting ? filteredCheckins : paginatedCheckins)" :key="item.unique_key" class="group hover:bg-gray-500/5 transition-colors duration-200 print:break-inside-avoid">
                 <td class="px-6 py-4">
                   <div class="flex items-center gap-3.5">
-                    <div class="w-10 h-10 rounded-full bg-[var(--border-color)] overflow-hidden flex items-center justify-center font-bold text-[1.1rem] shadow-sm shrink-0">
+                    <div class="w-10 h-10 rounded-full bg-[var(--border-color)] overflow-hidden flex items-center justify-center font-bold text-[1.1rem] shadow-sm shrink-0 print:hidden">
                       <img v-if="item.user_photo" :src="item.user_photo" class="w-full h-full object-cover" />
                       <div v-else class="w-full h-full [background-image:var(--accent-gradient)] text-white flex items-center justify-center">
                         {{ (item.user_name_khmer || item.user_name)?.charAt(0).toUpperCase() }}
@@ -198,17 +198,17 @@
                   </div>
                 </td>
                 <td class="px-6 py-4 text-center whitespace-nowrap">
-                  <span v-if="item.user_gender === 'M' || item.user_gender === 'Male' || item.user_gender === 'ប្រុស'" class="text-[0.8rem] font-bold text-blue-600 bg-blue-50 dark:bg-blue-900/30 dark:text-blue-400 px-2.5 py-1 rounded">ប្រុស</span>
-                  <span v-else-if="item.user_gender === 'F' || item.user_gender === 'Female' || item.user_gender === 'ស្រី'" class="text-[0.8rem] font-bold text-pink-600 bg-pink-50 dark:bg-pink-900/30 dark:text-pink-400 px-2.5 py-1 rounded">ស្រី</span>
-                  <span v-else class="text-[0.75rem] text-[var(--text-muted)] italic">N/A</span>
+                  <span v-if="item.user_gender === 'M' || item.user_gender === 'Male' || item.user_gender === 'ប្រុស'" class="text-[0.8rem] font-bold text-blue-600 bg-blue-50 dark:bg-blue-900/30 dark:text-blue-400 px-2.5 py-1 rounded print:text-[0.95rem]">ប្រុស</span>
+                  <span v-else-if="item.user_gender === 'F' || item.user_gender === 'Female' || item.user_gender === 'ស្រី'" class="text-[0.8rem] font-bold text-pink-600 bg-pink-50 dark:bg-pink-900/30 dark:text-pink-400 px-2.5 py-1 rounded print:text-[0.95rem]">ស្រី</span>
+                  <span v-else class="text-[0.75rem] text-[var(--text-muted)] italic print:text-[0.95rem]">N/A</span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <span v-if="item.user_major" class="text-[0.7rem] font-bold tracking-wider text-indigo-500 bg-indigo-500/10 px-2 py-1 rounded uppercase">{{ item.user_major }}</span>
-                  <span v-else class="text-[0.75rem] text-[var(--text-muted)] italic">N/A</span>
+                  <span v-if="item.user_major" class="text-[0.7rem] font-bold tracking-wider text-indigo-500 bg-indigo-500/10 px-2 py-1 rounded uppercase print:text-[0.95rem]">{{ item.user_major }}</span>
+                  <span v-else class="text-[0.75rem] text-[var(--text-muted)] italic print:text-[0.95rem]">N/A</span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <span v-if="item.user_class" class="text-[0.75rem] font-bold text-[var(--text-primary)] px-2 py-1 bg-gray-500/10 rounded uppercase">{{ item.user_class }}</span>
-                  <span v-else class="text-[0.75rem] text-[var(--text-muted)] italic">-</span>
+                  <span v-if="item.user_class" class="text-[0.75rem] font-bold text-[var(--text-primary)] px-2 py-1 bg-gray-500/10 rounded uppercase print:text-[0.95rem]">{{ item.user_class }}</span>
+                  <span v-else class="text-[0.75rem] text-[var(--text-muted)] italic print:text-[0.95rem]">-</span>
                 </td>
                 <td class="px-6 py-4 print:hidden">
                   <div class="flex flex-col gap-1.5 text-[0.85rem]">
@@ -217,7 +217,7 @@
                   </div>
                 </td>
                 <td class="px-6 py-4 text-center">
-                  <span class="inline-flex items-center justify-center min-w-[28px] h-7 px-2 rounded-full font-bold text-[0.8rem] bg-indigo-500/10 text-indigo-500 border border-indigo-500/20">
+                  <span class="inline-flex items-center justify-center min-w-[28px] h-7 px-2 rounded-full font-bold text-[0.8rem] bg-indigo-500/10 text-indigo-500 border border-indigo-500/20 print:text-[0.95rem]">
                     {{ item.total_checkins }}
                   </span>
                 </td>

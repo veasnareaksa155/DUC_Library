@@ -127,13 +127,13 @@
         <div v-else class="overflow-x-auto p-4 print:p-0 print:overflow-visible">
           <table class="w-full text-left min-w-[950px] print-clean-table" style="font-family: 'Siemreap', sans-serif;">
             <thead class="bg-slate-50/80 dark:bg-slate-800/40 backdrop-blur-sm border-b border-slate-200 dark:border-slate-700 print:bg-slate-100">
-              <tr class="text-slate-600 dark:text-slate-300 text-[0.85rem] tracking-wider uppercase print:text-black print:text-[13px] print:font-bold">
-                <th class="px-6 py-4 whitespace-nowrap pl-8 rounded-l-xl font-normal print:rounded-none">ឈ្មោះសិស្ស / និស្សិត</th>
-                <th class="px-6 py-4 whitespace-nowrap text-center font-normal">ភេទ</th>
-                <th class="px-6 py-4 whitespace-nowrap font-normal">ជំនាញ</th>
-                <th class="px-6 py-4 font-normal print:w-[35%]">សៀវភៅដែលបានខ្ចី</th>
-                <th class="px-6 py-4 whitespace-nowrap font-normal">កាលបរិច្ឆេទ</th>
-                <th class="px-6 py-4 text-center whitespace-nowrap font-normal">ស្ថានភាព</th>
+              <tr class="text-slate-600 dark:text-slate-300 text-[0.85rem] tracking-wider uppercase print:text-black print:font-bold">
+                <th class="px-6 py-4 whitespace-nowrap pl-8 rounded-l-xl font-normal print:rounded-none print:!text-[16px]">ឈ្មោះសិស្ស / និស្សិត</th>
+                <th class="px-6 py-4 whitespace-nowrap text-center font-normal print:!text-[16px]">ភេទ</th>
+                <th class="px-6 py-4 whitespace-nowrap font-normal print:!text-[16px]">ជំនាញ</th>
+                <th class="px-6 py-4 font-normal print:w-[35%] print:!text-[16px]">សៀវភៅដែលបានខ្ចី</th>
+                <th class="px-6 py-4 whitespace-nowrap font-normal print:!text-[16px]">កាលបរិច្ឆេទ</th>
+                <th class="px-6 py-4 text-center whitespace-nowrap font-normal print:!text-[16px]">ស្ថានភាព</th>
                 <th class="px-6 py-4 text-right whitespace-nowrap pr-8 rounded-r-xl font-normal print:hidden">សកម្មភាព</th>
               </tr>
             </thead>
@@ -149,32 +149,32 @@
                       </div>
                     </div>
                     <div class="flex flex-col">
-                      <span class="font-extrabold text-[0.95rem] text-[var(--text-primary)] group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors print:text-black print:text-[13px] print:font-bold">{{ item.user_name_khmer || item.user_name }}</span>
+                      <span class="font-extrabold text-[0.95rem] text-[var(--text-primary)] group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors print:text-black print:!text-[15px] print:font-bold">{{ item.user_name_khmer || item.user_name }}</span>
                       <span class="text-[0.8rem] text-[var(--text-muted)] font-medium print:hidden">{{ item.user_email }}</span>
                     </div>
                   </div>
                 </td>
                 <td class="px-6 py-5 text-center whitespace-nowrap" style="font-family: 'Khmer OS Battambang', sans-serif;">
-                  <span v-if="item.user_gender === 'M' || item.user_gender?.toUpperCase() === 'MALE' || item.user_gender === 'ប្រុស'" class="text-[0.8rem] font-bold text-blue-600 bg-blue-50 dark:bg-blue-900/30 dark:text-blue-400 px-2.5 py-1 rounded">ប្រុស</span>
-                  <span v-else-if="item.user_gender === 'F' || item.user_gender?.toUpperCase() === 'FEMALE' || item.user_gender === 'ស្រី'" class="text-[0.8rem] font-bold text-pink-600 bg-pink-50 dark:bg-pink-900/30 dark:text-pink-400 px-2.5 py-1 rounded">ស្រី</span>
-                  <span v-else class="text-[0.75rem] text-[var(--text-muted)] italic">N/A</span>
+                  <span v-if="item.user_gender === 'M' || item.user_gender?.toUpperCase() === 'MALE' || item.user_gender === 'ប្រុស'" class="text-[0.8rem] font-bold text-blue-600 bg-blue-50 dark:bg-blue-900/30 dark:text-blue-400 px-2.5 py-1 rounded print:!text-[15px]">ប្រុស</span>
+                  <span v-else-if="item.user_gender === 'F' || item.user_gender?.toUpperCase() === 'FEMALE' || item.user_gender === 'ស្រី'" class="text-[0.8rem] font-bold text-pink-600 bg-pink-50 dark:bg-pink-900/30 dark:text-pink-400 px-2.5 py-1 rounded print:!text-[15px]">ស្រី</span>
+                  <span v-else class="text-[0.75rem] text-[var(--text-muted)] italic print:!text-[15px]">N/A</span>
                 </td>
                 <td class="px-6 py-5">
-                  <span class="font-bold text-[0.85rem] text-[var(--text-primary)] print:text-black print:text-[12px]">{{ item.user_major || 'N/A' }}</span>
+                  <span class="font-bold text-[0.85rem] text-[var(--text-primary)] print:text-black print:!text-[15px]">{{ item.user_major || 'N/A' }}</span>
                 </td>
                 <td class="px-6 py-5 print:align-top">
                   <div class="flex flex-col max-w-[280px] print:max-w-none">
-                    <span class="font-bold text-[0.95rem] text-[var(--text-primary)] truncate print:whitespace-normal print:text-black print:text-[13px]" :title="item.book_title">{{ item.book_title }}</span>
-                    <span class="text-[0.8rem] text-indigo-500 dark:text-indigo-400 font-bold truncate mt-1 bg-indigo-50 dark:bg-indigo-500/10 w-fit px-2 py-0.5 rounded-md print:bg-transparent print:px-0 print:text-slate-500 print:font-medium print:mt-1 print:whitespace-normal">{{ item.book_author }}</span>
+                    <span class="font-bold text-[0.95rem] text-[var(--text-primary)] truncate print:whitespace-normal print:text-black print:!text-[15px]" :title="item.book_title">{{ item.book_title }}</span>
+                    <span class="text-[0.8rem] text-indigo-500 dark:text-indigo-400 font-bold truncate mt-1 bg-indigo-50 dark:bg-indigo-500/10 w-fit px-2 py-0.5 rounded-md print:bg-transparent print:px-0 print:text-slate-500 print:font-medium print:mt-1 print:whitespace-normal print:!text-[15px]">{{ item.book_author }}</span>
                   </div>
                 </td>
                 <td class="px-6 py-5 print:align-top">
                   <div class="flex flex-col gap-2 print:gap-1.5" style="font-family: 'Khmer OS Battambang', sans-serif;">
-                    <div class="flex items-center gap-2 text-[0.82rem] print:text-[12px]">
+                    <div class="flex items-center gap-2 text-[0.82rem] print:!text-[15px]">
                       <span class="text-[var(--text-muted)] font-bold w-12 shrink-0 print:text-slate-500" style="font-family: 'Siemreap', sans-serif;">ថ្ងៃខ្ចី៖</span>
                       <span class="font-semibold text-[var(--text-primary)] print:text-black">{{ formatDate(item.borrow_date) }}</span>
                     </div>
-                    <div class="flex items-center gap-2 text-[0.82rem] print:text-[12px]">
+                    <div class="flex items-center gap-2 text-[0.82rem] print:!text-[15px]">
                       <span class="text-[var(--text-muted)] font-bold w-12 shrink-0 print:text-slate-500" style="font-family: 'Siemreap', sans-serif;">ថ្ងៃសង៖</span>
                       <span class="font-bold print:!shadow-none" :class="isOverdue(item.due_date, item.status) ? 'text-rose-500 bg-rose-500/10 px-2 py-0.5 rounded-md border border-rose-500/20' : 'text-[var(--text-primary)]'" style="-webkit-print-color-adjust: exact; print-color-adjust: exact;">{{ formatDate(item.due_date) }}</span>
                     </div>
