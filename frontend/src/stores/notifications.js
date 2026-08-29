@@ -173,7 +173,8 @@ export const useNotificationsStore = defineStore('notifications', () => {
     }
     
     try {
-      const registration = await navigator.serviceWorker.register('/sw.js');
+      const swUrl = `${import.meta.env.BASE_URL}sw.js`;
+      const registration = await navigator.serviceWorker.register(swUrl);
       
       const permission = await Notification.requestPermission();
       if (permission !== 'granted') {
