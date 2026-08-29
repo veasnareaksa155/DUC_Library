@@ -69,6 +69,9 @@ router.post('/logout', authenticateToken, async (req, res) => {
       if (session) {
         session.status = 'terminated';
         await ORM.update('UserSessions', session.id, session);
+        
+        const sse = require('../services/sse');
+        sse.emitToUser(String(req.user.id), 'session_terminated', { session_id: session.id });
       }
     }
     res.json({ message: 'Logged out successfully' });

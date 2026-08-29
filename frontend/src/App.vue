@@ -144,6 +144,9 @@ function setupSSE(token) {
               authStore.logout();
               toastStore.showError('Your session was terminated from another device.', 'Session Terminated');
               router.push('/login');
+            } else {
+              // Another session on our account was terminated, refresh the list
+              authStore.fetchSessions();
             }
           } catch (e) {}
         }
@@ -163,6 +166,15 @@ function setupSSE(token) {
         if (authStore.token) {
           authStore.is2FAEnabled = data.payload.enabled;
           toastStore.show(data.payload.enabled ? '2FA was enabled on another device.' : '2FA was disabled on another device.', { type: 'info' });
+        }
+      } else if (data.type === 'book_wishlist_updated') {
+        const { book_id, total_wishlists } = data.payload;
+        const bookIndex = booksStore.masterBooks.findIndex(b => String(b.id) === String(book_id));
+        if (bookIndex !== -1) {
+          booksStore.masterBooks[bookIndex].wishlist_count = total_wishlists;
+        }
+        if (booksStore.currentBook && String(booksStore.currentBook.id) === String(book_id)) {
+          booksStore.currentBook.wishlist_count = total_wishlists;
         }
       } else if (data.type === 'new_borrowing_request') {
         if (authStore.isAdmin) {

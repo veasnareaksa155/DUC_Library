@@ -40,6 +40,11 @@ router.post('/toggle', async (req, res) => {
       // Remove it
       await ORM.remove('Wishlists', existing.id);
       sse.broadcastToAdmins('wishlist_trends_updated', { type: 'wishlists' });
+      
+      const updatedWishlists = await ORM.getAll('Wishlists');
+      const totalCount = updatedWishlists.filter(w => String(w.book_id) === String(book_id)).length;
+      sse.broadcast('book_wishlist_updated', { book_id: String(book_id), total_wishlists: totalCount });
+      
       return res.json({ message: 'Removed from wishlist', status: 'removed' });
     } else {
       // Add it
@@ -49,6 +54,11 @@ router.post('/toggle', async (req, res) => {
         created_at: new Date().toISOString()
       });
       sse.broadcastToAdmins('wishlist_trends_updated', { type: 'wishlists' });
+      
+      const updatedWishlists = await ORM.getAll('Wishlists');
+      const totalCount = updatedWishlists.filter(w => String(w.book_id) === String(book_id)).length;
+      sse.broadcast('book_wishlist_updated', { book_id: String(book_id), total_wishlists: totalCount });
+      
       return res.json({ message: 'Added to wishlist', status: 'added' });
     }
   } catch (error) {
