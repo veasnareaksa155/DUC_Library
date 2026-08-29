@@ -91,6 +91,7 @@ import { useToastStore } from './stores/toast';
 import { useBorrowingsStore } from './stores/borrowings';
 import { useNotificationsStore } from './stores/notifications';
 import { useWishlistStore } from './stores/wishlist';
+import { useBooksStore } from './stores/books';
 import { requestPhoneNotificationPermission } from './services/notificationService';
 import { jwtDecode } from 'jwt-decode';
 
@@ -99,6 +100,7 @@ const toastStore = useToastStore();
 const borrowingsStore = useBorrowingsStore();
 const notificationsStore = useNotificationsStore();
 const wishlistStore = useWishlistStore();
+const booksStore = useBooksStore();
 const route = useRoute();
 const router = useRouter();
 const hideGlobalNav = computed(() => route.path.startsWith('/admin') || route.path.startsWith('/read'));
