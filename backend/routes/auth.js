@@ -472,7 +472,48 @@ router.get('/service-account', (req, res) => {
 // Get current user profile
 router.get('/me', authenticateToken, async (req, res) => {
   try {
-    const user = await ORM.getById('Users', req.user.id);
+    let user;
+    if (req.user.role === 'admin') {
+      user = await ORM.getById('Admins', req.user.id);
+    } else {
+      const { fetchStudentsFromSheet } = require('../googleSheets');
+      const LIVE_STUDENTS = await fetchStudentsFromSheet(process.env.SPREADSHEET_ID || '1YWZoN8THhaxO7H734gRxa7ahGsJoNHWcvyeR-QSa3LU') || [];
+      const matchSample = LIVE_STUDENTS.find(s => s.studentId === req.user.id);
+      
+      if (matchSample) {
+        const localPhotos = await ORM.find('ProfilePhotos', p => p.student_id === matchSample.studentId);
+        let finalPhoto = matchSample.profilePhoto || '';
+        if (localPhotos.length > 0 && localPhotos[0].photo_url) {
+          finalPhoto = localPhotos[0].photo_url;
+        }
+        
+        user = {
+          id: matchSample.studentId,
+          name: matchSample.latinName,
+          email: `${matchSample.studentId.toLowerCase()}@duc.com`,
+          role: 'user',
+          student_id: matchSample.studentId,
+          name_khmer: matchSample.khmerName,
+          gender: matchSample.gender || '',
+          dob: matchSample.dateOfBirth || '',
+          pob: matchSample.province || '',
+          high_school: matchSample.highSchool || '',
+          telegram: matchSample.telegram || '',
+          guardian_phone: matchSample.guardianPhone || '',
+          major: matchSample.major || '',
+          degree_level: matchSample.degreeLevel || '',
+          class_code: matchSample.classCode || '',
+          status: matchSample.academicStatus || 'Active Student',
+          academic_year: matchSample.academicYear || '',
+          generation: matchSample.generation || '',
+          bac2_grade: matchSample.grade || '',
+          phone: matchSample.phone || '',
+          profile_photo: finalPhoto,
+          created_at: new Date().toISOString()
+        };
+      }
+    }
+    
     if (!user) {
       return res.status(404).json({ message: 'User not found.' });
     }
@@ -559,6 +600,12 @@ router.put('/profile-photo', authenticateToken, async (req, res) => {
       sse.emitToUser(req.user.id, 'profile_updated', { photo_url: photoUrl });
       // Notify all admins of the student's change
       sse.broadcastToAdmins('student_profile_updated', { student_id: req.user.id, photo_url: photoUrl });
+    }
+
+    // Invalidate Admin Users Cache
+    const adminRoute = require('./admin');
+    if (adminRoute.cache && adminRoute.cache.users) {
+      adminRoute.cache.users.timestamp = 0;
     }
 
     res.json({ message: 'Profile photo updated successfully!', user: updatedUser });
