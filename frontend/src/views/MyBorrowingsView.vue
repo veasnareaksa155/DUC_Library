@@ -9,10 +9,10 @@
 
     <!-- Tab Filters -->
     <div v-if="borrowingsStore.myBorrowings.length > 0 && !borrowingsStore.loading" class="flex items-center gap-2 mb-8 overflow-x-auto hide-scrollbar w-full pb-1">
-      <button @click="setTab('all')" class="px-4 py-1.5 rounded-md text-[0.85rem] font-medium transition-colors border whitespace-nowrap cursor-pointer shrink-0" :class="activeTab === 'all' ? 'bg-[var(--text-primary)] text-[var(--bg-primary)] border-transparent' : 'bg-transparent border-[var(--border-color)] text-[var(--text-secondary)] hover:bg-[var(--bg-card-hover)]'">All Borrowings</button>
-      <button @click="setTab('active')" class="px-4 py-1.5 rounded-md text-[0.85rem] font-medium transition-colors border whitespace-nowrap cursor-pointer shrink-0" :class="activeTab === 'active' ? 'bg-[var(--text-primary)] text-[var(--bg-primary)] border-transparent' : 'bg-transparent border-[var(--border-color)] text-[var(--text-secondary)] hover:bg-[var(--bg-card-hover)]'">Active</button>
-      <button @click="setTab('returned')" class="px-4 py-1.5 rounded-md text-[0.85rem] font-medium transition-colors border whitespace-nowrap cursor-pointer shrink-0" :class="activeTab === 'returned' ? 'bg-[var(--text-primary)] text-[var(--bg-primary)] border-transparent' : 'bg-transparent border-[var(--border-color)] text-[var(--text-secondary)] hover:bg-[var(--bg-card-hover)]'">Returned</button>
-      <button @click="setTab('rejected')" class="px-4 py-1.5 rounded-md text-[0.85rem] font-medium transition-colors border whitespace-nowrap cursor-pointer shrink-0" :class="activeTab === 'rejected' ? 'bg-[var(--text-primary)] text-[var(--bg-primary)] border-transparent' : 'bg-transparent border-[var(--border-color)] text-[var(--text-secondary)] hover:bg-[var(--bg-card-hover)]'">Rejected</button>
+      <button @click="setTab('all')" class="px-4 py-1.5 rounded-md text-[0.85rem] font-medium transition-colors border whitespace-nowrap cursor-pointer shrink-0" :class="activeTab === 'all' ? 'bg-[var(--text-primary)] text-[var(--bg-primary)] border-transparent' : 'bg-transparent border-[var(--border-color)] text-[var(--text-secondary)] hover:bg-[var(--bg-card-hover)]'">{{ localeStore.t('allBorrowings') }}</button>
+      <button @click="setTab('active')" class="px-4 py-1.5 rounded-md text-[0.85rem] font-medium transition-colors border whitespace-nowrap cursor-pointer shrink-0" :class="activeTab === 'active' ? 'bg-[var(--text-primary)] text-[var(--bg-primary)] border-transparent' : 'bg-transparent border-[var(--border-color)] text-[var(--text-secondary)] hover:bg-[var(--bg-card-hover)]'">{{ localeStore.t('active') }}</button>
+      <button @click="setTab('returned')" class="px-4 py-1.5 rounded-md text-[0.85rem] font-medium transition-colors border whitespace-nowrap cursor-pointer shrink-0" :class="activeTab === 'returned' ? 'bg-[var(--text-primary)] text-[var(--bg-primary)] border-transparent' : 'bg-transparent border-[var(--border-color)] text-[var(--text-secondary)] hover:bg-[var(--bg-card-hover)]'">{{ localeStore.t('returned') }}</button>
+      <button @click="setTab('rejected')" class="px-4 py-1.5 rounded-md text-[0.85rem] font-medium transition-colors border whitespace-nowrap cursor-pointer shrink-0" :class="activeTab === 'rejected' ? 'bg-[var(--text-primary)] text-[var(--bg-primary)] border-transparent' : 'bg-transparent border-[var(--border-color)] text-[var(--text-secondary)] hover:bg-[var(--bg-card-hover)]'">{{ localeStore.t('rejected') }}</button>
     </div>
 
     <!-- Skeleton Loading State -->
@@ -46,11 +46,11 @@
 
     <div v-else-if="filteredBorrowings.length === 0" class="text-center py-24 text-[var(--text-muted)] bg-transparent">
       <BookmarkX :size="64" stroke-width="1.5" class="text-indigo-400 opacity-40 mx-auto mb-4 drop-shadow-sm" />
-      <h3 class="text-lg font-bold mb-1 text-[var(--text-primary)]">{{ borrowingsStore.myBorrowings.length === 0 ? localeStore.t('noActiveBorrowings') : 'No Books Found' }}</h3>
-      <p class="text-[0.9rem]">{{ borrowingsStore.myBorrowings.length === 0 ? localeStore.t('noActiveBorrowingsSub') : 'No books match the current filter.' }}</p>
+      <h3 class="text-lg font-bold mb-1 text-[var(--text-primary)]">{{ borrowingsStore.myBorrowings.length === 0 ? localeStore.t('noActiveBorrowings') : localeStore.t('noBooksFound') }}</h3>
+      <p class="text-[0.9rem]">{{ borrowingsStore.myBorrowings.length === 0 ? localeStore.t('noActiveBorrowingsSub') : localeStore.t('noBooksMatch') }}</p>
       
       <button v-if="activeTab !== 'all' && borrowingsStore.myBorrowings.length > 0" @click="setTab('all')" class="inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out active:scale-95 bg-indigo-600 text-white shadow-sm hover:bg-indigo-700 hover:-translate-y-px hover:shadow-md px-4 py-2 text-sm mt-4">
-        View All Borrowings
+        {{ localeStore.t('viewAllBorrowings') }}
       </button>
       <router-link v-else to="/" class="inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out active:scale-95 bg-indigo-600 text-white shadow-sm hover:bg-indigo-700 hover:-translate-y-px hover:shadow-md px-4 py-2 text-sm mt-4">
         <Library :size="16" /> {{ localeStore.t('browseCatalog') }}
@@ -84,7 +84,7 @@
           </div>
 
           <h3 class="text-[1.05rem] font-bold text-[var(--text-primary)] py-1 leading-normal pb-1.5 truncate">{{ item.book_title }}</h3>
-          <p class="text-[0.85rem] font-medium text-[var(--text-secondary)] mb-4 truncate">by {{ item.book_author }}</p>
+          <p class="text-[0.85rem] font-medium text-[var(--text-secondary)] mb-4 truncate">{{ localeStore.t('by') }} {{ item.book_author }}</p>
 
           <!-- Minimal Due Date -->
           <div class="flex items-center gap-2 mb-4">
@@ -96,7 +96,7 @@
           </div>
 
           <div v-if="item.admin_notes" class="flex items-start gap-2 text-[0.8rem] text-amber-600 dark:text-amber-400 bg-amber-500/5 px-3 py-2 rounded-md mb-4 border border-amber-500/20">
-            <Info :size="14" class="shrink-0 mt-0.5" /> <span><strong class="font-bold">Note:</strong> {{ item.admin_notes }}</span>
+            <Info :size="14" class="shrink-0 mt-0.5" /> <span><strong class="font-bold">{{ localeStore.t('note') }}</strong> {{ item.admin_notes }}</span>
           </div>
 
           <!-- Actions -->

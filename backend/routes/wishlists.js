@@ -67,4 +67,41 @@ router.post('/toggle', async (req, res) => {
   }
 });
 
+// Clear current user's wishlist
+router.delete('/clear', async (req, res) => {
+  try {
+    const user_id = req.user.id;
+    const allWishlists = await ORM.getAll('Wishlists');
+    const userWishlists = allWishlists.filter(w => String(w.user_id) === String(user_id));
+
+    const sse = require('../services/sse');
+    
+    // Track which books are affected to broadcast updates
+    const affectedBooks = new Set();
+    const idsToRemove = [];
+    
+    for (const w of userWishlists) {
+      affectedBooks.add(w.book_id);
+      idsToRemove.push(w.id);
+    }
+    
+    if (idsToRemove.length > 0) {
+      await ORM.removeMany('Wishlists', idsToRemove);
+    }
+    
+    sse.broadcastToAdmins('wishlist_trends_updated', { type: 'wishlists' });
+    
+    const updatedWishlists = await ORM.getAll('Wishlists');
+    for (const book_id of affectedBooks) {
+      const totalCount = updatedWishlists.filter(w => String(w.book_id) === String(book_id)).length;
+      sse.broadcast('book_wishlist_updated', { book_id: String(book_id), total_wishlists: totalCount });
+    }
+
+    res.json({ message: 'Wishlist cleared successfully' });
+  } catch (error) {
+    console.error('Error clearing wishlist:', error);
+    res.status(500).json({ message: 'Failed to clear wishlist.' });
+  }
+});
+
 module.exports = router;

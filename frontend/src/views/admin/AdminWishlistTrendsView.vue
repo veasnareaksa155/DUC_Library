@@ -139,7 +139,7 @@
                 
                 <!-- Category -->
                 <td class="py-4 px-4">
-                  <span class="text-[0.7rem] font-bold tracking-wider text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-md uppercase border border-slate-200 dark:border-slate-700">{{ book.category_name }}</span>
+                  <span class="text-[0.7rem] font-bold tracking-wider text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-md uppercase border border-slate-200 dark:border-slate-700" :style="(localeStore.currentLang === 'km' && book.category_name_km) ? 'font-family: \'Siemreab\', sans-serif;' : ''">{{ (localeStore.currentLang === 'km' && book.category_name_km) ? book.category_name_km : book.category_name }}</span>
                 </td>
 
                 <!-- Recent Users -->
@@ -218,9 +218,11 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useWishlistStore } from '../../stores/wishlist';
+import { useLocaleStore } from '../../stores/locale';
 import { Heart, HeartOff, BookOpen, ArrowUp, ArrowDown } from 'lucide-vue-next';
 
 const wishlistStore = useWishlistStore();
+const localeStore = useLocaleStore();
 const loading = ref(true);
 
 const currentPage = ref(1);

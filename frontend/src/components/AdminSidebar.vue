@@ -16,7 +16,7 @@
     <!-- Navigation Menu -->
     <nav class="flex flex-col gap-1.5 mb-4 flex-1 overflow-y-auto min-h-0 pr-2 -mr-2">
       <div class="flex items-center gap-3 px-2 mb-3">
-        <span class="text-[0.65rem] font-extrabold text-[var(--text-muted)] tracking-[0.15em] uppercase">Main Menu</span>
+        <span class="text-[0.65rem] font-extrabold text-[var(--text-muted)] tracking-[0.15em] uppercase">{{ localeStore.t('mainMenu') }}</span>
         <div class="h-px bg-gradient-to-r from-[var(--border-color)] to-transparent flex-1"></div>
       </div>
 
@@ -94,20 +94,20 @@
     <div class="pt-6 mt-auto border-t border-[var(--border-color)] flex flex-col gap-4">
       <div class="flex gap-3">
         <!-- Language Switcher -->
-        <button @click="toggleLanguage" class="group flex-1 flex items-center justify-center gap-2 p-2.5 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-color)] shadow-sm text-[var(--text-primary)] text-[0.8rem] font-bold transition-all duration-300 hover:border-indigo-500/30 hover:text-indigo-500 hover:-translate-y-0.5" title="Toggle Language">
+        <button @click="toggleLanguage" class="group flex-1 flex items-center justify-center gap-2 p-2.5 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-color)] shadow-sm text-[var(--text-primary)] text-[0.8rem] font-bold transition-all duration-300 hover:border-indigo-500/30 hover:text-indigo-500 hover:-translate-y-0.5" :title="localeStore.t('toggleLanguage')">
           <Globe :size="16" class="transition-transform duration-300 group-hover:rotate-12" />
           <span>{{ localeStore.currentLang === 'en' ? 'EN' : 'ខ្មែរ' }}</span>
         </button>
 
         <!-- Theme Toggle -->
-        <button @click="toggleTheme" class="group flex-1 flex items-center justify-center gap-2 p-2.5 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-color)] shadow-sm text-[var(--text-primary)] text-[0.8rem] font-bold transition-all duration-300 hover:border-indigo-500/30 hover:-translate-y-0.5" title="Toggle Theme">
+        <button @click="toggleTheme" class="group flex-1 flex items-center justify-center gap-2 p-2.5 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-color)] shadow-sm text-[var(--text-primary)] text-[0.8rem] font-bold transition-all duration-300 hover:border-indigo-500/30 hover:-translate-y-0.5" :title="localeStore.t('toggleTheme')">
           <Sun v-if="isDark" :size="16" class="text-amber-500 transition-transform duration-300 group-hover:rotate-90" />
           <Moon v-else :size="16" class="text-indigo-500 transition-transform duration-300 group-hover:-rotate-12" />
         </button>
       </div>
 
       <!-- Admin User Pill -->
-      <div class="flex items-center gap-3 p-3 bg-[var(--bg-primary)] hover:bg-[var(--bg-card)] hover:border-indigo-500/30 border border-[var(--border-color)] rounded-[16px] cursor-pointer transition-all duration-300 group shadow-[0_2px_10px_rgba(0,0,0,0.02)]" @click="router.push('/admin/profile')" title="Click to view My Full Profile">
+      <div class="flex items-center gap-3 p-3 bg-[var(--bg-primary)] hover:bg-[var(--bg-card)] hover:border-indigo-500/30 border border-[var(--border-color)] rounded-[16px] cursor-pointer transition-all duration-300 group shadow-[0_2px_10px_rgba(0,0,0,0.02)]" @click="router.push('/admin/profile')" :title="localeStore.t('viewFullProfile')">
         <div class="w-10 h-10 rounded-[12px] bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center font-extrabold text-[1.1rem] shadow-[0_4px_12px_rgba(99,102,241,0.3)] group-hover:scale-105 transition-transform duration-300 overflow-hidden">
           <img v-if="authStore.user?.profile_photo" :src="authStore.user.profile_photo" class="w-full h-full object-cover" alt="Admin Photo" />
           <span v-else>{{ (authStore.user?.name_latin || authStore.user?.name || 'A').charAt(0).toUpperCase() }}</span>
@@ -116,7 +116,7 @@
           <span class="text-[0.85rem] font-bold text-[var(--text-primary)] whitespace-nowrap overflow-hidden text-ellipsis">{{ authStore.user?.name || 'Admin' }}</span>
           <span class="text-[0.65rem] text-[var(--text-muted)] font-extrabold tracking-wider mt-0.5">{{ authStore.user?.role?.toUpperCase() || 'ADMIN' }}</span>
         </div>
-        <button @click.stop="handleLogout" class="bg-transparent border-none text-[var(--text-muted)] p-2 rounded-lg transition-all duration-300 hover:text-rose-500 hover:bg-rose-500/10" title="Log Out">
+        <button @click.stop="handleLogout" class="bg-transparent border-none text-[var(--text-muted)] p-2 rounded-lg transition-all duration-300 hover:text-rose-500 hover:bg-rose-500/10" :title="localeStore.t('logOut')">
           <LogOut :size="18" class="group-hover:translate-x-0.5 transition-transform" />
         </button>
       </div>

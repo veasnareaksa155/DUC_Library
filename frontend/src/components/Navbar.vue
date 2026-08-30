@@ -42,7 +42,7 @@
             <span class="w-px h-4 bg-[var(--border-color)] mx-1"></span>
             <router-link to="/admin" class="group flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[0.85rem] font-semibold text-[var(--accent-primary)] bg-[var(--accent-primary)]/10 hover:bg-[var(--accent-primary)]/20 transition-colors no-underline whitespace-nowrap">
               <LayoutDashboard :size="15" />
-              <span class="hidden lg:inline">Admin Portal</span>
+              <span class="hidden lg:inline">{{ localeStore.t('adminPortal') }}</span>
             </router-link>
           </div>
         </nav>
@@ -59,7 +59,7 @@
           v-if="authStore.isAuthenticated"
           @click="notifStore.toggleDrawer()" 
           class="relative w-8 h-8 rounded-md bg-transparent text-[var(--text-secondary)] flex items-center justify-center cursor-pointer transition-colors hover:bg-[var(--bg-card-hover)] hover:text-[var(--text-primary)] border-none" 
-          title="Notifications"
+          :title="localeStore.t('notifications')"
         >
           <Bell :size="16" />
           <span v-if="notifStore.unreadCount > 0" class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500 border-2 border-[var(--bg-card)]"></span>
@@ -70,17 +70,17 @@
           v-if="canInstallPwa" 
           @click="installPwaApp" 
           class="hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[0.75rem] font-bold border border-emerald-200 dark:border-emerald-500/20 cursor-pointer transition-colors hover:bg-emerald-100 dark:hover:bg-emerald-500/20" 
-          title="Install DUC Library App"
+          :title="localeStore.t('installAppTitle')"
         >
           <Download :size="14" />
-          <span>Install</span>
+          <span>{{ localeStore.t('install') }}</span>
         </button>
 
         <!-- User Profile Pill -->
         <template v-if="authStore.isAuthenticated">
           <div class="h-5 w-px bg-[var(--border-color)] mx-1 hidden sm:block"></div>
           
-          <div @click="router.push(authStore.user?.role === 'admin' ? '/admin/profile' : '/profile')" title="View Profile" class="flex items-center gap-2 p-1 pr-3 lg:pr-4 bg-transparent border border-[var(--border-color)] rounded-full cursor-pointer transition-colors hover:bg-[var(--bg-card-hover)]">
+          <div @click="router.push(authStore.user?.role === 'admin' ? '/admin/profile' : '/profile')" :title="localeStore.t('viewProfile')" class="flex items-center gap-2 p-1 pr-3 lg:pr-4 bg-transparent border border-[var(--border-color)] rounded-full cursor-pointer transition-colors hover:bg-[var(--bg-card-hover)]">
             <div class="w-7 h-7 rounded-full bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] flex items-center justify-center font-bold text-[0.75rem] overflow-hidden shrink-0">
               <img v-if="authStore.user?.profile_photo" :src="authStore.user.profile_photo" class="w-full h-full object-cover" />
               <span v-else>{{ authStore.user?.name?.charAt(0).toUpperCase() }}</span>
@@ -95,14 +95,14 @@
           <button 
             @click="isSettingsOpen = true" 
             class="w-8 h-8 rounded-md bg-transparent text-[var(--text-secondary)] flex items-center justify-center cursor-pointer transition-colors hover:bg-[var(--bg-card-hover)] hover:text-[var(--text-primary)] border-none" 
-            title="Account Settings"
+            :title="localeStore.t('accountSettings')"
           >
             <Settings :size="16" />
           </button>
         </template>
 
         <template v-else>
-          <router-link to="/login" class="px-5 py-2 rounded-[10px] bg-[var(--text-primary)] text-[var(--bg-primary)] text-[0.85rem] font-extrabold hover:scale-105 active:scale-95 transition-all duration-300 shadow-[0_4px_12px_rgba(0,0,0,0.1)] no-underline flex items-center justify-center">Log In</router-link>
+          <router-link to="/login" class="px-5 py-2 rounded-[10px] bg-[var(--text-primary)] text-[var(--bg-primary)] text-[0.85rem] font-extrabold hover:scale-105 active:scale-95 transition-all duration-300 shadow-[0_4px_12px_rgba(0,0,0,0.1)] no-underline flex items-center justify-center">{{ localeStore.t('logIn') }}</router-link>
         </template>
       </div>
     </div>
@@ -138,27 +138,27 @@
 
         <!-- Typography -->
         <h2 class="text-[1.65rem] font-black text-[var(--text-primary)] tracking-tight mb-3">
-          {{ checkinStore.hasCheckedInToday ? "You're Checked In!" : (checkinStore.isCheckingIn ? 'Verifying Location...' : 'Library Check-In') }}
+          {{ checkinStore.hasCheckedInToday ? localeStore.t('checkedInSuccess') : (checkinStore.isCheckingIn ? localeStore.t('verifyingLocation') : localeStore.t('libraryCheckIn')) }}
         </h2>
         
         <p v-if="checkinStatus === 'error'" class="text-[0.95rem] text-rose-500 font-medium mb-8 leading-relaxed px-2 bg-rose-500/10 border border-rose-500/20 py-3 rounded-xl">{{ checkinErrorMsg }}</p>
         <p v-else-if="checkinStore.hasCheckedInToday" class="text-[0.95rem] text-[var(--text-secondary)] font-medium mb-8 leading-relaxed px-2">
-          You have successfully checked into the library today! Have a great study session.
+          {{ localeStore.t('checkinSuccessMsg') }}
         </p>
         <p v-else class="text-[0.95rem] text-[var(--text-secondary)] font-medium mb-8 leading-relaxed px-2">
-          To check in, you must be physically located at the DUC Library. We will request your location to verify.
+          {{ localeStore.t('checkinDesc') }}
         </p>
 
         <!-- Actions -->
         <button v-if="!checkinStore.hasCheckedInToday && checkinStatus !== 'error'" @click="performCheckin" class="w-full py-3.5 rounded-[16px] font-extrabold text-[1.05rem] text-[var(--bg-primary)] bg-[var(--text-primary)] hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_8px_20px_rgba(0,0,0,0.1)] dark:shadow-[0_8px_20px_rgba(255,255,255,0.1)] border-none cursor-pointer flex items-center justify-center gap-2.5 group" :disabled="checkinStore.isCheckingIn">
           <MapPin :size="20" stroke-width="2.5" class="group-hover:-translate-y-1 transition-transform" /> 
-          {{ checkinStore.isCheckingIn ? 'Locating...' : 'Share Location & Check In' }}
+          {{ checkinStore.isCheckingIn ? localeStore.t('locating') : localeStore.t('shareLocation') }}
         </button>
         <button v-else-if="checkinStatus === 'error'" @click="performCheckin" class="w-full py-3.5 rounded-[16px] font-extrabold text-[1.05rem] text-[var(--bg-primary)] bg-[var(--text-primary)] hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_8px_20px_rgba(0,0,0,0.1)] border-none cursor-pointer flex items-center justify-center gap-2.5" :disabled="checkinStore.isCheckingIn">
           <RefreshCw :size="20" stroke-width="2.5" :class="{ 'animate-spin': checkinStore.isCheckingIn }" /> 
-          {{ checkinStore.isCheckingIn ? 'Trying...' : 'Try Again' }}
+          {{ checkinStore.isCheckingIn ? localeStore.t('trying') : localeStore.t('tryAgain') }}
         </button>
-        <button v-else @click="checkinStore.closeModal()" class="w-full py-3.5 mt-2 rounded-[16px] font-extrabold text-[1.05rem] text-[var(--text-primary)] bg-[var(--bg-secondary)] hover:bg-[var(--border-color)] transition-all active:scale-[0.98] border border-[var(--border-color)] cursor-pointer">Done</button>
+        <button v-else @click="checkinStore.closeModal()" class="w-full py-3.5 mt-2 rounded-[16px] font-extrabold text-[1.05rem] text-[var(--text-primary)] bg-[var(--bg-secondary)] hover:bg-[var(--border-color)] transition-all active:scale-[0.98] border border-[var(--border-color)] cursor-pointer">{{ localeStore.t('done') }}</button>
       </div>
     </div>
     

@@ -17,17 +17,17 @@
             <div class="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
               <Bookmark :size="18" />
             </div>
-            <h1 class="text-[1.75rem] max-sm:text-[1.5rem] font-bold text-[var(--text-primary)] tracking-tight">My Collection</h1>
+            <h1 class="text-[1.75rem] max-sm:text-[1.5rem] font-bold text-[var(--text-primary)] tracking-tight">{{ localeStore.t('myCollection') }}</h1>
           </div>
           <p class="text-[0.9rem] text-[var(--text-secondary)]">
-            <template v-if="booksStore.loading">Loading your collection...</template>
-            <template v-else>You have {{ wishlistBooks.length }} saved {{ wishlistBooks.length === 1 ? 'book' : 'books' }}</template>
+            <template v-if="booksStore.loading">{{ localeStore.t('loadingCollection') }}</template>
+            <template v-else>{{ localeStore.t('youHaveSaved') }} {{ wishlistBooks.length }} {{ wishlistBooks.length === 1 ? localeStore.t('bookSingular') : localeStore.t('booksPlural') }}</template>
           </p>
         </div>
         
         <button @click="clearAllWishlist" :disabled="booksStore.loading || wishlistBooks.length === 0" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-[var(--border-color)] bg-[var(--bg-card)] text-[0.85rem] font-medium text-[var(--text-secondary)] hover:text-red-500 hover:border-red-500/50 hover:bg-red-500/10 transition-colors group disabled:opacity-50 disabled:cursor-not-allowed">
           <Trash2 :size="15" class="transition-transform group-hover:scale-110" /> 
-          <span>Clear Collection</span>
+          <span>{{ localeStore.t('clearCollection') }}</span>
         </button>
       </div>
 
@@ -41,12 +41,12 @@
         <div class="w-16 h-16 mx-auto mb-6 rounded-xl bg-[var(--bg-secondary)] flex items-center justify-center">
           <Bookmark :size="32" class="text-[var(--text-muted)]" />
         </div>
-        <h2 class="text-[1.25rem] font-bold text-[var(--text-primary)] mb-2">Your collection is empty</h2>
+        <h2 class="text-[1.25rem] font-bold text-[var(--text-primary)] mb-2">{{ localeStore.t('emptyCollection') }}</h2>
         <p class="text-[0.9rem] text-[var(--text-secondary)] leading-relaxed mb-8">
-          You haven't saved any books yet. Explore the catalog and bookmark books to read later.
+          {{ localeStore.t('emptyCollectionSub') }}
         </p>
         <router-link to="/catalog" class="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-indigo-600 text-white font-medium hover:bg-indigo-700 transition-colors">
-          <BookOpen :size="16" /> Browse Catalog
+          <BookOpen :size="16" /> {{ localeStore.t('browseCatalog') }}
         </router-link>
       </div>
 
@@ -85,6 +85,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useBooksStore } from '../stores/books';
 import { useAuthStore } from '../stores/auth';
 import { useWishlistStore } from '../stores/wishlist';
+import { useLocaleStore } from '../stores/locale';
 import { useRouter } from 'vue-router';
 import BookCard from '../components/BookCard.vue';
 import BookSkeleton from '../components/BookSkeleton.vue';
@@ -101,6 +102,7 @@ import { useConfirmStore } from '../stores/confirm';
 const booksStore = useBooksStore();
 const authStore = useAuthStore();
 const wishlistStore = useWishlistStore();
+const localeStore = useLocaleStore();
 const toastStore = useToastStore();
 const router = useRouter();
 
@@ -109,6 +111,7 @@ const fallbackCover = 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e
 const selectedBook = ref(null);
 const isReaderOpen = ref(false);
 const isBorrowOpen = ref(false);
+const toastMessage = ref('');
 
 const wishlistBooks = computed(() => {
   return (booksStore.books || []).filter(b => wishlistStore.isInWishlist(b.id));
@@ -133,8 +136,7 @@ async function clearAllWishlist() {
   });
 
   if (confirmed) {
-    wishlistStore.wishlistIds = [];
-    wishlistStore.saveWishlist();
+    await wishlistStore.clearWishlist();
     toastStore.showSuccess('Your collection has been cleared.', 'Collection Cleared');
   }
 }

@@ -111,7 +111,7 @@
           <div class="p-6 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:-translate-y-1 hover:shadow-[0_15px_40px_rgba(0,0,0,0.08)] dark:hover:shadow-[0_15px_40px_rgba(0,0,0,0.4)] transition-all duration-300 relative overflow-hidden group">
             <div class="absolute -right-10 -top-10 w-32 h-32 bg-teal-500/10 dark:bg-teal-500/20 rounded-full blur-3xl group-hover:bg-teal-500/20 transition-colors duration-500"></div>
             <div class="flex items-start justify-between mb-4 relative z-10">
-              <span class="text-[0.75rem] font-extrabold text-[var(--text-secondary)] uppercase tracking-[0.08em] mt-2">Active Readers</span>
+              <span class="text-[0.75rem] font-extrabold text-[var(--text-secondary)] uppercase tracking-[0.08em] mt-2">{{ localeStore.t('activeReaders') }}</span>
               <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-50 to-teal-100/50 dark:from-teal-500/20 dark:to-teal-500/5 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0 border border-teal-200/50 dark:border-teal-500/30 shadow-inner group-hover:scale-105 transition-transform duration-300">
                 <Eye :size="22" stroke-width="2.5" />
               </div>
@@ -136,7 +136,7 @@
               {{ localeStore.t('recentRequests') || 'Recent Activity Feed' }}
             </h3>
             <router-link to="/admin/borrowings" class="text-[0.85rem] text-indigo-600 hover:text-indigo-700 font-bold flex items-center gap-1.5 transition-all group bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-500/10 dark:hover:bg-indigo-500/20 px-4 py-2 rounded-lg">
-              {{ localeStore.t('viewAllRequests') || 'View All Requests' }} <ArrowRight :size="16" class="group-hover:translate-x-1 transition-transform" />
+              {{ localeStore.t('viewAllRequests') }} <ArrowRight :size="16" class="group-hover:translate-x-1 transition-transform" />
             </router-link>
           </div>
 
@@ -180,7 +180,7 @@
                   </td>
                   <td class="px-5 py-4 text-right">
                     <router-link to="/admin/borrowings" class="inline-flex items-center justify-center font-bold rounded-lg transition-all duration-200 ease-out active:scale-95 px-4 py-2 text-[0.8rem] bg-white dark:bg-[var(--bg-card)] text-indigo-600 dark:text-indigo-400 border border-[var(--border-color)] hover:bg-indigo-50 dark:hover:bg-indigo-500/10 hover:border-indigo-200 dark:hover:border-indigo-500/30 hover:-translate-y-px shadow-sm">
-                      {{ localeStore.t('manage') || 'Manage' }}
+                      {{ localeStore.t('manage') }}
                     </router-link>
                   </td>
                 </tr>

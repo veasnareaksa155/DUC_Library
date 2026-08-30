@@ -12,9 +12,35 @@ export const useWishlistStore = defineStore('wishlist', () => {
     localStorage.setItem('duc_wishlist', JSON.stringify(wishlistIds.value));
   }
 
-  function clearWishlist() {
+  async function clearWishlist() {
     wishlistIds.value = [];
     localStorage.removeItem('duc_wishlist');
+    
+    // Optimistically clear the counts locally
+    const booksStore = useBooksStore();
+    for (const book of booksStore.masterBooks) {
+      if (book.wishlist_count > 0) {
+        book.wishlist_count -= 1;
+        if (book.wishlist_count < 0) book.wishlist_count = 0;
+      }
+    }
+    
+    if (booksStore.currentBook && booksStore.currentBook.wishlist_count > 0) {
+      booksStore.currentBook.wishlist_count -= 1;
+      if (booksStore.currentBook.wishlist_count < 0) booksStore.currentBook.wishlist_count = 0;
+    }
+
+    const authStore = useAuthStore();
+    if (authStore.token) {
+      try {
+        await fetch(`${import.meta.env.VITE_API_URL || ''}/api/wishlists/clear`, {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${authStore.token}` }
+        });
+      } catch (err) {
+        console.error('Failed to clear wishlist on server', err);
+      }
+    }
   }
 
   async function fetchMyWishlist() {

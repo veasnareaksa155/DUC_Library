@@ -72,7 +72,7 @@ router.get('/', async (req, res) => {
     const categories = await ORM.getAll('Categories');
     const categoriesMap = {};
     categories.forEach(c => {
-      categoriesMap[c.id] = c.name;
+      categoriesMap[c.id] = { name: c.name, name_km: c.name_km };
     });
 
     let books = await ORM.getAll('Books');
@@ -115,7 +115,8 @@ router.get('/', async (req, res) => {
       is_featured: b.is_featured === '1' || b.is_featured === 1 || b.is_featured === true || String(b.is_featured).toLowerCase() === 'true' ? 1 : 0,
       has_pdf: (b.pdf_url && b.pdf_url.length > 0) ? 1 : 0,
       has_digital_content: (b.digital_content && b.digital_content.length > 0) ? 1 : 0,
-      category_name: b.category_id ? categoriesMap[b.category_id] : null,
+      category_name: b.category_id && categoriesMap[b.category_id] ? categoriesMap[b.category_id].name : null,
+      category_name_km: b.category_id && categoriesMap[b.category_id] ? categoriesMap[b.category_id].name_km : null,
       wishlist_count: wishlistCounts[b.id] || 0
     }));
 
@@ -125,6 +126,7 @@ router.get('/', async (req, res) => {
         (b.title && b.title.toLowerCase().includes(lowerSearch)) ||
         (b.author && b.author.toLowerCase().includes(lowerSearch)) ||
         (b.category_name && b.category_name.toLowerCase().includes(lowerSearch)) ||
+        (b.category_name_km && b.category_name_km.toLowerCase().includes(lowerSearch)) ||
         (b.isbn && String(b.isbn).toLowerCase().includes(lowerSearch)) ||
         (b.description && b.description.toLowerCase().includes(lowerSearch))
       );
@@ -149,6 +151,7 @@ router.get('/:id', async (req, res) => {
       const cat = await ORM.getById('Categories', book.category_id);
       if (cat) {
         book.category_name = cat.name;
+        book.category_name_km = cat.name_km || '';
       }
     }
     
@@ -462,7 +465,10 @@ router.put('/:id/pdf', authenticateToken, requireAdmin, async (req, res) => {
     
     if (updatedBook.category_id) {
       const cat = await ORM.getById('Categories', updatedBook.category_id);
-      if (cat) updatedBook.category_name = cat.name;
+      if (cat) {
+        updatedBook.category_name = cat.name;
+        updatedBook.category_name_km = cat.name_km || '';
+      }
     }
 
     res.json({

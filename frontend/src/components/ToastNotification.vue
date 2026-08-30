@@ -18,7 +18,7 @@
         </div>
 
         <!-- Sleek Text Content -->
-        <div class="flex-1 min-w-0">
+        <div class="flex-1 min-w-0" :class="localeStore.currentLang === 'km' ? 'font-khmer' : ''">
           <h4 class="text-[0.875rem] font-semibold text-[var(--text-primary)] m-0 mb-0.5 tracking-tight leading-tight">{{ toastStore.title }}</h4>
           <p class="text-[0.8rem] text-[var(--text-secondary)] m-0 leading-relaxed line-clamp-2">{{ toastStore.message }}</p>
         </div>
@@ -35,9 +35,11 @@
 
 <script setup>
 import { useToastStore } from '../stores/toast';
+import { useLocaleStore } from '../stores/locale';
 import { Heart, HeartOff, CheckCircle2, Info, X, AlertCircle } from 'lucide-vue-next';
 
 const toastStore = useToastStore();
+const localeStore = useLocaleStore();
 </script>
 
 <style scoped>

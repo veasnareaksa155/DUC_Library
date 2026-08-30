@@ -17,6 +17,7 @@ router.get('/', async (req, res) => {
       return {
         id: cat.id,
         name: cat.name,
+        name_km: cat.name_km || '',
         description: cat.description || '',
         icon: cat.icon || 'BookOpen',
         book_count: bookCount
@@ -35,7 +36,7 @@ router.get('/', async (req, res) => {
 // Create new category (Admin only)
 router.post('/', authenticateToken, requireAdmin, async (req, res) => {
   try {
-    const { name, description, icon } = req.body;
+    const { name, name_km, description, icon } = req.body;
     if (!name) {
       return res.status(400).json({ message: 'Category name is required.' });
     }
@@ -50,6 +51,7 @@ router.post('/', authenticateToken, requireAdmin, async (req, res) => {
 
     const newCategory = {
       name,
+      name_km: name_km || '',
       description: description || '',
       icon: icon || 'BookOpen'
     };
@@ -73,7 +75,7 @@ router.post('/', authenticateToken, requireAdmin, async (req, res) => {
 router.put('/:id', authenticateToken, requireAdmin, async (req, res) => {
   try {
     const categoryId = req.params.id;
-    const { name, description, icon } = req.body;
+    const { name, name_km, description, icon } = req.body;
     
     if (!name) {
       return res.status(400).json({ message: 'Category name is required.' });
@@ -96,6 +98,7 @@ router.put('/:id', authenticateToken, requireAdmin, async (req, res) => {
 
     const updatedData = {
       name,
+      name_km: name_km || '',
       description: description || '',
       icon: icon || 'BookOpen'
     };

@@ -2,12 +2,12 @@
 <main class="flex-1 py-6 px-8 pb-16 w-[calc(100%-280px)] max-w-none">
       <header class="flex justify-between items-end mb-8">
         <div>
-          <h1 class="text-[2.2rem] font-extrabold text-[var(--text-primary)]">{{ localeStore.t('books') }} Management</h1>
-          <p class="text-[var(--text-secondary)]">Add new books, update stock counts, edit digital content, or remove books.</p>
+          <h1 class="text-[2.2rem] font-extrabold text-[var(--text-primary)]">{{ localeStore.t('booksManagement') }}</h1>
+          <p class="text-[var(--text-secondary)]">{{ localeStore.t('booksManagementDesc') }}</p>
         </div>
         <div class="flex items-center gap-2">
           <button @click="openBookSyncModal" class="inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out active:scale-95 bg-gray-100 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-800 hover:border-indigo-400 dark:hover:border-indigo-500 hover:-translate-y-px px-5 py-2.5 text-sm mr-2">
-            <FileSpreadsheet :size="18" /> Sync Books from Sheet
+            <FileSpreadsheet :size="18" /> {{ localeStore.t('syncBooks') }}
           </button>
           <button @click="openAddModal" class="inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out active:scale-95 bg-indigo-600 text-white shadow-sm hover:bg-indigo-700 hover:-translate-y-px hover:shadow-md px-5 py-2.5 text-sm">
             <Plus :size="18" /> {{ localeStore.t('addNewBook') }}
@@ -25,7 +25,7 @@
               @input="booksStore.fetchBooks()" 
               type="text" 
               class="w-full pl-10 bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-md py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-medium shadow-sm placeholder:text-[var(--text-muted)]"
-              placeholder="Search by title, author, category, or ISBN..." 
+              :placeholder="localeStore.t('searchBooksPlaceholder')" 
             />
           </div>
           
@@ -35,9 +35,9 @@
               v-model="booksStore.selectedCategory"
               class="w-full appearance-none pl-10 pr-10 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-medium cursor-pointer shadow-sm"
             >
-              <option value="all" class="bg-[var(--bg-card)] font-medium">All Categories (Catalog)</option>
+              <option value="all" class="bg-[var(--bg-card)] font-medium">{{ localeStore.t('allCategories') }}</option>
               <option v-for="cat in booksStore.categories" :key="cat.id" :value="cat.id" class="bg-[var(--bg-card)] font-medium">
-                {{ cat.name }}
+                {{ (localeStore.currentLang === 'km' && cat.name_km) ? cat.name_km : cat.name }}
               </option>
             </select>
             <ChevronDown :size="16" class="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)] pointer-events-none" />
@@ -85,12 +85,12 @@
           <table class="w-full text-left border-collapse min-w-[950px]">
             <thead>
               <tr class="bg-gray-500/5 text-[var(--text-muted)] text-[0.75rem] font-extrabold uppercase tracking-wider">
-                <th class="px-6 py-4 border-b border-[var(--border-color)] whitespace-nowrap">Cover & Title</th>
-                <th class="px-6 py-4 border-b border-[var(--border-color)] whitespace-nowrap">Author</th>
-                <th class="px-6 py-4 border-b border-[var(--border-color)] whitespace-nowrap">Category</th>
-                <th class="px-6 py-4 border-b border-[var(--border-color)] whitespace-nowrap">Stock / Available</th>
-                <th class="px-6 py-4 border-b border-[var(--border-color)] whitespace-nowrap">ISBN</th>
-                <th class="px-6 py-4 border-b border-[var(--border-color)] text-right whitespace-nowrap">Actions</th>
+                <th class="px-6 py-4 border-b border-[var(--border-color)] whitespace-nowrap">{{ localeStore.t('coverAndTitle') }}</th>
+                <th class="px-6 py-4 border-b border-[var(--border-color)] whitespace-nowrap">{{ localeStore.t('author') }}</th>
+                <th class="px-6 py-4 border-b border-[var(--border-color)] whitespace-nowrap">{{ localeStore.t('category') }}</th>
+                <th class="px-6 py-4 border-b border-[var(--border-color)] whitespace-nowrap">{{ localeStore.t('stock') }}</th>
+                <th class="px-6 py-4 border-b border-[var(--border-color)] whitespace-nowrap">{{ localeStore.t('isbn') }}</th>
+                <th class="px-6 py-4 border-b border-[var(--border-color)] text-right whitespace-nowrap">{{ localeStore.t('actions') }}</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-[var(--border-color)]">
@@ -107,7 +107,7 @@
                 <td class="px-6 py-4 text-[0.92rem] font-semibold text-[var(--text-secondary)]">{{ book.author }}</td>
                 <td class="px-6 py-4">
                   <div class="flex items-center gap-2 flex-wrap max-w-[180px]">
-                    <span class="bg-[var(--bg-secondary)] border border-[var(--border-color)] text-[var(--text-secondary)] px-2.5 py-1 rounded-md text-[0.75rem] font-bold tracking-wide whitespace-nowrap">{{ book.category_name || 'General' }}</span>
+                    <span class="bg-[var(--bg-secondary)] border border-[var(--border-color)] text-[var(--text-secondary)] px-2.5 py-1 rounded-md text-[0.75rem] font-bold tracking-wide whitespace-nowrap" :style="(localeStore.currentLang === 'km' && book.category_name_km) ? 'font-family: \'Siemreab\', sans-serif;' : ''">{{ (localeStore.currentLang === 'km' && book.category_name_km) ? book.category_name_km : (book.category_name || 'General') }}</span>
                     <span v-if="book.pdf_url" class="inline-flex items-center gap-1 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400 px-2 py-1 rounded-md text-[0.72rem] font-bold whitespace-nowrap" title="Digital PDF Document Attached"><FileText :size="12" stroke-width="2.5" /> PDF</span>
                   </div>
                 </td>
@@ -117,7 +117,7 @@
                     <span class="font-bold text-[0.9rem]" :class="book.copies_available === 0 ? 'text-red-500' : 'text-emerald-600 dark:text-emerald-400'">
                       {{ book.copies_available }} / {{ book.copies_total }}
                     </span>
-                    <span class="text-[0.78rem] text-[var(--text-muted)] font-medium">copies</span>
+                    <span class="text-[0.78rem] text-[var(--text-muted)] font-medium">{{ localeStore.t('copies') }}</span>
                   </div>
                 </td>
                 <td class="px-6 py-4 font-mono text-[0.88rem] text-[var(--text-secondary)] font-medium">{{ book.isbn || 'N/A' }}</td>
@@ -154,10 +154,10 @@
                       <Search :size="36" class="opacity-50 text-indigo-400" />
                     </div>
                     <div class="flex flex-col gap-1">
-                      <p class="font-extrabold text-[1.1rem] text-[var(--text-primary)]">No books found</p>
-                      <p class="text-[0.88rem] max-w-sm mx-auto leading-relaxed">We couldn't find any books matching "{{ booksStore.searchQuery }}" or the selected category filter. Try adjusting your search criteria.</p>
+                      <p class="font-extrabold text-[1.1rem] text-[var(--text-primary)]">{{ localeStore.t('noBooksFound') }}</p>
+                      <p class="text-[0.88rem] max-w-sm mx-auto leading-relaxed">{{ localeStore.t('noBooksFoundDesc') || 'We couldn\'t find any books matching "'+booksStore.searchQuery+'" or the selected category filter. Try adjusting your search criteria.' }}</p>
                     </div>
-                    <button @click="booksStore.searchQuery = ''; booksStore.selectedCategory = 'all'" class="mt-2 text-indigo-500 text-[0.85rem] font-bold hover:underline">Clear Filters</button>
+                    <button @click="booksStore.searchQuery = ''; booksStore.selectedCategory = 'all'" class="mt-2 text-indigo-500 text-[0.85rem] font-bold hover:underline">{{ localeStore.t('clearFilters') }}</button>
                   </div>
                 </td>
               </tr>
@@ -168,7 +168,7 @@
         <!-- Pagination Bar -->
         <div v-if="booksStore.books.length > 0" class="flex justify-between items-center pt-5 mt-4 border-t border-[var(--border-color)]">
           <div class="text-[0.85rem] text-[var(--text-muted)] font-medium">
-            Showing {{ (currentPage - 1) * itemsPerPage + 1 }} to {{ Math.min(currentPage * itemsPerPage, booksStore.books.length) }} of {{ booksStore.books.length }} books
+            {{ localeStore.t('showing') }} {{ (currentPage - 1) * itemsPerPage + 1 }} {{ localeStore.t('to') }} {{ Math.min(currentPage * itemsPerPage, booksStore.books.length) }} {{ localeStore.t('of') }} {{ booksStore.books.length }} {{ localeStore.t('books', 'books') }}
           </div>
 
           <div class="flex items-center gap-3">
@@ -180,7 +180,7 @@
               <ChevronLeft :size="16" />
             </button>
 
-            <span class="text-[0.85rem] font-bold text-[var(--text-primary)]">Page {{ currentPage }} of {{ totalPages }}</span>
+            <span class="text-[0.85rem] font-bold text-[var(--text-primary)]">{{ localeStore.t('page') }} {{ currentPage }} {{ localeStore.t('of') }} {{ totalPages }}</span>
 
             <button 
               @click="currentPage++" 
@@ -205,7 +205,7 @@
           <!-- Header -->
           <header class="flex justify-between items-center px-6 py-5 border-b border-[var(--border-color)] bg-[var(--bg-card)] shrink-0">
             <div class="flex items-center gap-3">
-              <h2 class="text-lg font-bold text-[var(--text-primary)] tracking-tight">{{ isEditing ? 'Edit Book Inventory' : 'Add New Book' }}</h2>
+              <h2 class="text-lg font-bold text-[var(--text-primary)] tracking-tight">{{ isEditing ? localeStore.t('editBookModalTitle') : localeStore.t('addNewBook') }}</h2>
             </div>
             <button @click="isModalOpen = false" class="text-[var(--text-muted)] hover:text-[var(--text-primary)] bg-transparent border-none cursor-pointer p-1 rounded-md hover:bg-[var(--bg-secondary)] transition-colors"><X :size="20" stroke-width="2" /></button>
           </header>
@@ -216,26 +216,26 @@
               <!-- Core Information -->
               <div class="space-y-4">
                 <h3 class="text-sm font-bold text-[var(--text-primary)] border-b border-[var(--border-color)] pb-2 flex items-center gap-2">
-                  <Star :size="16" stroke-width="2" class="text-[var(--text-secondary)]" /> Core Information
+                  <Star :size="16" stroke-width="2" class="text-[var(--text-secondary)]" /> {{ localeStore.t('coreInformation') }}
                 </h3>
                 
                 <div class="grid grid-cols-2 gap-x-6 gap-y-4">
                   <div class="col-span-2 group">
-                    <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-1.5 transition-colors">Book Title *</label>
+                    <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-1.5 transition-colors">{{ localeStore.t('bookTitleReq') }}</label>
                     <input v-model="form.title" type="text" class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-md px-3.5 py-2.5 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-medium" required placeholder="e.g. Clean Code" />
                   </div>
 
                   <div class="group">
-                    <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-1.5 transition-colors">Author *</label>
+                    <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-1.5 transition-colors">{{ localeStore.t('authorReq') }}</label>
                     <input v-model="form.author" type="text" class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-md px-3.5 py-2.5 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-medium" required placeholder="e.g. Robert C. Martin" />
                   </div>
 
                   <div class="group">
-                    <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-1.5 transition-colors">Category *</label>
+                    <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-1.5 transition-colors">{{ localeStore.t('categoryReq') }}</label>
                     <div class="relative">
                       <select v-model="form.category_id" class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-md px-3.5 py-2.5 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all shadow-sm appearance-none font-medium" required>
                         <option v-for="cat in booksStore.categories" :key="cat.id" :value="cat.id" class="bg-[var(--bg-primary)]">
-                          {{ cat.name }}
+                          {{ (localeStore.currentLang === 'km' && cat.name_km) ? cat.name_km : cat.name }}
                         </option>
                       </select>
                       <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none text-[var(--text-muted)]">
@@ -249,17 +249,17 @@
               <!-- Physical Details -->
               <div class="space-y-4">
                 <h3 class="text-sm font-bold text-[var(--text-primary)] border-b border-[var(--border-color)] pb-2 flex items-center gap-2">
-                  <Bookmark :size="16" stroke-width="2" class="text-[var(--text-secondary)]" /> Publishing & Inventory
+                  <Bookmark :size="16" stroke-width="2" class="text-[var(--text-secondary)]" /> {{ localeStore.t('publishingInventory') }}
                 </h3>
                 
                 <div class="grid grid-cols-2 gap-x-6 gap-y-4">
                   <div class="group">
-                    <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-1.5 transition-colors">ISBN Number</label>
+                    <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-1.5 transition-colors">{{ localeStore.t('isbnNumber') }}</label>
                     <input v-model="form.isbn" type="text" class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-md px-3.5 py-2.5 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-mono text-[0.9rem]" placeholder="978-..." />
                   </div>
 
                   <div class="group">
-                    <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-1.5 transition-colors">Total Copies *</label>
+                    <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-1.5 transition-colors">{{ localeStore.t('totalCopiesReq') }}</label>
                     <input 
                       v-model.number="form.copies_total" 
                       type="number" 
@@ -270,12 +270,12 @@
                   </div>
 
                   <div class="group">
-                    <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-1.5 transition-colors">Publisher</label>
+                    <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-1.5 transition-colors">{{ localeStore.t('publisher') }}</label>
                     <input v-model="form.publisher" type="text" class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-md px-3.5 py-2.5 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-medium" placeholder="Publisher name" />
                   </div>
 
                   <div class="group">
-                    <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-1.5 transition-colors">Publish Year</label>
+                    <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-1.5 transition-colors">{{ localeStore.t('publishYear') }}</label>
                     <input v-model.number="form.publish_year" type="number" class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-md px-3.5 py-2.5 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-mono text-[0.9rem]" placeholder="2024" />
                   </div>
                 </div>
@@ -284,12 +284,12 @@
               <!-- Digital Assets -->
               <div class="space-y-4">
                 <h3 class="text-sm font-bold text-[var(--text-primary)] border-b border-[var(--border-color)] pb-2 flex items-center gap-2">
-                  <Image :size="16" stroke-width="2" class="text-[var(--text-secondary)]" /> Media & Digital Assets
+                  <Image :size="16" stroke-width="2" class="text-[var(--text-secondary)]" /> {{ localeStore.t('mediaDigitalAssets') }}
                 </h3>
 
                 <div class="grid grid-cols-2 gap-x-6 gap-y-4">
                   <div class="col-span-2 group">
-                    <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-1.5 transition-colors">Cover Image (URL or Upload)</label>
+                    <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-1.5 transition-colors">{{ localeStore.t('coverImage') }}</label>
                     <div class="flex gap-3 items-stretch">
                       <div class="relative flex-1">
                         <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[var(--text-muted)]/60">
@@ -306,14 +306,14 @@
                         />
                       </div>
                       <button type="button" @click="triggerImageSelect" class="flex items-center justify-center gap-2 bg-[var(--bg-secondary)] hover:bg-[var(--bg-card-hover)] text-[var(--text-primary)] border border-[var(--border-color)] rounded-md px-5 font-semibold transition-colors shadow-sm whitespace-nowrap cursor-pointer">
-                        <Upload :size="16" stroke-width="2" /> <span class="hidden sm:inline">Upload</span>
+                        <Upload :size="16" stroke-width="2" /> <span class="hidden sm:inline">{{ localeStore.t('upload') }}</span>
                       </button>
                       <input type="file" ref="imageFileInputRef" accept="image/*" @change="onImageFileSelected" style="display: none" />
                     </div>
                   </div>
 
                   <div class="col-span-2 group">
-                    <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-1.5 transition-colors">Book PDF (For Online Reading)</label>
+                    <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-1.5 transition-colors">{{ localeStore.t('bookPdf') }}</label>
                     <div class="flex gap-3 items-stretch">
                       <div class="relative flex-1">
                         <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[var(--text-muted)]/60">
@@ -330,7 +330,7 @@
                         />
                       </div>
                       <button type="button" @click="triggerPdfSelect" class="flex items-center justify-center gap-2 bg-[var(--bg-secondary)] hover:bg-[var(--bg-card-hover)] text-[var(--text-primary)] border border-[var(--border-color)] rounded-md px-5 font-semibold transition-colors shadow-sm whitespace-nowrap cursor-pointer">
-                        <Upload :size="16" stroke-width="2" /> <span class="hidden sm:inline">Upload</span>
+                        <Upload :size="16" stroke-width="2" /> <span class="hidden sm:inline">{{ localeStore.t('upload') }}</span>
                       </button>
                       <input type="file" ref="pdfFileInputRef" accept="application/pdf" @change="onPdfFileSelected" style="display: none" />
                     </div>
@@ -346,12 +346,12 @@
                   </div>
 
                   <div class="col-span-2 group">
-                    <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-1.5 transition-colors">Book Description</label>
+                    <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-1.5 transition-colors">{{ localeStore.t('bookDescription') }}</label>
                     <textarea v-model="form.description" rows="3" class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-md px-3.5 py-2.5 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-medium resize-none" placeholder="Brief summary of the book content..."></textarea>
                   </div>
 
                   <div class="col-span-2 group">
-                    <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-1.5 transition-colors">Digital Text (For E-Reader)</label>
+                    <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-1.5 transition-colors">{{ localeStore.t('digitalText') }}</label>
                     <textarea v-model="form.digital_content" rows="4" class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-md px-3.5 py-2.5 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all shadow-sm font-mono text-[0.82rem] placeholder:text-[var(--text-muted)]/50 resize-none custom-scrollbar" placeholder="Chapter 1 content or book excerpt..."></textarea>
                   </div>
 
@@ -362,7 +362,7 @@
                         <Check :size="12" stroke-width="3" class="absolute text-white opacity-0 peer-checked:opacity-100 pointer-events-none transition-opacity" />
                       </div>
                       <span class="font-medium text-[var(--text-primary)] text-[0.85rem] transition-colors group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
-                        Feature this book in Popular List
+                        {{ localeStore.t('featureThisBook') }}
                       </span>
                     </label>
                   </div>
@@ -373,10 +373,10 @@
             </div>
 
             <footer class="flex justify-end gap-3 px-6 py-4 border-t border-[var(--border-color)] bg-[var(--bg-card)] shrink-0">
-              <button type="button" @click="isModalOpen = false" class="px-5 py-2 rounded-md font-medium text-[var(--text-primary)] bg-[var(--bg-secondary)] border border-[var(--border-color)] hover:bg-[var(--bg-card-hover)] transition-colors cursor-pointer">Cancel</button>
+              <button type="button" @click="isModalOpen = false" class="px-5 py-2 rounded-md font-medium text-[var(--text-primary)] bg-[var(--bg-secondary)] border border-[var(--border-color)] hover:bg-[var(--bg-card-hover)] transition-colors cursor-pointer">{{ localeStore.t('cancel') }}</button>
               <button type="submit" class="px-5 py-2 rounded-md font-medium text-white bg-indigo-600 border border-transparent hover:bg-indigo-700 transition-colors flex items-center gap-2 cursor-pointer" :disabled="saving">
                 <Save :size="16" :class="{ 'animate-pulse': saving }" />
-                {{ saving ? 'Saving...' : 'Save Book' }}
+                {{ saving ? localeStore.t('savingLabel') : localeStore.t('saveBook') }}
               </button>
             </footer>
           </form>
@@ -387,24 +387,24 @@
       <div v-if="isBookSyncModalOpen" class="fixed inset-0 bg-gray-900/75 backdrop-blur-sm z-50 flex items-center justify-center p-6 animate-in fade-in duration-200" @click.self="isBookSyncModalOpen = false">
         <div class="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-8 shadow-2xl animate-in zoom-in-95 duration-200">
           <header class="flex justify-between items-center mb-6">
-            <h2>Sync Books from Google Sheet</h2>
+            <h2>{{ localeStore.t('syncModalTitle') }}</h2>
             <button @click="isBookSyncModalOpen = false" class="bg-transparent border-none text-[var(--text-muted)] cursor-pointer hover:text-slate-200"><X :size="20" /></button>
           </header>
 
           <div class="modal-body">
             <p class="text-[0.9rem] text-[var(--text-secondary)] mb-4 leading-relaxed">
-              Import book inventory, categories, titles, and physical stock counts automatically from your Google Sheet!
+              {{ localeStore.t('syncModalDesc') }}
             </p>
 
             <div class="mt-4">
-              <label class="block text-[0.82rem] font-semibold text-[var(--text-secondary)] mb-1.5">Book Inventory Google Spreadsheet ID</label>
+              <label class="block text-[0.82rem] font-semibold text-[var(--text-secondary)] mb-1.5">{{ localeStore.t('spreadsheetIdLabel') }}</label>
               <input 
                 v-model="bookSpreadsheetId" 
                 type="text" 
                 class="w-full"
                 placeholder="e.g. 1YWZoN8THhaxO7H734gRxa7ahGsJoNHWcvyeR-QSa3LU" 
               />
-              <small class="text-[0.78rem] text-[var(--text-muted)] block mt-1">Found in your Google Sheet URL between <code>/d/</code> and <code>/edit</code></small>
+              <small class="text-[0.78rem] text-[var(--text-muted)] block mt-1" v-html="localeStore.t('syncModalHint')"></small>
             </div>
 
             <div v-if="bookSyncMessage" class="flex items-center gap-2 px-4 py-3 bg-emerald-500/15 text-emerald-500 rounded-[var(--radius-md)] mt-4 text-[0.88rem]">
@@ -417,10 +417,10 @@
           </div>
 
           <footer class="flex justify-end gap-3 mt-6">
-            <button @click="isBookSyncModalOpen = false" class="inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out active:scale-95 bg-gray-100 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-800 hover:border-indigo-400 dark:hover:border-indigo-500 hover:-translate-y-px px-5 py-2.5 text-sm">Cancel</button>
+            <button @click="isBookSyncModalOpen = false" class="inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out active:scale-95 bg-gray-100 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-800 hover:border-indigo-400 dark:hover:border-indigo-500 hover:-translate-y-px px-5 py-2.5 text-sm">{{ localeStore.t('cancel') }}</button>
             <button @click="handleBookSync" class="inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out active:scale-95 bg-indigo-600 text-white shadow-sm hover:bg-indigo-700 hover:-translate-y-px hover:shadow-md px-5 py-2.5 text-sm" :disabled="bookSyncing">
               <RefreshCw :size="16" :class="{ 'animate-spin': bookSyncing }" />
-              {{ bookSyncing ? 'Importing Books...' : 'Sync Book Inventory Now' }}
+              {{ bookSyncing ? localeStore.t('importing') : localeStore.t('syncNow') }}
             </button>
           </footer>
         </div>
@@ -434,17 +434,17 @@
             </div>
           </div>
 
-          <h2 class="text-[1.35rem] font-extrabold mb-2">Delete Book</h2>
+          <h2 class="text-[1.35rem] font-extrabold mb-2">{{ localeStore.t('deleteBookTitle') }}</h2>
           <p class="text-[0.95rem] text-[var(--text-primary)] mb-1.5 leading-relaxed">
-            Are you sure you want to delete <strong class="text-[var(--accent-primary)]">"{{ bookToDelete?.title }}"</strong> from library inventory?
+            {{ localeStore.t('deleteBookConfirm') || 'Are you sure you want to delete' }} <strong class="text-[var(--accent-primary)]">"{{ bookToDelete?.title }}"</strong> ?
           </p>
-          <small class="text-[0.78rem] text-[var(--text-muted)] block mb-5">This action cannot be undone and will permanently remove the book from the catalog.</small>
+          <small class="text-[0.78rem] text-[var(--text-muted)] block mb-5">{{ localeStore.t('deleteBookWarning') }}</small>
 
           <footer class="flex justify-center gap-3 mt-4">
-            <button @click="isDeleteModalOpen = false" class="inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out active:scale-95 bg-gray-100 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-800 hover:border-indigo-400 dark:hover:border-indigo-500 hover:-translate-y-px px-5 py-2.5 text-sm">Cancel</button>
+            <button @click="isDeleteModalOpen = false" class="inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out active:scale-95 bg-gray-100 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-800 hover:border-indigo-400 dark:hover:border-indigo-500 hover:-translate-y-px px-5 py-2.5 text-sm">{{ localeStore.t('cancel') }}</button>
             <button @click="executeDeleteBook" class="bg-gradient-to-br from-red-500 to-red-600 text-white border-none font-bold shadow-[0_4px_15px_rgba(239,68,68,0.35)] transition-all duration-250 ease-[var(--spring-ease)] hover:-translate-y-[2px] hover:shadow-[0_6px_20px_rgba(239,68,68,0.5)] px-4 py-2 rounded-md flex items-center gap-2" :disabled="deleting">
               <Trash2 :size="16" />
-              {{ deleting ? 'Deleting...' : 'Yes, Delete Book' }}
+              {{ deleting ? localeStore.t('deleting') : localeStore.t('yesDelete') }}
             </button>
           </footer>
         </div>

@@ -43,7 +43,7 @@ const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes TTL
 // Maps sheet names to their exact column layouts
 const SCHEMAS = {
   'Books': ['id', 'title', 'author', 'isbn', 'category_id', 'description', 'cover_url', 'pdf_url', 'digital_content', 'copies_total', 'copies_available', 'publisher', 'publish_year', 'is_featured', 'read_count', 'created_at'],
-  'Categories': ['id', 'name', 'icon', 'created_at'],
+  'Categories': ['id', 'name', 'name_km', 'icon', 'created_at'],
   'Borrowings': ['id', 'book_id', 'user_id', 'borrow_date', 'due_date', 'return_date', 'status', 'admin_notes'],
   'Notifications': ['id', 'user_id', 'title', 'message', 'type', 'is_read', 'created_at'],
   'Checkins': ['id', 'user_id', 'checkin_time', 'lat', 'lng', 'status'],
@@ -269,7 +269,24 @@ async function update(sheetName, id, updateData) {
   const sheets = await getSheetsClient();
   const headers = SCHEMAS[sheetName];
   
-  // Need to find the exact row number
+  // Check if it's still in the writeQueue (not yet flushed to Sheets)
+  if (global.writeQueue && global.writeQueue[sheetName]) {
+    const queueIdx = global.writeQueue[sheetName].findIndex(r => String(r.id) === String(id));
+    if (queueIdx !== -1) {
+      const existing = global.writeQueue[sheetName][queueIdx];
+      const mergedObj = { ...existing, ...updateData };
+      global.writeQueue[sheetName][queueIdx] = mergedObj;
+
+      // Optimistically update cache
+      if (CACHE[sheetName]) {
+        const idx = CACHE[sheetName].data.findIndex(r => String(r.id) === String(id));
+        if (idx !== -1) CACHE[sheetName].data[idx] = mergedObj;
+      }
+      return mergedObj;
+    }
+  }
+  
+  // Need to find the exact row number in sheets
   const res = await sheets.spreadsheets.values.get({ spreadsheetId: SPREADSHEET_ID, range: `${sheetName}!A:A` });
   const idColumn = res.data.values || [];
   
@@ -315,6 +332,21 @@ async function update(sheetName, id, updateData) {
  * Delete a row by ID
  */
 async function remove(sheetName, id) {
+  // Check if it's still in the writeQueue
+  if (global.writeQueue && global.writeQueue[sheetName]) {
+    const queueIdx = global.writeQueue[sheetName].findIndex(r => String(r.id) === String(id));
+    if (queueIdx !== -1) {
+      // Just remove it from the queue, so it never gets written
+      global.writeQueue[sheetName].splice(queueIdx, 1);
+      
+      // Update cache
+      if (CACHE[sheetName]) {
+        CACHE[sheetName].data = CACHE[sheetName].data.filter(r => String(r.id) !== String(id));
+      }
+      return true;
+    }
+  }
+
   const sheets = await getSheetsClient();
   
   // Find the exact row number
@@ -349,6 +381,64 @@ async function remove(sheetName, id) {
   if (CACHE[sheetName]) {
     CACHE[sheetName].data = CACHE[sheetName].data.filter(r => String(r.id) !== String(id));
   }
+  return true;
+}
+
+/**
+ * Delete multiple rows by IDs
+ */
+async function removeMany(sheetName, ids) {
+  if (!ids || ids.length === 0) return true;
+  
+  // First, remove from writeQueue if they are there
+  if (global.writeQueue && global.writeQueue[sheetName]) {
+    global.writeQueue[sheetName] = global.writeQueue[sheetName].filter(r => !ids.includes(String(r.id)));
+  }
+
+  // Update cache immediately so read operations are fast
+  if (CACHE[sheetName]) {
+    CACHE[sheetName].data = CACHE[sheetName].data.filter(r => !ids.includes(String(r.id)));
+  }
+
+  const sheets = await getSheetsClient();
+  
+  const res = await sheets.spreadsheets.values.get({ spreadsheetId: SPREADSHEET_ID, range: `${sheetName}!A:A` });
+  const idColumn = res.data.values || [];
+  
+  const metaRes = await sheets.spreadsheets.get({ spreadsheetId: SPREADSHEET_ID });
+  const sheetMeta = metaRes.data.sheets.find(s => s.properties.title === sheetName);
+  const sheetId = sheetMeta.properties.sheetId;
+
+  // Collect row indices to delete
+  let rowIndices = [];
+  for (const id of ids) {
+    const rowIndex = idColumn.findIndex(row => String(row[0]) === String(id));
+    if (rowIndex !== -1) {
+      rowIndices.push(rowIndex);
+    }
+  }
+
+  // Sort descending so deleting higher indices doesn't shift lower indices
+  rowIndices.sort((a, b) => b - a);
+  
+  if (rowIndices.length === 0) return true;
+
+  const requests = rowIndices.map(rowIndex => ({
+    deleteDimension: {
+      range: {
+        sheetId: sheetId,
+        dimension: 'ROWS',
+        startIndex: rowIndex,
+        endIndex: rowIndex + 1
+      }
+    }
+  }));
+
+  await sheets.spreadsheets.batchUpdate({
+    spreadsheetId: SPREADSHEET_ID,
+    resource: { requests }
+  });
+
   return true;
 }
 
@@ -394,5 +484,6 @@ module.exports = {
   insertMany,
   update,
   remove,
+  removeMany,
   events: ormEvents
 };

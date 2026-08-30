@@ -4,7 +4,7 @@
     <header class="mb-8">
       <div>
         <h1 class="text-3xl font-bold text-[var(--text-primary)] mb-2 tracking-tight">{{ localeStore.t('catalog') }} Collection</h1>
-        <p class="text-[0.95rem] text-[var(--text-secondary)]">Browse and filter the complete DUC University Library collection.</p>
+        <p class="text-[0.95rem] text-[var(--text-secondary)]">{{ localeStore.t('catalogSubtitle') || 'Browse and filter the complete DUC University Library collection.' }}</p>
       </div>
     </header>
 
@@ -57,7 +57,7 @@
               class="px-4 py-1.5 rounded-md text-[0.85rem] font-medium whitespace-nowrap shrink-0 cursor-pointer transition-colors max-sm:max-w-[160px] max-sm:truncate max-sm:px-3 max-sm:text-xs"
               :class="booksStore.selectedCategory === cat.id ? 'bg-[var(--text-primary)] text-[var(--bg-primary)] border-transparent' : 'bg-transparent border border-[var(--border-color)] text-[var(--text-secondary)] hover:bg-[var(--bg-card-hover)]'"
             >
-              {{ cat.name }} <span class="opacity-60 ml-1">({{ cat.book_count || 0 }})</span>
+              <span :style="(localeStore.currentLang === 'km' && cat.name_km) ? 'font-family: \'Siemreab\', sans-serif;' : ''">{{ (localeStore.currentLang === 'km' && cat.name_km) ? cat.name_km : cat.name }}</span> <span class="opacity-60 ml-1">({{ cat.book_count || 0 }})</span>
             </button>
           </div>
 
@@ -73,8 +73,8 @@
     <section>
       <div class="flex items-center justify-between mb-6">
         <div class="flex items-center gap-3">
-          <h3 class="text-xl font-bold text-[var(--text-primary)] tracking-tight">All Catalog Books</h3>
-          <span class="text-[0.75rem] font-semibold text-[var(--text-secondary)] bg-[var(--bg-card-hover)] px-2.5 py-1 rounded-md border border-[var(--border-color)]" v-if="!booksStore.loading">{{ displayedBooks.length }} books available</span>
+          <h3 class="text-xl font-bold text-[var(--text-primary)] tracking-tight">{{ localeStore.t('allCatalogBooks') }}</h3>
+          <span class="text-[0.75rem] font-semibold text-[var(--text-secondary)] bg-[var(--bg-card-hover)] px-2.5 py-1 rounded-md border border-[var(--border-color)]" v-if="!booksStore.loading">{{ displayedBooks.length }} {{ localeStore.t('booksAvailable') || 'books available' }}</span>
         </div>
       </div>
 
@@ -84,9 +84,9 @@
 
       <div v-else-if="displayedBooks.length === 0" class="flex flex-col items-center justify-center text-center p-14 text-[var(--text-muted)]">
         <BookX :size="48" class="text-[var(--text-muted)] mb-3" />
-        <h3 class="text-lg font-bold text-[var(--text-primary)] mb-1">No books found</h3>
-        <p class="text-[var(--text-secondary)]">Try searching for a different keyword or select another category.</p>
-        <button @click="resetFilters" class="inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out active:scale-95 bg-[var(--bg-secondary)] text-[var(--text-primary)] border border-[var(--border-color)] hover:bg-[var(--bg-card-hover)] hover:border-indigo-500 hover:-translate-y-px px-4 py-2 text-sm mt-4">Reset Filters</button>
+        <h3 class="text-lg font-bold text-[var(--text-primary)] mb-1">{{ localeStore.t('noBooksFound') }}</h3>
+        <p class="text-[var(--text-secondary)]">{{ localeStore.t('noBooksSub') }}</p>
+        <button @click="resetFilters" class="inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out active:scale-95 bg-[var(--bg-secondary)] text-[var(--text-primary)] border border-[var(--border-color)] hover:bg-[var(--bg-card-hover)] hover:border-indigo-500 hover:-translate-y-px px-4 py-2 text-sm mt-4">{{ localeStore.t('resetFilters') }}</button>
       </div>
 
       <div v-else class="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-6 max-sm:grid-cols-2 max-sm:gap-4 xl:grid-cols-5">
@@ -136,7 +136,7 @@
           </button>
         </div>
         <div class="text-[0.85rem] text-[var(--text-secondary)] font-medium">
-          Showing <strong class="text-[var(--text-primary)]">{{ (currentPage - 1) * itemsPerPage + 1 }}</strong> to <strong class="text-[var(--text-primary)]">{{ Math.min(currentPage * itemsPerPage, displayedBooks.length) }}</strong> of <strong class="text-[var(--text-primary)]">{{ displayedBooks.length }}</strong> entries
+          {{ localeStore.t('showing') }} <strong class="text-[var(--text-primary)]">{{ (currentPage - 1) * itemsPerPage + 1 }}</strong> {{ localeStore.t('to') }} <strong class="text-[var(--text-primary)]">{{ Math.min(currentPage * itemsPerPage, displayedBooks.length) }}</strong> {{ localeStore.t('of') }} <strong class="text-[var(--text-primary)]">{{ displayedBooks.length }}</strong> {{ localeStore.t('entries') }}
         </div>
       </div>
     </section>

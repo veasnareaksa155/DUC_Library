@@ -28,8 +28,8 @@
 
     <!-- Details Section -->
     <div class="p-4 pt-4 flex flex-col flex-1">
-      <div class="text-[0.65rem] font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-1.5 line-clamp-1">
-        {{ book.category_name || 'General' }}
+      <div class="text-[0.65rem] font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-1.5 line-clamp-1" :style="(localeStore.currentLang === 'km' && book.category_name_km) ? 'font-family: \'Siemreab\', sans-serif;' : ''">
+        {{ (localeStore.currentLang === 'km' && book.category_name_km) ? book.category_name_km : (book.category_name || 'General') }}
       </div>
       <h3 @click="goToDetails" class="text-[0.95rem] font-bold text-[var(--text-primary)] leading-[28px] mb-4 line-clamp-2 cursor-pointer hover:text-[var(--text-muted)] transition-colors py-1" :title="book.title">{{ book.title }}</h3>
 

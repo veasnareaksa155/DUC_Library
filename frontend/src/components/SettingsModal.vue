@@ -14,7 +14,7 @@
           <div class="p-2 bg-indigo-500/10 rounded-xl text-indigo-500">
             <Settings :size="20" stroke-width="2.5" />
           </div>
-          Settings
+          {{ localeStore.t('settings') || 'Settings' }}
         </h2>
         <button @click="close" class="p-2 text-[var(--text-secondary)] hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all">
           <X :size="22" stroke-width="2.5" />
@@ -41,7 +41,7 @@
           >
             <div class="flex items-center gap-3.5">
               <Palette :size="20" stroke-width="2.5" class="text-indigo-500 sm:text-inherit" />
-              <span>Appearance</span>
+              <span>{{ localeStore.t('appearance') }}</span>
             </div>
             <ChevronRight :size="20" class="sm:hidden opacity-40" />
           </button>
@@ -57,7 +57,7 @@
           >
             <div class="flex items-center gap-3.5">
               <Globe :size="20" stroke-width="2.5" class="text-blue-500 sm:text-inherit" />
-              <span>Language</span>
+              <span>{{ localeStore.t('language') }}</span>
             </div>
             <ChevronRight :size="20" class="sm:hidden opacity-40" />
           </button>
@@ -73,7 +73,7 @@
           >
             <div class="flex items-center gap-3.5">
               <ShieldCheck :size="20" stroke-width="2.5" class="text-emerald-500 sm:text-inherit" />
-              <span>Security</span>
+              <span>{{ localeStore.t('security') }}</span>
             </div>
             <ChevronRight :size="20" class="sm:hidden opacity-40" />
           </button>
@@ -89,7 +89,7 @@
           >
             <div class="flex items-center gap-3.5">
               <Laptop :size="20" stroke-width="2.5" class="text-blue-500 sm:text-inherit" />
-              <span>Sessions</span>
+              <span>{{ localeStore.t('sessions') }}</span>
             </div>
             <ChevronRight :size="20" class="sm:hidden opacity-40" />
           </button>
@@ -100,7 +100,7 @@
               class="w-full flex items-center justify-center sm:justify-start gap-3.5 p-4 sm:px-4 sm:py-3.5 rounded-2xl sm:rounded-xl transition-all font-bold text-[1.05rem] sm:text-[0.95rem] text-red-500 hover:bg-red-500/10 hover:text-red-600"
             >
               <LogOut :size="20" stroke-width="2.5" />
-              <span>Log Out</span>
+              <span>{{ localeStore.t('logout') }}</span>
             </button>
           </div>
 
@@ -115,9 +115,9 @@
           <!-- Mobile Back Button Header -->
           <div class="sm:hidden flex items-center p-3 border-b border-[var(--border-color)] bg-[var(--bg-primary)] shrink-0">
             <button @click="backToMenu" class="flex items-center gap-1 text-indigo-500 font-bold p-2 pr-4 rounded-xl hover:bg-indigo-500/10 transition-colors">
-              <ChevronLeft :size="22" stroke-width="2.5" /> Back
+              <ChevronLeft :size="22" stroke-width="2.5" /> {{ localeStore.t('back') }}
             </button>
-            <span class="absolute left-1/2 -translate-x-1/2 font-extrabold text-[1.1rem]">{{ currentTabTitle }}</span>
+            <span class="absolute left-1/2 -translate-x-1/2 font-extrabold text-[1.1rem]">{{ localeStore.t(currentTabTitle.toLowerCase()) || currentTabTitle }}</span>
           </div>
 
           <!-- Scrollable Content -->
@@ -125,9 +125,9 @@
             
             <!-- APPEARANCE TAB -->
             <div v-if="activeTab === 'appearance'" class="animate-fade-in">
-              <h3 class="hidden sm:block text-2xl font-extrabold text-[var(--text-primary)] mb-2">Appearance</h3>
+              <h3 class="hidden sm:block text-2xl font-extrabold text-[var(--text-primary)] mb-2">{{ localeStore.t('appearance') }}</h3>
               <p class="hidden sm:block text-[0.95rem] text-[var(--text-secondary)] mb-8">
-                Customize the look and feel of the application.
+                {{ localeStore.t('appearanceDesc') }}
               </p>
 
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -148,9 +148,9 @@
                   ]">
                     <Sun :size="26" stroke-width="2.5" />
                   </div>
-                  <h4 class="font-bold text-[1.15rem] text-[var(--text-primary)] mb-1 relative z-10">Light Mode</h4>
+                  <h4 class="font-bold text-[1.15rem] text-[var(--text-primary)] mb-1 relative z-10">{{ localeStore.t('lightMode') }}</h4>
                   <p class="text-[0.9rem] text-[var(--text-secondary)] relative z-10">
-                    Clear and readable for bright environments.
+                    {{ localeStore.t('lightModeDesc') }}
                   </p>
                   
                   <div v-if="!themeStore.isDark" class="absolute top-4 right-4 w-6 h-6 rounded-full bg-indigo-500 text-white flex items-center justify-center shadow-sm">
@@ -174,9 +174,9 @@
                   ]">
                     <Moon :size="26" stroke-width="2.5" />
                   </div>
-                  <h4 class="font-bold text-[1.15rem] text-[var(--text-primary)] mb-1 relative z-10">Dark Mode</h4>
+                  <h4 class="font-bold text-[1.15rem] text-[var(--text-primary)] mb-1 relative z-10">{{ localeStore.t('darkMode') }}</h4>
                   <p class="text-[0.9rem] text-[var(--text-secondary)] relative z-10">
-                    Easier on the eyes for dark environments.
+                    {{ localeStore.t('darkModeDesc') }}
                   </p>
                   
                   <div v-if="themeStore.isDark" class="absolute top-4 right-4 w-6 h-6 rounded-full bg-indigo-500 text-white flex items-center justify-center shadow-sm">
@@ -188,9 +188,9 @@
 
             <!-- LANGUAGE TAB -->
             <div v-if="activeTab === 'language'" class="animate-fade-in">
-              <h3 class="hidden sm:block text-2xl font-extrabold text-[var(--text-primary)] mb-2">Language Preference</h3>
+              <h3 class="hidden sm:block text-2xl font-extrabold text-[var(--text-primary)] mb-2">{{ localeStore.t('languagePref') }}</h3>
               <p class="hidden sm:block text-[0.95rem] text-[var(--text-secondary)] mb-8">
-                Select your preferred language for the interface.
+                {{ localeStore.t('languagePrefDesc') }}
               </p>
 
               <div class="flex flex-col gap-3">
@@ -210,8 +210,8 @@
                       <img src="https://flagcdn.com/w80/us.png" alt="English (US)" class="w-full h-full object-cover object-center" />
                     </div>
                     <div class="text-left">
-                      <h4 class="font-bold text-[1.15rem] text-[var(--text-primary)] leading-tight mb-0.5">English</h4>
-                      <p class="text-[0.85rem] text-[var(--text-secondary)]">American English</p>
+                      <h4 class="font-bold text-[1.15rem] text-[var(--text-primary)] leading-tight mb-0.5">{{ localeStore.t('english') }}</h4>
+                      <p class="text-[0.85rem] text-[var(--text-secondary)]">{{ localeStore.t('americanEnglish') }}</p>
                     </div>
                   </div>
                   <div v-if="localeStore.currentLang === 'en'" class="w-6 h-6 rounded-full bg-indigo-500 text-white flex items-center justify-center shadow-sm relative z-10">
@@ -234,8 +234,8 @@
                       <img src="https://flagcdn.com/w80/kh.png" alt="Khmer (Cambodia)" class="w-full h-full object-cover object-center" />
                     </div>
                     <div class="text-left">
-                      <h4 class="font-bold text-[1.15rem] text-[var(--text-primary)] leading-tight mb-0.5 font-khmer">ភាសាខ្មែរ</h4>
-                      <p class="text-[0.85rem] text-[var(--text-secondary)]">Khmer Language</p>
+                      <h4 class="font-bold text-[1.15rem] text-[var(--text-primary)] leading-tight mb-0.5 font-khmer">{{ localeStore.t('khmer') }}</h4>
+                      <p class="text-[0.85rem] text-[var(--text-secondary)]">{{ localeStore.t('khmerLang') }}</p>
                     </div>
                   </div>
                   <div v-if="localeStore.currentLang === 'km'" class="w-6 h-6 rounded-full bg-indigo-500 text-white flex items-center justify-center shadow-sm relative z-10">
@@ -248,9 +248,9 @@
             <!-- SECURITY TAB -->
             <div v-if="activeTab === 'security'" class="animate-fade-in relative h-full flex flex-col">
               <!-- 2FA Section -->
-              <h3 class="hidden sm:block text-2xl font-extrabold text-[var(--text-primary)] mb-2">Two-Factor Authentication</h3>
+              <h3 class="hidden sm:block text-2xl font-extrabold text-[var(--text-primary)] mb-2">{{ localeStore.t('twoFactorAuth') }}</h3>
               <p class="hidden sm:block text-[0.95rem] text-[var(--text-secondary)] mb-6">
-                Add an extra layer of security to your account.
+                {{ localeStore.t('twoFactorAuthDesc') }}
               </p>
 
               <div class="relative overflow-hidden p-6 mb-10 rounded-[24px] border-2 border-[var(--border-color)] bg-[var(--bg-card)] hover:border-indigo-500/30 hover:shadow-xl hover:shadow-indigo-500/5 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-6 shrink-0 group">
@@ -258,20 +258,20 @@
                 
                 <div class="relative z-10">
                   <h4 class="font-extrabold text-[1.15rem] text-[var(--text-primary)] flex items-center gap-2">
-                    Status: 
-                    <span v-if="is2FAEnabled" class="text-emerald-500 flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/20 shadow-sm"><Check :size="16" stroke-width="3"/> Enabled</span>
-                    <span v-else class="text-amber-500 flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-500/10 border border-amber-500/20 shadow-sm"><AlertCircle :size="16" stroke-width="2.5"/> Disabled</span>
+                    {{ localeStore.t('status') }}: 
+                    <span v-if="is2FAEnabled" class="text-emerald-500 flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/20 shadow-sm"><Check :size="16" stroke-width="3"/> {{ localeStore.t('enabled') }}</span>
+                    <span v-else class="text-amber-500 flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-500/10 border border-amber-500/20 shadow-sm"><AlertCircle :size="16" stroke-width="2.5"/> {{ localeStore.t('disabled') }}</span>
                   </h4>
                   <p class="text-[0.95rem] text-[var(--text-secondary)] mt-2.5 max-w-sm leading-relaxed">
-                    Protect your account by requiring an authentication code in addition to your password.
+                    {{ localeStore.t('protectAccountDesc') }}
                   </p>
                 </div>
                 <button v-if="!is2FAEnabled" @click="start2FASetup" :disabled="starting2FA" class="relative z-10 px-7 py-3.5 rounded-[16px] bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-bold whitespace-nowrap hover:shadow-lg hover:shadow-indigo-500/30 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all disabled:opacity-70 disabled:cursor-wait flex items-center justify-center gap-2">
                   <Loader2 v-if="starting2FA" class="animate-spin" :size="20"/>
-                  Enable 2FA
+                  {{ localeStore.t('enable2FA') }}
                 </button>
                 <button v-else @click="handleDisable2FA" class="relative z-10 px-7 py-3.5 rounded-[16px] bg-red-500/10 text-red-500 border border-red-500/20 font-bold whitespace-nowrap hover:bg-red-500 hover:text-white hover:shadow-lg hover:shadow-red-500/20 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all">
-                  Disable 2FA
+                  {{ localeStore.t('disable2FA') }}
                 </button>
               </div>
             </div>
@@ -279,9 +279,9 @@
             <!-- SESSIONS TAB -->
             <div v-if="activeTab === 'sessions'" class="animate-fade-in relative h-full flex flex-col">
               <!-- Active Sessions Section -->
-              <h3 class="hidden sm:block text-2xl font-extrabold text-[var(--text-primary)] mb-2">Active Sessions</h3>
+              <h3 class="hidden sm:block text-2xl font-extrabold text-[var(--text-primary)] mb-2">{{ localeStore.t('activeSessions') }}</h3>
               <p class="hidden sm:block text-[0.95rem] text-[var(--text-secondary)] mb-8">
-                Manage the devices that are currently logged into your account.
+                {{ localeStore.t('activeSessionsDesc') }}
               </p>
 
               <div v-if="loading && authStore.sessions.length === 0" class="flex justify-center p-12">
@@ -290,8 +290,8 @@
               
               <div v-else-if="authStore.sessions.length === 0 && !loading" class="text-center p-12 text-[var(--text-muted)] border-2 border-dashed border-[var(--border-color)] rounded-3xl bg-[var(--bg-secondary)]/30">
                 <ShieldCheck :size="56" class="mx-auto mb-4 opacity-50" />
-                <p class="font-bold text-[1.15rem]">No active sessions found.</p>
-                <p class="text-[0.95rem] mt-1">You are not logged in anywhere.</p>
+                <p class="font-bold text-[1.15rem]">{{ localeStore.t('noActiveSessions') }}</p>
+                <p class="text-[0.95rem] mt-1">{{ localeStore.t('notLoggedInAnywhere') }}</p>
               </div>
 
               <div v-else class="space-y-4">
@@ -315,17 +315,17 @@
                     <div class="flex-1 min-w-0">
                       <div class="flex flex-wrap items-center gap-2.5 mb-1.5">
                         <h4 class="font-extrabold text-[1.1rem] text-[var(--text-primary)] truncate group-hover:text-indigo-500 transition-colors">
-                          {{ session.device_name || session.os || 'Unknown Device' }}
+                          {{ session.device_name || session.os || localeStore.t('unknownDevice') }}
                         </h4>
                         <span v-if="session.id === currentSessionId" class="inline-flex items-center px-2 py-0.5 rounded-md text-[0.65rem] font-bold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 uppercase tracking-wider shadow-sm">
-                          Current
+                          {{ localeStore.t('current') }}
                         </span>
                       </div>
                       <div class="text-[0.85rem] text-[var(--text-secondary)] flex items-center gap-2 truncate mb-1">
-                        <span>{{ session.os || 'Unknown OS' }} &middot; {{ session.browser || 'Unknown Browser' }}</span>
+                        <span>{{ session.os || localeStore.t('unknownOS') }} &middot; {{ session.browser || localeStore.t('unknownBrowser') }}</span>
                       </div>
                       <div class="text-[0.8rem] text-[var(--text-muted)] group-hover:text-[var(--text-secondary)] transition-colors">
-                        {{ session.location || 'Unknown Location' }} &middot; {{ new Date(session.created_at).toLocaleString() }}
+                        {{ session.location || localeStore.t('unknownLocation') }} &middot; {{ new Date(session.created_at).toLocaleString() }}
                       </div>
                     </div>
                   </div>
@@ -338,10 +338,10 @@
                       class="w-full sm:w-auto text-[0.9rem] font-bold px-5 py-3 rounded-[14px] border-2 border-[var(--border-color)] text-red-500 hover:bg-red-500 hover:text-white hover:border-red-500 hover:shadow-lg hover:shadow-red-500/20 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
                       <span v-if="terminatingId === session.id" class="flex items-center gap-2">
-                        <Loader2 :size="18" class="animate-spin" /> Terminating...
+                        <Loader2 :size="18" class="animate-spin" /> {{ localeStore.t('terminating') }}
                       </span>
                       <span v-else class="flex items-center gap-2">
-                        <LogOut :size="18" stroke-width="2.5" /> Terminate
+                        <LogOut :size="18" stroke-width="2.5" /> {{ localeStore.t('terminate') }}
                       </span>
                     </button>
                   </div>
@@ -358,7 +358,7 @@
               <button @click="selectedSession = null" class="p-2 -ml-2 rounded-xl hover:bg-[var(--bg-secondary)] text-[var(--text-secondary)] transition-colors">
                 <ChevronLeft :size="24" stroke-width="2.5" />
               </button>
-              <h3 class="font-extrabold text-[1.15rem]">Session Details</h3>
+              <h3 class="font-extrabold text-[1.15rem]">{{ localeStore.t('sessionDetails') }}</h3>
             </div>
             
             <div class="flex-1 overflow-y-auto p-5 sm:p-8 space-y-6 custom-scrollbar bg-[var(--bg-primary)]">
@@ -374,31 +374,31 @@
               <!-- Info List -->
               <div class="space-y-4 bg-[var(--bg-secondary)]/30 rounded-2xl p-5 border border-[var(--border-color)]">
                  <div class="flex flex-col gap-1">
-                   <span class="text-[0.7rem] text-[var(--text-muted)] font-bold uppercase tracking-wider">Device Name / OS</span>
-                   <span class="font-bold text-[1.05rem] text-[var(--text-primary)]">{{ selectedSession.device_name || selectedSession.os || 'Unknown Device' }}</span>
+                   <span class="text-[0.7rem] text-[var(--text-muted)] font-bold uppercase tracking-wider">{{ localeStore.t('deviceNameOS') }}</span>
+                   <span class="font-bold text-[1.05rem] text-[var(--text-primary)]">{{ selectedSession.device_name || selectedSession.os || localeStore.t('unknownDevice') }}</span>
                  </div>
                  <div class="w-full h-px bg-[var(--border-color)]/50"></div>
                  
                  <div class="flex flex-col gap-1">
-                   <span class="text-[0.7rem] text-[var(--text-muted)] font-bold uppercase tracking-wider">Browser</span>
+                   <span class="text-[0.7rem] text-[var(--text-muted)] font-bold uppercase tracking-wider">{{ localeStore.t('browser') }}</span>
                    <span class="font-medium text-[0.95rem] text-[var(--text-primary)]">{{ selectedSession.browser || 'Unknown' }}</span>
                  </div>
                  <div class="w-full h-px bg-[var(--border-color)]/50"></div>
                  
                  <div class="flex flex-col gap-1">
-                   <span class="text-[0.7rem] text-[var(--text-muted)] font-bold uppercase tracking-wider">Location / IP Address</span>
-                   <span class="font-medium text-[0.95rem] text-[var(--text-primary)]">{{ selectedSession.location || 'Unknown Location' }} &middot; {{ selectedSession.ip_address || 'Hidden' }}</span>
+                   <span class="text-[0.7rem] text-[var(--text-muted)] font-bold uppercase tracking-wider">{{ localeStore.t('locationIP') }}</span>
+                   <span class="font-medium text-[0.95rem] text-[var(--text-primary)]">{{ selectedSession.location || localeStore.t('unknownLocation') }} &middot; {{ selectedSession.ip_address || localeStore.t('hidden') }}</span>
                  </div>
                  <div class="w-full h-px bg-[var(--border-color)]/50"></div>
                  
                  <div class="flex flex-col gap-1">
-                   <span class="text-[0.7rem] text-[var(--text-muted)] font-bold uppercase tracking-wider">Sign-In Time</span>
+                   <span class="text-[0.7rem] text-[var(--text-muted)] font-bold uppercase tracking-wider">{{ localeStore.t('signInTime') }}</span>
                    <span class="font-medium text-[0.95rem] text-[var(--text-primary)]">{{ new Date(selectedSession.created_at).toLocaleString() }}</span>
                  </div>
                  <div class="w-full h-px bg-[var(--border-color)]/50"></div>
                  
                  <div class="flex flex-col gap-1">
-                   <span class="text-[0.7rem] text-[var(--text-muted)] font-bold uppercase tracking-wider">Last Active</span>
+                   <span class="text-[0.7rem] text-[var(--text-muted)] font-bold uppercase tracking-wider">{{ localeStore.t('lastActive') }}</span>
                    <span class="font-medium text-[0.95rem] text-[var(--text-primary)]">{{ new Date(selectedSession.last_active).toLocaleString() }}</span>
                  </div>
               </div>
@@ -412,7 +412,7 @@
               >
                 <LogOut v-if="terminatingId !== selectedSession.id" :size="20" stroke-width="2.5" />
                 <Loader2 v-else :size="20" class="animate-spin" />
-                {{ terminatingId === selectedSession.id ? 'Terminating...' : 'Terminate Session' }}
+                {{ terminatingId === selectedSession.id ? localeStore.t('terminating') : localeStore.t('terminateSession') }}
               </button>
             </div>
           </div>
@@ -425,7 +425,7 @@
                 <button @click="show2FAModal = false" class="p-2 -ml-2 rounded-xl hover:bg-[var(--bg-secondary)] text-[var(--text-secondary)] transition-colors">
                   <ChevronLeft :size="24" stroke-width="2.5" />
                 </button>
-                <h3 class="font-black text-[1.2rem] text-[var(--text-primary)] tracking-tight">Enable 2FA</h3>
+                <h3 class="font-black text-[1.2rem] text-[var(--text-primary)] tracking-tight">{{ localeStore.t('enable2FA') }}</h3>
               </div>
               
               <div class="flex-1 overflow-hidden relative">
@@ -434,9 +434,9 @@
                   <!-- Step 1: Setup -->
                   <div class="w-1/2 h-full overflow-y-auto p-6 sm:p-8 flex flex-col items-center text-center">
                     <ShieldCheck :size="48" class="text-indigo-500 mb-6" />
-                    <h4 class="text-xl font-bold mb-2">Setup Authenticator</h4>
+                    <h4 class="text-xl font-bold mb-2">{{ localeStore.t('setupAuthenticator') }}</h4>
                     <p class="text-[0.95rem] text-[var(--text-secondary)] max-w-sm mb-6">
-                      Add this key to your authenticator app like Google Authenticator or Authy.
+                      {{ localeStore.t('setupAuthenticatorDesc') }}
                     </p>
 
                     <!-- Manual Key -->
@@ -444,7 +444,7 @@
                       <div class="group cursor-pointer w-full flex flex-col items-center" @click="copySecret">
                         <div class="relative w-full">
                           <div class="w-full bg-[var(--bg-card)] border-2 border-[var(--border-color)] px-4 py-4 rounded-2xl font-mono text-[var(--text-primary)] tracking-widest text-lg sm:text-xl group-hover:border-indigo-500/50 group-hover:shadow-lg group-hover:shadow-indigo-500/10 transition-all flex justify-center items-center overflow-hidden">
-                            <span class="truncate">{{ twoFASecret || 'Loading...' }}</span>
+                            <span class="truncate">{{ twoFASecret || localeStore.t('loading') }}</span>
                             <div class="absolute right-3 shrink-0 p-2 rounded-xl bg-[var(--bg-secondary)] text-[var(--text-muted)] group-hover:text-indigo-500 group-hover:bg-indigo-500/10 transition-colors">
                               <Copy v-if="!copied" :size="20" />
                               <Check v-else :size="20" class="text-emerald-500" />
@@ -453,7 +453,7 @@
                         </div>
                       </div>
                       <button @click="showQR = true" class="mt-4 text-sm font-bold text-indigo-500 hover:text-indigo-600 transition-colors">
-                        Scan QR Code instead
+                        {{ localeStore.t('scanQRCode') }}
                       </button>
                     </div>
 
@@ -463,13 +463,13 @@
                         <img :src="twoFAQrCode" class="w-48 h-48" alt="2FA QR Code" />
                       </div>
                       <button @click="showQR = false" class="text-sm font-bold text-indigo-500 hover:text-indigo-600 transition-colors">
-                        Enter setup key manually
+                        {{ localeStore.t('enterSetupKey') }}
                       </button>
                     </div>
 
                     <div class="mt-auto pt-8 w-full max-w-sm">
                       <button @click="setup2FAStep = 'verify'" class="w-full bg-[var(--text-primary)] text-[var(--bg-primary)] hover:bg-indigo-600 hover:text-white font-black text-[1.05rem] py-4 rounded-[16px] shadow-[0_4px_14px_rgba(0,0,0,0.1)] hover:shadow-[0_8px_25px_rgba(99,102,241,0.4)] transition-all flex items-center justify-center gap-2 group">
-                        Proceed to Verify
+                        {{ localeStore.t('proceedToVerify') }}
                         <ChevronRight :size="20" stroke-width="3" class="transition-transform group-hover:translate-x-1" />
                       </button>
                     </div>
@@ -479,7 +479,7 @@
                   <div class="w-1/2 h-full overflow-y-auto p-6 sm:p-8 flex flex-col items-center text-center relative">
                     <div class="w-full max-w-sm flex items-center justify-start mb-6 absolute top-6 left-6 sm:left-8">
                       <button @click="setup2FAStep = 'setup'" class="flex items-center gap-1.5 text-sm font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
-                        <ChevronLeft :size="18" stroke-width="3" /> Back
+                        <ChevronLeft :size="18" stroke-width="3" /> {{ localeStore.t('back') }}
                       </button>
                     </div>
 
@@ -487,9 +487,9 @@
                       <Lock :size="32" stroke-width="2.5" />
                     </div>
                     
-                    <h4 class="text-xl font-bold mb-2">Verify Code</h4>
+                    <h4 class="text-xl font-bold mb-2">{{ localeStore.t('verifyCode') }}</h4>
                     <p class="text-[0.95rem] text-[var(--text-secondary)] max-w-sm mb-10">
-                      Enter the 6-digit code from your authenticator app to enable 2FA.
+                      {{ localeStore.t('verifyCodeDesc') }}
                     </p>
 
                     <div class="w-full max-w-sm mx-auto">
@@ -497,7 +497,7 @@
                       
                       <button @click="confirm2FASetup" :disabled="verifying2FA || twoFAVerifyCode.length !== 6" class="w-full bg-indigo-500 hover:bg-indigo-600 disabled:opacity-50 disabled:hover:bg-indigo-500 text-white font-black text-[1.05rem] py-4 rounded-[16px] transition-all shadow-[0_4px_14px_rgba(99,102,241,0.2)] flex items-center justify-center">
                         <Loader2 v-if="verifying2FA" class="animate-spin mr-2" :size="20"/>
-                        Verify & Enable
+                        {{ localeStore.t('verifyAndEnable') }}
                       </button>
                     </div>
                   </div>

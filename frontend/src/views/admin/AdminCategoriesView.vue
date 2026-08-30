@@ -3,24 +3,24 @@
     <header class="flex justify-between items-end mb-10">
       <div>
         <h1 class="text-[2.5rem] font-extrabold tracking-tight mb-2 text-[var(--text-primary)]">
-          {{ localeStore.t('categories', 'Categories') }} 
-          <span class="bg-clip-text text-transparent bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500">Management</span>
+          {{ localeStore.t('categories') || 'Categories' }} 
+          <span class="bg-clip-text text-transparent bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500">{{ localeStore.t('categoriesManagement') }}</span>
         </h1>
         <div class="flex items-center gap-3">
-          <p class="text-[1.05rem] text-[var(--text-secondary)] m-0">Organize your library catalog by managing categories.</p>
+          <p class="text-[1.05rem] text-[var(--text-secondary)] m-0">{{ localeStore.t('categoriesManagementDesc') }}</p>
           <span class="inline-flex items-center justify-center px-3 py-1 bg-purple-50 dark:bg-purple-500/10 border border-purple-200 dark:border-purple-500/20 text-purple-600 dark:text-purple-400 rounded-lg text-[0.85rem] font-bold shadow-sm whitespace-nowrap">
             <Tags :size="14" class="mr-1.5" />
-            {{ booksStore.categories.length }} Categories
+            {{ booksStore.categories.length }} {{ localeStore.t('categories') }}
           </span>
           <span class="inline-flex items-center justify-center px-3 py-1 bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 text-indigo-600 dark:text-indigo-400 rounded-lg text-[0.85rem] font-bold shadow-sm whitespace-nowrap">
             <BookOpen :size="14" class="mr-1.5" />
-            {{ totalCatalogBooks }} Total Books
+            {{ totalCatalogBooks }} {{ localeStore.t('books') }}
           </span>
         </div>
       </div>
       <div class="flex items-center gap-3">
         <button @click="openAddModal" class="inline-flex items-center justify-center gap-2 font-bold rounded-xl transition-all duration-300 ease-out active:scale-95 bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-[0_8px_20px_rgba(99,102,241,0.3)] hover:shadow-[0_12px_25px_rgba(99,102,241,0.45)] hover:-translate-y-0.5 px-6 py-3.5 text-[0.95rem]">
-          <Plus :size="20" stroke-width="2.5" /> Add Category
+          <Plus :size="20" stroke-width="2.5" /> {{ localeStore.t('addCategory') }}
         </button>
       </div>
     </header>
@@ -31,11 +31,11 @@
         <table class="w-full text-left border-collapse">
           <thead>
             <tr class="bg-slate-50/50 dark:bg-slate-800/30 border-b border-[var(--border-color)]">
-              <th class="py-5 px-6 font-bold text-[0.75rem] uppercase tracking-widest text-[var(--text-muted)] w-[80px]">Icon</th>
-              <th class="py-5 px-6 font-bold text-[0.75rem] uppercase tracking-widest text-[var(--text-muted)]">Category Name</th>
-              <th class="py-5 px-6 font-bold text-[0.75rem] uppercase tracking-widest text-[var(--text-muted)] w-[35%]">Description</th>
-              <th class="py-5 px-6 font-bold text-[0.75rem] uppercase tracking-widest text-[var(--text-muted)] text-center w-[120px]">Books</th>
-              <th class="py-5 px-6 font-bold text-[0.75rem] uppercase tracking-widest text-[var(--text-muted)] text-right w-[160px]">Actions</th>
+              <th class="py-5 px-6 font-bold text-[0.75rem] uppercase tracking-widest text-[var(--text-muted)] w-[80px]">{{ localeStore.t('icon') }}</th>
+              <th class="py-5 px-6 font-bold text-[0.75rem] uppercase tracking-widest text-[var(--text-muted)]">{{ localeStore.t('categoryName') }}</th>
+              <th class="py-5 px-6 font-bold text-[0.75rem] uppercase tracking-widest text-[var(--text-muted)] w-[35%]">{{ localeStore.t('description') }}</th>
+              <th class="py-5 px-6 font-bold text-[0.75rem] uppercase tracking-widest text-[var(--text-muted)] text-center w-[120px]">{{ localeStore.t('books') }}</th>
+              <th class="py-5 px-6 font-bold text-[0.75rem] uppercase tracking-widest text-[var(--text-muted)] text-right w-[160px]">{{ localeStore.t('actions') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -43,7 +43,7 @@
               <td colspan="5" class="py-20 text-center text-[var(--text-muted)]">
                 <div class="flex flex-col items-center gap-4">
                   <Loader2 class="animate-spin text-indigo-500" :size="40" />
-                  <span class="font-medium text-[1.1rem]">Loading categories...</span>
+                  <span class="font-medium text-[1.1rem]">{{ localeStore.t('loadingCategories') }}</span>
                 </div>
               </td>
             </tr>
@@ -53,7 +53,7 @@
                   <div class="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400">
                     <Tags :size="32" />
                   </div>
-                  <span class="font-medium text-[1.1rem]">No categories found. Click "Add Category" to create one.</span>
+                  <span class="font-medium text-[1.1rem]">{{ localeStore.t('noCategoriesFound') }}</span>
                 </div>
               </td>
             </tr>
@@ -64,22 +64,22 @@
                 </div>
               </td>
               <td class="py-5 px-6">
-                <span class="font-extrabold text-[1.1rem] text-[var(--text-primary)] group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{{ category.name }}</span>
+                <span class="font-extrabold text-[1.1rem] text-[var(--text-primary)] group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors" :style="(localeStore.currentLang === 'km' && category.name_km) ? 'font-family: \'Siemreab\', sans-serif;' : ''">{{ (localeStore.currentLang === 'km' && category.name_km) ? category.name_km : category.name }}</span>
               </td>
               <td class="py-5 px-6">
-                <span class="text-[0.95rem] text-[var(--text-secondary)] line-clamp-2 leading-relaxed">{{ category.description || 'No description provided.' }}</span>
+                <span class="text-[0.95rem] text-[var(--text-secondary)] line-clamp-2 leading-relaxed">{{ category.description || localeStore.t('noDescriptionProvided') }}</span>
               </td>
               <td class="py-5 px-6 text-center">
                 <span class="inline-flex items-center justify-center px-4 py-1.5 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-full text-[0.85rem] font-bold shadow-sm whitespace-nowrap">
-                  {{ category.book_count || 0 }} Books
+                  {{ category.book_count || 0 }} {{ localeStore.t('books') }}
                 </span>
               </td>
               <td class="py-5 px-6">
                 <div class="flex items-center justify-end gap-3 opacity-100 transition-opacity">
-                  <button @click="openEditModal(category)" class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 flex items-center justify-center text-blue-600 dark:text-blue-400 hover:bg-blue-500 hover:text-white hover:border-blue-500 transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5" title="Edit Category">
+                  <button @click="openEditModal(category)" class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 flex items-center justify-center text-blue-600 dark:text-blue-400 hover:bg-blue-500 hover:text-white hover:border-blue-500 transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5" :title="localeStore.t('editCategoryTitle')">
                     <Pencil :size="18" stroke-width="2.5" />
                   </button>
-                  <button @click="confirmDelete(category)" class="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 flex items-center justify-center text-red-600 dark:text-red-400 hover:bg-red-500 hover:text-white hover:border-red-500 transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5" title="Delete Category">
+                  <button @click="confirmDelete(category)" class="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 flex items-center justify-center text-red-600 dark:text-red-400 hover:bg-red-500 hover:text-white hover:border-red-500 transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5" :title="localeStore.t('deleteCategoryTitle')">
                     <Trash2 :size="18" stroke-width="2.5" />
                   </button>
                 </div>
@@ -102,8 +102,8 @@
               <Tags :size="24" stroke-width="2.5" />
             </div>
             <div>
-              <h2 class="text-[1.4rem] font-extrabold text-[var(--text-primary)] tracking-tight">{{ isEditing ? 'Edit Category' : 'Add New Category' }}</h2>
-              <p class="text-[0.85rem] text-[var(--text-secondary)] mt-0.5">{{ isEditing ? 'Update the details below' : 'Create a new category for your library' }}</p>
+              <h2 class="text-[1.4rem] font-extrabold text-[var(--text-primary)] tracking-tight">{{ isEditing ? localeStore.t('editCategoryTitle') : localeStore.t('addNewCategoryTitle') }}</h2>
+              <p class="text-[0.85rem] text-[var(--text-secondary)] mt-0.5">{{ isEditing ? localeStore.t('updateDetailsBelow') : localeStore.t('createCategoryDesc') }}</p>
             </div>
           </div>
           <button @click="isModalOpen = false" class="w-10 h-10 rounded-full bg-gray-500/5 flex items-center justify-center text-[var(--text-muted)] border border-transparent hover:bg-gray-500/10 hover:text-[var(--text-primary)] transition-all duration-200 hover:rotate-90"><X :size="20" stroke-width="2" /></button>
@@ -113,24 +113,29 @@
           <div class="p-8 overflow-y-auto flex-1 custom-scrollbar space-y-6">
             
             <div class="group">
-              <label class="block text-[0.85rem] font-bold text-[var(--text-secondary)] mb-2 uppercase tracking-wider group-focus-within:text-indigo-500 transition-colors">Category Name *</label>
+              <label class="block text-[0.85rem] font-bold text-[var(--text-secondary)] mb-2 uppercase tracking-wider group-focus-within:text-indigo-500 transition-colors">{{ localeStore.t('categoryNameReq') }}</label>
               <input v-model="form.name" type="text" class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-2xl px-5 py-4 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-medium text-[1.05rem]" required placeholder="e.g. Science Fiction" />
             </div>
 
             <div class="group">
-              <label class="block text-[0.85rem] font-bold text-[var(--text-secondary)] mb-2 uppercase tracking-wider group-focus-within:text-indigo-500 transition-colors">Description</label>
-              <textarea v-model="form.description" rows="3" class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-2xl px-5 py-4 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-medium text-[1.05rem] resize-none" placeholder="Brief description of this category..."></textarea>
+              <label class="block text-[0.85rem] font-bold text-[var(--text-secondary)] mb-2 uppercase tracking-wider group-focus-within:text-indigo-500 transition-colors">{{ localeStore.t('categoryNameKmReq') }}</label>
+              <input v-model="form.name_km" type="text" class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-2xl px-5 py-4 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-medium text-[1.05rem] font-khmer" placeholder="ឧ. ប្រលោមលោក" />
             </div>
 
             <div class="group">
-              <label class="block text-[0.85rem] font-bold text-[var(--text-secondary)] mb-2 uppercase tracking-wider group-focus-within:text-indigo-500 transition-colors">Icon Name (Lucide)</label>
+              <label class="block text-[0.85rem] font-bold text-[var(--text-secondary)] mb-2 uppercase tracking-wider group-focus-within:text-indigo-500 transition-colors">{{ localeStore.t('description') }}</label>
+              <textarea v-model="form.description" rows="3" class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-2xl px-5 py-4 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-medium text-[1.05rem] resize-none" placeholder="..."></textarea>
+            </div>
+
+            <div class="group">
+              <label class="block text-[0.85rem] font-bold text-[var(--text-secondary)] mb-2 uppercase tracking-wider group-focus-within:text-indigo-500 transition-colors">{{ localeStore.t('iconNameLucide') }}</label>
               <div class="relative">
                 <div class="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--text-muted)]">
                   <component :is="getIconComponent(form.icon)" :size="20" />
                 </div>
                 <input v-model="form.icon" type="text" class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-2xl pl-12 pr-5 py-4 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-sm placeholder:text-[var(--text-muted)]/50 font-mono text-[1rem]" placeholder="e.g. BookOpen, Globe, CPU" />
               </div>
-              <p class="text-[0.8rem] text-[var(--text-muted)] mt-2">Enter any valid icon name from the <a href="https://lucide.dev/icons" target="_blank" class="text-indigo-500 hover:underline">Lucide icon set</a>.</p>
+              <p class="text-[0.8rem] text-[var(--text-muted)] mt-2">{{ localeStore.t('enterValidIcon') }} <a href="https://lucide.dev/icons" target="_blank" class="text-indigo-500 hover:underline">{{ localeStore.t('lucideIconSet') }}</a>.</p>
             </div>
             
             <div v-if="formError" class="p-4 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 font-bold rounded-2xl text-[0.95rem] flex items-center gap-3 shadow-sm">
@@ -139,10 +144,10 @@
           </div>
 
           <footer class="flex justify-end gap-3 px-8 py-6 border-t border-[var(--border-color)] bg-[var(--bg-primary)] shrink-0">
-            <button type="button" @click="isModalOpen = false" class="px-6 py-3 rounded-xl font-bold text-[var(--text-secondary)] bg-transparent border border-transparent hover:bg-gray-500/10 transition-all duration-300">Cancel</button>
+            <button type="button" @click="isModalOpen = false" class="px-6 py-3 rounded-xl font-bold text-[var(--text-secondary)] bg-transparent border border-transparent hover:bg-gray-500/10 transition-all duration-300">{{ localeStore.t('cancel') }}</button>
             <button type="submit" class="px-8 py-3 rounded-xl font-bold text-white bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 transition-all duration-300 shadow-[0_4px_15px_rgba(99,102,241,0.3)] hover:shadow-[0_8px_25px_rgba(99,102,241,0.4)] flex items-center gap-2 hover:-translate-y-0.5" :disabled="saving">
               <Save :size="20" stroke-width="2.5" :class="{ 'animate-pulse': saving }" />
-              {{ saving ? 'Saving...' : 'Save Category' }}
+              {{ saving ? localeStore.t('savingLabel') : localeStore.t('saveCategory') }}
             </button>
           </footer>
         </form>
@@ -159,33 +164,33 @@
           </div>
         </div>
 
-        <h2 class="text-[1.6rem] font-extrabold mb-3 text-[var(--text-primary)]">Delete Category?</h2>
+        <h2 class="text-[1.6rem] font-extrabold mb-3 text-[var(--text-primary)]">{{ localeStore.t('deleteCategoryTitle') }}</h2>
         
         <div v-if="categoryToDelete?.book_count > 0" class="mb-8">
-          <p class="text-[1.05rem] text-[var(--text-primary)] mb-4 leading-relaxed">
-            Cannot delete <strong class="text-indigo-500">"{{ categoryToDelete.name }}"</strong> because it currently contains <strong>{{ categoryToDelete.book_count }} book(s)</strong>.
+          <p class="text-[0.95rem] text-[var(--text-secondary)] leading-relaxed mb-8">
+            {{ localeStore.t('cannotDeleteCategory1') }}<strong class="text-indigo-500" :style="(localeStore.currentLang === 'km' && categoryToDelete.name_km) ? 'font-family: \'Siemreab\', sans-serif;' : ''">{{ (localeStore.currentLang === 'km' && categoryToDelete.name_km) ? categoryToDelete.name_km : categoryToDelete.name }}</strong>{{ localeStore.t('cannotDeleteCategory2') }}<strong>{{ categoryToDelete.book_count }}</strong>{{ localeStore.t('cannotDeleteCategory3') }}
           </p>
           <div class="bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 p-4 rounded-2xl flex items-start gap-3 text-left">
             <AlertCircle class="text-amber-500 shrink-0 mt-0.5" :size="20" />
             <p class="text-[0.9rem] text-amber-800 dark:text-amber-200 m-0 font-medium leading-relaxed">
-              Please reassign or delete these books from the Catalog before attempting to remove this category.
+              {{ localeStore.t('reassignBeforeDelete') }}
             </p>
           </div>
         </div>
         <div v-else class="mb-8">
-          <p class="text-[1.05rem] text-[var(--text-secondary)] mb-2 leading-relaxed">
-            Are you sure you want to permanently delete <strong class="text-[var(--text-primary)]">"{{ categoryToDelete?.name }}"</strong>?
+          <p class="text-[0.95rem] text-[var(--text-secondary)] leading-relaxed mb-8">
+            {{ localeStore.t('sureDeleteCategory1') }}<strong class="text-[var(--text-primary)]" :style="(localeStore.currentLang === 'km' && categoryToDelete?.name_km) ? 'font-family: \'Siemreab\', sans-serif;' : ''">{{ (localeStore.currentLang === 'km' && categoryToDelete?.name_km) ? categoryToDelete.name_km : categoryToDelete?.name }}</strong>{{ localeStore.t('sureDeleteCategory2') }}
           </p>
-          <p class="text-[0.9rem] font-bold text-red-500 uppercase tracking-wider">This action cannot be undone.</p>
+          <p class="text-[0.9rem] font-bold text-red-500 uppercase tracking-wider">{{ localeStore.t('actionCannotUndo') }}</p>
         </div>
 
         <footer class="flex justify-center gap-4">
           <button @click="isDeleteModalOpen = false" class="px-6 py-3 rounded-xl font-bold text-[var(--text-secondary)] bg-[var(--bg-primary)] border border-[var(--border-color)] hover:bg-gray-500/5 transition-all duration-300 shadow-sm hover:shadow-md active:scale-95">
-            {{ categoryToDelete?.book_count > 0 ? 'Go Back' : 'Cancel' }}
+            {{ categoryToDelete?.book_count > 0 ? localeStore.t('goBack') : localeStore.t('cancel') }}
           </button>
           <button v-if="categoryToDelete?.book_count === 0" @click="executeDelete" class="px-6 py-3 rounded-xl font-bold text-white bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 transition-all duration-300 shadow-[0_4px_15px_rgba(239,68,68,0.3)] hover:shadow-[0_8px_25px_rgba(239,68,68,0.4)] flex items-center gap-2 hover:-translate-y-0.5 active:scale-95" :disabled="deleting">
             <Trash2 :size="20" stroke-width="2.5" />
-            {{ deleting ? 'Deleting...' : 'Yes, Delete' }}
+            {{ deleting ? localeStore.t('deleting') : localeStore.t('yesDeleteBtn') }}
           </button>
         </footer>
       </div>
@@ -216,6 +221,7 @@ const formError = ref('');
 const form = reactive({
   id: '',
   name: '',
+  name_km: '',
   description: '',
   icon: 'BookOpen'
 });
@@ -242,6 +248,7 @@ const openAddModal = () => {
   isEditing.value = false;
   form.id = '';
   form.name = '';
+  form.name_km = '';
   form.description = '';
   form.icon = 'BookOpen';
   formError.value = '';
@@ -252,6 +259,7 @@ const openEditModal = (category) => {
   isEditing.value = true;
   form.id = category.id;
   form.name = category.name;
+  form.name_km = category.name_km || '';
   form.description = category.description || '';
   form.icon = category.icon || 'BookOpen';
   formError.value = '';
@@ -271,6 +279,7 @@ const saveCategory = async () => {
     if (isEditing.value) {
       await booksStore.updateCategory(form.id, {
         name: form.name,
+        name_km: form.name_km,
         description: form.description,
         icon: form.icon
       });
@@ -278,6 +287,7 @@ const saveCategory = async () => {
     } else {
       await booksStore.addCategory({
         name: form.name,
+        name_km: form.name_km,
         description: form.description,
         icon: form.icon
       });

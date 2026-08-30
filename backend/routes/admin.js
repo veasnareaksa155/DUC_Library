@@ -128,7 +128,7 @@ router.get('/dashboard-stats', async (req, res) => {
     books.forEach(b => booksMap[b.id] = b);
 
     const categoriesMap = {};
-    categories.forEach(c => categoriesMap[c.id] = c.name);
+    categories.forEach(c => categoriesMap[c.id] = { name: c.name, name_km: c.name_km });
 
     const topReadBooks = [...books]
       .sort((a, b) => (Number(b.read_count) || 0) - (Number(a.read_count) || 0))
@@ -139,7 +139,8 @@ router.get('/dashboard-stats', async (req, res) => {
         author: b.author,
         cover_url: b.cover_url,
         read_count: Number(b.read_count) || 0,
-        category_name: categoriesMap[b.category_id] || ''
+        category_name: categoriesMap[b.category_id] ? categoriesMap[b.category_id].name : '',
+        category_name_km: categoriesMap[b.category_id] ? categoriesMap[b.category_id].name_km : ''
       }));
 
     const recentActivity = recentBorrowings.map(br => {
@@ -495,7 +496,8 @@ router.get('/reading-reports', async (req, res) => {
         title: b.title,
         author: b.author,
         cover_url: b.cover_url,
-        category_name: 'N/A', 
+        category_name: categoriesMap[b.category_id] ? categoriesMap[b.category_id].name : 'N/A', 
+        category_name_km: categoriesMap[b.category_id] ? categoriesMap[b.category_id].name_km : '',
         period_reads: bookReadCounts[bid]
       };
     }).sort((a, b) => b.period_reads - a.period_reads).slice(0, 10);
@@ -641,7 +643,7 @@ router.get('/wishlists/popular', async (req, res) => {
     const categories = await ORM.getAll('Categories') || [];
     
     const categoriesMap = {};
-    categories.forEach(c => categoriesMap[c.id] = c.name);
+    categories.forEach(c => categoriesMap[c.id] = c);
 
     // Count wishlists per book
     const wishlistCounts = {};
@@ -676,7 +678,8 @@ router.get('/wishlists/popular', async (req, res) => {
         title: b.title,
         author: b.author,
         cover_url: b.cover_url,
-        category_name: categoriesMap[b.category_id] || 'N/A',
+        category_name: categoriesMap[b.category_id] ? categoriesMap[b.category_id].name : 'N/A',
+        category_name_km: categoriesMap[b.category_id] ? categoriesMap[b.category_id].name_km : '',
         wishlist_count: wishlistCounts[bId],
         recent_users: recentLovers[bId]
       };

@@ -18,14 +18,14 @@
                   <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500/10 to-purple-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-500">
                     <Bell :size="18" class="animate-pulse-slow" />
                   </div>
-                  <h3 class="text-[1.3rem] font-extrabold text-[var(--text-primary)] m-0 tracking-tight">Notifications</h3>
+                  <h3 class="text-[1.3rem] font-extrabold text-[var(--text-primary)] m-0 tracking-tight">{{ localeStore.t('notifications') }}</h3>
                   <Transition name="scale-fade">
                     <span v-if="notifStore.unreadCount > 0" class="flex items-center justify-center text-[0.7rem] font-bold px-2 py-0.5 rounded-full bg-indigo-500 text-white tracking-wide shadow-md shadow-indigo-500/20">
-                      {{ notifStore.unreadCount }} New
+                      {{ notifStore.unreadCount }} {{ localeStore.t('new') }}
                     </span>
                   </Transition>
                 </div>
-                <p class="text-[0.85rem] font-medium text-[var(--text-secondary)] m-0 leading-tight">Announcements & borrowing updates</p>
+                <p class="text-[0.85rem] font-medium text-[var(--text-secondary)] m-0 leading-tight">{{ localeStore.t('announcementsUpdates') }}</p>
               </div>
   
               <button @click="notifStore.closeDrawer" class="bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-muted)] p-1.5 rounded-full cursor-pointer flex items-center justify-center transition-all duration-300 hover:text-[var(--text-primary)] hover:border-indigo-500/30 hover:shadow-sm" title="Close">
@@ -42,8 +42,8 @@
               >
                 <Loader2 v-if="isMarkingAllRead" :size="14" class="animate-spin" />
                 <CheckCheck v-else :size="14" class="transition-transform group-hover:scale-110" /> 
-                <span v-if="isMarkingAllRead">Marking...</span>
-                <span v-else>Mark all read</span>
+                <span v-if="isMarkingAllRead">{{ localeStore.t('marking') }}</span>
+                <span v-else>{{ localeStore.t('markAllRead') }}</span>
               </button>
               <button 
                 @click="handleClearAll" 
@@ -52,8 +52,8 @@
               >
                 <Loader2 v-if="isClearingAll" :size="14" class="animate-spin text-[var(--text-muted)]" />
                 <Trash2 v-else :size="14" class="transition-transform group-hover:scale-110" /> 
-                <span v-if="isClearingAll">Clearing...</span>
-                <span v-else>Clear all</span>
+                <span v-if="isClearingAll">{{ localeStore.t('clearing') }}</span>
+                <span v-else>{{ localeStore.t('clearAll') }}</span>
               </button>
             </div>
   
@@ -66,8 +66,8 @@
                   <div class="absolute inset-2 bg-gray-500/10 rounded-full"></div>
                   <BellOff :size="28" class="text-[var(--text-muted)] relative z-10" />
                 </div>
-                <h4 class="text-[1.1rem] font-extrabold text-[var(--text-primary)] mb-2">No Notifications</h4>
-                <p class="text-[0.9rem] font-medium leading-relaxed max-w-[200px]">You're all caught up! Check back later for updates.</p>
+                <h4 class="text-[1.1rem] font-extrabold text-[var(--text-primary)] mb-2">{{ localeStore.t('noNotifications') }}</h4>
+                <p class="text-[0.9rem] font-medium leading-relaxed max-w-[200px]">{{ localeStore.t('allCaughtUp') }}</p>
               </div>
 
               <!-- Notification Items -->
@@ -91,7 +91,7 @@
                   <div class="flex-1 min-w-0 pb-1">
                     <div class="flex justify-between items-start gap-2 mb-1.5">
                       <h4 class="text-[0.95rem] font-bold leading-tight flex items-center gap-2 m-0" :class="!item.read ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'">
-                        {{ item.title }}
+                        {{ getTranslatedNotification(item).title }}
                         <span v-if="!item.read" class="relative flex h-2 w-2 flex-shrink-0">
                           <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" :class="getDotColor(item)"></span>
                           <span class="relative inline-flex rounded-full h-2 w-2" :class="getDotColor(item, true)"></span>
@@ -100,7 +100,9 @@
                       <span class="text-[0.7rem] font-bold text-[var(--text-muted)] whitespace-nowrap pt-0.5 tracking-wide">{{ formatTime(item.timestamp) }}</span>
                     </div>
                     
-                    <p class="text-[0.85rem] font-medium text-[var(--text-secondary)] leading-relaxed m-0 pr-6">{{ item.message }}</p>
+                    <p class="text-[0.85rem] text-[var(--text-secondary)] leading-[1.6] m-0" :class="localeStore.currentLang === 'km' ? 'font-khmer' : ''">
+                      {{ getTranslatedNotification(item).message }}
+                    </p>
                   </div>
 
                   <!-- Delete Button (Reveals on hover) -->
@@ -123,11 +125,55 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useNotificationsStore } from '../stores/notifications';
-import { Bell, BellOff, X, CheckCheck, Trash2, Loader2, Info, CheckCircle2, XCircle, AlertCircle, BookOpen } from 'lucide-vue-next';
+import { useLocaleStore } from '../stores/locale';
+import { Bell, X, CheckCheck, Trash2, BellOff, Info, AlertTriangle, ShieldAlert, CheckCircle2, Loader2, BookOpen, XCircle, AlertCircle } from 'lucide-vue-next';
 
 const notifStore = useNotificationsStore();
+const localeStore = useLocaleStore();
+
+const getTranslatedNotification = (item) => {
+  const isKm = localeStore.currentLang === 'km';
+  if (!isKm) return { title: item.title, message: item.message };
+
+  let title = item.title;
+  let message = item.message;
+
+  if (title === 'Book Request Approved! 🎉') title = 'សំណើសុំសៀវភៅត្រូវបានអនុម័ត! 🎉';
+  else if (title === 'Book Request Declined') title = 'សំណើសុំសៀវភៅត្រូវបានបដិសេធ';
+  else if (title === 'Book Returned Successfully') title = 'ការសងសៀវភៅទទួលបានជោគជ័យ';
+  else if (title === 'Security Alert: New Login') title = 'បម្រាមសុវត្ថិភាព៖ ការចូលប្រើប្រាស់ថ្មី';
+  else if (title === 'Security Alert: New Login (2FA Verified)') title = 'បម្រាមសុវត្ថិភាព៖ ការចូលប្រើប្រាស់ថ្មី (2FA បានផ្ទៀងផ្ទាត់)';
+
+  if (message.startsWith('Your request for "') && message.includes('" has been approved.')) {
+    const bookTitle = message.match(/Your request for "(.*?)" has been approved./)?.[1] || '';
+    message = `សំណើសុំសៀវភៅ "${bookTitle}" របស់អ្នកត្រូវបានអនុម័ត។ សូមមកយកពីបណ្ណាល័យ។`;
+  }
+  else if (message.startsWith('Your request for "') && message.includes('" was declined.')) {
+    const bookTitle = message.match(/Your request for "(.*?)" was declined./)?.[1] || '';
+    const reason = message.match(/Reason: (.*)/)?.[1] || '';
+    message = `សំណើសុំសៀវភៅ "${bookTitle}" របស់អ្នកត្រូវបានបដិសេធ។ ${reason ? 'មូលហេតុ៖ ' + reason : ''}`;
+  }
+  else if (message.startsWith('Your borrowed book "') && message.includes('" has been marked as returned.')) {
+    const bookTitle = message.match(/Your borrowed book "(.*?)" has been marked as returned./)?.[1] || '';
+    message = `សៀវភៅ "${bookTitle}" ដែលអ្នកបានខ្ចីត្រូវបានកត់ត្រាថាបានសងហើយ។ សូមអរគុណ!`;
+  }
+  else if (message.startsWith('A new login was detected on your account from')) {
+    const match = message.match(/from (.*?) in (.*?)\./);
+    if (match) {
+      const device = match[1];
+      const loc = match[2];
+      if (message.includes('If this wasn\'t you, please secure your account immediately.')) {
+        message = `ការចូលប្រើប្រាស់ថ្មីត្រូវបានរកឃើញនៅលើគណនីរបស់អ្នកពី ${device} នៅ ${loc}។ ប្រសិនបើនេះមិនមែនជាអ្នកទេ សូមការពារគណនីរបស់អ្នកភ្លាមៗ។`;
+      } else {
+        message = `ការចូលប្រើប្រាស់ថ្មីត្រូវបានរកឃើញនៅលើគណនីរបស់អ្នកពី ${device} នៅ ${loc}។`;
+      }
+    }
+  }
+
+  return { title, message };
+};
 
 const deletingId = ref(null);
 const isClearingAll = ref(false);

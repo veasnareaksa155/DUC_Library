@@ -268,7 +268,10 @@
         </div>
 
         <!-- Print Footer / Signature Block (Hidden except when printing) -->
-        <div class="hidden print:flex w-full justify-end mt-12 pr-12 text-[16px] text-black print:text-black" style="font-family: 'Siemreap', sans-serif; page-break-inside: avoid;">
+        <div class="hidden print:flex w-full justify-between mt-12 px-12 text-[16px] text-black print:text-black" style="font-family: 'Siemreap', sans-serif; page-break-inside: avoid;">
+          <div class="flex flex-col items-center justify-end">
+            <div style="font-family: 'Siemreap', sans-serif; page-break-inside: avoid;">អ្នកត្រួតពិនិត្យ</div>
+          </div>
           <div class="flex flex-col items-center">
             <div class="mb-2" style="font-family: 'Siemreap', sans-serif; page-break-inside: avoid;">{{ currentLunarDate }}</div>
             <div class="mb-8" style="font-family: 'Siemreap', sans-serif; page-break-inside: avoid;">កំពង់ស្ពឺ {{ currentGregorianDate }}</div>

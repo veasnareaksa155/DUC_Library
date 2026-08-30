@@ -43,21 +43,21 @@
               <!-- Left Content (Text) -->
               <div class="flex-1 max-w-[600px] flex flex-col items-center sm:items-start text-center sm:text-left gap-3 sm:gap-4 z-20 order-2 sm:order-1 w-full">
                 <span class="inline-flex w-fit items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-indigo-500/20 text-indigo-300 text-[10px] sm:text-xs font-bold uppercase tracking-wider backdrop-blur-md border border-indigo-500/30 shadow-sm">
-                  <Award :size="12" class="sm:w-3.5 sm:h-3.5" /> Featured
+                  <Award :size="12" class="sm:w-3.5 sm:h-3.5" /> {{ localeStore.t('featured') }}
                 </span>
                 <h2 class="text-white text-[1.4rem] sm:text-4xl lg:text-5xl font-extrabold leading-[1.6] drop-shadow-lg line-clamp-2 sm:line-clamp-3 sm:py-2 max-sm:px-2 max-sm:mb-1">
                   {{ slide.title }}
                 </h2>
                 <p class="text-gray-300 text-[0.8rem] sm:text-sm lg:text-base leading-[1.6] line-clamp-2 sm:line-clamp-3 max-w-[500px] max-sm:px-4">
-                  {{ slide.description || 'Dive into our featured book of the week. Explore this amazing read from the collection today.' }}
+                  {{ slide.description || localeStore.t('featuredDesc') }}
                 </p>
 
                 <div class="flex flex-row items-center justify-center sm:justify-start gap-3 mt-2 sm:mt-4 w-full sm:w-auto max-sm:px-4">
                   <button @click="openReaderModal(slide)" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-7 py-2.5 sm:py-3 bg-white text-black rounded-full font-bold text-[13px] sm:text-base hover:bg-gray-200 transition-transform hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.2)] border-none cursor-pointer">
-                    <BookOpenCheck :size="16" class="sm:w-4 sm:h-4" /> Read Now
+                    <BookOpenCheck :size="16" class="sm:w-4 sm:h-4" /> {{ localeStore.t('readNow') }}
                   </button>
                   <button @click="openBorrowModal(slide)" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-7 py-2.5 sm:py-3 bg-black/40 border border-gray-400 text-white rounded-full font-bold text-[13px] sm:text-base backdrop-blur-md hover:bg-black/60 hover:border-white transition-all hover:scale-105 active:scale-95 cursor-pointer disabled:opacity-50" :disabled="slide.copies_available <= 0">
-                    <BookmarkPlus :size="16" class="sm:w-4 sm:h-4" /> Borrow
+                    <BookmarkPlus :size="16" class="sm:w-4 sm:h-4" /> {{ localeStore.t('borrow') }}
                   </button>
                 </div>
               </div>
@@ -125,7 +125,7 @@
               class="px-4 py-1.5 rounded-md text-[0.85rem] font-medium whitespace-nowrap shrink-0 cursor-pointer transition-colors max-sm:max-w-[160px] max-sm:truncate max-sm:px-3 max-sm:text-xs"
               :class="booksStore.selectedCategory === cat.id ? 'bg-[var(--text-primary)] text-[var(--bg-primary)] border-transparent' : 'bg-transparent border border-[var(--border-color)] text-[var(--text-secondary)] hover:bg-[var(--bg-card-hover)]'"
             >
-              {{ cat.name }} <span class="opacity-60 ml-1">({{ cat.book_count || 0 }})</span>
+              <span :style="(localeStore.currentLang === 'km' && cat.name_km) ? 'font-family: \'Siemreab\', sans-serif;' : ''">{{ (localeStore.currentLang === 'km' && cat.name_km) ? cat.name_km : cat.name }}</span> <span class="opacity-60 ml-1">({{ cat.book_count || 0 }})</span>
             </button>
           </div>
 
@@ -140,8 +140,8 @@
     <section class="catalog-section">
       <div class="flex items-center justify-between mb-6">
         <div class="flex items-center gap-3">
-          <h3 class="text-xl font-bold text-[var(--text-primary)] tracking-tight">{{ booksStore.selectedCategory === 'wishlist' ? 'My Saved Wishlist' : localeStore.t('catalog') }}</h3>
-          <span class="text-[0.75rem] font-semibold text-[var(--text-secondary)] bg-[var(--bg-card-hover)] px-2.5 py-1 rounded-md border border-[var(--border-color)]" v-if="!booksStore.loading">{{ displayedBooks.length }} books</span>
+          <h3 class="text-xl font-bold text-[var(--text-primary)] tracking-tight">{{ booksStore.selectedCategory === 'wishlist' ? localeStore.t('mySavedWishlist') : localeStore.t('catalog') }}</h3>
+          <span class="text-[0.75rem] font-semibold text-[var(--text-secondary)] bg-[var(--bg-card-hover)] px-2.5 py-1 rounded-md border border-[var(--border-color)]" v-if="!booksStore.loading">{{ displayedBooks.length }} {{ localeStore.t('books') }}</span>
         </div>
       </div>
       <div v-if="booksStore.loading" class="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-6 max-sm:grid-cols-2 max-sm:gap-4 xl:grid-cols-5">
@@ -151,9 +151,9 @@
       <div v-else-if="displayedBooks.length === 0" class="flex flex-col items-center justify-center text-center p-14 text-[var(--text-muted)]">
         <Heart v-if="booksStore.selectedCategory === 'wishlist'" :size="48" color="#ef4444" class="mb-3" />
         <BookX v-else :size="48" class="text-[var(--text-muted)] mb-3" />
-        <h3 class="text-lg font-bold text-[var(--text-primary)] mb-1">{{ booksStore.selectedCategory === 'wishlist' ? 'Your Wishlist is Empty' : 'No books found' }}</h3>
-        <p class="text-[var(--text-secondary)]">{{ booksStore.selectedCategory === 'wishlist' ? 'Click the heart icon on any book card to save it to your wishlist.' : 'Try searching for a different keyword or select another category.' }}</p>
-        <button @click="resetFilters" class="inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out active:scale-95 bg-[var(--bg-secondary)] text-[var(--text-primary)] border border-[var(--border-color)] hover:bg-[var(--bg-card-hover)] hover:border-indigo-500 hover:-translate-y-px px-4 py-2 text-sm mt-4">Reset Filters</button>
+        <h3 class="text-lg font-bold text-[var(--text-primary)] mb-1">{{ booksStore.selectedCategory === 'wishlist' ? localeStore.t('emptyWishlist') : localeStore.t('noBooksFound') }}</h3>
+        <p class="text-[var(--text-secondary)]">{{ booksStore.selectedCategory === 'wishlist' ? localeStore.t('emptyWishlistSub') : localeStore.t('noBooksSub') }}</p>
+        <button @click="resetFilters" class="inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 ease-out active:scale-95 bg-[var(--bg-secondary)] text-[var(--text-primary)] border border-[var(--border-color)] hover:bg-[var(--bg-card-hover)] hover:border-indigo-500 hover:-translate-y-px px-4 py-2 text-sm mt-4">{{ localeStore.t('resetFilters') }}</button>
       </div>
 
       <div v-else class="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-6 max-sm:grid-cols-2 max-sm:gap-4 xl:grid-cols-5">
@@ -203,7 +203,7 @@
           </button>
         </div>
         <div class="text-[0.85rem] text-[var(--text-secondary)] font-medium">
-          Showing <strong class="text-[var(--text-primary)]">{{ (currentPage - 1) * itemsPerPage + 1 }}</strong> to <strong class="text-[var(--text-primary)]">{{ Math.min(currentPage * itemsPerPage, displayedBooks.length) }}</strong> of <strong class="text-[var(--text-primary)]">{{ displayedBooks.length }}</strong> entries
+          {{ localeStore.t('showing') }} <strong class="text-[var(--text-primary)]">{{ (currentPage - 1) * itemsPerPage + 1 }}</strong> {{ localeStore.t('to') }} <strong class="text-[var(--text-primary)]">{{ Math.min(currentPage * itemsPerPage, displayedBooks.length) }}</strong> {{ localeStore.t('of') }} <strong class="text-[var(--text-primary)]">{{ displayedBooks.length }}</strong> {{ localeStore.t('entries') }}
         </div>
       </div>
     </section>

@@ -8,7 +8,7 @@
       @click="openCheckinModal"
       class="relative flex w-[55px] h-[55px] md:w-[65px] md:h-[65px] rounded-[1.2rem] md:rounded-[1.4rem] items-center justify-center text-white z-[9999] transition-all duration-500 outline-none cursor-pointer border shadow-[0_8px_20px_rgba(0,0,0,0.15)] hover:shadow-[0_12px_30px_rgba(99,102,241,0.35)] hover:-translate-y-1 active:scale-95 overflow-hidden"
       :class="checkinStore.hasCheckedInToday ? 'bg-gradient-to-br from-emerald-400 to-emerald-600 border-emerald-400/50 shadow-[0_8px_25px_rgba(16,185,129,0.3)]' : 'bg-gradient-to-br from-indigo-500 to-purple-600 border-indigo-400/30 dark:border-indigo-400/20'"
-      :title="checkinStore.hasCheckedInToday ? 'Checked In' : 'Check In to Library'"
+      :title="checkinStore.hasCheckedInToday ? localeStore.t('checkedIn') : localeStore.t('checkInToLibrary')"
     >
       <!-- Glossy highlight overlay -->
       <div class="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-[inherit] pointer-events-none"></div>
@@ -37,7 +37,7 @@
       <div class="px-4 py-1 rounded-full transition-all duration-300" :class="route.path === '/my-borrowings' ? 'bg-[var(--nav-active-bg)]' : 'bg-transparent'">
         <Bookmark :size="22" :stroke-width="route.path === '/my-borrowings' ? 2.5 : 2" />
       </div>
-      <span class="text-[0.65rem] font-semibold tracking-tight">{{ localeStore.t('myBooks') || 'My Books' }}</span>
+      <span class="text-[0.65rem] font-semibold tracking-tight">{{ localeStore.t('myBooks') }}</span>
     </router-link>
 
     <button v-if="authStore.isAuthenticated && authStore.user?.role !== 'admin'" @click="goToWishlist" class="group flex flex-col items-center justify-center flex-1 h-full gap-0.5 transition-colors cursor-pointer border-none bg-transparent" :class="isWishlistActive ? 'text-[var(--nav-active-text)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'">
@@ -51,7 +51,7 @@
       <div class="px-4 py-1 rounded-full transition-all duration-300" :class="isProfileActive ? 'bg-[var(--nav-active-bg)]' : 'bg-transparent'">
         <User :size="22" :stroke-width="isProfileActive ? 2.5 : 2" />
       </div>
-      <span class="text-[0.65rem] font-semibold tracking-tight">{{ authStore.isAuthenticated ? (localeStore.t('profile') || 'Profile') : localeStore.t('login') }}</span>
+      <span class="text-[0.65rem] font-semibold tracking-tight">{{ authStore.isAuthenticated ? localeStore.t('profile') : localeStore.t('login') }}</span>
     </button>
 
   </nav>
