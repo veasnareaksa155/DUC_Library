@@ -520,6 +520,8 @@ router.put('/profile-photo', authenticateToken, async (req, res) => {
       return res.status(400).json({ message: 'Profile photo is required.' });
     }
 
+    const sse = require('../services/sse');
+
     // 1. Upload base64 image to Cloudinary
     const uploadRes = await cloudinary.uploader.upload(profile_photo, {
       folder: 'duc_library/profiles',
@@ -535,6 +537,11 @@ router.put('/profile-photo', authenticateToken, async (req, res) => {
       await ORM.update('Admins', req.user.id, { profile_photo: photoUrl });
       updatedUser = await ORM.getById('Admins', req.user.id);
       delete updatedUser.password;
+      
+      // Notify admin's other sessions
+      sse.emitToUser(req.user.id, 'profile_updated', { photo_url: photoUrl });
+      // Notify all admins of the change
+      sse.broadcastToAdmins('admin_profile_updated', { admin_id: req.user.id, photo_url: photoUrl });
     } else {
       // For students, save to ProfilePhotos sheet
       const existingPhotos = await ORM.find('ProfilePhotos', p => p.student_id === req.user.id);
@@ -547,6 +554,11 @@ router.put('/profile-photo', authenticateToken, async (req, res) => {
           updated_at: new Date().toISOString()
         });
       }
+      
+      // Notify student's other sessions
+      sse.emitToUser(req.user.id, 'profile_updated', { photo_url: photoUrl });
+      // Notify all admins of the student's change
+      sse.broadcastToAdmins('student_profile_updated', { student_id: req.user.id, photo_url: photoUrl });
     }
 
     res.json({ message: 'Profile photo updated successfully!', user: updatedUser });

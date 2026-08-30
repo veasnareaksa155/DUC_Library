@@ -259,6 +259,24 @@ function setupSSE(token) {
           // Real-time optimistic update of frontend cache
           settingsStore.settings[data.payload.setting_key] = data.payload.setting_value;
         });
+      } else if (data.type === 'profile_updated') {
+        if (authStore.user) {
+          authStore.user.profile_photo = data.payload.photo_url;
+        }
+      } else if (data.type === 'admin_profile_updated' || data.type === 'student_profile_updated') {
+        window.dispatchEvent(new CustomEvent('profile_picture_changed', { detail: data.payload }));
+      } else if (data.type === 'user_wishlist_updated') {
+        const { action, book_id } = data.payload;
+        if (action === 'added' && !wishlistStore.wishlistIds.includes(String(book_id))) {
+          wishlistStore.wishlistIds.push(String(book_id));
+          wishlistStore.saveToStorage();
+        } else if (action === 'removed') {
+          wishlistStore.wishlistIds = wishlistStore.wishlistIds.filter(id => String(id) !== String(book_id));
+          wishlistStore.saveToStorage();
+        } else if (action === 'cleared') {
+          wishlistStore.wishlistIds = [];
+          wishlistStore.saveToStorage();
+        }
       }
     } catch (e) {
       console.error('SSE parsing error:', e);

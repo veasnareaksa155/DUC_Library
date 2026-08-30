@@ -147,6 +147,7 @@ export const useWishlistStore = defineStore('wishlist', () => {
     wishlistCount,
     popularBooks,
     fetchPopularBooks,
-    clearWishlist
+    clearWishlist,
+    saveToStorage
   };
 });

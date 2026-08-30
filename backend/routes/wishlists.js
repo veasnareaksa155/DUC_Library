@@ -45,6 +45,7 @@ router.post('/toggle', async (req, res) => {
       const totalCount = updatedWishlists.filter(w => String(w.book_id) === String(book_id)).length;
       sse.broadcast('book_wishlist_updated', { book_id: String(book_id), total_wishlists: totalCount });
       
+      sse.emitToUser(user_id, 'user_wishlist_updated', { action: 'removed', book_id: String(book_id) });
       return res.json({ message: 'Removed from wishlist', status: 'removed' });
     } else {
       // Add it
@@ -59,6 +60,7 @@ router.post('/toggle', async (req, res) => {
       const totalCount = updatedWishlists.filter(w => String(w.book_id) === String(book_id)).length;
       sse.broadcast('book_wishlist_updated', { book_id: String(book_id), total_wishlists: totalCount });
       
+      sse.emitToUser(user_id, 'user_wishlist_updated', { action: 'added', book_id: String(book_id) });
       return res.json({ message: 'Added to wishlist', status: 'added' });
     }
   } catch (error) {
@@ -96,6 +98,8 @@ router.delete('/clear', async (req, res) => {
       const totalCount = updatedWishlists.filter(w => String(w.book_id) === String(book_id)).length;
       sse.broadcast('book_wishlist_updated', { book_id: String(book_id), total_wishlists: totalCount });
     }
+
+    sse.emitToUser(user_id, 'user_wishlist_updated', { action: 'cleared' });
 
     res.json({ message: 'Wishlist cleared successfully' });
   } catch (error) {

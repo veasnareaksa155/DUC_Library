@@ -331,7 +331,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { useAuthStore } from '../../stores/auth';
 import { useLocaleStore } from '../../stores/locale';
 import { useToastStore } from '../../stores/toast';
@@ -452,7 +452,25 @@ onMounted(async () => {
   setInterval(() => {
     fetchUsers(true, true);
   }, 5 * 60 * 1000);
+  
+  window.addEventListener('profile_picture_changed', handleProfilePictureChange);
 });
+
+onUnmounted(() => {
+  window.removeEventListener('profile_picture_changed', handleProfilePictureChange);
+});
+
+function handleProfilePictureChange(e) {
+  const { admin_id, student_id, photo_url } = e.detail;
+  const userId = admin_id || student_id;
+  const userIndex = users.value.findIndex(u => String(u.id) === String(userId) || String(u.student_id) === String(userId));
+  if (userIndex !== -1) {
+    users.value[userIndex].profile_photo = photo_url;
+    if (selectedStudent.value && (String(selectedStudent.value.id) === String(userId) || String(selectedStudent.value.student_id) === String(userId))) {
+      selectedStudent.value.profile_photo = photo_url;
+    }
+  }
+}
 
 async function fetchServiceAccount() {
   try {
