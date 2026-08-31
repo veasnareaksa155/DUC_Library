@@ -48,8 +48,8 @@ self.addEventListener('push', function(event) {
       const title = payload.title || 'DUC-Library Notification';
       const options = {
         body: payload.body || 'You have a new notification.',
-        icon: './favicon.ico',
-        badge: './favicon.ico',
+        icon: './duc-logo.png',
+        badge: './duc-logo.png',
         vibrate: [100, 50, 100],
         data: {
           url: payload.url || './'
@@ -65,7 +65,7 @@ self.addEventListener('push', function(event) {
       event.waitUntil(
         self.registration.showNotification('DUC-Library', {
           body: event.data.text(),
-          icon: './favicon.ico'
+          icon: './duc-logo.png'
         })
       );
     }
