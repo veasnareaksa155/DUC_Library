@@ -233,8 +233,13 @@ if (!global.writeQueueIntervalStarted) {
           console.log(`[GoogleSheetsORM] Successfully batched ${rows.length} writes into ${sheetName}`);
           
           // Add to cache so it doesn't disappear before the next network fetch
+          // Only add if it wasn't already optimistically added by insert()
           if (CACHE[sheetName] && CACHE[sheetName].data) {
-            CACHE[sheetName].data.push(...batchToInsert);
+            for (const item of batchToInsert) {
+              if (!CACHE[sheetName].data.find(r => String(r.id) === String(item.id))) {
+                CACHE[sheetName].data.push(item);
+              }
+            }
           }
         } catch (err) {
           console.error(`[GoogleSheetsORM] Failed to batch write into ${sheetName}:`, err.message);
