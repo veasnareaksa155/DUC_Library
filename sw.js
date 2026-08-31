@@ -49,7 +49,6 @@ self.addEventListener('push', function(event) {
       const options = {
         body: payload.body || 'You have a new notification.',
         icon: './duc-logo.png',
-        badge: './duc-logo.png',
         vibrate: [100, 50, 100],
         data: {
           url: payload.url || './'
@@ -75,7 +74,14 @@ self.addEventListener('push', function(event) {
 self.addEventListener('notificationclick', function(event) {
   event.notification.close();
   
-  const urlToOpen = event.notification.data.url || './';
+  let path = event.notification.data.url || '';
+  // Strip leading slash to make it relative to the PWA scope
+  if (path.startsWith('/')) {
+    path = path.substring(1);
+  }
+  
+  // Resolve against the service worker's registered scope (e.g., https://domain.com/my-app/)
+  const urlToOpen = new URL(path, self.registration.scope).href;
   
   event.waitUntil(
     clients.matchAll({
