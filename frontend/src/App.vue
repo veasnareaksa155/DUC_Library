@@ -13,6 +13,7 @@
     <ScrollToTop />
     <ToastNotification />
     <ConfirmModal />
+    <PushPromptModal />
     <footer v-if="!hideFooter" class="hidden md:block border-t border-[var(--border-color)] bg-[var(--bg-card)] pt-12 pb-6 text-[0.85rem] text-[var(--text-muted)] transition-colors duration-300">
       <div class="max-w-[1280px] mx-auto px-6 max-sm:px-3">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1.2fr] gap-8 lg:gap-10 mb-10">
@@ -86,6 +87,7 @@ import MobileAppNavBar from './components/MobileAppNavBar.vue';
 import ScrollToTop from './components/ScrollToTop.vue';
 import ToastNotification from './components/ToastNotification.vue';
 import ConfirmModal from './components/ConfirmModal.vue';
+import PushPromptModal from './components/PushPromptModal.vue';
 import { useAuthStore } from './stores/auth';
 import { useToastStore } from './stores/toast';
 import { useBorrowingsStore } from './stores/borrowings';
@@ -277,6 +279,9 @@ function setupSSE(token) {
           wishlistStore.wishlistIds = [];
           wishlistStore.saveToStorage();
         }
+      } else if (data.type === 'notification_alert') {
+        toastStore.show(data.payload.message, { type: 'info', title: data.payload.title });
+        notificationsStore.loadNotifications();
       }
     } catch (e) {
       console.error('SSE parsing error:', e);

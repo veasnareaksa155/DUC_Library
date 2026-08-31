@@ -44,7 +44,7 @@ const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes TTL
 const SCHEMAS = {
   'Books': ['id', 'title', 'author', 'isbn', 'category_id', 'description', 'cover_url', 'pdf_url', 'digital_content', 'copies_total', 'copies_available', 'publisher', 'publish_year', 'is_featured', 'read_count', 'created_at'],
   'Categories': ['id', 'name', 'name_km', 'icon', 'created_at'],
-  'Borrowings': ['id', 'book_id', 'user_id', 'borrow_date', 'due_date', 'return_date', 'status', 'admin_notes'],
+  'Borrowings': ['id', 'book_id', 'user_id', 'borrow_date', 'due_date', 'return_date', 'status', 'admin_notes', 'overdue_notified', 'due_today_notified'],
   'Notifications': ['id', 'user_id', 'title', 'message', 'type', 'is_read', 'created_at'],
   'Checkins': ['id', 'user_id', 'checkin_time', 'lat', 'lng', 'status'],
   'ProfilePhotos': ['id', 'student_id', 'photo_url', 'updated_at'],
@@ -102,6 +102,14 @@ async function initializeSheets() {
           });
           console.log(`Inserted default admin account into Admins sheet.`);
         }
+      } else {
+        // Sync headers for existing sheets in case schema changed
+        await sheets.spreadsheets.values.update({
+          spreadsheetId: SPREADSHEET_ID,
+          range: `${sheetName}!A1`,
+          valueInputOption: 'RAW',
+          resource: { values: [headers] }
+        });
       }
     }
   } catch (err) {
@@ -223,6 +231,11 @@ if (!global.writeQueueIntervalStarted) {
             resource: { values: rows }
           });
           console.log(`[GoogleSheetsORM] Successfully batched ${rows.length} writes into ${sheetName}`);
+          
+          // Add to cache so it doesn't disappear before the next network fetch
+          if (CACHE[sheetName] && CACHE[sheetName].data) {
+            CACHE[sheetName].data.push(...batchToInsert);
+          }
         } catch (err) {
           console.error(`[GoogleSheetsORM] Failed to batch write into ${sheetName}:`, err.message);
           // Put them back in the queue to retry next tick if they failed!

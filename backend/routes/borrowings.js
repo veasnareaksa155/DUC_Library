@@ -5,6 +5,9 @@ const sse = require('../services/sse');
 
 const router = express.Router();
 
+// Simple in-memory lock to prevent race conditions on double-taps
+const userRequestLocks = new Set();
+
 // Request to borrow a book (User)
 router.post('/request', authenticateToken, async (req, res) => {
   try {
@@ -40,10 +43,29 @@ router.post('/request', authenticateToken, async (req, res) => {
       });
     }
 
-    // Calculate due date
-    const dueDateObj = new Date();
-    dueDateObj.setDate(dueDateObj.getDate() + parseInt(days));
-    const due_date = dueDateObj.toISOString().split('T')[0];
+    if (userRequestLocks.has(String(user_id))) {
+      return res.status(429).json({ message: 'Request in progress. Please wait.' });
+    }
+    userRequestLocks.add(String(user_id));
+
+    try {
+      // Calculate due date (support days or minutes)
+      const dueDateObj = new Date();
+    const durationStr = String(days).toLowerCase();
+    
+    if (durationStr.endsWith('m')) {
+      const mins = parseInt(durationStr.replace('m', ''));
+      dueDateObj.setMinutes(dueDateObj.getMinutes() + mins);
+    } else if (durationStr.endsWith('d')) {
+      const d = parseInt(durationStr.replace('d', ''));
+      dueDateObj.setDate(dueDateObj.getDate() + d);
+    } else {
+      // Default to days if no unit is provided (backward compatibility)
+      dueDateObj.setDate(dueDateObj.getDate() + parseInt(days));
+    }
+    
+    // Save full ISO string to support minute-level tracking
+    const due_date = dueDateObj.toISOString();
 
     const newBorrowing = {
       user_id: String(user_id),
@@ -63,10 +85,13 @@ router.post('/request', authenticateToken, async (req, res) => {
       borrowing_id: inserted.id
     });
 
-    res.status(201).json({
-      message: 'Borrow request submitted successfully. Awaiting admin approval.',
-      borrowing_id: inserted.id
-    });
+      res.status(201).json({
+        message: 'Borrow request submitted successfully. Awaiting admin approval.',
+        borrowing_id: inserted.id
+      });
+    } finally {
+      userRequestLocks.delete(String(user_id));
+    }
   } catch (error) {
     console.error('Error submitting borrow request:', error);
     res.status(500).json({ message: 'Failed to request borrow.' });

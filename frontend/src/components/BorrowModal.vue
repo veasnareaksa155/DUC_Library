@@ -26,7 +26,7 @@
               class="h-10 border rounded-md font-bold text-[0.8rem] transition-colors cursor-pointer"
               :class="selectedDays === d ? 'bg-[var(--text-primary)] text-[var(--bg-primary)] border-[var(--text-primary)]' : 'bg-transparent border-[var(--border-color)] text-[var(--text-secondary)] hover:bg-[var(--bg-card-hover)] hover:text-[var(--text-primary)]'"
             >
-              {{ d }} {{ localeStore.t('days') }}
+              {{ formatDuration(d) }}
             </button>
           </div>
         </div>
@@ -101,9 +101,27 @@ const fallbackCover = 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e
 
 const calculatedDueDate = computed(() => {
   const date = new Date();
-  date.setDate(date.getDate() + selectedDays.value);
+  const durationStr = String(selectedDays.value).toLowerCase();
+  
+  if (durationStr.endsWith('m')) {
+    const mins = parseInt(durationStr.replace('m', ''));
+    date.setMinutes(date.getMinutes() + mins);
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  } else if (durationStr.endsWith('d')) {
+    const d = parseInt(durationStr.replace('d', ''));
+    date.setDate(date.getDate() + d);
+  } else {
+    date.setDate(date.getDate() + parseInt(selectedDays.value));
+  }
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 });
+
+function formatDuration(val) {
+  const str = String(val);
+  if (str.endsWith('m')) return `${str.replace('m', '')} Mins`;
+  if (str.endsWith('d')) return `${str.replace('d', '')} Days`;
+  return `${str} Days`;
+}
 
 async function handleConfirm() {
   if (!props.book) return;

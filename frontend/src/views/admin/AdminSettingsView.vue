@@ -23,16 +23,16 @@
               <Calendar :size="18" class="text-indigo-500" />
               Borrowing Durations
             </h3>
-            <p class="text-[0.85rem] text-[var(--text-secondary)] mt-1">Select the allowed number of days students can borrow physical books.</p>
+            <p class="text-[0.85rem] text-[var(--text-secondary)] mt-1">Select the allowed time students can borrow physical books.</p>
           </div>
         </div>
 
         <div class="mt-4 flex-1">
-          <label class="block text-[0.8rem] font-bold text-[var(--text-primary)] mb-2 uppercase tracking-wider">Configured Options (Days)</label>
+          <label class="block text-[0.8rem] font-bold text-[var(--text-primary)] mb-2 uppercase tracking-wider">Configured Options</label>
           <div class="flex flex-wrap gap-2 mb-4 min-h-[40px]">
             <div v-for="(day, index) in localDurations" :key="index" class="relative group">
               <span class="flex items-center justify-center bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 font-bold px-3 py-1.5 rounded-lg border border-indigo-200 dark:border-indigo-500/20 text-[0.9rem] min-w-[3rem]">
-                {{ day }}
+                {{ formatDuration(day) }}
               </span>
               <button @click="removeDuration(index)" class="absolute -top-2 -right-2 w-5 h-5 bg-rose-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:scale-110 active:scale-95 cursor-pointer">
                 <X :size="12" stroke-width="3" />
@@ -45,9 +45,13 @@
               v-model.number="newDuration" 
               type="number" 
               placeholder="e.g. 7" 
-              class="flex-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-[0.9rem] font-medium text-[var(--text-primary)] outline-none focus:border-indigo-500 transition-colors"
+              class="w-24 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-[0.9rem] font-medium text-[var(--text-primary)] outline-none focus:border-indigo-500 transition-colors"
               @keyup.enter="addDuration"
             />
+            <select v-model="newDurationUnit" class="flex-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-[0.9rem] font-medium text-[var(--text-primary)] outline-none focus:border-indigo-500 transition-colors">
+              <option value="m">Minutes</option>
+              <option value="d">Days</option>
+            </select>
             <button @click="addDuration" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 rounded-xl text-[0.9rem] font-bold shadow-md shadow-indigo-500/20 transition-all hover:-translate-y-0.5 active:scale-95 cursor-pointer">Add</button>
           </div>
         </div>
@@ -69,6 +73,7 @@ const toastStore = useToastStore();
 
 const localDurations = ref([]);
 const newDuration = ref('');
+const newDurationUnit = ref('d');
 const loading = ref(false);
 
 onMounted(async () => {
@@ -79,13 +84,20 @@ onMounted(async () => {
 
 function addDuration() {
   if (newDuration.value && newDuration.value > 0) {
-    if (!localDurations.value.includes(newDuration.value)) {
-      localDurations.value.push(newDuration.value);
-      localDurations.value.sort((a, b) => a - b);
+    const valStr = `${newDuration.value}${newDurationUnit.value}`;
+    if (!localDurations.value.includes(valStr)) {
+      localDurations.value.push(valStr);
       saveDurations();
     }
     newDuration.value = '';
   }
+}
+
+function formatDuration(val) {
+  const str = String(val);
+  if (str.endsWith('m')) return `${str.replace('m', '')} Mins`;
+  if (str.endsWith('d')) return `${str.replace('d', '')} Days`;
+  return `${str} Days`; // legacy support
 }
 
 function removeDuration(index) {

@@ -10,6 +10,7 @@ const borrowingRoutes = require('./routes/borrowings');
 const adminRoutes = require('./routes/admin');
 const notificationRoutes = require('./routes/notifications');
 const checkinRoutes = require('./routes/checkins');
+const overdueChecker = require('./services/overdueChecker');
 
 const app = express();
 app.set('trust proxy', true); // Trust reverse proxy headers (crucial for getting IP on Render/Heroku)
@@ -83,6 +84,9 @@ async function startServer() {
   try {
     await ORM.initializeSheets();
     console.log('[GoogleSheetsORM] Initialized successfully');
+    
+    // Start the background overdue checker
+    overdueChecker.start();
     
     // Wire up push notifications
     const pushService = require('./services/pushService');

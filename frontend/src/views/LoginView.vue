@@ -107,12 +107,14 @@
 <script setup>
 import { ref } from 'vue';
 import { useAuthStore } from '../stores/auth';
+import { useNotificationsStore } from '../stores/notifications';
 import { useLocaleStore } from '../stores/locale';
 import { useRouter, useRoute } from 'vue-router';
 import OTPInput from '../components/OTPInput.vue';
 import { BookOpen, Mail, Lock, LogIn, User, AlertCircle, Eye, EyeOff, ShieldCheck } from 'lucide-vue-next';
 
 const authStore = useAuthStore();
+const notifStore = useNotificationsStore();
 const localeStore = useLocaleStore();
 const router = useRouter();
 const route = useRoute();
@@ -134,6 +136,11 @@ async function handleLogin() {
       authStore.error = '';
       return;
     }
+
+    if (notifStore.pushPermission === 'default' && !localStorage.getItem('duc_push_prompt_dismissed')) {
+      notifStore.showPrompt = true;
+    }
+
     const redirectPath = route.query.redirect || '/';
     router.push(redirectPath);
   } catch (err) {
@@ -144,6 +151,11 @@ async function handleLogin() {
 async function handleVerify2FA() {
   try {
     const res = await authStore.verify2FALogin(tempToken.value, otpCode.value, 'user');
+    
+    if (notifStore.pushPermission === 'default' && !localStorage.getItem('duc_push_prompt_dismissed')) {
+      notifStore.showPrompt = true;
+    }
+
     const redirectPath = route.query.redirect || '/';
     router.push(redirectPath);
   } catch (err) {

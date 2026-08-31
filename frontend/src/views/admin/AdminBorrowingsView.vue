@@ -174,17 +174,27 @@
                       <span class="text-[var(--text-muted)] font-bold w-12 shrink-0 print:text-slate-500" style="font-family: 'Siemreap', sans-serif;">ថ្ងៃខ្ចី៖</span>
                       <span class="font-semibold text-[var(--text-primary)] print:text-black">{{ formatDate(item.borrow_date) }}</span>
                     </div>
-                    <div class="flex items-center gap-2 text-[0.82rem] print:!text-[15px]">
-                      <span class="text-[var(--text-muted)] font-bold w-12 shrink-0 print:text-slate-500" style="font-family: 'Siemreap', sans-serif;">ថ្ងៃសង៖</span>
+                    <div class="flex items-center gap-2">
+                      <span class="text-[0.75rem] font-bold text-[var(--text-muted)] w-12" style="font-family: 'Siemreap', sans-serif;">ថ្ងៃសង៖</span>
                       <span class="font-bold print:!shadow-none" :class="isOverdue(item.due_date, item.status) ? 'text-rose-500 bg-rose-500/10 px-2 py-0.5 rounded-md border border-rose-500/20' : 'text-[var(--text-primary)]'" style="-webkit-print-color-adjust: exact; print-color-adjust: exact;">{{ formatDate(item.due_date) }}</span>
+                    </div>
+                    <div v-if="item.status === 'returned' && item.return_date" class="flex items-center gap-2 mt-1">
+                      <span class="text-[0.75rem] font-bold text-[var(--text-muted)] w-12" style="font-family: 'Siemreap', sans-serif;">បានសង៖</span>
+                      <span class="text-[0.75rem] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20">{{ formatDate(item.return_date) }}</span>
                     </div>
                   </div>
                 </td>
                 <td class="px-6 py-5 text-center align-middle print:align-top">
-                  <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-[0.75rem] font-extrabold uppercase tracking-wider border transition-colors shadow-sm print:!shadow-none print:px-0 print:py-0 print:text-[12px] print:rounded-none print:border-none print:!bg-transparent print:!text-black print:font-bold" :class="getStatusBadgeClass(item.status)" style="font-family: 'Siemreap', sans-serif;">
-                    <span class="w-1.5 h-1.5 rounded-full print:hidden" :class="getStatusDotClass(item.status)" style="font-family: 'Siemreap', sans-serif;"></span>
-                    {{ getStatusKhmer(item.status) }}
-                  </span>
+                  <div class="flex flex-col items-center gap-1.5">
+                    <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-[0.75rem] font-extrabold uppercase tracking-wider border transition-colors shadow-sm print:!shadow-none print:px-0 print:py-0 print:text-[12px] print:rounded-none print:border-none print:!bg-transparent print:!text-black print:font-bold" :class="getStatusBadgeClass(item.status)" style="font-family: 'Siemreap', sans-serif;">
+                      <span class="w-1.5 h-1.5 rounded-full print:hidden" :class="getStatusDotClass(item.status)" style="font-family: 'Siemreap', sans-serif;"></span>
+                      {{ getStatusKhmer(item.status) }}
+                    </span>
+                    <span v-if="isOverdue(item.due_date, item.status)" class="text-[0.7rem] font-black text-white bg-rose-500 px-2.5 py-1 rounded-md uppercase tracking-widest shadow-md shadow-rose-500/30 print:hidden animate-pulse flex flex-col items-center leading-tight">
+                      OVERDUE
+                      <span class="text-[0.55rem] font-bold opacity-90 capitalize tracking-normal text-rose-100">by {{ getOverdueTimeText(item.due_date) }}</span>
+                    </span>
+                  </div>
                 </td>
                 <td class="px-6 py-5 text-right align-middle rounded-r-xl print:hidden">
                   <div class="flex justify-end gap-2.5">
@@ -610,7 +620,7 @@ function formatDate(dateStr) {
   // Jan 1, 1970 is the Unix Epoch. This happens when an empty date or '0' is parsed by the backend database
   if (d.getFullYear() <= 1970) return 'TBD';
 
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 }
 
 const getStatusKhmer = (status) => {
@@ -624,12 +634,29 @@ const getStatusKhmer = (status) => {
 };
 
 function isOverdue(dueDate, status) {
-  if (status === 'returned' || status === 'rejected' || !dueDate) return false;
+  if (status !== 'approved' || !dueDate) return false;
   
   const d = new Date(dueDate);
   if (isNaN(d.getTime()) || d.getFullYear() <= 1970) return false;
   
   return d < new Date();
+}
+
+function getOverdueTimeText(dueDate) {
+  if (!dueDate) return '';
+  const d = new Date(dueDate);
+  const now = new Date();
+  if (d >= now) return '';
+  
+  const diffMs = now - d;
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMins / 60);
+  const diffDays = Math.floor(diffHours / 24);
+  
+  if (diffDays > 0) return `${diffDays} Day${diffDays > 1 ? 's' : ''}`;
+  if (diffHours > 0) return `${diffHours} Hr${diffHours > 1 ? 's' : ''}`;
+  if (diffMins > 0) return `${diffMins} Min${diffMins > 1 ? 's' : ''}`;
+  return 'Just now';
 }
 
 function getStatusBadgeClass(status) {

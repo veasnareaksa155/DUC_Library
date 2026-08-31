@@ -19,6 +19,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
   const isDrawerOpen = ref(false);
   const notifications = ref([]);
   const pushPermission = ref('Notification' in window ? Notification.permission : 'default');
+  const showPrompt = ref(false);
   
   const authStore = useAuthStore();
 
@@ -178,9 +179,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
     }
     
     try {
-      const swUrl = `${import.meta.env.BASE_URL}sw.js`;
-      const registration = await navigator.serviceWorker.register(swUrl);
-      
+      // Request permission FIRST to preserve iOS Safari user gesture context
       const permission = await Notification.requestPermission();
       pushPermission.value = permission;
       
@@ -188,6 +187,9 @@ export const useNotificationsStore = defineStore('notifications', () => {
         console.warn('Push notification permission denied');
         return;
       }
+
+      const swUrl = `${import.meta.env.BASE_URL}sw.js`;
+      const registration = await navigator.serviceWorker.register(swUrl);
       
       const vapidPublicKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
       if (!vapidPublicKey) return;
@@ -248,6 +250,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
     loadNotifications,
     subscribeToPushNotifications,
     unsubscribeFromPushNotifications,
-    pushPermission
+    pushPermission,
+    showPrompt
   };
 });

@@ -1,5 +1,5 @@
 <template>
-  <header class="hidden max-md:flex items-center justify-between px-4 py-3 bg-[var(--bg-card)] border-b border-[var(--border-color)] sticky top-0 z-[60]">
+  <header class="hidden max-md:flex items-center justify-between px-4 pb-3 bg-[var(--bg-card)] border-b border-[var(--border-color)] sticky top-0 z-[60]" style="padding-top: max(env(safe-area-inset-top), 0.75rem);">
     <div class="flex items-center gap-2 cursor-pointer" @click="goHome">
       <img src="/duc-logo.png" alt="DUC Logo" class="h-[28px] w-auto" />
       <span class="text-[1rem] font-bold text-[var(--text-primary)] tracking-tight">DUC Library</span>

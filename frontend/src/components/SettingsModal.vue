@@ -9,7 +9,7 @@
       <div class="modal-content relative bg-[var(--bg-primary)] sm:border border-[var(--border-color)] rounded-none sm:rounded-[24px] shadow-2xl w-full h-full sm:max-w-4xl sm:h-[80vh] sm:max-h-[700px] flex flex-col overflow-hidden">
       
       <!-- Header (Fixed at top) -->
-      <div class="flex items-center justify-between px-6 py-4 sm:py-5 border-b border-[var(--border-color)] bg-[var(--bg-secondary)]/50 shrink-0 relative z-30">
+      <div class="flex items-center justify-between px-6 pb-4 sm:py-5 pt-[max(env(safe-area-inset-top),1rem)] sm:pt-5 border-b border-[var(--border-color)] bg-[var(--bg-secondary)]/50 shrink-0 relative z-30">
         <h2 class="text-xl font-extrabold text-[var(--text-primary)] flex items-center gap-2.5">
           <div class="p-2 bg-indigo-500/10 rounded-xl text-indigo-500">
             <Settings :size="20" stroke-width="2.5" />

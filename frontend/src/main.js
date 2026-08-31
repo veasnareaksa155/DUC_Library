@@ -10,3 +10,12 @@ app.use(createPinia());
 app.use(router);
 
 app.mount('#app');
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    const swUrl = `${import.meta.env.BASE_URL}sw.js`;
+    navigator.serviceWorker.register(swUrl).catch((err) => {
+      console.log('SW registration failed:', err);
+    });
+  });
+}
