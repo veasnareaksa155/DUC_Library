@@ -23,7 +23,7 @@ async function checkOverdueBooks() {
         dueDate.getMonth() === now.getMonth() &&
         dueDate.getDate() === now.getDate();
         
-      if (isDueToday && now < dueDate && borrow.due_today_notified !== 'true') {
+      if (isDueToday && now < dueDate && String(borrow.due_today_notified).toLowerCase() !== 'true') {
         const book = await ORM.getById('Books', borrow.book_id);
         const bookTitle = book ? book.title : 'a book';
         
@@ -53,7 +53,7 @@ async function checkOverdueBooks() {
       }
       
       // 2. OVERDUE NOTIFICATION (If the book is overdue and we haven't notified the user yet)
-      if (now > dueDate && borrow.overdue_notified !== 'true') {
+      if (now > dueDate && String(borrow.overdue_notified).toLowerCase() !== 'true') {
         
         const book = await ORM.getById('Books', borrow.book_id);
         const bookTitle = book ? book.title : 'a book';
