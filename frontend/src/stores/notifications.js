@@ -18,6 +18,7 @@ function urlBase64ToUint8Array(base64String) {
 export const useNotificationsStore = defineStore('notifications', () => {
   const isDrawerOpen = ref(false);
   const notifications = ref([]);
+  const pushPermission = ref('Notification' in window ? Notification.permission : 'default');
   
   const authStore = useAuthStore();
 
@@ -51,14 +52,18 @@ export const useNotificationsStore = defineStore('notifications', () => {
   // Load immediately if user exists
   if (authStore.token) {
     loadNotifications();
-    subscribeToPushNotifications();
+    if ('Notification' in window && Notification.permission === 'granted') {
+      subscribeToPushNotifications();
+    }
   }
 
   // Reload when the user changes (login/logout)
   watch(() => authStore.token, (newToken) => {
     loadNotifications();
     if (newToken) {
-      subscribeToPushNotifications();
+      if ('Notification' in window && Notification.permission === 'granted') {
+        subscribeToPushNotifications();
+      }
     } else {
       unsubscribeFromPushNotifications();
     }
@@ -177,6 +182,8 @@ export const useNotificationsStore = defineStore('notifications', () => {
       const registration = await navigator.serviceWorker.register(swUrl);
       
       const permission = await Notification.requestPermission();
+      pushPermission.value = permission;
+      
       if (permission !== 'granted') {
         console.warn('Push notification permission denied');
         return;
@@ -240,6 +247,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
     addNotification,
     loadNotifications,
     subscribeToPushNotifications,
-    unsubscribeFromPushNotifications
+    unsubscribeFromPushNotifications,
+    pushPermission
   };
 });

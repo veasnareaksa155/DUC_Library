@@ -59,6 +59,29 @@
   
             <!-- Notifications List Body -->
             <div class="flex-1 overflow-y-auto p-5 relative z-10 custom-scrollbar">
+              
+              <!-- Push Notification Banner -->
+              <div v-if="notifStore.pushPermission === 'default'" class="mb-4 bg-indigo-500/10 border border-indigo-500/30 rounded-xl p-4 flex flex-col items-start gap-3 shadow-sm">
+                <div class="flex items-start gap-3">
+                  <BellRing class="text-indigo-500 flex-shrink-0 mt-0.5 animate-pulse" :size="20" />
+                  <div>
+                    <h4 class="text-[0.9rem] font-bold text-[var(--text-primary)] mb-1">Enable Push Notifications</h4>
+                    <p class="text-[0.8rem] text-[var(--text-secondary)] leading-snug">Get instant updates for book requests, returns, and security alerts directly on your device.</p>
+                  </div>
+                </div>
+                <button @click="notifStore.subscribeToPushNotifications()" class="w-full sm:w-auto px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-[0.8rem] font-bold rounded-lg transition-colors shadow-md flex items-center justify-center gap-2">
+                  <Bell class="w-4 h-4" /> Enable Notifications
+                </button>
+              </div>
+
+              <div v-else-if="notifStore.pushPermission === 'denied'" class="mb-4 bg-rose-500/10 border border-rose-500/20 rounded-xl p-4 flex items-start gap-3">
+                <AlertTriangle class="text-rose-500 flex-shrink-0 mt-0.5" :size="20" />
+                <div>
+                  <h4 class="text-[0.9rem] font-bold text-rose-500 mb-1">Notifications Blocked</h4>
+                  <p class="text-[0.8rem] text-[var(--text-secondary)] leading-snug">Please enable notifications in your device or browser settings to receive updates.</p>
+                </div>
+              </div>
+
               <!-- Empty State -->
               <div v-if="notifStore.notifications.length === 0" key="empty-state" class="text-center py-20 px-6 text-[var(--text-muted)] w-full absolute inset-0 m-auto h-fit transition-all duration-300 flex flex-col items-center justify-center">
                 <div class="relative w-20 h-20 mb-6 flex items-center justify-center">
@@ -128,7 +151,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useNotificationsStore } from '../stores/notifications';
 import { useLocaleStore } from '../stores/locale';
-import { Bell, X, CheckCheck, Trash2, BellOff, Info, AlertTriangle, ShieldAlert, CheckCircle2, Loader2, BookOpen, XCircle, AlertCircle } from 'lucide-vue-next';
+import { Bell, X, CheckCheck, Trash2, BellOff, Info, AlertTriangle, ShieldAlert, CheckCircle2, Loader2, BookOpen, XCircle, AlertCircle, BellRing } from 'lucide-vue-next';
 
 const notifStore = useNotificationsStore();
 const localeStore = useLocaleStore();

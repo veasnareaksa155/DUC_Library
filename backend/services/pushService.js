@@ -3,7 +3,7 @@ const { find, remove } = require('../googleSheetsORM');
 
 // Configure web-push with VAPID keys
 webPush.setVapidDetails(
-  'mailto:test@example.com',
+  'mailto:admin@duclibrary.com',
   process.env.VAPID_PUBLIC_KEY,
   process.env.VAPID_PRIVATE_KEY
 );
