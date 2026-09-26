@@ -28,47 +28,12 @@ router.post('/verify', authenticateToken, async (req, res) => {
     const { lat, lng } = req.body;
     const userId = req.user.id;
 
-    if (!lat || !lng) {
-      return res.status(400).json({ message: 'GPS Coordinates (latitude and longitude) are required.' });
-    }
-
-    // Check if user already checked in today
-    const checkins = await ORM.getAll('Checkins');
-    const todayStr = new Date().toISOString().split('T')[0];
-    const alreadyCheckedIn = checkins.some(c => 
-      String(c.user_id) === String(userId) && 
-      c.checkin_time.startsWith(todayStr) &&
-      c.status === 'success'
-    );
-
-    if (alreadyCheckedIn) {
-      return res.status(400).json({ message: 'You have already checked in today!' });
-    }
-
-    // Default to a placeholder if not set in .env (You should set these in backend/.env)
-    const libraryLat = parseFloat(process.env.LIBRARY_LAT || '11.5564'); 
-    const libraryLng = parseFloat(process.env.LIBRARY_LNG || '104.9282');
-    const allowedRadiusMeters = parseInt(process.env.LIBRARY_RADIUS_METERS || '100'); // default 100 meters
-
-    const userLat = parseFloat(lat);
-    const userLng = parseFloat(lng);
-
-    const distance = getDistanceFromLatLonInM(libraryLat, libraryLng, userLat, userLng);
-
-    if (distance > allowedRadiusMeters) {
-      return res.status(403).json({ 
-        message: `You are too far from the library! (You are ${Math.round(distance)} meters away. Must be within ${allowedRadiusMeters}m).`,
-        distance_meters: Math.round(distance),
-        allowed_radius: allowedRadiusMeters
-      });
-    }
-
     // Insert Checkin record
     const checkinRecord = {
       user_id: userId,
       checkin_time: new Date().toISOString(),
-      lat: userLat,
-      lng: userLng,
+      lat: lat || null,
+      lng: lng || null,
       status: 'success'
     };
 
@@ -83,7 +48,6 @@ router.post('/verify', authenticateToken, async (req, res) => {
 
     res.status(200).json({
       message: 'Successfully checked in to the library!',
-      distance_meters: Math.round(distance),
       checkin_time: checkinRecord.checkin_time
     });
 

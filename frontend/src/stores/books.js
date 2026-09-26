@@ -12,9 +12,34 @@ export const useBooksStore = defineStore('books', () => {
   // Filters
   const searchQuery = ref('');
   const selectedCategory = ref('all');
+  const bookFormat = ref('all'); // 'all', 'physical', 'digital'
   const availableOnly = ref(false);
 
   const authStore = useAuthStore();
+
+  // Hierarchical list of categories with indentation prefix for clean dropdowns
+  const hierarchicalCategories = computed(() => {
+    const result = [];
+    function traverse(parentId = null, level = 0) {
+      const items = categories.value.filter(c => {
+        if (!parentId) return !c.parent_id;
+        return String(c.parent_id) === String(parentId);
+      });
+      items.sort((a, b) => a.name.localeCompare(b.name));
+      for (const item of items) {
+        const prefix = level > 0 ? `${'  '.repeat(level)}↳ ` : '';
+        result.push({
+          ...item,
+          level,
+          displayName: prefix ? `${prefix}${item.name}` : item.name,
+          displayNameKm: prefix ? `${prefix}${item.name_km || item.name}` : (item.name_km || item.name)
+        });
+        traverse(item.id, level + 1);
+      }
+    }
+    traverse(null, 0);
+    return result;
+  });
 
   // Ultra-fast instant client-side filtering for 60fps buttery smooth UI
   const books = computed(() => {
@@ -22,7 +47,25 @@ export const useBooksStore = defineStore('books', () => {
 
     if (selectedCategory.value && selectedCategory.value !== 'all' && selectedCategory.value !== 'wishlist') {
       const catId = String(selectedCategory.value);
-      result = result.filter(b => String(b.category_id) === catId);
+      // Collect target category and all its descendant sub-category IDs
+      const targetIds = new Set([catId]);
+      const queue = [catId];
+      while (queue.length > 0) {
+        const currId = queue.shift();
+        for (const c of categories.value) {
+          if (String(c.parent_id) === currId && !targetIds.has(String(c.id))) {
+            targetIds.add(String(c.id));
+            queue.push(String(c.id));
+          }
+        }
+      }
+      result = result.filter(b => targetIds.has(String(b.category_id)));
+    }
+
+    if (bookFormat.value === 'physical') {
+      result = result.filter(b => (Number(b.copies_total) || 0) > 0);
+    } else if (bookFormat.value === 'digital') {
+      result = result.filter(b => b.has_pdf === 1 || b.has_pdf === '1' || !!b.pdf_url);
     }
 
     if (availableOnly.value) {
@@ -207,6 +250,22 @@ export const useBooksStore = defineStore('books', () => {
     return data;
   }
 
+  async function reorderCategories(orders) {
+    // orders: [{ id, sort_order }, ...]
+    const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/categories/reorder`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${authStore.token}`
+      },
+      body: JSON.stringify({ orders })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Failed to reorder categories');
+    await fetchCategories();
+    return data;
+  }
+
   // Fetch on window focus to ensure fresh data
   if (typeof window !== 'undefined') {
     window.addEventListener('focus', () => {
@@ -224,11 +283,13 @@ export const useBooksStore = defineStore('books', () => {
     masterBooks,
     books,
     categories,
+    hierarchicalCategories,
     currentBook,
     loading,
     error,
     searchQuery,
     selectedCategory,
+    bookFormat,
     availableOnly,
     fetchCategories,
     fetchBooks,
@@ -238,6 +299,7 @@ export const useBooksStore = defineStore('books', () => {
     deleteBook,
     addCategory,
     updateCategory,
-    deleteCategory
+    deleteCategory,
+    reorderCategories
   };
 });

@@ -100,39 +100,135 @@
       </div>
 
       <!-- Categories & Controls Row -->
-      <div class="flex items-center justify-between gap-4 w-full">
-        <div class="flex items-center gap-2 flex-1 min-w-0 max-sm:w-full">
-          <button @click="scrollCategories('left')" class="inline-flex items-center justify-center w-8 h-8 rounded-md bg-transparent border border-[var(--border-color)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card-hover)] cursor-pointer shrink-0 z-[2] transition-colors" title="Scroll Left">
-            <ChevronLeft :size="16" />
-          </button>
-
-          <div 
-            class="flex items-center gap-2 overflow-x-auto overflow-y-hidden py-1 scroll-smooth flex-1 min-w-0 scrollbar-none" 
-            ref="categoryScrollRef"
-            @wheel.prevent="handleCategoryWheel"
-          >
-            <button 
-              @click="selectCategory('all')" 
-              class="px-4 py-1.5 rounded-md text-[0.85rem] font-medium whitespace-nowrap shrink-0 cursor-pointer transition-colors max-sm:max-w-[160px] max-sm:truncate max-sm:px-3 max-sm:text-xs"
-              :class="booksStore.selectedCategory === 'all' ? 'bg-[var(--text-primary)] text-[var(--bg-primary)] border-transparent' : 'bg-transparent border border-[var(--border-color)] text-[var(--text-secondary)] hover:bg-[var(--bg-card-hover)]'"
-            >
-              {{ localeStore.t('allCategories') }}
+      <div class="flex flex-col gap-2.5 w-full">
+        <!-- Tier 1: Parent Catalogs Bar -->
+        <div class="flex items-center justify-between gap-4 w-full">
+          <div class="flex items-center gap-2 flex-1 min-w-0 max-sm:w-full">
+            <button @click="scrollCategories('left')" class="inline-flex items-center justify-center w-8 h-8 rounded-md bg-transparent border border-[var(--border-color)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card-hover)] cursor-pointer shrink-0 z-[2] transition-colors" title="Scroll Left">
+              <ChevronLeft :size="16" />
             </button>
-            <button 
-              v-for="cat in booksStore.categories" 
-              :key="cat.id"
-              @click="selectCategory(cat.id)"
-              class="px-4 py-1.5 rounded-md text-[0.85rem] font-medium whitespace-nowrap shrink-0 cursor-pointer transition-colors max-sm:max-w-[160px] max-sm:truncate max-sm:px-3 max-sm:text-xs"
-              :class="booksStore.selectedCategory === cat.id ? 'bg-[var(--text-primary)] text-[var(--bg-primary)] border-transparent' : 'bg-transparent border border-[var(--border-color)] text-[var(--text-secondary)] hover:bg-[var(--bg-card-hover)]'"
+
+            <div 
+              class="flex items-center gap-2 overflow-x-auto overflow-y-hidden py-1 scroll-smooth flex-1 min-w-0 scrollbar-none" 
+              ref="categoryScrollRef"
+              @wheel.prevent="handleCategoryWheel"
             >
-              <span :style="(localeStore.currentLang === 'km' && cat.name_km) ? 'font-family: \'Siemreab\', sans-serif;' : ''">{{ (localeStore.currentLang === 'km' && cat.name_km) ? cat.name_km : cat.name }}</span> <span class="opacity-60 ml-1">({{ cat.book_count || 0 }})</span>
+              <!-- All Books -->
+              <button 
+                @click="selectCategory('all')" 
+                class="px-4 py-1.5 rounded-lg text-[0.85rem] font-semibold whitespace-nowrap shrink-0 cursor-pointer transition-all duration-200 max-sm:max-w-[160px] max-sm:truncate max-sm:px-3 max-sm:text-xs"
+                :class="booksStore.selectedCategory === 'all' ? 'bg-[var(--text-primary)] text-[var(--bg-primary)] shadow-sm border-transparent' : 'bg-transparent border border-[var(--border-color)] text-[var(--text-secondary)] hover:bg-[var(--bg-card-hover)] hover:text-[var(--text-primary)]'"
+              >
+                {{ localeStore.t('allCategories') }}
+              </button>
+
+              <!-- Parent Categories -->
+              <button 
+                v-for="parent in rootCategories" 
+                :key="parent.id"
+                @click="selectParentCategory(parent.id)"
+                class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-[0.85rem] font-semibold whitespace-nowrap shrink-0 cursor-pointer transition-all duration-200 max-sm:max-w-[180px] max-sm:truncate max-sm:px-3 max-sm:text-xs"
+                :class="activeParentCategory?.id === parent.id ? 'bg-[var(--text-primary)] text-[var(--bg-primary)] shadow-sm border-transparent' : 'bg-transparent border border-[var(--border-color)] text-[var(--text-secondary)] hover:bg-[var(--bg-card-hover)] hover:text-[var(--text-primary)]'"
+              >
+                <span :style="(localeStore.currentLang === 'km' && parent.name_km) ? 'font-family: \'Siemreab\', sans-serif;' : ''">
+                  {{ (localeStore.currentLang === 'km' && parent.name_km) ? parent.name_km : parent.name }}
+                </span>
+                <span class="opacity-60 text-[0.78rem]">({{ parent.total_book_count ?? parent.book_count ?? 0 }})</span>
+                <ChevronDown v-if="booksStore.categories.some(c => String(c.parent_id) === String(parent.id))" :size="13" class="opacity-70 transition-transform duration-200" :class="activeParentCategory?.id === parent.id ? 'rotate-180' : ''" />
+              </button>
+            </div>
+
+            <button @click="scrollCategories('right')" class="inline-flex items-center justify-center w-8 h-8 rounded-md bg-transparent border border-[var(--border-color)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card-hover)] cursor-pointer shrink-0 z-[2] transition-colors" title="Scroll Right">
+              <ChevronRight :size="16" />
             </button>
           </div>
-
-          <button @click="scrollCategories('right')" class="inline-flex items-center justify-center w-8 h-8 rounded-md bg-transparent border border-[var(--border-color)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card-hover)] cursor-pointer shrink-0 z-[2] transition-colors" title="Scroll Right">
-            <ChevronRight :size="16" />
-          </button>
         </div>
+
+        <!-- Cascading Sub-Catalogs Bars (Supports Sub, Sub-in-Sub, Sub-in-Sub-in-Sub, etc.) -->
+        <transition-group
+          tag="div"
+          class="flex flex-col gap-2 w-full"
+          enter-active-class="transition duration-200 ease-out"
+          enter-from-class="opacity-0 -translate-y-2 scale-98"
+          enter-to-class="opacity-100 translate-y-0 scale-100"
+          leave-active-class="transition duration-150 ease-in"
+          leave-from-class="opacity-100 translate-y-0 scale-100"
+          leave-to-class="opacity-0 -translate-y-2 scale-98"
+        >
+          <div
+            v-for="tier in subCategoryTiers"
+            :key="'tier-' + tier.parent.id"
+            class="flex items-center gap-2 w-full pl-2 sm:pl-3 py-2 px-2.5 rounded-xl border transition-all duration-200 shadow-sm"
+            :class="[
+              tier.level === 1 ? 'bg-slate-500/5 dark:bg-slate-500/10 border-[var(--border-color)]/60' :
+              tier.level === 2 ? 'bg-purple-500/5 dark:bg-purple-500/10 border-purple-500/20 sm:ml-3' :
+              'bg-pink-500/5 dark:bg-pink-500/10 border-pink-500/20 sm:ml-6'
+            ]"
+          >
+            <!-- Label -->
+            <div
+              class="flex items-center gap-1.5 text-[0.75rem] font-bold uppercase tracking-wider shrink-0 pl-1"
+              :class="tier.level === 1 ? 'text-[var(--accent-primary)]' : tier.level === 2 ? 'text-purple-600 dark:text-purple-400' : 'text-pink-600 dark:text-pink-400'"
+            >
+              <CornerDownRight :size="13" stroke-width="2.5" />
+              <span class="hidden sm:inline">
+                {{ tier.level === 1 ? 'Sub-Catalogs:' : `Sub of ${(localeStore.currentLang === 'km' && tier.parent.name_km) ? tier.parent.name_km : tier.parent.name}:` }}
+              </span>
+            </div>
+
+            <!-- Scroll Left -->
+            <button
+              @click="scrollTier(tier.parent.id, 'left')"
+              class="inline-flex items-center justify-center w-7 h-7 rounded-md bg-transparent border border-[var(--border-color)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card)] cursor-pointer shrink-0 transition-colors"
+              title="Scroll Left"
+            >
+              <ChevronLeft :size="14" />
+            </button>
+
+            <!-- Scrollable list -->
+            <div
+              class="flex items-center gap-1.5 overflow-x-auto overflow-y-hidden py-0.5 scroll-smooth flex-1 min-w-0 scrollbar-none"
+              :ref="el => setTierScrollRef(tier.parent.id, el)"
+              @wheel.prevent="e => handleTierWheel(tier.parent.id, e)"
+            >
+              <!-- "All in Parent" pill -->
+              <button
+                @click="selectCategory(tier.parent.id)"
+                class="px-3 py-1 rounded-lg text-[0.8rem] font-medium whitespace-nowrap shrink-0 cursor-pointer transition-all duration-200"
+                :class="tier.selectedChildId === 'all_in_parent' ? (tier.level === 1 ? 'bg-indigo-600 text-white font-bold shadow-sm' : 'bg-purple-600 text-white font-bold shadow-sm') : 'bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card-hover)]'"
+              >
+                {{ localeStore.currentLang === 'km' ? 'ទាំងអស់ក្នុង ' + (tier.parent.name_km || tier.parent.name) : 'All in ' + tier.parent.name }}
+                <span class="opacity-70 text-[0.75rem] ml-1">({{ tier.parent.total_book_count ?? tier.parent.book_count ?? 0 }})</span>
+              </button>
+
+              <!-- Individual Sub-categories -->
+              <button
+                v-for="sub in tier.children"
+                :key="sub.id"
+                @click="selectCategory(sub.id)"
+                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-[0.8rem] font-medium whitespace-nowrap shrink-0 cursor-pointer transition-all duration-200"
+                :class="tier.selectedChildId === sub.id ? (tier.level === 1 ? 'bg-indigo-600 text-white font-bold shadow-sm' : 'bg-purple-600 text-white font-bold shadow-sm') : 'bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card-hover)]'"
+              >
+                <span :style="(localeStore.currentLang === 'km' && sub.name_km) ? 'font-family: \'Siemreab\', sans-serif;' : ''">
+                  {{ (localeStore.currentLang === 'km' && sub.name_km) ? sub.name_km : sub.name }}
+                </span>
+                <span class="opacity-70 text-[0.75rem]">({{ sub.total_book_count ?? sub.book_count ?? 0 }})</span>
+                <span v-if="hasChildren(sub.id)" class="text-[0.68rem] px-1.5 py-0.2 rounded-full font-bold ml-0.5" :class="tier.selectedChildId === sub.id ? 'bg-white/20 text-white' : 'bg-indigo-500/10 text-indigo-500'">
+                  {{ getChildrenCount(sub.id) }} sub ▾
+                </span>
+              </button>
+            </div>
+
+            <!-- Scroll Right -->
+            <button
+              @click="scrollTier(tier.parent.id, 'right')"
+              class="inline-flex items-center justify-center w-7 h-7 rounded-md bg-transparent border border-[var(--border-color)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card)] cursor-pointer shrink-0 transition-colors"
+              title="Scroll Right"
+            >
+              <ChevronRight :size="14" />
+            </button>
+          </div>
+        </transition-group>
       </div>
     </section>
 
@@ -140,8 +236,28 @@
     <section class="catalog-section">
       <div class="flex items-center justify-between mb-6">
         <div class="flex items-center gap-3">
-          <h3 class="text-xl font-bold text-[var(--text-primary)] tracking-tight">{{ booksStore.selectedCategory === 'wishlist' ? localeStore.t('mySavedWishlist') : localeStore.t('catalog') }}</h3>
-          <span class="text-[0.75rem] font-semibold text-[var(--text-secondary)] bg-[var(--bg-card-hover)] px-2.5 py-1 rounded-md border border-[var(--border-color)]" v-if="!booksStore.loading">{{ displayedBooks.length }} {{ localeStore.t('books') }}</span>
+          <div v-if="activeCategoryChain.length > 0" class="flex items-center flex-wrap gap-2">
+            <template v-for="(cat, idx) in activeCategoryChain" :key="cat.id">
+              <span v-if="idx > 0" class="text-[var(--text-muted)] select-none">›</span>
+              <button
+                @click="selectCategory(cat.id)"
+                class="bg-transparent border-none p-0 cursor-pointer transition-colors"
+                :class="idx === activeCategoryChain.length - 1 ? 'text-[var(--accent-primary)] font-extrabold text-[1.2rem]' : 'text-[var(--text-primary)] hover:text-indigo-500 font-bold text-[1.1rem]'"
+                :style="(localeStore.currentLang === 'km' && cat.name_km) ? 'font-family: \'Siemreab\', sans-serif;' : ''"
+              >
+                {{ (localeStore.currentLang === 'km' && cat.name_km) ? cat.name_km : cat.name }}
+              </button>
+            </template>
+          </div>
+          <h3 v-else class="text-xl font-bold text-[var(--text-primary)] tracking-tight">
+            {{ booksStore.selectedCategory === 'wishlist' ? localeStore.t('mySavedWishlist') : localeStore.t('catalog') }}
+          </h3>
+          <span class="text-[0.75rem] font-semibold text-[var(--text-secondary)] bg-[var(--bg-card-hover)] px-2.5 py-1 rounded-md border border-[var(--border-color)]" v-if="!booksStore.loading">
+            {{ displayedBooks.length }} {{ localeStore.t('books') }}
+          </span>
+          <button v-if="activeCategoryChain.length > 0" @click="selectCategory('all')" class="text-[0.78rem] text-indigo-500 hover:underline font-semibold ml-1 cursor-pointer">
+            {{ localeStore.currentLang === 'km' ? 'បង្ហាញទាំងអស់' : 'View All' }}
+          </button>
         </div>
       </div>
       <div v-if="booksStore.loading" class="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-6 max-sm:grid-cols-2 max-sm:gap-4 xl:grid-cols-5">
@@ -227,7 +343,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import { ref, reactive, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useBooksStore } from '../stores/books';
 import { useAuthStore } from '../stores/auth';
 import { useLocaleStore } from '../stores/locale';
@@ -245,7 +361,7 @@ import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 import { 
   Award, Search, X, CheckCircle2, Loader2, BookX, Heart, Bell, Globe,
-  ChevronLeft, ChevronRight, BookOpenCheck, BookmarkPlus 
+  ChevronLeft, ChevronRight, ChevronDown, CornerDownRight, BookOpenCheck, BookmarkPlus 
 } from 'lucide-vue-next';
 
 const swiperModules = [Autoplay, Pagination, Navigation];
@@ -354,6 +470,84 @@ const toastMessage = ref('');
 
 // Category Scroll Control
 const categoryScrollRef = ref(null);
+const tierScrollRefs = reactive({});
+
+function setTierScrollRef(parentId, el) {
+  if (el) tierScrollRefs[parentId] = el;
+}
+
+function scrollTier(parentId, direction) {
+  const el = tierScrollRefs[parentId];
+  if (!el) return;
+  const scrollAmount = direction === 'left' ? -220 : 220;
+  el.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+}
+
+function handleTierWheel(parentId, e) {
+  const el = tierScrollRefs[parentId];
+  if (el && e.deltaY !== 0) {
+    el.scrollLeft += e.deltaY;
+  }
+}
+
+function hasChildren(catId) {
+  return booksStore.categories.some(c => String(c.parent_id) === String(catId));
+}
+
+function getChildrenCount(catId) {
+  return booksStore.categories.filter(c => String(c.parent_id) === String(catId)).length;
+}
+
+// Hierarchical Category Navigation
+const rootCategories = computed(() => {
+  return booksStore.categories.filter(c => !c.parent_id);
+});
+
+// Full active category chain from root to selected item
+const activeCategoryChain = computed(() => {
+  if (!booksStore.selectedCategory || booksStore.selectedCategory === 'all' || booksStore.selectedCategory === 'wishlist') {
+    return [];
+  }
+  const chain = [];
+  let curr = booksStore.categories.find(c => String(c.id) === String(booksStore.selectedCategory));
+  while (curr) {
+    chain.unshift(curr);
+    if (!curr.parent_id) break;
+    curr = booksStore.categories.find(c => String(c.id) === String(curr.parent_id));
+  }
+  return chain;
+});
+
+const activeParentCategory = computed(() => {
+  return activeCategoryChain.value[0] || null;
+});
+
+// Dynamic cascading tiers: for each category in the active chain that has children, display a tier
+const subCategoryTiers = computed(() => {
+  const tiers = [];
+  for (let i = 0; i < activeCategoryChain.value.length; i++) {
+    const parentCat = activeCategoryChain.value[i];
+    const children = booksStore.categories.filter(c => String(c.parent_id) === String(parentCat.id));
+    if (children.length > 0) {
+      const nextActive = activeCategoryChain.value[i + 1];
+      const isParentItselfSelected = String(booksStore.selectedCategory) === String(parentCat.id);
+
+      tiers.push({
+        parent: parentCat,
+        level: i + 1,
+        children: children,
+        selectedChildId: nextActive ? nextActive.id : (isParentItselfSelected ? 'all_in_parent' : null)
+      });
+    }
+  }
+  return tiers;
+});
+
+function selectParentCategory(parentId) {
+  booksStore.selectedCategory = parentId;
+  currentPage.value = 1;
+  booksStore.fetchBooks();
+}
 
 function scrollCategories(direction) {
   if (!categoryScrollRef.value) return;

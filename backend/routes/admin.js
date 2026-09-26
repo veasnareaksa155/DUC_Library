@@ -96,6 +96,23 @@ router.get('/dashboard-stats', async (req, res) => {
     const categories = await ORM.getAll('Categories');
 
     const totalBooks = books.length;
+    
+    let totalPhysicalBooks = 0;
+    let totalDigitalBooks = 0;
+    
+    books.forEach(b => {
+      const copiesTotal = Number(b.copies_total) || 0;
+      const copiesAvailable = Number(b.copies_available) || 0;
+      const hasPdf = !!b.pdf_url;
+      
+      // Sum the actual available stock across all physical books
+      if (copiesTotal > 0) {
+        totalPhysicalBooks += Math.max(0, copiesAvailable);
+      } else if (hasPdf && copiesTotal === 0) {
+        totalDigitalBooks++;
+      }
+    });
+
     const totalUsers = users.filter(u => u.role === 'user').length;
     const activeBorrowings = borrowings.filter(b => b.status === 'approved').length;
     const pendingRequests = borrowings.filter(b => b.status === 'pending').length;
@@ -194,6 +211,8 @@ router.get('/dashboard-stats', async (req, res) => {
 
       res.json({
         total_books: totalBooks,
+        total_physical_books: totalPhysicalBooks,
+        total_digital_books: totalDigitalBooks,
         total_users: totalUsers,
         active_borrowings: activeBorrowings,
         pending_requests: pendingRequests,

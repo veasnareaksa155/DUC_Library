@@ -141,6 +141,9 @@ function setupSSE(token) {
         // Refresh stores to instantly update the UI (bypassing local cache)
         borrowingsStore.fetchMyBorrowings(true);
         notificationsStore.loadNotifications();
+        if (authStore.isAdmin) {
+          borrowingsStore.fetchAdminDashboardStats(true);
+        }
       } else if (data.type === 'session_terminated') {
         if (authStore.token) {
           try {
@@ -239,6 +242,11 @@ function setupSSE(token) {
         window.dispatchEvent(new CustomEvent('active_readers_updated', { detail: data.payload }));
       } else if (data.type === 'catalog_updated') {
         window.dispatchEvent(new CustomEvent('catalog_updated', { detail: data.payload }));
+        
+        if (authStore.isAdmin) {
+          borrowingsStore.fetchAdminDashboardStats(true);
+        }
+
         // Trigger real-time catalog update
         import('./stores/books').then(module => {
           const booksStore = module.useBooksStore();

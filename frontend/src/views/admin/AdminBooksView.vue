@@ -36,9 +36,23 @@
               class="w-full appearance-none pl-10 pr-10 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-medium cursor-pointer shadow-sm"
             >
               <option value="all" class="bg-[var(--bg-card)] font-medium">{{ localeStore.t('allCategories') }}</option>
-              <option v-for="cat in booksStore.categories" :key="cat.id" :value="cat.id" class="bg-[var(--bg-card)] font-medium">
-                {{ (localeStore.currentLang === 'km' && cat.name_km) ? cat.name_km : cat.name }}
+              <option v-for="cat in booksStore.hierarchicalCategories" :key="cat.id" :value="cat.id" class="bg-[var(--bg-card)] font-medium">
+                {{ (localeStore.currentLang === 'km' && cat.displayNameKm) ? cat.displayNameKm : cat.displayName }}
               </option>
+            </select>
+            <ChevronDown :size="16" class="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)] pointer-events-none" />
+          </div>
+
+          <!-- Format Filter -->
+          <div class="relative min-w-[180px]">
+            <BookOpen :size="18" class="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)] pointer-events-none" />
+            <select 
+              v-model="booksStore.bookFormat"
+              class="w-full appearance-none pl-10 pr-10 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-medium cursor-pointer shadow-sm"
+            >
+              <option value="all" class="bg-[var(--bg-card)] font-medium">{{ localeStore.currentLang === 'km' ? 'សៀវភៅទាំងអស់' : 'All Formats' }}</option>
+              <option value="physical" class="bg-[var(--bg-card)] font-medium">{{ localeStore.currentLang === 'km' ? 'សៀវភៅពិត' : 'Physical Books' }}</option>
+              <option value="digital" class="bg-[var(--bg-card)] font-medium">{{ localeStore.currentLang === 'km' ? 'សៀវភៅឌីជីថល' : 'Digital Books' }}</option>
             </select>
             <ChevronDown :size="16" class="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)] pointer-events-none" />
           </div>
@@ -234,8 +248,8 @@
                     <label class="block text-[0.8rem] font-semibold text-[var(--text-secondary)] mb-1.5 transition-colors">{{ localeStore.t('categoryReq') }}</label>
                     <div class="relative">
                       <select v-model="form.category_id" class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-md px-3.5 py-2.5 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all shadow-sm appearance-none font-medium" required>
-                        <option v-for="cat in booksStore.categories" :key="cat.id" :value="cat.id" class="bg-[var(--bg-primary)]">
-                          {{ (localeStore.currentLang === 'km' && cat.name_km) ? cat.name_km : cat.name }}
+                        <option v-for="cat in booksStore.hierarchicalCategories" :key="cat.id" :value="cat.id" class="bg-[var(--bg-primary)]">
+                          {{ (localeStore.currentLang === 'km' && cat.displayNameKm) ? cat.displayNameKm : cat.displayName }}
                         </option>
                       </select>
                       <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none text-[var(--text-muted)]">
@@ -460,7 +474,7 @@ import { useAuthStore } from '../../stores/auth';
 import { useLocaleStore } from '../../stores/locale';
 import { useToastStore } from '../../stores/toast';
 import { Star, Plus, Search, Pencil, Trash2, X, Save, FileSpreadsheet, RefreshCw, CheckCircle, AlertCircle, 
-AlertTriangle, ChevronLeft, ChevronRight, FileText, Upload, Bookmark, Image, Loader2, Library, ChevronDown, BookOpen } from 'lucide-vue-next';
+AlertTriangle, ChevronLeft, ChevronRight, FileText, Upload, Bookmark, Image, Loader2, Library, ChevronDown, BookOpen, Check } from 'lucide-vue-next';
 
 const booksStore = useBooksStore();
 const authStore = useAuthStore();

@@ -47,16 +47,28 @@
       <template v-else-if="stats">
         <!-- Premium Metrics KPI Grid -->
         <section class="grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-6 mb-10">
-          <!-- Total Books -->
+          <!-- Physical Books -->
           <div class="p-6 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:-translate-y-1 hover:shadow-[0_15px_40px_rgba(0,0,0,0.08)] dark:hover:shadow-[0_15px_40px_rgba(0,0,0,0.4)] transition-all duration-300 relative overflow-hidden group">
             <div class="absolute -right-10 -top-10 w-32 h-32 bg-indigo-500/10 dark:bg-indigo-500/20 rounded-full blur-3xl group-hover:bg-indigo-500/20 transition-colors duration-500"></div>
             <div class="flex items-start justify-between mb-4 relative z-10">
-              <span class="text-[0.75rem] font-extrabold text-[var(--text-secondary)] uppercase tracking-[0.08em] mt-2">{{ localeStore.t('totalBooks') }}</span>
+              <span class="text-[0.75rem] font-extrabold text-[var(--text-secondary)] uppercase tracking-[0.08em] mt-2">{{ localeStore.t('physicalBooks') || 'Physical Books' }}</span>
               <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-50 to-indigo-100/50 dark:from-indigo-500/20 dark:to-indigo-500/5 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 border border-indigo-200/50 dark:border-indigo-500/30 shadow-inner group-hover:scale-105 transition-transform duration-300">
                 <BookOpen :size="22" stroke-width="2.5" />
               </div>
             </div>
-            <span class="text-[2.5rem] font-black text-[var(--text-primary)] tracking-tight leading-none relative z-10">{{ stats.total_books }}</span>
+            <span class="text-[2.5rem] font-black text-[var(--text-primary)] tracking-tight leading-none relative z-10">{{ stats.total_physical_books }}</span>
+          </div>
+
+          <!-- Digital Books -->
+          <div class="p-6 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:-translate-y-1 hover:shadow-[0_15px_40px_rgba(0,0,0,0.08)] dark:hover:shadow-[0_15px_40px_rgba(0,0,0,0.4)] transition-all duration-300 relative overflow-hidden group">
+            <div class="absolute -right-10 -top-10 w-32 h-32 bg-purple-500/10 dark:bg-purple-500/20 rounded-full blur-3xl group-hover:bg-purple-500/20 transition-colors duration-500"></div>
+            <div class="flex items-start justify-between mb-4 relative z-10">
+              <span class="text-[0.75rem] font-extrabold text-[var(--text-secondary)] uppercase tracking-[0.08em] mt-2">{{ localeStore.t('digitalBooks') || 'Digital Books' }}</span>
+              <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-50 to-purple-100/50 dark:from-purple-500/20 dark:to-purple-500/5 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0 border border-purple-200/50 dark:border-purple-500/30 shadow-inner group-hover:scale-105 transition-transform duration-300">
+                <Tablet :size="22" stroke-width="2.5" />
+              </div>
+            </div>
+            <span class="text-[2.5rem] font-black text-[var(--text-primary)] tracking-tight leading-none relative z-10">{{ stats.total_digital_books }}</span>
           </div>
 
           <!-- Registered Members -->
@@ -198,7 +210,7 @@ import { useBorrowingsStore } from '../../stores/borrowings';
 import { useAuthStore } from '../../stores/auth';
 import { useLocaleStore } from '../../stores/locale';
 import AdminCharts from '../../components/AdminCharts.vue';
-import { ShieldCheck, Plus, BookOpen, Users, BookmarkCheck, Clock, AlertTriangle, Loader2, Eye, Activity, ArrowRight } from 'lucide-vue-next';
+import { ShieldCheck, Plus, BookOpen, Users, BookmarkCheck, Clock, AlertTriangle, Loader2, Eye, Activity, ArrowRight, Tablet } from 'lucide-vue-next';
 
 const borrowingsStore = useBorrowingsStore();
 const authStore = useAuthStore();

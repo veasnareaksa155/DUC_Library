@@ -224,45 +224,18 @@ function openCheckinModal() {
   checkinStore.openModal();
 }
 
-function performCheckin() {
-  if (!navigator.geolocation) {
-    checkinStatus.value = 'error';
-    checkinErrorMsg.value = 'Geolocation is not supported by your browser.';
-    return;
-  }
-
+async function performCheckin() {
   checkinStatus.value = 'loading';
   checkinStore.isCheckingIn = true;
 
-  navigator.geolocation.getCurrentPosition(
-    async (position) => {
-      const lat = position.coords.latitude;
-      const lng = position.coords.longitude;
-      
-      const success = await checkinStore.verifyCheckin(lat, lng);
-      
-      if (success) {
-        checkinStatus.value = 'success';
-      } else {
-        checkinStatus.value = 'error';
-        checkinErrorMsg.value = checkinStore.error;
-      }
-    },
-    (err) => {
-      checkinStore.isCheckingIn = false;
-      checkinStatus.value = 'error';
-      if (err.code === 1) {
-        checkinErrorMsg.value = 'Permission denied. Please allow location access in your browser settings.';
-      } else if (err.code === 2) {
-        checkinErrorMsg.value = 'Position unavailable. Make sure your device location services are turned on.';
-      } else if (err.code === 3) {
-        checkinErrorMsg.value = 'Location request timed out. Please try again or move to a better spot.';
-      } else {
-        checkinErrorMsg.value = 'Unable to retrieve your location. Please ensure location services are enabled.';
-      }
-    },
-    { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
-  );
+  const success = await checkinStore.verifyCheckin(null, null);
+  
+  if (success) {
+    checkinStatus.value = 'success';
+  } else {
+    checkinStatus.value = 'error';
+    checkinErrorMsg.value = checkinStore.error;
+  }
 }
 
 function goHome() {
