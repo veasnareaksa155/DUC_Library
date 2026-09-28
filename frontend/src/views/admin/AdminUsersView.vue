@@ -7,6 +7,9 @@
         </div>
 
         <div class="flex items-center gap-3">
+          <button @click="isCreateModalOpen = true" class="inline-flex items-center justify-center gap-2 font-bold rounded-xl transition-all duration-300 ease-out active:scale-95 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 shadow-sm hover:shadow-md hover:bg-emerald-500 hover:text-white px-5 py-3 text-[0.95rem]">
+            <UserCheck :size="18" /> Create User
+          </button>
           <button @click="fetchUsers(true)" class="inline-flex items-center justify-center gap-2 font-bold rounded-xl transition-all duration-300 ease-out active:scale-95 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-500/30 shadow-sm hover:shadow-md hover:bg-indigo-500 hover:text-white px-5 py-3 text-[0.95rem]">
             <RefreshCw :size="18" :class="{'animate-spin': loadingSync}" /> Sync Now
           </button>
@@ -18,14 +21,28 @@
 
       <div class="p-6 bg-[var(--bg-card)] border-[var(--border-color)] border rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
         <div class="flex justify-between items-center mb-5">
-          <div class="relative flex items-center w-full max-w-[450px]">
-            <Search :size="18" class="absolute left-3.5 text-[var(--text-muted)] pointer-events-none z-10" />
-            <input 
-              v-model="searchQuery" 
-              type="text" 
-              class="w-full pl-[2.6rem] h-[42px] rounded-[var(--radius-md)] border border-[var(--border-color)] bg-[var(--bg-primary)] text-[var(--text-primary)] text-[0.9rem] focus:border-[var(--accent-primary)] focus:outline-none focus:ring-[3px] focus:ring-indigo-500/20"
-              placeholder="Search by Student ID, Name, Room, Major, or Phone..." 
-            />
+          <div class="flex items-center gap-3 w-full max-w-[800px]">
+            <div class="relative flex items-center flex-1">
+              <Search :size="18" class="absolute left-3.5 text-[var(--text-muted)] pointer-events-none z-10" />
+              <input 
+                v-model="searchQuery" 
+                type="text" 
+                class="w-full pl-[2.6rem] h-[42px] rounded-[var(--radius-md)] border border-[var(--border-color)] bg-[var(--bg-primary)] text-[var(--text-primary)] text-[0.9rem] focus:border-[var(--accent-primary)] focus:outline-none focus:ring-[3px] focus:ring-indigo-500/20"
+                placeholder="Search by Student ID, Name, Room, Major, Phone..." 
+              />
+            </div>
+            <div class="relative flex items-center w-[160px]">
+              <select v-model="filterGeneration" class="w-full h-[42px] px-3 rounded-[var(--radius-md)] border border-[var(--border-color)] bg-[var(--bg-primary)] text-[var(--text-primary)] text-[0.9rem] focus:border-[var(--accent-primary)] focus:outline-none focus:ring-[3px] focus:ring-indigo-500/20 appearance-none">
+                <option value="">All Generations</option>
+                <option v-for="gen in uniqueGenerations" :key="gen" :value="gen">{{ gen }}</option>
+              </select>
+            </div>
+            <div class="relative flex items-center w-[160px]">
+              <select v-model="filterClass" class="w-full h-[42px] px-3 rounded-[var(--radius-md)] border border-[var(--border-color)] bg-[var(--bg-primary)] text-[var(--text-primary)] text-[0.9rem] focus:border-[var(--accent-primary)] focus:outline-none focus:ring-[3px] focus:ring-indigo-500/20 appearance-none">
+                <option value="">All Classes</option>
+                <option v-for="cls in uniqueClasses" :key="cls" :value="cls">{{ cls }}</option>
+              </select>
+            </div>
           </div>
         </div>
 
@@ -283,6 +300,70 @@
         </div>
       </div>
 
+      <!-- Create User Modal -->
+      <div v-if="isCreateModalOpen" class="fixed inset-0 bg-black/75 backdrop-blur-[8px] flex items-center justify-center z-[1000] p-6" @click.self="isCreateModalOpen = false">
+        <div class="max-w-[600px] w-full max-h-[90vh] overflow-y-auto p-7 box-border rounded-[var(--radius-xl)] border border-[var(--border-color)] bg-[var(--bg-card)] shadow-[var(--shadow-xl)]">
+          <header class="flex justify-between items-center mb-5">
+            <h2 class="text-xl font-bold">Create New User</h2>
+            <button @click="isCreateModalOpen = false" class="bg-transparent border-none text-[var(--text-muted)] cursor-pointer hover:text-slate-200"><X :size="20" /></button>
+          </header>
+
+          <form @submit.prevent="createUser" class="space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-semibold mb-1">Student ID *</label>
+                <input v-model="newUser.student_id" required type="text" class="w-full px-3 py-2 rounded-lg border border-[var(--border-color)] bg-[var(--bg-primary)] text-sm focus:border-indigo-500 focus:outline-none" placeholder="DUC2024-..." />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold mb-1">Email</label>
+                <input v-model="newUser.email" type="email" class="w-full px-3 py-2 rounded-lg border border-[var(--border-color)] bg-[var(--bg-primary)] text-sm focus:border-indigo-500 focus:outline-none" placeholder="user@duc.com" />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold mb-1">Full Name (English) *</label>
+                <input v-model="newUser.name_latin" required type="text" class="w-full px-3 py-2 rounded-lg border border-[var(--border-color)] bg-[var(--bg-primary)] text-sm focus:border-indigo-500 focus:outline-none" placeholder="e.g. SOK SAN" />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold mb-1">Full Name (Khmer)</label>
+                <input v-model="newUser.name_khmer" type="text" class="w-full px-3 py-2 rounded-lg border border-[var(--border-color)] bg-[var(--bg-primary)] text-sm focus:border-indigo-500 focus:outline-none" placeholder="e.g. សុខ សាន" />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold mb-1">Password</label>
+                <input v-model="newUser.password" type="password" class="w-full px-3 py-2 rounded-lg border border-[var(--border-color)] bg-[var(--bg-primary)] text-sm focus:border-indigo-500 focus:outline-none" placeholder="Leave empty for default (Student ID)" />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold mb-1">Phone</label>
+                <input v-model="newUser.phone" type="text" class="w-full px-3 py-2 rounded-lg border border-[var(--border-color)] bg-[var(--bg-primary)] text-sm focus:border-indigo-500 focus:outline-none" placeholder="e.g. 012345678" />
+              </div>
+              <div class="col-span-2 md:col-span-1">
+                <label class="block text-sm font-semibold mb-1">Telegram Username</label>
+                <input v-model="newUser.telegram" type="text" class="w-full px-3 py-2 rounded-lg border border-[var(--border-color)] bg-[var(--bg-primary)] text-sm focus:border-indigo-500 focus:outline-none" placeholder="e.g. @soksan" />
+              </div>
+              <div class="col-span-2 md:col-span-1">
+                <label class="block text-sm font-semibold mb-1">Gender</label>
+                <select v-model="newUser.gender" class="w-full px-3 py-2 rounded-lg border border-[var(--border-color)] bg-[var(--bg-primary)] text-sm focus:border-indigo-500 focus:outline-none">
+                  <option value="">Select Gender</option>
+                  <option value="ប្រុស">ប្រុស (Male)</option>
+                  <option value="ស្រី">ស្រី (Female)</option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="bg-indigo-500/10 border border-indigo-500/20 p-3 rounded-lg flex items-start gap-3 mt-4">
+              <AlertCircle :size="18" class="text-indigo-400 mt-0.5 shrink-0" />
+              <p class="text-xs text-indigo-200">The user's default password will be their Student ID if not provided explicitly during this creation process.</p>
+            </div>
+
+            <footer class="flex justify-end gap-3 mt-6 pt-5 border-t border-[var(--border-color)]">
+              <button type="button" @click="isCreateModalOpen = false" class="px-5 py-2.5 rounded-lg font-semibold text-sm bg-gray-500/10 hover:bg-gray-500/20 transition-all">Cancel</button>
+              <button type="submit" :disabled="creatingUser" class="px-5 py-2.5 rounded-lg font-semibold text-sm bg-indigo-600 text-white hover:bg-indigo-700 transition-all disabled:opacity-50 flex items-center gap-2">
+                <Loader2 v-if="creatingUser" :size="16" class="animate-spin" />
+                {{ creatingUser ? 'Creating...' : 'Create User' }}
+              </button>
+            </footer>
+          </form>
+        </div>
+      </div>
+
       <!-- Live Database Modal -->
       <div v-if="isDatabaseModalOpen" class="fixed inset-0 z-[1000] flex items-center justify-center p-4 sm:p-6" @click.self="isDatabaseModalOpen = false">
         <div class="absolute inset-0 bg-slate-900/40 dark:bg-slate-950/70 backdrop-blur-md transition-all duration-500 animate-in fade-in"></div>
@@ -344,6 +425,8 @@ const users = ref([]);
 const loading = ref(false);
 const loadingSync = ref(false);
 const searchQuery = ref('');
+const filterGeneration = ref('');
+const filterClass = ref('');
 const currentPage = ref(1);
 const itemsPerPage = ref(15);
 
@@ -353,6 +436,19 @@ const serviceAccountEmail = ref('');
 
 const isProfileModalOpen = ref(false);
 const selectedStudent = ref(null);
+
+const isCreateModalOpen = ref(false);
+const creatingUser = ref(false);
+const newUser = ref({
+  student_id: '',
+  email: '',
+  name_latin: '',
+  name_khmer: '',
+  password: '',
+  phone: '',
+  telegram: '',
+  gender: ''
+});
 
 async function fetchUsers(force = false, silent = false) {
   if (users.value.length === 0) {
@@ -422,15 +518,37 @@ async function openProfileModal(student) {
   }
 }
 
+const uniqueGenerations = computed(() => {
+  const gens = new Set(users.value.map(u => u.generation).filter(Boolean));
+  return Array.from(gens).sort();
+});
+
+const uniqueClasses = computed(() => {
+  const classes = new Set(users.value.map(u => u.class_code).filter(Boolean));
+  return Array.from(classes).sort();
+});
+
 const filteredUsers = computed(() => {
-  if (!searchQuery.value.trim()) return users.value;
-  const q = searchQuery.value.toLowerCase().trim();
-  return users.value.filter(u => {
-    const searchable = [
-      u.name, u.name_khmer, u.name_latin, u.student_id, u.dorm_room, u.major, u.phone
-    ].filter(Boolean).map(s => String(s).toLowerCase());
-    return searchable.some(s => s.includes(q));
-  });
+  let filtered = users.value;
+
+  if (filterGeneration.value) {
+    filtered = filtered.filter(u => u.generation === filterGeneration.value);
+  }
+  if (filterClass.value) {
+    filtered = filtered.filter(u => u.class_code === filterClass.value);
+  }
+
+  if (searchQuery.value.trim()) {
+    const q = searchQuery.value.toLowerCase().trim();
+    filtered = filtered.filter(u => {
+      const searchable = [
+        u.name, u.name_khmer, u.name_latin, u.student_id, u.dorm_room, u.major, u.phone
+      ].filter(Boolean).map(s => String(s).toLowerCase());
+      return searchable.some(s => s.includes(q));
+    });
+  }
+  
+  return filtered;
 });
 
 const totalPages = computed(() => Math.ceil(filteredUsers.value.length / itemsPerPage.value) || 1);
@@ -440,9 +558,38 @@ const paginatedUsers = computed(() => {
   return filteredUsers.value.slice(start, start + itemsPerPage.value);
 });
 
-watch(searchQuery, () => {
+watch([searchQuery, filterGeneration, filterClass], () => {
   currentPage.value = 1;
 });
+
+async function createUser() {
+  creatingUser.value = true;
+  try {
+    const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/admin/users`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${authStore.token}`
+      },
+      body: JSON.stringify(newUser.value)
+    });
+    
+    if (res.ok) {
+      toastStore.showSuccess('User created successfully!');
+      isCreateModalOpen.value = false;
+      newUser.value = { student_id: '', email: '', name_latin: '', name_khmer: '', password: '', phone: '', telegram: '', gender: '' };
+      await fetchUsers(true, true);
+    } else {
+      const data = await res.json();
+      toastStore.showError(data.message || 'Failed to create user');
+    }
+  } catch (err) {
+    console.error('Error creating user:', err);
+    toastStore.showError('An error occurred.');
+  } finally {
+    creatingUser.value = false;
+  }
+}
 
 onMounted(async () => {
   fetchUsers();

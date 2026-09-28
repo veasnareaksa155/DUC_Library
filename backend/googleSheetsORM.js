@@ -42,6 +42,7 @@ const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes TTL
 
 // Maps sheet names to their exact column layouts
 const SCHEMAS = {
+  'Users': ['id', 'student_id', 'name', 'name_latin', 'name_khmer', 'email', 'password', 'role', 'gender', 'date_of_birth', 'high_school', 'province', 'exam_year', 'grade', 'major', 'degree_level', 'class_code', 'academic_status', 'generation', 'academic_year', 'phone', 'telegram', 'guardian_phone', 'dorm_room', 'profile_photo', 'created_at'],
   'Books': ['id', 'title', 'author', 'isbn', 'category_id', 'description', 'cover_url', 'pdf_url', 'digital_content', 'copies_total', 'copies_available', 'publisher', 'publish_year', 'is_featured', 'read_count', 'created_at'],
   'Categories': ['id', 'name', 'name_km', 'icon', 'parent_id', 'sort_order', 'created_at'],
   'Borrowings': ['id', 'book_id', 'user_id', 'borrow_date', 'due_date', 'return_date', 'status', 'admin_notes', 'overdue_notified', 'due_today_notified'],

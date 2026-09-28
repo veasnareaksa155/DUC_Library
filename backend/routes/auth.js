@@ -104,47 +104,101 @@ router.post('/login', async (req, res) => {
       (s.studentId && `${s.studentId.toLowerCase()}@duc.com` === identifier)
     );
 
-    if (!matchSample) {
-      return res.status(401).json({ message: 'Invalid username or Student ID. Not found in Student List.' });
-    }
+    let userDoc = null;
+    let finalPhoto = '';
 
-    // 4. Verify password (default to Student ID)
-    if (password.toLowerCase() !== matchSample.studentId.toLowerCase() && password !== matchSample.latinName) {
-      return res.status(401).json({ message: 'Invalid password. (Note: Student ID is your default password).' });
-    }
+    if (matchSample) {
+      // Verify password for Google Sheet user (default to Student ID)
+      if (password.toLowerCase() !== matchSample.studentId.toLowerCase() && password !== matchSample.latinName) {
+        return res.status(401).json({ message: 'Invalid password. (Note: Student ID is your default password).' });
+      }
 
-    // 4.5 Check local ProfilePhotos table for overrides
-    const localPhotos = await ORM.find('ProfilePhotos', p => p.student_id === matchSample.studentId);
-    let finalPhoto = matchSample.profilePhoto || '';
-    if (localPhotos.length > 0 && localPhotos[0].photo_url) {
-      finalPhoto = localPhotos[0].photo_url;
-    }
+      const localPhotos = await ORM.find('ProfilePhotos', p => p.student_id === matchSample.studentId);
+      finalPhoto = matchSample.profilePhoto || '';
+      if (localPhotos.length > 0 && localPhotos[0].photo_url) {
+        finalPhoto = localPhotos[0].photo_url;
+      }
 
-    // 5. Construct virtual user document
-    const userDoc = {
-      id: matchSample.studentId, // Internal ID is Student ID
-      name: matchSample.latinName,
-      email: `${matchSample.studentId.toLowerCase()}@duc.com`,
-      role: 'user',
-      student_id: matchSample.studentId,
-      name_khmer: matchSample.khmerName,
-      gender: matchSample.gender || '',
-      dob: matchSample.dateOfBirth || '',
-      pob: matchSample.province || '',
-      high_school: matchSample.highSchool || '',
-      telegram: matchSample.telegram || '',
-      guardian_phone: matchSample.guardianPhone || '',
-      major: matchSample.major || '',
-      degree_level: matchSample.degreeLevel || '',
-      class_code: matchSample.classCode || '',
-      status: matchSample.academicStatus || 'Active Student',
-      academic_year: matchSample.academicYear || '',
-      generation: matchSample.generation || '',
-      bac2_grade: matchSample.grade || '',
-      phone: matchSample.phone || '',
-      profile_photo: finalPhoto,
-      created_at: new Date().toISOString()
-    };
+      userDoc = {
+        id: matchSample.studentId,
+        name: matchSample.latinName,
+        email: `${matchSample.studentId.toLowerCase()}@duc.com`,
+        role: 'user',
+        student_id: matchSample.studentId,
+        name_khmer: matchSample.khmerName,
+        gender: matchSample.gender || '',
+        dob: matchSample.dateOfBirth || '',
+        pob: matchSample.province || '',
+        high_school: matchSample.highSchool || '',
+        telegram: matchSample.telegram || '',
+        guardian_phone: matchSample.guardianPhone || '',
+        major: matchSample.major || '',
+        degree_level: matchSample.degreeLevel || '',
+        class_code: matchSample.classCode || '',
+        status: matchSample.academicStatus || 'Active Student',
+        academic_year: matchSample.academicYear || '',
+        generation: matchSample.generation || '',
+        bac2_grade: matchSample.grade || '',
+        phone: matchSample.phone || '',
+        profile_photo: finalPhoto,
+        created_at: new Date().toISOString()
+      };
+    } else {
+      // 4. If not found in Google Sheet, check local Users table
+      try {
+        const localUsers = await ORM.getAll('Users');
+        const localUser = localUsers.find(u => 
+          (u.student_id && u.student_id.toLowerCase() === identifier) ||
+          (u.name_latin && u.name_latin.toLowerCase() === identifier) ||
+          (u.email && u.email.toLowerCase() === identifier)
+        );
+
+        if (!localUser) {
+          return res.status(401).json({ message: 'Invalid username or Student ID. Not found in Student List.' });
+        }
+
+        // Verify password with bcrypt
+        const bcrypt = require('bcryptjs');
+        const isMatch = await bcrypt.compare(password, localUser.password);
+        if (!isMatch) {
+          return res.status(401).json({ message: 'Invalid password.' });
+        }
+
+        const localPhotos = await ORM.find('ProfilePhotos', p => p.student_id === localUser.student_id);
+        finalPhoto = localUser.profile_photo || '';
+        if (localPhotos.length > 0 && localPhotos[0].photo_url) {
+          finalPhoto = localPhotos[0].photo_url;
+        }
+
+        userDoc = {
+          id: localUser.student_id,
+          name: localUser.name_latin || localUser.name,
+          email: localUser.email || `${localUser.student_id.toLowerCase()}@duc.com`,
+          role: localUser.role || 'user',
+          student_id: localUser.student_id,
+          name_khmer: localUser.name_khmer || '',
+          gender: localUser.gender || '',
+          dob: localUser.date_of_birth || '',
+          pob: localUser.province || '',
+          high_school: localUser.high_school || '',
+          telegram: localUser.telegram || '',
+          guardian_phone: localUser.guardian_phone || '',
+          major: localUser.major || '',
+          degree_level: localUser.degree_level || '',
+          class_code: localUser.class_code || '',
+          status: localUser.academic_status || 'Active Student',
+          academic_year: localUser.academic_year || '',
+          generation: localUser.generation || '',
+          bac2_grade: localUser.grade || '',
+          phone: localUser.phone || '',
+          profile_photo: finalPhoto,
+          created_at: localUser.created_at || new Date().toISOString()
+        };
+      } catch (err) {
+        console.error('Local Users table error during login:', err);
+        return res.status(401).json({ message: 'Invalid username or Student ID. Not found in Student List.' });
+      }
+    }
 
     // --- 2FA Check ---
     const user2fa = await ORM.find('User2FA', t => t.user_id === String(userDoc.id));

@@ -56,6 +56,42 @@ async function getMappedUsers(forceSync = false) {
     created_at: new Date().toISOString()
   }));
 
+  try {
+    const localUsers = await ORM.getAll('Users');
+    localUsers.forEach(lu => {
+      // Avoid duplicates if student_id is already mapped
+      if (!mapped.some(m => m.student_id === lu.student_id)) {
+        mapped.push({
+          id: lu.student_id,
+          name: lu.name_latin || lu.name,
+          email: lu.email || `${lu.student_id.toLowerCase()}@duc.com`,
+          role: lu.role || 'user',
+          student_id: lu.student_id,
+          name_khmer: lu.name_khmer || '',
+          gender: lu.gender || '',
+          dob: lu.date_of_birth || '',
+          pob: lu.province || '',
+          high_school: lu.high_school || '',
+          telegram: lu.telegram || '',
+          guardian_phone: lu.guardian_phone || '',
+          major: lu.major || '',
+          degree_level: lu.degree_level || '',
+          class_code: lu.class_code || '',
+          status: lu.academic_status || 'Active Student',
+          academic_year: lu.academic_year || '',
+          generation: lu.generation || '',
+          bac2_grade: lu.grade || '',
+          phone: lu.phone || '',
+          dorm_room: lu.dorm_room || '',
+          profile_photo: photoMap[lu.student_id] || lu.profile_photo || '',
+          created_at: lu.created_at || new Date().toISOString()
+        });
+      }
+    });
+  } catch (e) {
+    console.error('Failed to load local Users for admin mapping', e);
+  }
+
   cache.users.data = mapped;
   cache.users.timestamp = now;
   return mapped;
@@ -405,6 +441,59 @@ router.get('/users', async (req, res) => {
   } catch (error) {
     console.error('Error fetching users:', error);
     res.status(500).json({ message: 'Failed to retrieve users.' });
+  }
+});
+
+// Create a new user (Admin only)
+router.post('/users', async (req, res) => {
+  try {
+    const { 
+      student_id, name_latin, name_khmer, email, password, phone, telegram, gender
+    } = req.body;
+
+    if (!name_latin || !student_id) {
+      return res.status(400).json({ message: 'Student ID and Name (Latin) are required.' });
+    }
+
+    const existingUser = await ORM.find('Users', u => u.student_id === student_id);
+    if (existingUser.length > 0) {
+      return res.status(400).json({ message: 'Student ID already exists.' });
+    }
+
+    const bcrypt = require('bcryptjs');
+    const hashedPassword = password ? await bcrypt.hash(password, 10) : await bcrypt.hash(student_id, 10);
+
+    const newUser = {
+      student_id,
+      name_latin,
+      name: name_latin,
+      name_khmer: name_khmer || '',
+      email: email || `${student_id.toLowerCase()}@duc.com`,
+      password: hashedPassword,
+      role: 'user',
+      gender: gender || '',
+      date_of_birth: '',
+      phone: phone || '',
+      telegram: telegram || '',
+      major: '',
+      degree_level: '',
+      class_code: '',
+      academic_status: 'Active Student',
+      generation: '',
+      academic_year: '',
+      dorm_room: '',
+      created_at: new Date().toISOString()
+    };
+
+    const inserted = await ORM.insert('Users', newUser);
+    
+    // Invalidate cache
+    if (cache.users) cache.users.timestamp = 0;
+
+    res.status(201).json({ message: 'User created successfully', user: inserted });
+  } catch (error) {
+    console.error('Error creating user:', error);
+    res.status(500).json({ message: 'Failed to create user.' });
   }
 });
 

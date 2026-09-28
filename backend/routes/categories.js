@@ -63,9 +63,12 @@ router.post('/', authenticateToken, requireAdmin, async (req, res) => {
     }
 
     const categories = await ORM.getAll('Categories');
-    const existing = categories.find(c => c.name.toLowerCase() === name.toLowerCase());
+    const existing = categories.find(c => 
+      c.name.toLowerCase() === name.toLowerCase() && 
+      String(c.parent_id || '') === String(parent_id || '')
+    );
     if (existing) {
-      return res.status(400).json({ message: 'Category name already exists.' });
+      return res.status(400).json({ message: 'Category name already exists under this parent.' });
     }
 
     // Validate parent_id if provided
@@ -150,10 +153,14 @@ router.put('/:id', authenticateToken, requireAdmin, async (req, res) => {
       return res.status(404).json({ message: 'Category not found.' });
     }
 
-    if (categoryToUpdate.name.toLowerCase() !== name.toLowerCase()) {
-      const existing = categories.find(c => c.name.toLowerCase() === name.toLowerCase());
+    if (categoryToUpdate.name.toLowerCase() !== name.toLowerCase() || String(categoryToUpdate.parent_id || '') !== String(parent_id || '')) {
+      const existing = categories.find(c => 
+        String(c.id) !== String(categoryId) && 
+        c.name.toLowerCase() === name.toLowerCase() && 
+        String(c.parent_id || '') === String(parent_id || '')
+      );
       if (existing) {
-        return res.status(400).json({ message: 'Category name already exists.' });
+        return res.status(400).json({ message: 'Category name already exists under this parent.' });
       }
     }
 
